@@ -1,0 +1,27 @@
+{
+  "name": "rpg-village",
+  "version": "1.0.0",
+  "description": "A premium village management and hero progression game built with Vanilla JS.",
+  "type": "module",
+  "main": "infrastructure/electron/main.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "build:debug": "vite build -m debug",
+    "electron:run": "ELECTRON_RUN_AS_NODE= electron infrastructure/electron/main.js",
+    "electron:package": "ELECTRON_RUN_AS_NODE= electron-forge package",
+    "electron:make": "ELECTRON_RUN_AS_NODE= electron-forge make",
+    "test": "node --test tests/unit/*.test.js tests/behaviour/*.test.js"
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "^7.11.2",
+    "@electron-forge/maker-deb": "^7.11.2",
+    "@electron-forge/maker-rpm": "^7.11.2",
+    "@electron-forge/maker-squirrel": "^7.11.2",
+    "@electron-forge/maker-zip": "^7.11.2",
+    "@electron-forge/plugin-auto-unpack-natives": "^7.11.2",
+    "electron": "^41.7.0",
+    "vite": "^5.2.0",
+    "vite-plugin-singlefile": "^2.0.1"
+  }
+}

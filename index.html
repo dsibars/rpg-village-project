@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="RPG Village - Build and Manage Your Hero's Home">
+    <title>RPG Village</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+    <div id="app-container">
+        <!-- Global Header: Persistence across views -->
+        <header class="game-header">
+            <div class="brand">
+                <h1>RPG Village</h1>
+            </div>
+            <div class="global-day-cycle">
+                <span class="day-label" data-i18n="village_day">Day</span>
+                <span id="global-day" class="day-value">--</span>
+                <button id="btn-global-next-day" class="btn btn-primary btn-sm shine-effect" style="padding: 6px 12px; font-size: 0.85rem;">
+                    <span class="icon">☀️</span> <span data-i18n="btn_next_day" class="hide-mobile">Next Day</span>
+                </button>
+            </div>
+            <div class="stats-bar">
+                <div class="stat-item" title="Gold">
+                    <span class="icon">💰</span>
+                    <span id="gold-count" class="value">0</span>
+                </div>
+                <div class="stat-item" title="Villagers">
+                    <span class="icon">👤</span>
+                    <span id="villager-count" class="value">0</span>
+                </div>
+                <div class="stat-item" title="Materials">
+                    <span class="icon">🪵</span>
+                    <span id="wood-count" class="value">0</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area: Views are injected here -->
+        <main id="main-content">
+            <div class="loader-overlay" id="main-loader">
+                <div class="spinner"></div>
+            </div>
+        </main>
+
+        <!-- Global Navigation -->
+        <nav class="main-nav">
+            <button class="nav-item active" data-category="village" data-default="village">
+                <span class="nav-icon">🏡</span>
+                <span class="nav-label" data-i18n="nav_village">Village</span>
+            </button>
+            <button class="nav-item" data-category="heroes" data-default="heroes">
+                <span class="nav-icon">⚔️</span>
+                <span class="nav-label" data-i18n="nav_heroes">Heroes</span>
+            </button>
+            <button class="nav-item" data-category="adventure" data-default="explore">
+                <span class="nav-icon">🗺️</span>
+                <span class="nav-label" data-i18n="nav_adventure">Adventure</span>
+            </button>
+            <button class="nav-item" data-category="town" data-default="shop">
+                <span class="nav-icon">🏘️</span>
+                <span class="nav-label" data-i18n="nav_town">Town</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- View Templates (Inlined at build-time) -->
+    <template id="tpl-village"><include src="pages/village.html"></include></template>
+    <template id="tpl-buildings"><include src="pages/buildings.html"></include></template>
+    <template id="tpl-heroes"><include src="pages/heroes.html"></include></template>
+    <template id="tpl-inventory"><include src="pages/inventory.html"></include></template>
+    <template id="tpl-explore"><include src="pages/explore.html"></include></template>
+    <template id="tpl-settings"><include src="pages/settings.html"></include></template>
+    <template id="tpl-shop"><include src="pages/shop.html"></include></template>
+    <template id="tpl-forge"><include src="pages/forge.html"></include></template>
+    <template id="tpl-bestiary"><include src="pages/bestiary.html"></include></template>
+
+    <!-- Application Entry Point -->
+    <script type="module" src="./js/main.js"></script>
+</body>
+</html>

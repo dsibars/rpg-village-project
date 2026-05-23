@@ -1,0 +1,107 @@
+<section id="buildings-view" class="domain-view">
+    <div class="category-sub-nav">
+        <button class="sub-nav-tab" data-subview="village" data-i18n="nav_village">Village</button>
+        <button class="sub-nav-tab active" data-subview="buildings" data-i18n="nav_buildings">Buildings</button>
+    </div>
+    <div class="view-header">
+        <h2 data-i18n="nav_buildings">Buildings</h2>
+    </div>
+    <div class="master-detail-layout">
+        <!-- Master Pane: List of Buildings -->
+        <aside class="master-pane card">
+            <div class="pane-header">
+                <h3 data-i18n="ui_available_buildings">Buildings</h3>
+            </div>
+            <div id="buildings-list-container" class="list-container">
+                <!-- Building cards will be injected here -->
+            </div>
+        </aside>
+
+        <!-- Detail Pane: Building Information & Actions -->
+        <main class="detail-pane card glass-pane">
+            <div id="building-detail-content">
+                <div class="empty-detail">
+                    <div class="detail-icon-bg">⚒️</div>
+                    <p data-i18n="ui_select_building">Select a building to view construction options.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Template for a building card (injected via JS) -->
+    <template id="tpl-building-card">
+        <div class="list-item building-card" data-id="">
+            <div class="list-item-header">
+                <span class="list-item-title"></span>
+                <span class="list-item-level"></span>
+            </div>
+            <div class="progress-container hidden">
+                <div class="progress-bar warning" style="width: 0%"></div>
+            </div>
+        </div>
+    </template>
+</section>
+
+<style>
+        /* Building Profile Styles */
+    .building-profile-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--glass-border);
+    }
+
+    .profile-title-group h2 {
+        font-family: 'Outfit', sans-serif;
+        font-size: 2rem;
+        color: var(--text-primary);
+    }
+
+    .profile-badge {
+        background: var(--accent-color);
+        color: white;
+        padding: 4px 12px;
+        border-radius: var(--radius-lg);
+        font-size: 0.9rem;
+        font-weight: 800;
+    }
+
+    .upgrade-section {
+        background: rgba(0,0,0,0.2);
+        padding: 20px;
+        border-radius: var(--radius-md);
+        border: 1px solid var(--glass-border);
+    }
+
+    .cost-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin: 20px 0;
+    }
+
+    .cost-item {
+        background: var(--bg-accent);
+        padding: 10px;
+        border-radius: var(--radius-sm);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .cost-item.insufficient {
+        border: 1px solid var(--danger);
+        color: var(--danger);
+    }
+
+    .cost-item .label { font-size: 0.8rem; opacity: 0.7; }
+    .cost-item .value { font-weight: 700; }
+
+    .action-footer {
+        margin-top: 30px;
+        display: flex;
+        justify-content: flex-end;
+    }
+</style>

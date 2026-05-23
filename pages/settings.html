@@ -1,0 +1,65 @@
+<section class="domain-view settings-view">
+    <div class="category-sub-nav">
+        <button class="sub-nav-tab" data-subview="shop" data-i18n="nav_shop">Shop</button>
+        <button class="sub-nav-tab" data-subview="forge" data-i18n="nav_forge">Forge</button>
+        <button class="sub-nav-tab" data-subview="inventory" data-i18n="nav_inventory">Inventory</button>
+        <button class="sub-nav-tab active" data-subview="settings" data-i18n="nav_settings">Settings</button>
+    </div>
+    <div class="view-header">
+        <h2 data-i18n="ui_settings_title">Game Settings</h2>
+    </div>
+
+    <div class="dashboard-grid">
+        <div class="settings-content">
+            <!-- Preferences -->
+            <div class="card settings-group">
+                <h3 data-i18n="ui_settings_language">Interface Language</h3>
+                <div class="settings-body">
+                    <label for="lang-select" class="settings-label" data-i18n="settings_language_label">Choose your language:</label>
+                    <select id="lang-select" class="select-control">
+                        <option value="en">English</option>
+                        <option value="es">Español</option>
+                        <option value="ca">Català</option>
+                        <option value="eu">Euskara</option>
+                        <option value="gl">Galego</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Developer Options -->
+            <div class="card settings-group">
+                <h3 data-i18n="ui_settings_dev_options">Developer Options</h3>
+                <div class="settings-body">
+                    <p class="settings-label" data-i18n="ui_settings_dev_cheat_desc">Instantly gain 10k Gold, 10k Wood/Stone, Hero XP, and unlock the Shop.</p>
+                    <button id="btn-dev-cheat" class="btn btn-danger btn-lg" style="background: linear-gradient(135deg, #e74c3c, #c0392b); border: none; box-shadow: 0 4px 10px rgba(231, 76, 60, 0.3);">
+                        <span class="icon">⚡</span>
+                        <span data-i18n="ui_settings_dev_cheat">Activate Developer Cheat</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Danger Zone -->
+            <div class="card danger-zone settings-group">
+                <h3 data-i18n="ui_settings_danger_zone">Danger Zone</h3>
+                <div class="settings-body">
+                    <p class="settings-label" data-i18n="ui_settings_wipe_description">Permanently delete all your progress and start over.</p>
+                    <button id="btn-wipe-data" class="btn btn-danger btn-lg">
+                        <span class="icon">🗑️</span>
+                        <span data-i18n="ui_settings_wipe_data">Wipe All Data</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="canvas-widget">
+            <div class="card">
+                <h3>About</h3>
+                <div class="about-content">
+                    <p><strong>RPG Village</strong></p>
+                    <p>Version: 1.0.0-beta</p>
+                    <p>Built with ❤️ and Specs.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,141 @@
+<section id="explore-view" class="domain-view">
+    <div class="category-sub-nav">
+        <button class="sub-nav-tab active" data-subview="explore" data-i18n="nav_explore">Explore</button>
+        <button class="sub-nav-tab" data-subview="bestiary" data-i18n="nav_bestiary">Bestiary</button>
+    </div>
+    <div class="explore-header">
+        <h2 data-i18n="nav_explore">Explore</h2>
+        <div id="explore-status-banner"></div>
+    </div>
+
+    <div class="master-detail-layout">
+        <!-- Master Pane: Regions & Expeditions -->
+        <aside class="master-pane card">
+            <div class="pane-header">
+                <h3 data-i18n="ui_world_map">World Map</h3>
+            </div>
+            <div id="regions-list-container" class="list-container">
+                <!-- Regions and their nodes injected here -->
+            </div>
+        </aside>
+
+        <!-- Detail Pane: Node info & Start -->
+        <main class="detail-pane card glass-pane">
+            <div id="expedition-detail-content">
+                <div class="empty-detail">
+                    <div class="detail-icon-bg">🗺️</div>
+                    <p data-i18n="ui_select_expedition">Select an expedition node on the map.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <template id="tpl-region-group">
+        <div class="region-group">
+            <h4 class="region-title"></h4>
+            <div class="region-nodes"></div>
+        </div>
+    </template>
+
+    <template id="tpl-expedition-node">
+        <div class="list-item expedition-card" data-id="">
+            <div class="list-item-header">
+                <span class="list-item-title"></span>
+                <span class="list-item-badge"></span>
+            </div>
+        </div>
+    </template>
+</section>
+
+<style>
+    .explore-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: var(--spacing-md);
+    }
+    .region-group {
+        margin-bottom: 15px;
+    }
+    .region-title {
+        color: var(--primary-color);
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        padding-bottom: 5px;
+        margin-bottom: 10px;
+        font-size: 1.1em;
+    }
+    .expedition-card.active {
+        background: rgba(var(--primary-color-rgb), 0.2);
+        border-color: var(--primary-color);
+    }
+    .hero-selector {
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    .hero-checkbox-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin: 10px 0;
+    }
+    .hero-checkbox-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.08);
+        padding: 10px 14px;
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        transition: all var(--transition-fast) ease;
+        position: relative;
+    }
+    .hero-checkbox-item:hover {
+        background: rgba(255,255,255,0.08);
+        border-color: rgba(var(--primary-color-rgb), 0.3);
+    }
+    /* Style custom checkbox */
+    .hero-checkbox-item input[type="checkbox"] {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 18px;
+        height: 18px;
+        border: 2px solid rgba(255,255,255,0.3);
+        border-radius: 4px;
+        background: transparent;
+        outline: none;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        cursor: pointer;
+        margin: 0;
+    }
+    .hero-checkbox-item input[type="checkbox"]:checked {
+        background: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+    .hero-checkbox-item input[type="checkbox"]:checked::after {
+        content: "✓";
+        color: #000;
+        font-size: 13px;
+        font-weight: bold;
+        display: block;
+    }
+    .status-banner {
+        background: rgba(46, 204, 113, 0.2);
+        color: #2ecc71;
+        padding: 8px 16px;
+        border-radius: var(--radius-sm);
+        font-weight: bold;
+    }
+    .status-banner.none {
+        display: none;
+    }
+    .btn-start-exp {
+        width: 100%;
+        margin-top: 15px;
+    }
+</style>
