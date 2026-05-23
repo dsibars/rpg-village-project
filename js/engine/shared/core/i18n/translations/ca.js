@@ -603,4 +603,13 @@ export const ca = {
     el_wind: "Vent",
     el_storm: "Tempesta",
     el_neutral: "Neutral",
+    village_townhall: "Ajuntament",
+    ui_defense_calendar: "Amenaces i Defensa",
+    ui_defenders: "Defensors",
+    ui_view_report: "Veure Report",
+    ui_total: "Total",
+    ui_btn_acknowledge: "Acceptar",
+    ui_close: "Tancar",
+    village_witchs_hut: "Cabana de la Bruixa",
+    village_arcane_sanctum: "Santuari Arcà",
 };

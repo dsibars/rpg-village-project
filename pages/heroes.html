@@ -34,6 +34,42 @@
 </section>
 
 <style>
+    /* Heroes View layout adjustments for zero-scroll viewport */
+    #heroes-view {
+        height: calc(100vh - 60px - 90px) !important;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        box-sizing: border-box;
+    }
+
+    #heroes-view .master-detail-layout {
+        flex: 1;
+        min-height: 0 !important;
+        height: auto !important;
+    }
+
+    #heroes-view .master-pane {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+    }
+
+    #heroes-view .detail-pane {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        overflow-y: auto;
+    }
+
+    #heroes-list-container {
+        flex: 1;
+        overflow-y: auto;
+        min-height: 0;
+        padding-right: 6px;
+    }
     
     .stats-grid {
         display: grid;

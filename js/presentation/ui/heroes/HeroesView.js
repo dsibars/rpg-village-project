@@ -345,20 +345,22 @@ export class HeroesView extends BaseView {
                 ? `<strong>${this.t('ui_next_skill_point').replace('{level}', nextMilestone)}</strong>`
                 : `<strong>${this.t('ui_max_families') || 'All techniques unlocked'}</strong>`;
 
-        let avatarSrc = 'assets/heroes/arthur.png';
+        let avatarSrc = 'assets/heroes/arthur.webp';
         if (hero.avatar) {
             avatarSrc = `assets/heroes/${hero.avatar}`;
         } else {
             const fallbackMap = {
-                origin_warrior: 'arthur.png',
-                origin_guard: 'valen.png',
-                origin_thief: 'origin_thief.png',
-                origin_monk: 'origin_monk.png',
-                origin_clown: 'origin_clown.png',
-                origin_poet: 'origin_poet.png',
-                origin_arcane_initiate: 'elara.png'
+                origin_warrior: 'origin_warrior.webp',
+                origin_guard: 'origin_guard.webp',
+                origin_thief: 'origin_thief.webp',
+                origin_monk: 'origin_monk.webp',
+                origin_clown: 'origin_clown.webp',
+                origin_poet: 'origin_poet.webp',
+                origin_farmer: 'origin_farmer.webp',
+                origin_cook: 'origin_cook.webp',
+                origin_arcane_initiate: 'origin_arcane_initiate.webp'
             };
-            const mapped = fallbackMap[hero.origin] || 'arthur.png';
+            const mapped = fallbackMap[hero.origin] || 'arthur.webp';
             avatarSrc = `assets/heroes/${mapped}`;
         }
 

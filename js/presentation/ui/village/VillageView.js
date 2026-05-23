@@ -6,14 +6,12 @@ import { BaseView } from '../BaseView.js';
 export class VillageView extends BaseView {
     constructor() {
         super('village');
+        this.dismissedReportDay = null;
+        this.lastReportState = null;
     }
 
     onMount() {
         this.elements = {
-            gold: this.$('#village-gold'),
-            pop: this.$('#village-pop'),
-            popAvail: this.$('#village-pop-avail'),
-
             storageText: this.$('#village-storage-text'),
             storageBar: this.$('#village-storage-bar'),
             constructionList: this.$('#construction-list'),
@@ -24,7 +22,13 @@ export class VillageView extends BaseView {
             calendarDayOfSeason: this.$('#calendar-day-of-season'),
             calendarEventsList: this.$('#calendar-events-list'),
             defenseCount: this.$('#defense-count'),
-            defenseAssignmentsList: this.$('#defense-assignments-list')
+            defenseAssignmentsList: this.$('#defense-assignments-list'),
+            
+            // New UI Elements
+            townhallLevel: this.$('#village-townhall-level'),
+            laborPoolStatus: this.$('#labor-pool-status'),
+            btnRecallReport: this.$('#btn-recall-report'),
+            dailyReportContainer: this.$('#daily-report-container')
         };
 
         // Sub-view navigation (Village / Buildings)
@@ -65,21 +69,36 @@ export class VillageView extends BaseView {
                 }
             });
         }
+
+        // Listen for Daily Report dismiss and recall actions
+        this.root.addEventListener('click', (e) => {
+            const dismissBtn = e.target.closest('[data-action="dismiss-report"]');
+            if (dismissBtn) {
+                if (this.lastReportState) {
+                    this.dismissedReportDay = this.lastReportState.day;
+                    this.renderDailyReport(this.lastReportState);
+                }
+                return;
+            }
+
+            const recallBtn = e.target.closest('#btn-recall-report');
+            if (recallBtn) {
+                this.dismissedReportDay = null;
+                if (this.lastReportState) {
+                    this.renderDailyReport(this.lastReportState);
+                }
+                return;
+            }
+        });
     }
 
     onUpdate(state) {
         const { village, inventory } = state;
         if (!village) return;
 
-        // Status Updates
-        if (this.elements.gold) this.elements.gold.textContent = Math.floor(village.gold);
-        
-        if (this.elements.pop) {
-            this.elements.pop.textContent = `${village.population.total} / ${village.population.max}`;
-        }
-        if (this.elements.popAvail) {
-            const avail = village.population.total - (village.population.assigned || 0);
-            this.elements.popAvail.textContent = avail;
+        // Town Hall level update
+        if (this.elements.townhallLevel && village.infrastructure) {
+            this.elements.townhallLevel.textContent = village.infrastructure.townhall || 1;
         }
 
         // Storage Updates
@@ -95,6 +114,9 @@ export class VillageView extends BaseView {
                 this.elements.storageBar.classList.toggle('danger', percent > 90);
             }
         }
+
+        // Store last report state for overlay actions
+        this.lastReportState = village.lastDailyReport;
 
         // Render Canvas Visuals
         this.renderVillageCanvas(village);
@@ -112,7 +134,7 @@ export class VillageView extends BaseView {
         this.renderCalendar(state.calendar);
         this.renderDefense(state.calendar, state.heroes);
 
-        // Daily Report
+        // Daily Report (Modal Overlay)
         this.renderDailyReport(village.lastDailyReport);
     }
 
@@ -157,15 +179,29 @@ export class VillageView extends BaseView {
     }
 
     renderDailyReport(report) {
-        const container = this.$('#daily-report-container');
+        const container = this.elements.dailyReportContainer || this.$('#daily-report-container');
+        const recallBtn = this.elements.btnRecallReport || this.$('#btn-recall-report');
         if (!container) return;
 
         if (!report) {
             container.style.display = 'none';
+            container.classList.remove('daily-report-overlay');
+            if (recallBtn) recallBtn.style.display = 'none';
             return;
         }
 
-        container.style.display = 'block';
+        // If report has been dismissed for the day, hide the overlay modal and show floating recall button
+        if (this.dismissedReportDay === report.day) {
+            container.style.display = 'none';
+            container.classList.remove('daily-report-overlay');
+            if (recallBtn) recallBtn.style.display = 'inline-flex';
+            return;
+        }
+
+        // Show as active modal overlay and hide the recall button
+        container.style.display = 'flex';
+        container.classList.add('daily-report-overlay');
+        if (recallBtn) recallBtn.style.display = 'none';
 
         let builtHtml = '';
         if (report.completed && report.completed.length > 0) {
@@ -314,8 +350,11 @@ export class VillageView extends BaseView {
         }
 
         container.innerHTML = `
-            <div class="card widget daily-report-widget">
-                <h3>${this.t('ui_daily_report_title').replace('{day}', report.day - 1)}</h3>
+            <div class="card widget daily-report-modal-content">
+                <div class="daily-report-header">
+                    <h3>${this.t('ui_daily_report_title').replace('{day}', report.day - 1)}</h3>
+                    <button class="btn-close-report" data-action="dismiss-report" title="${this.t('ui_close') || 'Close'}">×</button>
+                </div>
                 <div class="report-content">
                     <div class="report-section ${report.starvation ? 'danger' : ''}">
                         <span class="report-icon">🍞</span>
@@ -330,6 +369,11 @@ export class VillageView extends BaseView {
                     ${tavernHtml}
                     ${raidHtml}
                 </div>
+                <div class="daily-report-footer" style="margin-top: 15px; text-align: center;">
+                    <button class="btn btn-primary btn-sm shine-effect" data-action="dismiss-report">
+                        <span data-i18n="ui_btn_acknowledge">${this.t('ui_btn_acknowledge') || 'Acknowledge'}</span>
+                    </button>
+                </div>
             </div>
         `;
     }
@@ -341,6 +385,10 @@ export class VillageView extends BaseView {
         const total = population.total || 0;
         const used = Object.values(roles).reduce((a, b) => a + b, 0);
         const available = total - used;
+
+        if (this.elements.laborPoolStatus) {
+            this.elements.laborPoolStatus.textContent = ` (${available} ${this.t('ui_available') || 'Available'} / ${total} ${this.t('ui_total') || 'Total'})`;
+        }
 
         const ROLE_ICONS = {
             builder: '🔨',
@@ -363,7 +411,7 @@ export class VillageView extends BaseView {
                 <div class="role-row">
                     <span class="role-name">${ROLE_ICONS[role]} ${this.t('role_' + role) || role} <span style="font-size:0.75rem; color:var(--text-muted);">(${ROLE_EFFECTS[role]})</span></span>
                     <div style="display:flex; align-items:center; gap:6px;">
-                        <button class="btn-role" data-role="${role}" data-role-action="dec" ${canDec ? '' : 'disabled'}>−</button>
+                         <button class="btn-role" data-role="${role}" data-role-action="dec" ${canDec ? '' : 'disabled'}>−</button>
                         <span class="role-count">${count}</span>
                         <button class="btn-role" data-role="${role}" data-role-action="inc" ${canInc ? '' : 'disabled'}>+</button>
                     </div>
@@ -503,7 +551,7 @@ export class VillageView extends BaseView {
         let html = '';
 
         if (assigned.length > 0) {
-            html += `<div class="defenders-row">`;
+            html += `<div class="defenders-row" style="display:flex; flex-wrap:wrap; gap:4px; margin-bottom:8px;">`;
             assigned.forEach(heroId => {
                 const hero = (heroes || []).find(h => h.id === heroId);
                 const heroName = hero ? hero.name : heroId;

@@ -46,6 +46,49 @@
 </section>
 
 <style>
+    /* Inventory View layout adjustments for zero-scroll viewport */
+    #inventory-view {
+        height: calc(100vh - 60px - 90px) !important;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        box-sizing: border-box;
+    }
+
+    #inventory-view .master-detail-layout {
+        flex: 1;
+        min-height: 0 !important;
+        height: auto !important;
+    }
+
+    #inventory-view .master-pane {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+    }
+
+    #inventory-view .detail-pane {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        overflow-y: auto;
+    }
+
+    #inventory-items-container {
+        flex: 1;
+        overflow-y: auto;
+        min-height: 0;
+        padding-right: 6px;
+        max-height: none !important; /* Override hardcoded max-height */
+        display: grid !important;
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)) !important;
+        grid-auto-rows: min-content !important;
+        align-content: start !important;
+        gap: 10px !important;
+    }
+
     .inventory-filters {
         display: flex;
         gap: 8px;

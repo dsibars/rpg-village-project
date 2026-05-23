@@ -603,4 +603,13 @@ export const es = {
     el_wind: "Viento",
     el_storm: "Tormenta",
     el_neutral: "Neutral",
+    village_townhall: "Ayuntamiento",
+    ui_defense_calendar: "Amenazas y Defensa",
+    ui_defenders: "Defensores",
+    ui_view_report: "Ver Reporte",
+    ui_total: "Total",
+    ui_btn_acknowledge: "Aceptar",
+    ui_close: "Cerrar",
+    village_witchs_hut: "Cabaña de la Bruja",
+    village_arcane_sanctum: "Santuario Arcano",
 };

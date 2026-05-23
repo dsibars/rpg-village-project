@@ -1710,3 +1710,23 @@ body {
     background: #1a1a2e;
     color: var(--text-primary);
 }
+
+/* Custom Styled Scrollbar across the entire app */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(99, 102, 241, 0.35); /* glassmorphic indigo */
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(99, 102, 241, 0.6);
+    box-shadow: 0 0 8px rgba(99, 102, 241, 0.5);
+}
+

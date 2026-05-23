@@ -604,4 +604,13 @@ export const eu = {
     el_wind: "Haizea",
     el_storm: "Ekaitza",
     el_neutral: "Neutrala",
+    village_townhall: "Udaletxea",
+    ui_defense_calendar: "Mehatxuak eta Defentsa",
+    ui_defenders: "Defendatzaileak",
+    ui_view_report: "Txostena Ikusi",
+    ui_total: "Guztira",
+    ui_btn_acknowledge: "Onartu",
+    ui_close: "Itxi",
+    village_witchs_hut: "Sorginaren etxola",
+    village_arcane_sanctum: "Santutegi Arkanoa",
 };

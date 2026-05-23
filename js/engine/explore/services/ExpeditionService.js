@@ -683,7 +683,7 @@ export class ExpeditionService {
         if (exp.reward.special) {
             const s = exp.reward.special;
             if (s.type === 'hero') {
-                const avatar = s.value === 'Sir Valen' ? 'valen.png' : null;
+                const avatar = s.value === 'Sir Valen' ? 'valen.webp' : null;
                 const existingHeroes = this.heroService.list();
                 const avgLevel = existingHeroes.length > 0
                     ? Math.floor(existingHeroes.reduce((sum, h) => sum + h.level, 0) / existingHeroes.length)

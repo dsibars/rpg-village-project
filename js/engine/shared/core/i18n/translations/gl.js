@@ -603,4 +603,13 @@ export const gl = {
     el_wind: "Vento",
     el_storm: "Tormenta",
     el_neutral: "Neutral",
+    village_townhall: "Concello",
+    ui_defense_calendar: "Ameazas e Defensa",
+    ui_defenders: "Defensores",
+    ui_view_report: "Ver Informe",
+    ui_total: "Total",
+    ui_btn_acknowledge: "Aceptar",
+    ui_close: "Pechar",
+    village_witchs_hut: "Cabana da Meiga",
+    village_arcane_sanctum: "Santuario Arcano",
 };

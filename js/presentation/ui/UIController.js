@@ -241,17 +241,17 @@ export class UIController {
 
         const slides = [
             {
-                image: 'assets/story/prologue_1.png',
+                image: 'assets/story/prologue_1.webp',
                 titleKey: 'prologue_title_1',
                 loreKey: 'prologue_lore_1'
             },
             {
-                image: 'assets/story/prologue_2.png',
+                image: 'assets/story/prologue_2.webp',
                 titleKey: 'prologue_title_2',
                 loreKey: 'prologue_lore_2'
             },
             {
-                image: 'assets/story/prologue_3.png',
+                image: 'assets/story/prologue_3.webp',
                 titleKey: 'prologue_title_3',
                 loreKey: 'prologue_lore_3'
             }

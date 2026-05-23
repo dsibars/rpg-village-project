@@ -48,6 +48,43 @@
 </section>
 
 <style>
+    /* Explore View layout adjustments for zero-scroll viewport */
+    #explore-view {
+        height: calc(100vh - 60px - 90px) !important;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        box-sizing: border-box;
+    }
+
+    #explore-view .master-detail-layout {
+        flex: 1;
+        min-height: 0 !important;
+        height: auto !important;
+    }
+
+    #explore-view .master-pane {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+    }
+
+    #explore-view .detail-pane {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        overflow-y: auto;
+    }
+
+    #regions-list-container {
+        flex: 1;
+        overflow-y: auto;
+        min-height: 0;
+        padding-right: 6px;
+    }
+
     .explore-header {
         display: flex;
         justify-content: space-between;

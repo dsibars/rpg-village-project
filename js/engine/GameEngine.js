@@ -68,7 +68,7 @@ export class GameEngine {
             this.heroService.add({
                 name: "Arthur",
                 origin: "origin_warrior",
-                avatar: "arthur.png",
+                avatar: "arthur.webp",
                 level: 1,
                 statPoints: 5
             });

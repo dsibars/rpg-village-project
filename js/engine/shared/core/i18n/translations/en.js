@@ -691,4 +691,13 @@ export const en = {
     el_wind: "Wind",
     el_storm: "Storm",
     el_neutral: "Neutral",
+    village_townhall: "Town Hall",
+    ui_defense_calendar: "Threat & Defense Hub",
+    ui_defenders: "Defenders",
+    ui_view_report: "View Report",
+    ui_total: "Total",
+    ui_btn_acknowledge: "Acknowledge",
+    ui_close: "Close",
+    village_witchs_hut: "Witch's Hut",
+    village_arcane_sanctum: "Arcane Sanctum",
 };
