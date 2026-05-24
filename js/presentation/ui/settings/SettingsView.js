@@ -113,15 +113,46 @@ export class SettingsView extends BaseView {
                         glyph_streamline: { tier: 7 }
                     }
                 };
-                this.ui.openMagicCircleOverlay({
-                    heroName: fakeHero.name,
-                    magicTier: fakeHero.magicTier,
-                    maxMp: fakeHero.maxMp,
-                    knownGlyphs: fakeHero.knownGlyphs,
-                    glyphMastery: fakeHero.glyphMastery,
-                    isSimulator: true
-                });
+                // Toggle between V1 and V2 for testing
+                const useV2 = localStorage.getItem('magic_circle_v2') === 'true';
+                if (useV2 && this.ui.openMagicCircleV2Overlay) {
+                    this.ui.openMagicCircleV2Overlay({
+                        heroName: fakeHero.name,
+                        magicTier: fakeHero.magicTier,
+                        maxMp: fakeHero.maxMp,
+                        knownGlyphs: fakeHero.knownGlyphs,
+                        glyphMastery: fakeHero.glyphMastery,
+                        isSimulator: true
+                    });
+                } else {
+                    this.ui.openMagicCircleOverlay({
+                        heroName: fakeHero.name,
+                        magicTier: fakeHero.magicTier,
+                        maxMp: fakeHero.maxMp,
+                        knownGlyphs: fakeHero.knownGlyphs,
+                        glyphMastery: fakeHero.glyphMastery,
+                        isSimulator: true
+                    });
+                }
             });
+        }
+
+        // Magic Circle V2 Toggle (dev feature)
+        if (this.elements.btnMagicSimulator) {
+            const v2Toggle = document.createElement('button');
+            v2Toggle.className = 'btn btn-secondary btn-sm';
+            v2Toggle.style.marginLeft = '8px';
+            const updateLabel = () => {
+                const useV2 = localStorage.getItem('magic_circle_v2') === 'true';
+                v2Toggle.textContent = useV2 ? 'V2 ✅' : 'V1';
+            };
+            updateLabel();
+            v2Toggle.addEventListener('click', () => {
+                const current = localStorage.getItem('magic_circle_v2') === 'true';
+                localStorage.setItem('magic_circle_v2', String(!current));
+                updateLabel();
+            });
+            this.elements.btnMagicSimulator.parentNode.appendChild(v2Toggle);
         }
     }
 

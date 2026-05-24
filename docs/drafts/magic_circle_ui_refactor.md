@@ -2,7 +2,13 @@
 
 ## Status: Draft — Ready for UX Implementation
 
-> **⚠️ FOR THE UX IMPLEMENTER:** Before touching any code, read [`docs/shared/combat/magic_circle_system.md`](../shared/combat/magic_circle_system.md). This document explains what the Magic Circle *represents* — Glyphs as learned drawings, tiers as drawing mastery, the mandala as a living ritual. Understanding the soul of the system will lead to better UX decisions than copying mechanics blindly.
+> **⚠️ FOR THE UX IMPLEMENTER:**
+> 1. **Read the concept doc first:** [`docs/shared/combat/magic_circle_system.md`](../shared/combat/magic_circle_system.md) — understand what the Magic Circle *represents*.
+> 2. **Work on the V2 file:** `js/presentation/ui/magic_circle/MagicCircleViewV2.js` — **do NOT modify** `MagicCircleView.js` (the current live version).
+> 3. **Existing translations are ready** in `js/engine/shared/core/i18n/translations/en.js` under the `mc_` prefix. Add more if needed.
+> 4. **Test your work:** In Settings, click the simulator button — a `V1 / V2` toggle appears next to it. Toggle to V2 to test inside the real app.
+> 5. **Backend logic is extracted** in `js/presentation/ui/magic_circle/MagicCircleHelper.js` — use it, don't reimplement.
+> 6. **The mandala is yours.** Canvas, SVG, DOM, WebGL — whatever you think works best. The current shell only provides a full-screen overlay container and the data.
 
 ---
 
@@ -29,6 +35,8 @@ When a hero first learns a glyph, they draw it simply — Tier 1 (`+`). Through 
 The mandala is not a grid. It is a set of **concentric rings** that expand as the hero's Magic Tier grows. New slots don't appear all at once — they "light up" one by one, like ripples. The visual should feel organic, not mechanical.
 
 > **UX implication:** Rings should rotate slowly. Slots should glow when filled. Connection lines should draw themselves between adjacent glyphs. The entire thing should feel alive.
+> 
+> **You decide how to render this.** The current scaffold does NOT prescribe DOM structure, CSS positioning, or rendering technology. Build it however you want.
 
 ### Static Glyphs Have No Growth — But Still Have Mastery
 
@@ -58,7 +66,9 @@ The magic circle is not a form to fill out. It is a **ritual**. The player is a 
 
 ---
 
-## 2. Screen States (Staged Flow)
+## 2. Screen States (Suggested Flow)
+
+These are **suggestions**, not prescriptions. If you have a better interaction model, use it.
 
 ### Stage 0: Overview (Default)
 
@@ -116,112 +126,15 @@ The full mandala fills almost the entire screen. Four thin margins frame it.
 
 ---
 
-### Stage 1: Slot Focus (Zoom)
+### Stage 1+: Focused Interaction
 
-Clicking an unlocked slot zooms the mandala so the clicked slot is centered and enlarged. The rest of the mandala fades back (dimmed, ~30% opacity). Margins stay visible but dimmed.
+Clicking a slot should trigger some kind of focused view — zoom, popup, sidebar, whatever works. The key behaviors:
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│  [🔮] Archmage Simulator          ⚔️ 48 DMG  ·  💧 18 MP   │
-├─────┬───────────────────────────────────────────────┬───────┤
-│     │                                               │       │
-│     │           (faded mandala background)          │       │
-│     │                                               │       │
-│     │              ┌─────────────┐                  │       │
-│     │              │             │                  │       │
-│     │              │   ╭─────╮   │                  │       │
-│     │              │   │ 🔥  │   │  ← focused slot  │       │
-│     │              │   │  ✶  │   │    enlarged      │       │
-│     │              │   ╰─────╯   │                  │       │
-│     │              │             │                  │       │
-│     │              └─────────────┘                  │       │
-│     │                                               │       │
-│     │           (faded mandala background)          │       │
-│     │                                               │       │
-├─────┴───────────────────────────────────────────────┴───────┤
-│  🔥 Fire  ·  Click a glyph below to socket it here.        │
-└─────────────────────────────────────────────────────────────┘
-```
-
-**Transition:** 400ms CSS transform scale + opacity fade.
-
-**Bottom margin in Stage 1:** Shows instruction: "Select a glyph to socket in Slot {N}."
-
----
-
-### Stage 2: Glyph Selection (Contextual Palette)
-
-After zooming, a **curved glyph palette** appears around the focused slot — like a radial menu or constellation. Only glyphs valid for this slot type are shown:
-
-- **Core slot (center):** Only core glyphs (Fire, Water, Wind, Storm, Light, Dark, Earth)
+- **Core slot (center):** Only core glyphs can be placed (Fire, Water, Wind, Storm, Light, Dark, Earth)
 - **Ring slots:** Only non-core glyphs (Power, Effect, Efficiency)
-
-```
-                    ┌─────────────┐
-                    │             │
-         [🔥]       │   ╭─────╮   │       [💧]
-          ↕         │   │     │   │        ↕
-         [🌪️]      │   │  ?  │   │       [⚡]
-                    │   ╰─────╯   │
-         [✨]       │             │       [🌑]
-          ↕         └─────────────┘        ↕
-         [🪨]                             [💚]
-
-    (core slot → radial menu of 7 core glyphs)
-```
-
-**Glyph menu items:**
-- Show glyph name + tier symbol (current default tier)
-- Hover: tooltip with description
-- Click: selects glyph, socket it into the slot
-- Already-used glyphs are shown but dimmed with "USED" label
-
-**Static glyph treatment:**
-- Badge: small 🔒 icon next to name
-- Tier always shown as `+` (T1)
-- Tooltip: "Static glyph — no tier growth"
-
-**Transition:** Glyph items fade in with stagger (50ms each), orbiting slightly into position.
-
----
-
-### Stage 3: Tier Tuning (Analog Dial)
-
-After selecting a glyph, the radial menu fades out. An **analog dial** appears as a ring around the slot. The player can "rotate" the dial to tune the tier.
-
-```
-                    ┌─────────────────────┐
-                    │    T1      T2       │
-                    │      ↖  ↗           │
-                    │   T7 ←──●──→ T3     │
-                    │      ↙  ↘           │
-                    │    T6      T5  T4   │
-                    │                     │
-                    │   [🔥 Fire  +]      │
-                    │                     │
-                    └─────────────────────┘
-```
-
-**Dial behavior:**
-- **Backend:** Tiers 1–7 (or 1–maxMastered)
-- **UI:** Click/tap on a tier position OR drag to rotate
-- **Visual feedback:**
-  - Selected tier position glows
-  - Glyph symbol updates live (+ → ++ → +++ → ✦ ...)
-  - Mandala preview in margins updates live (damage, MP, effects)
-  - For static glyphs: dial is locked at T1, position 1 glows solid, others are grayed with 🔒
-
-**"Go Back" button:** Small ↩️ icon at the bottom of the dial. Click returns to Stage 0 (full mandala overview) with the new glyph placed.
-
-**Transition:** Dial ring scales in from 0.8 → 1.0 with opacity 0 → 1. Selected tier position pulses once.
-
----
-
-### Stage 4: Return to Overview
-
-Mandala zooms back out to full view. The newly placed glyph is visible in its slot. All margins update with the new spell stats.
-
-**Transition:** Reverse of Stage 1 zoom (400ms).
+- **Glyph palette:** Show valid glyphs for the selected slot. Already-used glyphs should be indicated.
+- **Tier tuning:** Once a glyph is selected, let the player tune its tier (1 up to their mastery). Static glyphs cap at T1.
+- **Go back:** Some way to return to the overview.
 
 ---
 
@@ -243,17 +156,6 @@ Mandala zooms back out to full view. The newly placed glyph is visible in its sl
 
 ### Left Margin (Target Polarity)
 
-```
-│
-│  🔴
-│  ─
-│  F
-│  O
-│  E
-│  ─
-│
-```
-
 - **Enemy mode (default / no Aegis):**
   - Background: subtle red gradient bleeding into mandala
   - Icon: ⚔️ (crossed swords)
@@ -269,17 +171,6 @@ Mandala zooms back out to full view. The newly placed glyph is visible in its sl
 - **Transition:** Color cross-fades over 300ms when Aegis is added/removed
 
 ### Right Margin (Target Count)
-
-```
-│
-│  👤
-│  ─
-│  O
-│  N
-│  E
-│  ─
-│
-```
 
 - **Single target (no Multi):**
   - Icon: 👤 (single person)
@@ -329,12 +220,14 @@ Mandala zooms back out to full view. The newly placed glyph is visible in its sl
 
 ---
 
-## 4. Mandala Visual Design
+## 4. Mandala Visual Design (Your Call)
+
+**You decide all of this.** The suggestions below are just that — suggestions.
 
 ### Rings
 - 4 concentric rings, rendered as thin SVG circles or CSS borders
 - **Default color:** Muted silver (`rgba(255,255,255,0.15)`)
-- **Active color:** When a core is selected, rings tint toward the element color (e.g., Fire → warm orange glow)
+- **Active color:** When a core is selected, rings tint toward the element color
 - **Animation:** Each ring rotates slowly (60s per full rotation, alternating directions)
 
 ### Slots
@@ -349,8 +242,7 @@ Mandala zooms back out to full view. The newly placed glyph is visible in its sl
 | `locked` | 🔒 icon, opacity 0.3, no interaction |
 | `empty` | Small `＋` icon, opacity 0.5, subtle pulse on hover |
 | `filled` | Glyph icon + tier symbol, element-colored glow (for cores) |
-| `focused` (Stage 0) | Thick accent border, scale 1.1 |
-| `focused` (Stage 1+) | Enlarged, centered, with radial menu or dial around it |
+| `focused` | Some kind of highlight — border, scale, glow, whatever |
 
 ### Connection Lines
 - Faint SVG lines connecting adjacent filled slots
@@ -380,14 +272,12 @@ The transition between offensive and support should feel dramatic — like the m
 
 ## 6. Data & State
 
-### State Variables (same as current engine)
+### State Variables
 
 ```js
 let composition = [];        // { slotIndex, glyphId }
 let selectedTiers = {};      // { glyphId: tier } — session overrides
 let customName = '';
-let focusedSlotIndex = null; // null = overview mode
-let stage = 0;               // 0=overview, 1=slot-focus, 2=glyph-select, 3=tier-tune
 ```
 
 ### Derived Data (computed each render)
@@ -399,53 +289,26 @@ const allyEffect = isSupport ? CORE_ALLY_EFFECTS[spell.element] : null;
 const effectAmount = isSupport ? Math.floor(spell.damage * spell.allyFactor) : null;
 ```
 
-### Stage Transitions
+### Key Rules
 
-| From | Action | To |
-|------|--------|-----|
-| Stage 0 | Click empty/filled slot | Stage 1 (zoom to slot) |
-| Stage 1 | Click valid glyph in radial menu | Stage 2 (glyph placed, show dial) |
-| Stage 2 | Select tier on dial | Stage 3 (tier set, show "go back") |
-| Stage 3 | Click "go back" / ↩️ | Stage 0 (return to overview) |
-| Any stage | Click outside focused area | Stage 0 (cancel, return to overview) |
-| Stage 0 | Click "Clear" | Reset composition |
+- Slot 0 is the **core** slot. Only `type === 'core'` glyphs can go there.
+- Slots 1+ are **ring** slots. Only non-core glyphs can go there.
+- A glyph can be placed in multiple slots (no uniqueness constraint).
+- `MagicCircleService.getSlotCount(magicTier)` returns how many slots are unlocked (1 to 25).
+- `GLYPH_DATA` has all glyph definitions.
+- `glyphMastery[glyphId].tier` is the hero's mastered tier for that glyph.
 
 ---
 
 ## 7. Accessibility
 
-- **Keyboard:**
-  - Tab: cycle through unlocked slots
-  - Enter: select/focus slot
-  - Arrow keys: navigate radial menu glyphs
-  - Escape: return to overview
-- **Screen reader:**
-  - `aria-label` on slots: "Slot 3, empty, unlocked" / "Slot 3, Fire Core, Tier 7"
-  - `aria-live="polite"` on margins for stat updates
-- **Mobile:**
-  - Tap = click
-  - Pinch = zoom in/out (optional)
-  - Swipe = rotate tier dial (Stage 3)
+- **Keyboard:** Tab through slots, Enter to select, Escape to cancel
+- **Screen reader:** `aria-label` on interactive elements
+- **Mobile:** Tap to select, ensure touch targets are ≥44px
 
 ---
 
-## 8. Animations Summary
-
-| Animation | Duration | Easing |
-|-----------|----------|--------|
-| Zoom to slot (Stage 0→1) | 400ms | `cubic-bezier(0.4, 0, 0.2, 1)` |
-| Radial menu appear (Stage 1→2) | 300ms + 50ms stagger | `ease-out` |
-| Dial ring appear (Stage 2→3) | 300ms | `ease-out` |
-| Zoom back to overview | 400ms | `cubic-bezier(0.4, 0, 0.2, 1)` |
-| Connection line draw-on | 300ms | `ease-in-out` |
-| Margin color transition (offensive↔support) | 300ms | `ease` |
-| Slot glow pulse (focused) | 1.5s loop | `ease-in-out` |
-| Budget bar fill | 200ms | `ease-out` |
-| Glyph placed feedback | 150ms scale + glow | `ease-out` |
-
----
-
-## 9. Backend Prep (Already Done ✅)
+## 8. Backend Prep (Already Done ✅)
 
 | Item | Status |
 |------|--------|
@@ -456,74 +319,38 @@ const effectAmount = isSupport ? Math.floor(spell.damage * spell.allyFactor) : n
 | Static glyphs cap at Tier 1 | ✅ |
 | Target types: `single_ally`, `all_allies` | ✅ |
 
-### New Translations Needed
+### Translations (Already Added)
 
-Add to `js/engine/shared/core/i18n/translations/en.js`:
+All these keys exist in `js/engine/shared/core/i18n/translations/en.js`:
 
 ```js
-// Magic Circle — Staged UI
-mc_title: "Magic Circle",
-mc_hero_tier: "Tier {tier} · {slots} slots",
-mc_budget_within: "Within Budget",
-mc_budget_warning: "Expensive",
-mc_budget_over: "Over Budget",
-mc_foe: "FOE",
-mc_ally: "ALLY",
-mc_one: "ONE",
-mc_all: "ALL",
-mc_slot_locked: "Unlocks at Tier {tier}",
-mc_slot_empty: "Empty slot",
-mc_slot_select_prompt: "Select a glyph to socket here.",
-mc_slot_remove_prompt: "Click again to remove.",
-mc_glyph_static_label: "Static",
-mc_glyph_static_tooltip: "No tier growth — effect is constant.",
-mc_dial_prompt: "Rotate to tune tier",
-mc_dial_back: "Back to mandala",
-mc_effect_none: "No additional effects",
-mc_effect_no_harm: "No harmful effects on allies",
-mc_effect_pierce: "⚔️ Pierce {value}%",
-mc_effect_poison: "☠️ Poison {value}",
-mc_effect_sleep: "💤 Sleep {value}%",
-mc_effect_leech: "🧛 Leech {value}%",
-mc_effect_speed: "💨 Speed +{value}%",
-mc_effect_reflect: "🔄 Reflect {value}%",
-mc_effect_crit: "🎯 Crit +{value}%",
-mc_effect_cost_reduce: "💎 Save {value}% MP",
-mc_preview_damage: "{value} DMG",
-mc_preview_heal: "{value} HEAL",
-mc_preview_buff_atk: "{value} ATK",
-mc_preview_buff_def: "{value} DEF",
-mc_preview_buff_spd: "{value} SPD",
-mc_preview_buff_crit: "{value} CRIT",
-mc_preview_restore_mp: "{value} MP",
-mc_preview_restore_stamina: "{value} STA",
-mc_inscribe: "Inscribe Spell",
-mc_inscribe_disabled: "Inscribe (Simulator)",
-mc_clear: "Clear",
-mc_close: "Close",
-mc_unsaved_title: "Unsaved Composition",
-mc_unsaved_message: "Discard your current spell?",
-mc_unsaved_keep: "Keep Editing",
-mc_unsaved_discard: "Discard",
+mc_title, mc_hero_tier, mc_budget_within, mc_budget_warning, mc_budget_over,
+mc_foe, mc_ally, mc_one, mc_all, mc_slot_locked, mc_slot_empty,
+mc_slot_select_prompt, mc_slot_remove_prompt, mc_glyph_static_label,
+mc_glyph_static_tooltip, mc_dial_prompt, mc_dial_back, mc_effect_none,
+mc_effect_no_harm, mc_effect_pierce, mc_effect_poison, mc_effect_sleep,
+mc_effect_leech, mc_effect_speed, mc_effect_reflect, mc_effect_crit,
+mc_effect_cost_reduce, mc_preview_damage, mc_preview_heal, mc_preview_buff_atk,
+mc_preview_buff_def, mc_preview_buff_spd, mc_preview_buff_crit,
+mc_preview_restore_mp, mc_preview_restore_stamina, mc_inscribe,
+mc_inscribe_disabled, mc_clear, mc_close, mc_unsaved_title,
+mc_unsaved_message, mc_unsaved_keep, mc_unsaved_discard
 ```
 
 ---
 
-## 10. Files to Modify
+## 9. Files
 
-| File | Change |
-|------|--------|
-| `js/presentation/ui/magic_circle/MagicCircleView.js` | Full rewrite — staged flow, zoom transitions, radial menu, analog dial |
-| `css/style.css` or new `css/magic-circle.css` | All mandala, margin, dial, and animation styles |
-| `js/engine/shared/core/i18n/translations/en.js` | Add all new keys above |
-| `js/presentation/ui/magic_circle/MagicCircleHelper.js` *(new)* | Extract: effect chip formatting, margin label formatting, ally effect resolution |
+| File | What to do |
+|------|-----------|
+| `js/presentation/ui/magic_circle/MagicCircleViewV2.js` | **Your canvas.** Replace the minimal shell with your implementation. |
+| `css/magic-circle-scaffold.css` | Currently only has the overlay container. Add your styles here, or create a new CSS file and import it in `index.html`. |
+| `js/presentation/ui/magic_circle/MagicCircleView.js` | **Do NOT touch.** This is the live V1. |
 
----
+### Files to Reference (read-only)
 
-## 11. Open Questions for UX Implementer
-
-1. **Rendering tech:** Pure CSS + DOM for mandala, or SVG for rings/connection lines? SVG gives better connection lines but DOM is simpler for slots.
-2. **Dial interaction:** Click-to-select tier position, or drag-to-rotate? Drag feels more analog but click is more precise.
-3. **Mobile radial menu:** On small screens, a curved radial menu may not fit. Fallback to a small popup list below the slot?
-4. **Element background tint:** Should the ENTIRE mandala background tint, or just the rings? Full tint is more dramatic but may reduce readability.
-5. **Connection lines:** Draw lines between ALL adjacent filled slots, or only between slots in the same ring?
+| File | Why |
+|------|-----|
+| `js/presentation/ui/magic_circle/MagicCircleHelper.js` | Use `buildEffectChips()`, `getPowerDisplay()`, `resolveTarget()`, etc. |
+| `js/engine/shared/data/GameConstants.js` | See `GLYPH_DATA`, `CORE_ALLY_EFFECTS`, `glyphHasGrowthPotential()` |
+| `docs/shared/combat/magic_circle_system.md` | Understand the concept: glyphs as drawings, tiers as mastery |

@@ -1,12 +1,12 @@
-import { GLYPH_DATA, CORE_ALLY_EFFECTS, computeGlyphEffect, computeGlyphCostMult, glyphHasGrowthPotential } from '../../../engine/shared/data/GameConstants.js';
+import { GLYPH_DATA, CORE_ALLY_EFFECTS, glyphHasGrowthPotential } from '../../../engine/shared/data/GameConstants.js';
 import { MagicCircleService } from '../../../engine/magic_circle/MagicCircleService.js';
 
 /**
  * MagicCircleHelper — Pure presentation logic for the Magic Circle UI.
  * No DOM. No side effects. Just data → strings.
  *
- * The UX implementer should use these helpers instead of re-implementing
- * effect formatting, target resolution, or ally-effect mapping.
+ * Use these helpers instead of re-implementing effect formatting,
+ * target resolution, or ally-effect mapping.
  */
 
 // ─── Effect Chip Formatting ───
@@ -28,7 +28,7 @@ const HARMFUL_EFFECTS = ['poisonStacks', 'sleepChance', 'pierce', 'lifesteal'];
  * Build an array of effect chip objects for a composed spell.
  * @param {Object} effects — spell.effects
  * @param {boolean} isSupport — spell.category === 'support'
- * @returns {Array<{icon: string, label: string, value: string}>}
+ * @returns {Array<{icon: string, labelKey: string, value: number}>}
  */
 export function buildEffectChips(effects, isSupport = false) {
     const chips = [];
@@ -210,65 +210,4 @@ export function computeBudgetState(mpCost, maxMp) {
         return { ratio, color: '#f59e0b', labelKey: 'mc_budget_warning', isOverBudget: false };
     }
     return { ratio, color: '#10b981', labelKey: 'mc_budget_within', isOverBudget: false };
-}
-
-// ─── Slot Positioning (Mandala Math) ───
-
-/**
- * Compute the CSS left/top percentages for a mandala slot.
- * Core slot is center. Ring slots are hexagonally arranged.
- * @param {number} slotIndex — 0 = core, 1–24 = ring slots
- * @returns {{left: number, top: number}}
- */
-export function getSlotPosition(slotIndex) {
-    if (slotIndex === 0) {
-        return { left: 50, top: 50 };
-    }
-    const ring = Math.floor((slotIndex - 1) / 6) + 1;
-    const slotInRing = (slotIndex - 1) % 6;
-    const radius = ring * 11.2; // percentage from center
-    const angle = slotInRing * (2 * Math.PI / 6) - Math.PI / 2;
-    return {
-        left: 50 + radius * Math.cos(angle),
-        top: 50 + radius * Math.sin(angle)
-    };
-}
-
-/**
- * Get the ring number for a slot (0 for core).
- * @param {number} slotIndex
- * @returns {number}
- */
-export function getSlotRing(slotIndex) {
-    if (slotIndex === 0) return 0;
-    return Math.floor((slotIndex - 1) / 6) + 1;
-}
-
-// ─── Composition Validation ───
-
-/**
- * Check if a glyph is valid for a given slot.
- * @param {Object} glyph
- * @param {number} slotIndex — 0 = core
- * @returns {boolean}
- */
-export function isValidForSlot(glyph, slotIndex) {
-    if (!glyph) return false;
-    if (slotIndex === 0) return glyph.type === 'core';
-    return glyph.type !== 'core';
-}
-
-/**
- * Find the next empty slot index, starting from slot 1.
- * Returns null if no empty slots.
- * @param {Array<{slotIndex}>} composition
- * @param {number} maxSlots
- * @returns {number|null}
- */
-export function findNextEmptySlot(composition, maxSlots) {
-    const used = new Set(composition.map(c => c.slotIndex));
-    for (let i = 1; i < maxSlots; i++) {
-        if (!used.has(i)) return i;
-    }
-    return null;
 }
