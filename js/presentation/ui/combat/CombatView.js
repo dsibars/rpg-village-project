@@ -414,7 +414,7 @@ export class CombatView {
         controlPanel.innerHTML = `
           <div style="text-align:center;margin-bottom:15px;width:100%;">
             <h3 style="color:${resultColor};font-size:1.6rem;margin:0 0 10px 0;">${resultText}</h3>
-            <div style="background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);padding:10px;border-radius:6px;text-align:left;max-height:150px;overflow-y:auto;display:inline-block;width:100%;box-sizing:border-box;">
+            <div style="background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);padding:12px;border-radius:6px;text-align:left;max-height:240px;overflow-y:auto;display:block;width:100%;box-sizing:border-box;">
               ${summaryHtml}
               ${rewardsHtml}
             </div>

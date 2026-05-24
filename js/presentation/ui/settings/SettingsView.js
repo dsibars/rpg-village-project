@@ -80,42 +80,46 @@ export class SettingsView extends BaseView {
         // Magic Circle Simulator
         if (this.elements.btnMagicSimulator) {
             this.elements.btnMagicSimulator.addEventListener('click', () => {
-                const heroesView = this.ui.views.get('heroes');
-                if (heroesView) {
-                    const fakeHero = {
-                        id: 'simulator_fake_hero',
-                        name: this.t('simulator_hero_name') || 'Archmage Simulator',
-                        magicTier: 25,
-                        maxMp: 9999,
-                        knownGlyphs: [
-                            'glyph_fire', 'glyph_water', 'glyph_wind', 'glyph_storm', 'glyph_light', 'glyph_dark',
-                            'glyph_potentiate', 'glyph_focus', 'glyph_extend',
-                            'glyph_multi', 'glyph_pierce', 'glyph_venom', 'glyph_slumber', 'glyph_aegis', 'glyph_celerity', 'glyph_reflect', 'glyph_leech',
-                            'glyph_streamline'
-                        ],
-                        glyphMastery: {
-                            glyph_fire: { tier: 7 },
-                            glyph_water: { tier: 7 },
-                            glyph_wind: { tier: 7 },
-                            glyph_storm: { tier: 7 },
-                            glyph_light: { tier: 7 },
-                            glyph_dark: { tier: 7 },
-                            glyph_potentiate: { tier: 7 },
-                            glyph_focus: { tier: 7 },
-                            glyph_extend: { tier: 7 },
-                            glyph_multi: { tier: 7 },
-                            glyph_pierce: { tier: 7 },
-                            glyph_venom: { tier: 7 },
-                            glyph_slumber: { tier: 7 },
-                            glyph_aegis: { tier: 7 },
-                            glyph_celerity: { tier: 7 },
-                            glyph_reflect: { tier: 7 },
-                            glyph_leech: { tier: 7 },
-                            glyph_streamline: { tier: 7 }
-                        }
-                    };
-                    heroesView._openMagicCircleModal(fakeHero);
-                }
+                const fakeHero = {
+                    id: 'simulator_fake_hero',
+                    name: this.t('simulator_hero_name') || 'Archmage Simulator',
+                    magicTier: 25,
+                    maxMp: 9999,
+                    knownGlyphs: [
+                        'glyph_fire', 'glyph_water', 'glyph_wind', 'glyph_storm', 'glyph_light', 'glyph_dark',
+                        'glyph_potentiate', 'glyph_focus', 'glyph_extend',
+                        'glyph_multi', 'glyph_pierce', 'glyph_venom', 'glyph_slumber', 'glyph_aegis', 'glyph_celerity', 'glyph_reflect', 'glyph_leech',
+                        'glyph_streamline'
+                    ],
+                    glyphMastery: {
+                        glyph_fire: { tier: 7 },
+                        glyph_water: { tier: 7 },
+                        glyph_wind: { tier: 7 },
+                        glyph_storm: { tier: 7 },
+                        glyph_light: { tier: 7 },
+                        glyph_dark: { tier: 7 },
+                        glyph_potentiate: { tier: 7 },
+                        glyph_focus: { tier: 7 },
+                        glyph_extend: { tier: 7 },
+                        glyph_multi: { tier: 7 },
+                        glyph_pierce: { tier: 7 },
+                        glyph_venom: { tier: 7 },
+                        glyph_slumber: { tier: 7 },
+                        glyph_aegis: { tier: 7 },
+                        glyph_celerity: { tier: 7 },
+                        glyph_reflect: { tier: 7 },
+                        glyph_leech: { tier: 7 },
+                        glyph_streamline: { tier: 7 }
+                    }
+                };
+                this.ui.openMagicCircleOverlay({
+                    heroName: fakeHero.name,
+                    magicTier: fakeHero.magicTier,
+                    maxMp: fakeHero.maxMp,
+                    knownGlyphs: fakeHero.knownGlyphs,
+                    glyphMastery: fakeHero.glyphMastery,
+                    isSimulator: true
+                });
             });
         }
     }

@@ -4,6 +4,7 @@
  */
 import { CombatView } from './combat/CombatView.js';
 import { UnlockNarrativeView } from './unlocks/UnlockNarrativeView.js';
+import { MagicCircleView } from './magic_circle/MagicCircleView.js';
 const DEBUG = false;
 
 export class UIController {
@@ -50,6 +51,7 @@ export class UIController {
         };
         this.combatView = new CombatView({ i18n: this.i18n });
         this.unlockNarrativeView = new UnlockNarrativeView(this.i18n);
+        this.magicCircleView = new MagicCircleView({ i18n: this.i18n, ui: this });
         
         this.views = new Map(); // domainName -> BaseView instance
         this.activeView = null;
@@ -414,10 +416,9 @@ export class UIController {
         return this.combatView.openCombatOverlay(battleContext, onComplete);
     }
 
-    // NOTE: Original playBattleLog (~145 lines) and openCombatOverlay (~597 lines)
-    // have been extracted to src/rpg-village/js/presentation/ui/combat/CombatView.js
-
-
+    openMagicCircleOverlay(options) {
+        return this.magicCircleView.open(options);
+    }
 
     forceUpdate() {
         if (this.adapter) {

@@ -1899,3 +1899,212 @@ body {
     box-shadow: 0 0 8px rgba(99, 102, 241, 0.5);
 }
 
+/* --- Magic Circle Overlay Styles --- */
+.magic-circle-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(10, 11, 16, 0.98);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    padding: 30px;
+    font-family: 'Inter', 'Segoe UI Emoji', 'Apple Color Emoji', 'Segoe UI Symbol', 'Noto Color Emoji', sans-serif;
+    color: var(--text-primary);
+    overflow-y: auto;
+    backdrop-filter: blur(10px);
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.magic-circle-container {
+    width: 95%;
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    height: 100%;
+}
+
+.magic-circle-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--glass-border);
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+}
+
+.magic-circle-header h2 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.8rem;
+    background: linear-gradient(135deg, #fff 0%, var(--accent-color) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 0;
+}
+
+.magic-circle-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 320px 1fr 360px;
+    gap: 30px;
+    min-height: 0;
+}
+
+@media (max-width: 1024px) {
+    .magic-circle-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto;
+        overflow-y: auto;
+    }
+}
+
+.magic-circle-column {
+    display: flex;
+    flex-direction: column;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    min-height: 0;
+}
+
+.magic-circle-center {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.mandala-canvas {
+    position: relative;
+    width: 360px;
+    height: 360px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 50%;
+    border: 1.5px solid rgba(255,255,255,0.05);
+    box-shadow: inset 0 0 25px rgba(0,0,0,0.8), 0 0 15px rgba(124, 77, 255, 0.15);
+}
+
+.mandala-ring {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    border: 1.5px dashed rgba(255,255,255,0.1);
+}
+.mandala-ring.ring-1 { top: 38.5%; left: 38.5%; width: 23%; height: 23%; border-color: rgba(255,255,255,0.15); }
+.mandala-ring.ring-2 { top: 27%; left: 27%; width: 46%; height: 46%; border-color: rgba(255,255,255,0.1); }
+.mandala-ring.ring-3 { top: 15.5%; left: 15.5%; width: 69%; height: 69%; border-color: rgba(255,255,255,0.08); }
+.mandala-ring.ring-4 { top: 4%; left: 4%; width: 92%; height: 92%; border-color: rgba(255,255,255,0.05); }
+
+.mandala-slot {
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    font-size: 0.7rem;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.4);
+    z-index: 2;
+    border: 1.5px solid transparent;
+}
+
+.mandala-slot.empty {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1.5px dashed rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.35);
+}
+
+.mandala-slot.empty:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.45);
+    color: #fff;
+    transform: translate(-50%, -50%) scale(1.15);
+    box-shadow: 0 0 12px rgba(255,255,255,0.3);
+}
+
+.mandala-slot.core-slot.empty {
+    background: rgba(255, 109, 0, 0.05);
+    border: 1.5px dashed rgba(255, 109, 0, 0.4);
+    color: rgba(255, 109, 0, 0.7);
+}
+
+.mandala-slot.core-slot.empty:hover {
+    background: rgba(255, 109, 0, 0.15);
+    border-color: rgba(255, 109, 0, 0.8);
+    color: #ffd180;
+    box-shadow: 0 0 12px rgba(255,109,0,0.4);
+}
+
+.mandala-slot.filled {
+    background: linear-gradient(135deg, #4a148c, #311b92);
+    border: 1.5px solid #7c4dff;
+    color: #fff;
+    box-shadow: 0 0 10px rgba(124, 77, 255, 0.6);
+}
+
+.mandala-slot.filled:hover {
+    transform: translate(-50%, -50%) scale(1.15);
+    box-shadow: 0 0 18px rgba(124, 77, 255, 0.9);
+}
+
+.mandala-slot.filled.core-slot {
+    background: linear-gradient(135deg, #e65100, #ff3d00);
+    border: 1.5px solid #ffab40;
+    box-shadow: 0 0 15px rgba(255, 61, 0, 0.7);
+}
+
+.mandala-slot.filled.core-slot:hover {
+    transform: translate(-50%, -50%) scale(1.15);
+    box-shadow: 0 0 25px rgba(255, 61, 0, 1);
+}
+
+.mandala-slot.locked {
+    background: rgba(0, 0, 0, 0.6);
+    border: 1.5px solid rgba(255, 255, 255, 0.04);
+    color: rgba(255, 255, 255, 0.12);
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.slot-tier {
+    position: absolute;
+    bottom: -4px;
+    right: -4px;
+    font-size: 0.6rem;
+    background: rgba(0, 0, 0, 0.9);
+    border-radius: 4px;
+    padding: 0 3px;
+    color: #ffd700;
+    border: 1px solid rgba(255,255,255,0.15);
+    pointer-events: none;
+}
+
+.slot-icon {
+    font-weight: bold;
+    font-size: 0.75rem;
+    line-height: 1;
+    pointer-events: none;
+}
+
+.glyph-palette-item {
+    transition: all 0.2s ease;
+}
+
+.glyph-palette-item:hover {
+    background: rgba(255,255,255,0.06) !important;
+    border-color: rgba(255,255,255,0.18) !important;
+}
+
+.glyph-btn.used {
+    color: #ffd700 !important;
+    font-weight: bold;
+}
+
+

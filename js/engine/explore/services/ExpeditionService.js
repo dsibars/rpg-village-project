@@ -476,11 +476,6 @@ export class ExpeditionService {
 
             // Track lifetime stats
             if (!h.lifetimeStats) h.lifetimeStats = { enemiesDefeated: 0, damageDealt: 0, damageTaken: 0, expeditionsCompleted: 0, battlesWon: 0, battlesLost: 0, highestDamageDealt: 0 };
-            if (isVictory) {
-                h.lifetimeStats.battlesWon++;
-            } else {
-                h.lifetimeStats.battlesLost++;
-            }
 
             if (isVictory) {
                 if (h.hp > 0) {
@@ -573,6 +568,14 @@ export class ExpeditionService {
         heroes.forEach(h => {
             let leveledUp = false;
             let expEarned = 0;
+
+            // Track lifetime stats
+            if (!h.lifetimeStats) h.lifetimeStats = { enemiesDefeated: 0, damageDealt: 0, damageTaken: 0, expeditionsCompleted: 0, battlesWon: 0, battlesLost: 0, highestDamageDealt: 0 };
+            if (isVictory) {
+                h.lifetimeStats.battlesWon++;
+            } else {
+                h.lifetimeStats.battlesLost++;
+            }
 
             if (isVictory) {
                 if (h.hp > 0) {
