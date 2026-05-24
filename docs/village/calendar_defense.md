@@ -20,6 +20,7 @@ The Calendar & Defense system adds a seasonal cycle and periodic raid events tha
 
 ### Generation
 - First raid occurs no earlier than Day 7
+- **First raid is delayed until the player has at least 2 heroes** (new player protection)
 - Subsequent raids occur every 7-14 days (pseudo-random, deterministic per day seed)
 - Events are generated 14 days in advance
 - Old resolved events are cleaned up automatically
@@ -32,6 +33,8 @@ The Calendar & Defense system adds a seasonal cycle and periodic raid events tha
 ### Defense Assignment
 - Up to 4 heroes can be assigned to defense at any time
 - Only idle heroes with HP > 0 can be assigned
+- **A hero on an expedition cannot be assigned to defense** (mutual exclusion)
+- **Assigning a hero to an expedition auto-removes them from defense**
 - Defense assignments persist until the raid is resolved
 - After a raid, all defenders are automatically unassigned
 
@@ -43,10 +46,40 @@ The Calendar & Defense system adds a seasonal cycle and periodic raid events tha
 ### Raid Resolution (Auto)
 - Win chance: `clamp(0.15, 0.5 + (defensePower - raidPower) / raidPower * 0.3, 0.95)`
 - **Victory**: Gold reward = `raidLevel * 10 + random(0-20)`
-- **Defeat**: 
+- **Defeat (with 1+ defenders)**: 
   - Lose 3-8 wood and 3-8 stone
   - 15% chance to damage a random building (level -1)
+- **Defeat (with 0 defenders)**:
+  - Lose **100% of gold**
+  - Lose **100% of materials** (wood, stone, iron, etc.)
+  - Lose **100% of food**
+  - **50% chance** to damage a random building (level -1)
 - **Defender Damage**: 15% max HP on victory, 40% max HP on defeat (minimum 1 HP)
+
+## Defense Advisory System
+
+Before assigning heroes to an expedition, the engine checks whether the village would be left undefended at the next raid.
+
+### Advisory Logic
+1. Compute expedition duration from `exp.stages.length` (accounting for scout/explorer guild reductions).
+2. Compute `expeditionReturnDay = currentDay + duration`.
+3. Find the next unresolved raid day from the calendar.
+4. Simulate the assignment: count remaining idle heroes after removing the assigned heroes.
+5. Check if any other active expedition will return before the next raid with heroes that could defend.
+
+### Warning Trigger
+A warning is shown when **all** of the following are true:
+- The assignment would leave `0` idle heroes
+- There is an upcoming unresolved raid
+- The expedition will not return before that raid
+- No other expedition returns before that raid with available heroes
+
+### Player Choice
+The warning is **advisory, not a block**. The player can:
+- **Cancel** and keep their heroes idle
+- **Proceed Anyway** and accept the risk
+
+If they proceed and the raid fires with 0 defenders, the severe penalty applies.
 
 ## UI Components
 

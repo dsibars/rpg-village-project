@@ -1,4 +1,7 @@
-.PHONY: build build-web build-app build-debug dev run test clean
+-include itch.config
+
+.PHONY: build build-web build-app build-debug dev run test clean deploy-itch
+
 
 # --- Build Targets ---
 
@@ -47,3 +50,17 @@ clean:
 	@echo "Cleaning build artifacts..."
 	@rm -rf dist out
 	@echo "Clean complete."
+
+# --- Deployment ---
+
+deploy-itch: build-web
+	@if [ -z "$(ITCH_USER)" ] || [ "$(ITCH_USER)" = "your-itch-username-here" ]; then \
+		echo "Error: ITCH_USER is not configured."; \
+		echo "Please copy 'itch.config.example' to 'itch.config' and set your Itch.io username/game slug."; \
+		exit 1; \
+	fi
+	@echo "Zipping web build..."
+	@python3 -c "import shutil; shutil.make_archive('rpg-village-web', 'zip', 'dist')"
+	@echo "Uploading web build to itch.io under $(ITCH_USER)/$(ITCH_GAME)..."
+	butler push rpg-village-web.zip $(ITCH_USER)/$(ITCH_GAME):web-html
+

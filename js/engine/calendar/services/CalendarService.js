@@ -22,7 +22,8 @@ export class CalendarService {
     _load() {
         const defaultState = {
             events: [],         // Array of { day, type, resolved, data }
-            defenseAssigned: [] // Array of hero IDs assigned to defense
+            defenseAssigned: [], // Array of hero IDs assigned to defense
+            resolvedRaids: 0    // Total number of resolved raid events
         };
         const loaded = persistence.load(this.STORAGE_KEY, defaultState);
         // Fallback for fields missing in old saves
@@ -79,6 +80,13 @@ export class CalendarService {
 
     _isRaidDay(day) {
         if (day < 7) return false;
+        
+        // First raid is delayed until the player has at least 2 heroes
+        // This gives new players time to rescue Sir Valen and learn the system
+        const heroCount = this.heroService.list().length;
+        const totalRaids = this.state.events.filter(e => e.type === 'raid').length;
+        if (totalRaids === 0 && heroCount < 2) return false;
+        
         // Use a deterministic pseudo-random based on day + seed
         const seed = day * 1337 + 42;
         const rng = this._seededRandom(seed);
@@ -169,6 +177,8 @@ export class CalendarService {
         if (!event) return null;
 
         event.resolved = true;
+        this.state.resolvedRaids = (this.state.resolvedRaids || 0) + 1;
+        this.save();
         
         const defenders = this.heroService.list().filter(h => this.state.defenseAssigned.includes(h.id));
         const raid = event.data;
@@ -233,25 +243,73 @@ export class CalendarService {
             this.villageService.state.gold += goldReward;
             result.goldReward = goldReward;
         } else {
-            // Penalties
-            const materialLoss = Math.floor(Math.random() * 5) + 3;
-            const woodLoss = Math.min(materialLoss, this.villageService.inventoryService?.getItemCount('material_wood') || 0);
-            const stoneLoss = Math.min(materialLoss, this.villageService.inventoryService?.getItemCount('material_stone') || 0);
-            
-            if (woodLoss > 0) this.villageService.inventoryService?.useItem('material_wood', woodLoss);
-            if (stoneLoss > 0) this.villageService.inventoryService?.useItem('material_stone', stoneLoss);
-            
-            result.woodLoss = woodLoss;
-            result.stoneLoss = stoneLoss;
-            
-            // Small chance to damage a building
-            if (Math.random() < 0.15) {
-                const buildings = Object.entries(this.villageService.state.infrastructure)
-                    .filter(([_, lvl]) => lvl > 0);
-                if (buildings.length > 0) {
-                    const [bId] = buildings[Math.floor(Math.random() * buildings.length)];
-                    this.villageService.state.infrastructure[bId]--;
-                    result.damagedBuilding = bId;
+            if (defenders.length === 0) {
+                // Severe penalty for leaving the village completely undefended
+                const inventory = this.villageService.inventoryService;
+                
+                // Lose 100% of gold
+                const goldLost = this.villageService.state.gold || 0;
+                this.villageService.state.gold = 0;
+                result.goldLost = goldLost;
+                
+                // Lose 100% of materials
+                if (inventory) {
+                    const materials = inventory.getState().materials || {};
+                    const materialsLost = {};
+                    for (const [matId, qty] of Object.entries(materials)) {
+                        if (qty > 0) {
+                            inventory.useItem(matId, qty);
+                            materialsLost[matId] = qty;
+                        }
+                    }
+                    result.materialsLost = materialsLost;
+                    
+                    // Lose 100% of food
+                    const food = inventory.getState().food || {};
+                    const foodLost = {};
+                    for (const [foodId, qty] of Object.entries(food)) {
+                        if (qty > 0) {
+                            inventory.useItem(foodId, qty);
+                            foodLost[foodId] = qty;
+                        }
+                    }
+                    result.foodLost = foodLost;
+                }
+                
+                // 50% chance to damage a random building
+                if (Math.random() < 0.50) {
+                    const buildings = Object.entries(this.villageService.state.infrastructure)
+                        .filter(([_, lvl]) => lvl > 0);
+                    if (buildings.length > 0) {
+                        const [bId] = buildings[Math.floor(Math.random() * buildings.length)];
+                        this.villageService.state.infrastructure[bId]--;
+                        result.damagedBuilding = bId;
+                    }
+                }
+                
+                this.state.lastRaidHadZeroDefenders = true;
+                this.save();
+            } else {
+                // Normal penalty when at least some defenders were present
+                const materialLoss = Math.floor(Math.random() * 5) + 3;
+                const woodLoss = Math.min(materialLoss, this.villageService.inventoryService?.getItemCount('material_wood') || 0);
+                const stoneLoss = Math.min(materialLoss, this.villageService.inventoryService?.getItemCount('material_stone') || 0);
+                
+                if (woodLoss > 0) this.villageService.inventoryService?.useItem('material_wood', woodLoss);
+                if (stoneLoss > 0) this.villageService.inventoryService?.useItem('material_stone', stoneLoss);
+                
+                result.woodLoss = woodLoss;
+                result.stoneLoss = stoneLoss;
+                
+                // Small chance to damage a building
+                if (Math.random() < 0.15) {
+                    const buildings = Object.entries(this.villageService.state.infrastructure)
+                        .filter(([_, lvl]) => lvl > 0);
+                    if (buildings.length > 0) {
+                        const [bId] = buildings[Math.floor(Math.random() * buildings.length)];
+                        this.villageService.state.infrastructure[bId]--;
+                        result.damagedBuilding = bId;
+                    }
                 }
             }
         }
@@ -283,7 +341,9 @@ export class CalendarService {
             dayOfSeason: this.getDayOfSeason(day),
             seasonEffects: this.getSeasonEffects(day),
             upcomingEvents: this.getUpcomingEvents(day),
-            defenseAssigned: this.getDefenseAssigned()
+            defenseAssigned: this.getDefenseAssigned(),
+            resolvedRaids: this.state.resolvedRaids || 0,
+            lastRaidHadZeroDefenders: this.state.lastRaidHadZeroDefenders || false
         };
     }
 }

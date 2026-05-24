@@ -11,6 +11,7 @@ import { DailyObjectivesService } from './daily/services/DailyObjectivesService.
 import { CalendarService } from './calendar/services/CalendarService.js';
 import { AcademyService } from './academy/AcademyService.js';
 import { TitleService } from './hall_of_fame/TitleService.js';
+import { UnlockService } from './shared/services/UnlockService.js';
 import { persistence } from './shared/core/Persistence.js';
 const DEBUG = false;
 
@@ -36,6 +37,7 @@ export class GameEngine {
         this.dailyObjectivesService = new DailyObjectivesService(this.inventoryService);
         this.calendarService = new CalendarService(this.villageService, this.heroService);
         this.academyService = new AcademyService(this.heroService, this.villageService);
+        this.unlockService = new UnlockService();
         this.i18n = i18n;
         
         // New Game Experience
@@ -151,7 +153,9 @@ export class GameEngine {
             bestiary: this.expeditionService.getBestiary(),
             enemyTemplates: this.expeditionService.getEnemyTemplates(),
             dailyObjectives: this.dailyObjectivesService.getState(),
-            calendar: this.calendarService.getState(currentDay)
+            calendar: this.calendarService.getState(currentDay),
+            expeditionRegions: this.expeditionService.state.regions || {},
+            unlockedNarratives: this.unlockService.getShownNarratives()
         };
     }
 
@@ -611,6 +615,18 @@ export class GameEngine {
             tavernRecruit: tavernRecruitHero
         };
         
+        // ─── Unlock Check: evaluate narrative and codex unlocks after all resolution ───
+        const unlockState = this._buildUnlockState();
+        const newNarratives = this.unlockService.checkAllUnlocks(unlockState);
+        const newCodexFeatures = this.unlockService.checkNewCodexFeatures(unlockState);
+
+        if (newNarratives.length > 0) {
+            this.unlockService.markAllAsShown(newNarratives);
+        }
+
+        dailyReport.newNarratives = newNarratives;
+        dailyReport.newCodexFeatures = newCodexFeatures;
+
         this.villageService.setDailyReport(dailyReport);
         return dailyReport;
     }
@@ -621,6 +637,11 @@ export class GameEngine {
 
     // --- Calendar & Defense Facade ---
     assignDefense(heroId) {
+        // Mutual exclusion: cannot assign a hero to defense if they are on an expedition
+        const activity = this.expeditionService.getHeroActivity(heroId);
+        if (activity && activity.type === 'expedition') {
+            return Result.fail('error_hero_on_expedition');
+        }
         return this.calendarService.assignDefense(heroId);
     }
 
@@ -647,7 +668,99 @@ export class GameEngine {
 
     // --- Explore Facade ---
     assignExpedition(expeditionId, heroIds) {
-        return this.expeditionService.assignExpedition(expeditionId, heroIds);
+        const result = this.expeditionService.assignExpedition(expeditionId, heroIds);
+        
+        // Mutual exclusion: auto-remove assigned heroes from defense
+        if (result.success && heroIds.length > 0) {
+            let removed = false;
+            for (const hId of heroIds) {
+                const idx = this.calendarService.state.defenseAssigned.indexOf(hId);
+                if (idx >= 0) {
+                    this.calendarService.state.defenseAssigned.splice(idx, 1);
+                    removed = true;
+                }
+            }
+            if (removed) {
+                this.calendarService.save();
+            }
+        }
+        
+        return result;
+    }
+
+    /**
+     * Returns a defense advisory for the given expedition assignment.
+     * Checks whether assigning these heroes would leave the village undefended at the next raid.
+     *
+     * @param {string} expId — expedition ID
+     * @param {string[]} heroIds — hero IDs being assigned
+     * @returns {Object} — advisory result
+     */
+    getDefenseAdvisory(expId, heroIds) {
+        const currentDay = this.villageService.getState().day || 1;
+        
+        // Find the expedition and compute duration
+        const exp = this.expeditionService.getExpeditions().find(e => e.id === expId);
+        const activeExp = this.expeditionService.state.activeExpeditions.find(e => e.id === expId);
+        
+        let duration = 1;
+        if (exp && exp.stages) {
+            const totalStages = exp.stages.length;
+            const currentStage = activeExp ? activeExp.currentStage : 0;
+            duration = Math.max(1, totalStages - currentStage);
+        }
+        
+        // Minimum return day (actual may be longer with concurrent expeditions)
+        const expeditionReturnDay = currentDay + duration;
+        
+        // Find next unresolved raid
+        const calendarState = this.calendarService.getState(currentDay);
+        const nextRaid = calendarState.upcomingEvents.find(e => e.type === 'raid');
+        const nextRaidDay = nextRaid ? nextRaid.day : null;
+        
+        // Count idle heroes after this assignment
+        const idleHeroes = this.heroService.list().filter(h => {
+            const activity = this.expeditionService.getHeroActivity(h.id);
+            return activity.type === 'idle' && h.hp > 0;
+        });
+        const idleHeroesAfterAssignment = idleHeroes.filter(h => !heroIds.includes(h.id)).length;
+        
+        // Check if any other active expedition returns before the raid
+        let otherExpeditionReturnsBeforeRaid = false;
+        for (const otherExp of this.expeditionService.state.activeExpeditions) {
+            if (otherExp.id === expId) continue;
+            const otherNode = this.expeditionService.getExpeditions().find(e => e.id === otherExp.id);
+            if (otherNode && otherNode.stages) {
+                const remaining = Math.max(0, otherNode.stages.length - otherExp.currentStage);
+                const returnDay = currentDay + remaining;
+                if (returnDay < nextRaidDay) {
+                    otherExpeditionReturnsBeforeRaid = true;
+                    break;
+                }
+            }
+        }
+        
+        // Determine if warning is needed
+        const hasWarning = (
+            idleHeroesAfterAssignment === 0 &&
+            nextRaidDay !== null &&
+            expeditionReturnDay >= nextRaidDay &&
+            !otherExpeditionReturnsBeforeRaid
+        );
+        
+        let warningKey = null;
+        if (hasWarning) {
+            const daysUntilRaid = nextRaidDay - currentDay;
+            warningKey = daysUntilRaid <= 1 ? 'advisory_raid_tomorrow' : 'advisory_undefended';
+        }
+        
+        return {
+            hasWarning,
+            nextRaidDay,
+            expeditionReturnDay,
+            idleHeroesAfterAssignment,
+            warningKey
+        };
     }
     unassignHero(heroId) {
         return this.expeditionService.unassignHero(heroId);
@@ -671,6 +784,28 @@ export class GameEngine {
 
     copyDesignToHero(designId, heroId) {
         return this.academyService.copyDesignToHero(designId, heroId);
+    }
+
+    // --- Unlock Facade ---
+    getUnlockState() {
+        return {
+            unlockedNarratives: this.unlockService.getShownNarratives()
+        };
+    }
+
+    /**
+     * Builds a unified state object for UnlockService evaluation.
+     * Mirrors the shape expected by UnlockNarratives.checkPredicate and CodexFeatures.isUnlocked.
+     */
+    _buildUnlockState() {
+        const currentDay = this.villageService.getState().day || 1;
+        return {
+            heroes: this.heroService.list().map(h => h.toJSON()),
+            village: this.villageService.getState(),
+            completedExpeditions: this.expeditionService.state.completedIds || [],
+            expeditionRegions: this.expeditionService.state.regions || {},
+            calendar: this.calendarService.getState(currentDay)
+        };
     }
 
     // --- Hall of Fame Facade ---

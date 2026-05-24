@@ -90,9 +90,13 @@ At any point, your heroes are doing ONE of these:
 
 ---
 
-## THE ROADMAP: 4 Eras (Fast Unlocks)
+## THE ROADMAP: 4 Eras (Gameplay-Driven Progression)
 
-Each era is a **management explosion** — new systems, new decisions, new heroes. The player should feel overwhelmed (in a good way) by Day 50.
+Each era is a **management explosion** — new systems, new decisions, new heroes. The player should feel overwhelmed (in a good way) by the mid-game.
+
+> **Important**: The day ranges below are **approximations of expected pacing, not hard gates**. All unlocks are gameplay-driven (expeditions completed, buildings constructed, hero stats reached). Players control their own speed through village management priorities.
+
+> See [Codex System](./shared/core/codex.md) for the exact unlock predicates, and [Unlock Narratives](./shared/core/unlock_narratives.md) for the narrative moments tied to each unlock.
 
 ---
 

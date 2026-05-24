@@ -7,6 +7,14 @@ import { AutoUnpackNativesPlugin } from '@electron-forge/plugin-auto-unpack-nati
 export default {
   packagerConfig: {
     asar: true,
+    icon: './assets/icon',
+    ignore: [
+      /^\/out($|\/)/,
+      /^\/\.git($|\/)/,
+      /^\/tests($|\/)/,
+      /^\/\.github($|\/)/,
+      /^\/rpg-village-windows\.zip$/,
+    ],
   },
   rebuildConfig: {},
   makers: [

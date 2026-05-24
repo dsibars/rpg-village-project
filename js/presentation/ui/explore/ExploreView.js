@@ -261,7 +261,8 @@ export class ExploreView extends BaseView {
                     return;
                 }
                 
-                this.emit('assignExpedition', { 
+                // Check defense advisory before assigning
+                this.emit('checkDefenseAdvisory', { 
                     expId: exp.id, 
                     heroIds: Array.from(this.selectedHeroIds) 
                 });

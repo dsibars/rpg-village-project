@@ -121,7 +121,10 @@ export class SettingsView extends BaseView {
     }
 
     onUpdate(state) {
-        // Settings view doesn't typically change based on game state
-        // but we could show dynamic info here if needed.
+        // Gate Magic Circle Simulator behind Arcane Sanctum construction
+        const hasSanctum = (state.village?.infrastructure?.arcane_sanctum || 0) >= 1;
+        if (this.elements.btnMagicSimulator) {
+            this.elements.btnMagicSimulator.style.display = hasSanctum ? 'inline-flex' : 'none';
+        }
     }
 }

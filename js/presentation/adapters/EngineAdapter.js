@@ -94,6 +94,42 @@ export class EngineAdapter {
                     }
                     this.forceUpdate();
                 });
+                view.on('checkDefenseAdvisory', (data) => {
+                    const advisory = this.engine.getDefenseAdvisory(data.expId, data.heroIds);
+                    
+                    if (advisory.hasWarning && advisory.warningKey) {
+                        const i18n = this.engine.i18n;
+                        let message = i18n.t(advisory.warningKey);
+                        
+                        // Replace placeholders if present
+                        if (advisory.nextRaidDay !== null) {
+                            const daysUntilRaid = advisory.nextRaidDay - (this.engine.villageService.getState().day || 1);
+                            message = message
+                                .replace('{raidDay}', advisory.nextRaidDay)
+                                .replace('{returnDay}', advisory.expeditionReturnDay)
+                                .replace('{daysUntilRaid}', daysUntilRaid);
+                        }
+                        
+                        this.ui.showConfirmDialog({
+                            title: 'ui_advisory_title',
+                            message: message,
+                            onConfirm: () => {
+                                const result = this.engine.assignExpedition(data.expId, data.heroIds);
+                                if (!result.success) {
+                                    this.ui.showToast(i18n.t(result.error) || result.error);
+                                }
+                                this.forceUpdate();
+                            }
+                        });
+                    } else {
+                        // No warning — proceed directly
+                        const result = this.engine.assignExpedition(data.expId, data.heroIds);
+                        if (!result.success) {
+                            this.ui.showToast(this.engine.i18n.t(result.error) || result.error);
+                        }
+                        this.forceUpdate();
+                    }
+                });
                 view.on('retireExpedition', (data) => {
                     this.engine.retireExpedition(data && data.expId ? data.expId : null);
                     this.forceUpdate();

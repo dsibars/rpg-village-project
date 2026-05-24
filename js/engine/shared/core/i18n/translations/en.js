@@ -761,14 +761,14 @@ export const en = {
     codex_feature_stamina_skills_unlock: 'Always available.',
     codex_feature_expeditions: 'Expeditions',
     codex_feature_expeditions_desc: 'Expeditions are multi-stage adventures into themed Regions. Each stage resolves automatically when a day passes (1 stage = 1 day). Deployed heroes are locked — they cannot change stats, skills, or equipment until they return. Defeat still grants partial EXP (minimum 25% of victory EXP, up to 50% for near-wins).\n\nDiscovery System:\n- Regions contain a branching tree of expedition nodes.\n- Completing an expedition reveals new child nodes (linear or branching paths).\n- Story Missions are hand-crafted milestones with unique rewards (e.g., rescuing new heroes).\n- Procedural nodes scale in difficulty based on how many clears you have in that region.\n\nRegion Unlock Conditions:\n- Greenfields: Available from start.\n- Tiny Cave: Complete the tutorial expedition.\n- Calmed Beach: 3 Greenfields clears OR Explorer Guild Level 1.\n- Dark Forest: 2 Tiny Cave clears.\n- Goblin Camp / Mystic Ruins: Explorer Guild Level 2 OR region clears.\n- Frozen Peaks: Explorer Guild Level 3 OR 8 total clears.\n\nExpedition Modifiers:\n- Scouts: Every 2 assigned Scout villagers reduces stage count by 1 (min 1 stage).\n- Explorer Guild: Reduces stage count by 10% per level (min 1 stage).\n- Training Grounds: Idle heroes gain +5% passive EXP per day per level.\n\nRetreat: You can unassign heroes mid-expedition, but progress resets to Stage 0.',
-    codex_feature_expeditions_unlock: 'Always available.',
+    codex_feature_expeditions_unlock: 'Complete the Tutorial Cave expedition.',
 
     codex_feature_gambits: 'Gambit System',
     codex_feature_gambits_desc: 'The Gambit system allows you to program tactical AI rules for each hero, inspired by classic RPG automation systems. Each rule follows the structure: IF [Condition] THEN [Action] ON [Target]. During auto-combat, heroes evaluate their rules from top to bottom and execute the first valid one. If no rule matches, they default to Basic Attack.\n\nRule Components:\n- Conditions: Ally HP < X%, Self HP < X%, Self MP < X%, Enemy count > N, Enemy is weak to [element], Boss is present, Always (fallback).\n- Actions: Use any known skill/spell tier, use a consumable item, Defend (+50% DEF for 1 turn), or Flee.\n- Targets: Self, Lowest/Highest HP ally, Lowest/Highest HP enemy, Weakest enemy, Random.\n\nStrategic Depth:\n- Rule order matters greatly. Place healing rules at the top, damage rules below.\n- You can specify WHICH tier of a skill to use — conserve STA with cheap tiers, or unleash maximum power.\n- Rules can be toggled on/off without deleting them.\n\nSkip Combat: If all 4 deployed heroes have auto-combat enabled with valid gambits, battles can be resolved instantly (simulated). Bad gambits = dead heroes, so program carefully!',
-    codex_feature_gambits_unlock: 'Always unlocked.',
+    codex_feature_gambits_unlock: 'Any hero must reach Level 5.',
     codex_feature_threats_defense: 'Threats & Defense',
     codex_feature_threats_defense_desc: 'The village faces a seasonal cycle and periodic raid events that threaten your survival. Stay vigilant — your defenses determine whether you prosper or suffer losses.\n\nSeasons (30 days each, 120-day year):\n- Spring (Days 1–30): +5% population growth bonus.\n- Summer (Days 31–60): +10% farm production bonus.\n- Autumn (Days 61–90): +10% miner production bonus.\n- Winter (Days 91–120): −10% farm production penalty.\n\nRaid Events:\n- First raid occurs no earlier than Day 7. Subsequent raids happen every 7–14 days.\n- Raids are generated 14 days in advance and shown on your calendar.\n- Raid level scales with game day and total region clears.\n\nDefense Assignment:\n- Assign up to 4 idle heroes to defense positions. Only heroes with HP > 0 can defend.\n- Defense Power = sum of each defender\'s (STR + DEF + MaxHP/10) + 10 per Housing level + 5 per assigned Scout.\n- Win chance is based on the ratio of Defense Power to Raid Power.\n\nResolution:\n- Victory: Gold reward = raid level × 10. Defenders take 15% max HP damage.\n- Defeat: Lose 3–8 wood and stone. 15% chance to damage a random building (−1 level). Defenders take 40% max HP damage.\n- After any raid, defenders are automatically unassigned.',
-    codex_feature_threats_defense_unlock: 'Always available.',
+    codex_feature_threats_defense_unlock: 'Resolve your first raid event.',
 
     codex_feature_shop: 'Village Shop',
     codex_feature_shop_desc: 'The Village Shop is your central trading post, unlocked after completing the Tutorial Cave expedition. Here you can purchase consumables, equipment, and sell unwanted items or raw resources to fund your village\'s growth.\n\nStock & Unlocking:\n- Shop stock scales with your Blacksmith building level.\n- Blacksmith Level 0: Tier 1 (Wooden) gear and basic consumables (Tiny HP/MP Potions, Teleport Scrolls).\n- Blacksmith Level ≥1: Unlocks Tier 2 (Iron) weapons and armor.\n\nSell Resources Panel:\n- Raw Grain: 1 gold per unit.\n- Wood: 2 gold per unit.\n- Stone: 3 gold per unit.\n- Sell in batches of 1, 10, or 100 units.\n\nSell Items Panel:\n- Equipment and consumables can be sold for 30% of their shop purchase price.\n- Equipment sell price increases with refinement level (+10% per level).\n- Only items in your main inventory can be sold (equipped items must be unequipped first).\n\nTip: Selling resources is intentionally low-yield. Crafting and expeditions are more efficient for generating wealth.',
@@ -797,4 +797,69 @@ export const en = {
     codex_feature_body_inscription_unlock: 'A hero must reach Magic Tier 7 and have at least 12 physical Skill Tier points.',
 
     codex_locked_placeholder: 'Detailed system information will be available here once unlocked.',
+
+    // ─── New Codex Features ───
+    codex_feature_spell_codex: 'Spell Codex',
+    codex_feature_spell_codex_desc: 'The Spell Codex allows each hero to save up to 6 custom spells composed in the Magic Circle. Once a spell is inscribed, it can be cast in combat using MP. Spells are unique to each hero and persist across battles.\n\nTo inscribe a spell:\n1. Open the Magic Circle composer for a hero.\n2. Arrange Glyphs on the mandala.\n3. Click "Inscribe Spell" to save it to the hero\'s personal codex.\n4. In combat, select the spell from the spell list to cast it.\n\nTip: Experiment with different Glyph combinations. Some combinations produce unexpectedly powerful effects!',
+    codex_feature_spell_codex_unlock: 'Inscribe a custom spell for any hero.',
+
+    codex_feature_glyph_academy: 'Glyph Academy',
+    codex_feature_glyph_academy_desc: 'The Glyph Academy, housed within the Arcane Sanctum, allows heroes to teach Glyphs to one another. A teacher hero shares a known Glyph with student heroes over several days.\n\nAcademy Mechanics:\n- Requires Arcane Sanctum Level 2+.\n- 1 teacher + up to 2 students per session.\n- Teaching takes 3–5 days depending on Sanctum level.\n- During teaching, all participants are busy and cannot be sent on expeditions.\n- The Design Library allows copying spell designs between heroes for gold + time (no teacher required).\n\nHigher Sanctum levels increase student capacity and learning speed.\n\nTip: Teach warriors utility Glyphs so they can cast basic spells, or teach mages physical skill families for hybrid builds.',
+    codex_feature_glyph_academy_unlock: 'Upgrade the Arcane Sanctum to Level 2.',
+
+    // ─── Unlock Narratives: Era I ───
+    nar_first_expedition_title: 'The First Step',
+    nar_first_expedition_lore: 'Arthur returned from the cave bloodied but unbroken. The valley was not as empty as it seemed. Somewhere beyond the mist, others waited — some to be saved, some to be fought.',
+    nar_tiny_cave_found_title: 'Whispers from Below',
+    nar_tiny_cave_found_lore: 'A scout reported a narrow crevice in the hills — too deep to measure, too dark to map. But Arthur heard something from within: the clatter of steel, the groan of stone. There was more down there.',
+    nar_sir_valen_joins_title: 'A Shield in the Dark',
+    nar_sir_valen_joins_lore: 'The guard was half-buried under rubble, his armor cracked, his sword still clutched in both hands. He did not speak of gratitude — only duty. "I will hold the line," he said. And he has.',
+    nar_first_skill_slot_title: 'Awakening',
+    nar_first_skill_slot_lore: 'It happened during sparring — a sudden clarity, a shift in weight. Arthur\'s strikes were no longer mere swings; they were techniques. The Training Grounds suddenly made sense.',
+    nar_shop_unlocked_title: 'The Merchant\'s Return',
+    nar_shop_unlocked_lore: 'A cart appeared at dawn, drawn by a mule older than its driver. The merchant tipped his hat. "Heard there was coin to be made where the brave bleed." He set up his stall by the warehouse.',
+    nar_tavern_built_title: 'A Warm Fire',
+    nar_tavern_built_lore: 'The first keg was tapped before the roof was finished. Word travels fast in desperate lands — a village with a tavern is a village that plans to stay. Heroes began to arrive.',
+
+    // ─── Unlock Narratives: Era II ───
+    nar_dark_forest_found_title: 'The Trees Have Eyes',
+    nar_dark_forest_found_lore: 'The forest was not merely dark — it was aware. Leaves rustled in patterns too deliberate for wind. Expeditions returned speaking of wisp-lights and root-growth that moved overnight.',
+    nar_elara_arrives_title: 'The First Spark',
+    nar_elara_arrives_lore: 'She arrived at twilight, her robes singed at the hem, her eyes still reflecting something no one else could see. "I can teach you," she said to Arthur, "if you build me a circle."',
+    nar_magic_circle_unlocked_title: 'The Language of the World',
+    nar_magic_circle_unlocked_lore: 'The stones of the sanctum hummed when the final brick was laid. Elara traced a symbol in the air — fire, she called it — and for a moment, the air itself remembered how to burn.',
+    nar_witch_hut_built_title: 'The Veil Thins',
+    nar_witch_hut_built_lore: 'The witch did not knock. She simply appeared one morning in the half-finished hut, stirring a cauldron that had not been there the night before. "Your mages glow," she said. "I read glows."',
+    nar_first_spell_composed_title: 'A Name in Flame',
+    nar_first_spell_composed_lore: 'The circle flared, the glyphs aligned, and for the first time, a spell existed that had never existed before. Elara smiled — rare for her. "You have written your first word in the language of gods."',
+    nar_defense_first_raid_title: 'The Hammer at the Gate',
+    nar_defense_first_raid_lore: 'They came at midnight — not raiders, but a warning. The village was no longer hidden. From this day forward, walls would need watchers, and watchers would need steel.',
+    nar_explorer_guild_built_title: 'The World Opens',
+    nar_explorer_guild_built_lore: 'The guild charter was signed with mud instead of wax, but the meaning was the same: this village no longer hid. Maps were unrolled, scouts were commissioned, and the horizon became a destination.',
+
+    // ─── Unlock Narratives: Era III ───
+    nar_mystic_ruins_found_title: 'Echoes of the Magi',
+    nar_mystic_ruins_found_lore: 'The ruins predated the old kingdom — that much was certain. The glyphs etched into its pillars were not the ones Elara taught. They were older. Purer. Hungry.',
+    nar_academy_unlocked_title: 'The Exchange of Flame',
+    nar_academy_unlocked_lore: 'Two chairs, one teacher, one student. The academy was humble, but the knowledge was not. For the first time, a warrior learned to speak in fire, and a mage learned why.',
+    nar_body_inscription_unlocked_title: 'The Living Spell',
+    nar_body_inscription_unlocked_lore: 'The witch and the trainer argued for three hours before agreeing. The ritual would bind flesh and glyph together — irreversible, devastating, and beautiful. "Few survive the threshold," the witch warned. "Fewer still regret it."',
+    nar_frozen_peaks_found_title: 'The Summit\'s Price',
+    nar_frozen_peaks_found_lore: 'The peaks did not care for fire. Ice laughed at steel. Only those who understood the balance between force and finesse would return from the white silence above.',
+
+    // ─── Unlock Narratives: Era IV ───
+    nar_astral_plane_found_title: 'Beyond the Veil',
+    nar_astral_plane_found_lore: 'The Astral Plane was not discovered. It was earned. Only when a hero became both blade and spell could the rift be held open long enough to step through. What lay beyond was not meant for mortal eyes.',
+
+    // ─── Unlock Narratives: Special ───
+    nar_undefended_raid_title: 'The Cost of Neglect',
+    nar_undefended_raid_lore: 'The raiders found the gates unmanned. By dawn, the warehouse was empty, the treasury stripped, and the fields scorched. The survivors whispered that the commander had been warned.',
+
+    // ─── Defense Advisory ───
+    advisory_undefended: 'These are your last idle heroes. A raid is scheduled for Day {raidDay} ({daysUntilRaid} days from now), and this expedition will not return until Day {returnDay}. The village will have no defenders. Are you sure?',
+    advisory_raid_tomorrow: 'These are your last idle heroes, and a raid is scheduled for TOMORROW. The village will have no defenders. Are you sure?',
+    ui_advisory_title: 'Village Undefended',
+    ui_advisory_cancel: 'Cancel',
+    ui_advisory_proceed: 'Proceed Anyway',
+    error_hero_on_expedition: 'This hero is currently on an expedition and cannot be assigned to defense.'
 };

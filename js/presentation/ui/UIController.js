@@ -3,6 +3,7 @@
  * Manages the shell, view transitions, and domain-specific view registration.
  */
 import { CombatView } from './combat/CombatView.js';
+import { UnlockNarrativeView } from './unlocks/UnlockNarrativeView.js';
 const DEBUG = false;
 
 export class UIController {
@@ -48,6 +49,7 @@ export class UIController {
             town: 'shop'
         };
         this.combatView = new CombatView({ i18n: this.i18n });
+        this.unlockNarrativeView = new UnlockNarrativeView(this.i18n);
         
         this.views = new Map(); // domainName -> BaseView instance
         this.activeView = null;

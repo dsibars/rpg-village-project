@@ -1,19 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="RPG Village - Build and Manage Your Hero's Home">
     <title>RPG Village</title>
-    
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-    
+
+    <!-- Fonts (Loaded locally in style.css for 100% offline support) -->
+
     <!-- Styles -->
     <link rel="stylesheet" href="./css/style.css">
 </head>
+
 <body>
     <div id="app-container">
         <!-- Global Header: Persistence across views -->
@@ -24,10 +23,13 @@
             <div class="global-day-cycle">
                 <span class="day-label" data-i18n="village_day">Day</span>
                 <span id="global-day" class="day-value">--</span>
-                <button id="btn-global-next-day" class="btn btn-primary btn-sm shine-effect" style="padding: 6px 12px; font-size: 0.85rem;">
+                <button id="btn-global-next-day" class="btn btn-primary btn-sm shine-effect"
+                    style="padding: 6px 12px; font-size: 0.85rem;">
                     <span class="icon">☀️</span> <span data-i18n="btn_next_day" class="hide-mobile">Next Day</span>
                 </button>
-                <button id="btn-global-codex" class="btn btn-secondary btn-sm" style="padding: 6px 12px; font-size: 0.85rem; display: flex; align-items: center; gap: 4px;" title="Codex">
+                <button id="btn-global-codex" class="btn btn-secondary btn-sm"
+                    style="padding: 6px 12px; font-size: 0.85rem; display: flex; align-items: center; gap: 4px;"
+                    title="Codex">
                     <span class="icon">📖</span> <span data-i18n="nav_codex" class="hide-mobile">Codex</span>
                 </button>
             </div>
@@ -76,18 +78,39 @@
     </div>
 
     <!-- View Templates (Inlined at build-time) -->
-    <template id="tpl-village"><include src="pages/village.html"></include></template>
-    <template id="tpl-buildings"><include src="pages/buildings.html"></include></template>
-    <template id="tpl-heroes"><include src="pages/heroes.html"></include></template>
-    <template id="tpl-inventory"><include src="pages/inventory.html"></include></template>
-    <template id="tpl-explore"><include src="pages/explore.html"></include></template>
-    <template id="tpl-settings"><include src="pages/settings.html"></include></template>
-    <template id="tpl-shop"><include src="pages/shop.html"></include></template>
-    <template id="tpl-forge"><include src="pages/forge.html"></include></template>
-    <template id="tpl-bestiary"><include src="pages/bestiary.html"></include></template>
-    <template id="tpl-codex"><include src="pages/codex.html"></include></template>
+    <template id="tpl-village">
+        <include src="pages/village.html"></include>
+    </template>
+    <template id="tpl-buildings">
+        <include src="pages/buildings.html"></include>
+    </template>
+    <template id="tpl-heroes">
+        <include src="pages/heroes.html"></include>
+    </template>
+    <template id="tpl-inventory">
+        <include src="pages/inventory.html"></include>
+    </template>
+    <template id="tpl-explore">
+        <include src="pages/explore.html"></include>
+    </template>
+    <template id="tpl-settings">
+        <include src="pages/settings.html"></include>
+    </template>
+    <template id="tpl-shop">
+        <include src="pages/shop.html"></include>
+    </template>
+    <template id="tpl-forge">
+        <include src="pages/forge.html"></include>
+    </template>
+    <template id="tpl-bestiary">
+        <include src="pages/bestiary.html"></include>
+    </template>
+    <template id="tpl-codex">
+        <include src="pages/codex.html"></include>
+    </template>
 
     <!-- Application Entry Point -->
     <script type="module" src="./js/main.js"></script>
 </body>
+
 </html>

@@ -112,6 +112,8 @@ export class HeroesView extends BaseView {
         this.inventoryEquipment = state.inventory.equipment || [];
 
         const activeHero = heroes.find(h => h.id === this.selectedHeroId);
+        const infra = state.village?.infrastructure || {};
+        const anyHeroLevel5 = heroes.some(h => h.level >= 5);
         const stateString = JSON.stringify({
             heroes: heroes.map(h => ({ id: h.id, level: h.level })),
             selection: this.selectedHeroId,
@@ -132,7 +134,12 @@ export class HeroesView extends BaseView {
                 defense: activeHero.defense,
                 magicPower: activeHero.magicPower,
                 equipment: activeHero.equipment
-            } : null
+            } : null,
+            infrastructure: {
+                arcane_sanctum: infra.arcane_sanctum || 0,
+                witchs_hut: infra.witchs_hut || 0
+            },
+            anyHeroLevel5
         });
 
         if (this.lastRenderedState === stateString) return;
@@ -391,15 +398,21 @@ export class HeroesView extends BaseView {
                         <button class="btn btn-secondary btn-sm btn-trainer" data-action="open-trainer" style="margin-top: 8px;">
                             💪 ${this.t('trainer_title') || 'Training Grounds'}
                         </button>
+                        ${(state.village?.infrastructure?.arcane_sanctum || 0) >= 1 ? `
                         <button class="btn btn-secondary btn-sm btn-magic-circle" data-action="open-magic-circle" style="margin-top: 8px; margin-left: 6px;">
                             🔮 ${this.t('magic_circle_title') || 'Magic Circle'}
                         </button>
+                        ` : ''}
+                        ${(state.village?.infrastructure?.witchs_hut || 0) >= 1 ? `
                         <button class="btn btn-secondary btn-sm btn-witch" data-action="open-witch" style="margin-top: 8px; margin-left: 6px;">
                             🌙 ${this.t('witch_title') || 'Witch\'s Hut'}
                         </button>
+                        ` : ''}
+                        ${(state.village?.infrastructure?.arcane_sanctum || 0) >= 2 ? `
                         <button class="btn btn-secondary btn-sm btn-academy" data-action="open-academy" style="margin-top: 8px; margin-left: 6px;">
                             📚 ${this.t('academy_title') || 'Glyph Academy'}
                         </button>
+                        ` : ''}
                         <button class="btn btn-secondary btn-sm btn-hall" data-action="open-hall" style="margin-top: 8px; margin-left: 6px;">
                             🏆 ${this.t('hall_of_fame_title') || 'Hall of Fame'}
                         </button>
@@ -408,9 +421,11 @@ export class HeroesView extends BaseView {
                             ✦ ${this.t('body_inscription_title') || 'Body Inscription'}
                         </button>
                         ` : ''}
+                        ${(state.heroes || []).some(h => h.level >= 5) ? `
                         <button class="btn btn-secondary btn-sm btn-gambit" data-action="open-gambit" style="margin-top: 8px; margin-left: 6px;">
                             🎲 ${this.t('gambit_title') || 'Gambits'}
                         </button>
+                        ` : ''}
                     </div>
                 </div>
                 <div class="stats-grid">

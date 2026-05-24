@@ -39,24 +39,6 @@ export const CODEX_FEATURES = [
         unlockHintKey: 'codex_feature_hero_attributes_unlock',
         isUnlocked: (state) => true
     },
-    {
-        id: 'feature_stamina_skills',
-        categoryId: 'basics',
-        icon: '⚔️',
-        nameKey: 'codex_feature_stamina_skills',
-        descKey: 'codex_feature_stamina_skills_desc',
-        unlockHintKey: 'codex_feature_stamina_skills_unlock',
-        isUnlocked: (state) => true
-    },
-    {
-        id: 'feature_expeditions',
-        categoryId: 'basics',
-        icon: '🗺️',
-        nameKey: 'codex_feature_expeditions',
-        descKey: 'codex_feature_expeditions_desc',
-        unlockHintKey: 'codex_feature_expeditions_unlock',
-        isUnlocked: (state) => true
-    },
 
     // ─── COMBAT ───
     {
@@ -66,7 +48,16 @@ export const CODEX_FEATURES = [
         nameKey: 'codex_feature_gambits',
         descKey: 'codex_feature_gambits_desc',
         unlockHintKey: 'codex_feature_gambits_unlock',
-        isUnlocked: (state) => true
+        isUnlocked: (state) => (state.heroes || []).some(h => h.level >= 5)
+    },
+    {
+        id: 'feature_stamina_skills',
+        categoryId: 'combat',
+        icon: '⚔️',
+        nameKey: 'codex_feature_stamina_skills',
+        descKey: 'codex_feature_stamina_skills_desc',
+        unlockHintKey: 'codex_feature_stamina_skills_unlock',
+        isUnlocked: (state) => (state.heroes || []).some(h => h.level >= 5)
     },
     {
         id: 'feature_threats_defense',
@@ -75,8 +66,24 @@ export const CODEX_FEATURES = [
         nameKey: 'codex_feature_threats_defense',
         descKey: 'codex_feature_threats_defense_desc',
         unlockHintKey: 'codex_feature_threats_defense_unlock',
-        isUnlocked: (state) => true
+        isUnlocked: (state) => (state.calendar?.resolvedRaids || 0) >= 1
     },
+
+    // ─── VILLAGE BUILDINGS ───
+    {
+        id: 'feature_expeditions',
+        categoryId: 'village',
+        icon: '🗺️',
+        nameKey: 'codex_feature_expeditions',
+        descKey: 'codex_feature_expeditions_desc',
+        unlockHintKey: 'codex_feature_expeditions_unlock',
+        isUnlocked: (state) => {
+            const completed = state.completedExpeditions || [];
+            return completed.includes('exp_tutorial_cave');
+        }
+    },
+
+
 
     // ─── VILLAGE BUILDINGS ───
     {
@@ -184,6 +191,27 @@ export const CODEX_FEATURES = [
                 }, 0);
                 return magicTier >= 7 && skillTierPoints >= 12;
             });
+        }
+    },
+    {
+        id: 'feature_spell_codex',
+        categoryId: 'magic',
+        icon: '📖',
+        nameKey: 'codex_feature_spell_codex',
+        descKey: 'codex_feature_spell_codex_desc',
+        unlockHintKey: 'codex_feature_spell_codex_unlock',
+        isUnlocked: (state) => (state.heroes || []).some(h => (h.spellCodex || []).length > 0)
+    },
+    {
+        id: 'feature_glyph_academy',
+        categoryId: 'magic',
+        icon: '🏛️',
+        nameKey: 'codex_feature_glyph_academy',
+        descKey: 'codex_feature_glyph_academy_desc',
+        unlockHintKey: 'codex_feature_glyph_academy_unlock',
+        isUnlocked: (state) => {
+            const sanctum = state.village?.infrastructure?.arcane_sanctum || 0;
+            return sanctum >= 2;
         }
     }
 ];

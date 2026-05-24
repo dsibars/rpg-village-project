@@ -1,0 +1,6 @@
+# Itch.io Deployment Configuration Template
+# Copy this file to 'itch.config' and configure your user/game settings.
+# 'itch.config' is git-ignored and remains local to your environment.
+
+ITCH_USER=your-itch-username-here
+ITCH_GAME=rpg-village-project
