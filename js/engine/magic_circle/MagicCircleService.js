@@ -141,9 +141,16 @@ export class MagicCircleService {
         // Apply efficiency reductions
         const efficiencyMult = Math.max(0.1, 1 - effects.costReduction);
 
-        const baseMpCost = core.baseCost;
+        const coreTier = Math.max(1, Math.min(7, glyphTiers[core.id] || 1));
+        const coreEffectMults = [1.0, 1.2, 1.5, 2.0, 2.5, 3.0, 4.0];
+        const coreCostMults = [1.0, 1.15, 1.3, 1.5, 1.75, 2.0, 2.5];
+
+        const coreEffectMult = coreEffectMults[coreTier - 1];
+        const coreCostMult = coreCostMults[coreTier - 1];
+
+        const baseMpCost = core.baseCost * coreCostMult;
         const mpCost = Math.max(1, Math.floor(baseMpCost * totalCostMult * efficiencyMult));
-        const damage = Math.floor(core.baseDamage * totalDamageMult);
+        const damage = Math.floor(core.baseDamage * coreEffectMult * totalDamageMult);
 
         const spell = {
             id: `spell_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,

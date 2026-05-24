@@ -3,9 +3,18 @@
  * This is the single source of truth for all game feature documentation.
  */
 
+export const CODEX_CATEGORIES = [
+    { id: 'basics',    icon: '📖', nameKey: 'codex_category_basics' },
+    { id: 'combat',    icon: '⚔️', nameKey: 'codex_category_combat' },
+    { id: 'village',   icon: '🏘️', nameKey: 'codex_category_village' },
+    { id: 'magic',     icon: '🔮', nameKey: 'codex_category_magic' }
+];
+
 export const CODEX_FEATURES = [
+    // ─── BASICS ───
     {
         id: 'feature_day_cycle',
+        categoryId: 'basics',
         icon: '☀️',
         nameKey: 'codex_feature_day_cycle',
         descKey: 'codex_feature_day_cycle_desc',
@@ -14,6 +23,7 @@ export const CODEX_FEATURES = [
     },
     {
         id: 'feature_villagers',
+        categoryId: 'basics',
         icon: '👤',
         nameKey: 'codex_feature_villagers',
         descKey: 'codex_feature_villagers_desc',
@@ -22,6 +32,7 @@ export const CODEX_FEATURES = [
     },
     {
         id: 'feature_hero_attributes',
+        categoryId: 'basics',
         icon: '🦸',
         nameKey: 'codex_feature_hero_attributes',
         descKey: 'codex_feature_hero_attributes_desc',
@@ -29,23 +40,28 @@ export const CODEX_FEATURES = [
         isUnlocked: (state) => true
     },
     {
-        id: 'feature_physical_skills_combat',
-        icon: '🤺',
-        nameKey: 'codex_feature_physical_skills_combat',
-        descKey: 'codex_feature_physical_skills_combat_desc',
-        unlockHintKey: 'codex_feature_physical_skills_combat_unlock',
+        id: 'feature_stamina_skills',
+        categoryId: 'basics',
+        icon: '⚔️',
+        nameKey: 'codex_feature_stamina_skills',
+        descKey: 'codex_feature_stamina_skills_desc',
+        unlockHintKey: 'codex_feature_stamina_skills_unlock',
         isUnlocked: (state) => true
     },
     {
-        id: 'feature_threats_defense',
-        icon: '🛡️',
-        nameKey: 'codex_feature_threats_defense',
-        descKey: 'codex_feature_threats_defense_desc',
-        unlockHintKey: 'codex_feature_threats_defense_unlock',
+        id: 'feature_expeditions',
+        categoryId: 'basics',
+        icon: '🗺️',
+        nameKey: 'codex_feature_expeditions',
+        descKey: 'codex_feature_expeditions_desc',
+        unlockHintKey: 'codex_feature_expeditions_unlock',
         isUnlocked: (state) => true
     },
+
+    // ─── COMBAT ───
     {
         id: 'feature_gambits',
+        categoryId: 'combat',
         icon: '📜',
         nameKey: 'codex_feature_gambits',
         descKey: 'codex_feature_gambits_desc',
@@ -53,7 +69,19 @@ export const CODEX_FEATURES = [
         isUnlocked: (state) => true
     },
     {
+        id: 'feature_threats_defense',
+        categoryId: 'combat',
+        icon: '🛡️',
+        nameKey: 'codex_feature_threats_defense',
+        descKey: 'codex_feature_threats_defense_desc',
+        unlockHintKey: 'codex_feature_threats_defense_unlock',
+        isUnlocked: (state) => true
+    },
+
+    // ─── VILLAGE BUILDINGS ───
+    {
         id: 'feature_shop',
+        categoryId: 'village',
         icon: '🛒',
         nameKey: 'codex_feature_shop',
         descKey: 'codex_feature_shop_desc',
@@ -65,6 +93,7 @@ export const CODEX_FEATURES = [
     },
     {
         id: 'feature_forge',
+        categoryId: 'village',
         icon: '⚒️',
         nameKey: 'codex_feature_forge',
         descKey: 'codex_feature_forge_desc',
@@ -75,18 +104,46 @@ export const CODEX_FEATURES = [
         }
     },
     {
-        id: 'feature_skills',
-        icon: '⚔️',
-        nameKey: 'codex_feature_skills',
-        descKey: 'codex_feature_skills_desc',
-        unlockHintKey: 'codex_feature_skills_unlock',
+        id: 'feature_infirmary',
+        categoryId: 'village',
+        icon: '🏥',
+        nameKey: 'codex_feature_infirmary',
+        descKey: 'codex_feature_infirmary_desc',
+        unlockHintKey: 'codex_feature_infirmary_unlock',
         isUnlocked: (state) => {
-            const training = state.village?.infrastructure?.training_grounds || 0;
-            return training >= 1;
+            const infirmary = state.village?.infrastructure?.infirmary || 0;
+            return infirmary >= 1;
         }
     },
     {
+        id: 'feature_tavern',
+        categoryId: 'village',
+        icon: '🍻',
+        nameKey: 'codex_feature_tavern',
+        descKey: 'codex_feature_tavern_desc',
+        unlockHintKey: 'codex_feature_tavern_unlock',
+        isUnlocked: (state) => {
+            const tavern = state.village?.infrastructure?.tavern || 0;
+            return tavern >= 1;
+        }
+    },
+    {
+        id: 'feature_explorer_guild',
+        categoryId: 'village',
+        icon: '🧭',
+        nameKey: 'codex_feature_explorer_guild',
+        descKey: 'codex_feature_explorer_guild_desc',
+        unlockHintKey: 'codex_feature_explorer_guild_unlock',
+        isUnlocked: (state) => {
+            const explorer = state.village?.infrastructure?.explorer_guild || 0;
+            return explorer >= 1;
+        }
+    },
+
+    // ─── MAGIC ───
+    {
         id: 'feature_magic_circle',
+        categoryId: 'magic',
         icon: '🔮',
         nameKey: 'codex_feature_magic_circle',
         descKey: 'codex_feature_magic_circle_desc',
@@ -98,6 +155,7 @@ export const CODEX_FEATURES = [
     },
     {
         id: 'feature_witch_hut',
+        categoryId: 'magic',
         icon: '🧙‍♀️',
         nameKey: 'codex_feature_witch_hut',
         descKey: 'codex_feature_witch_hut_desc',
@@ -108,11 +166,12 @@ export const CODEX_FEATURES = [
         }
     },
     {
-        id: 'feature_hybrid',
+        id: 'feature_body_inscription',
+        categoryId: 'magic',
         icon: '🧬',
-        nameKey: 'codex_feature_hybrid',
-        descKey: 'codex_feature_hybrid_desc',
-        unlockHintKey: 'codex_feature_hybrid_unlock',
+        nameKey: 'codex_feature_body_inscription',
+        descKey: 'codex_feature_body_inscription_desc',
+        unlockHintKey: 'codex_feature_body_inscription_unlock',
         isUnlocked: (state) => {
             const heroes = state.heroes || [];
             return heroes.some(hero => {
@@ -125,39 +184,6 @@ export const CODEX_FEATURES = [
                 }, 0);
                 return magicTier >= 7 && skillTierPoints >= 12;
             });
-        }
-    },
-    {
-        id: 'feature_infirmary',
-        icon: '🏥',
-        nameKey: 'codex_feature_infirmary',
-        descKey: 'codex_feature_infirmary_desc',
-        unlockHintKey: 'codex_feature_infirmary_unlock',
-        isUnlocked: (state) => {
-            const infirmary = state.village?.infrastructure?.infirmary || 0;
-            return infirmary >= 1;
-        }
-    },
-    {
-        id: 'feature_tavern',
-        icon: '🍻',
-        nameKey: 'codex_feature_tavern',
-        descKey: 'codex_feature_tavern_desc',
-        unlockHintKey: 'codex_feature_tavern_unlock',
-        isUnlocked: (state) => {
-            const tavern = state.village?.infrastructure?.tavern || 0;
-            return tavern >= 1;
-        }
-    },
-    {
-        id: 'feature_explorer',
-        icon: '🧭',
-        nameKey: 'codex_feature_explorer',
-        descKey: 'codex_feature_explorer_desc',
-        unlockHintKey: 'codex_feature_explorer_unlock',
-        isUnlocked: (state) => {
-            const explorer = state.village?.infrastructure?.explorer_guild || 0;
-            return explorer >= 1;
         }
     }
 ];

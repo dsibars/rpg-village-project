@@ -1,5 +1,5 @@
 import { BaseView } from '../BaseView.js';
-import { CODEX_FEATURES } from '../../../engine/shared/data/CodexFeatures.js';
+import { CODEX_FEATURES, CODEX_CATEGORIES } from '../../../engine/shared/data/CodexFeatures.js';
 
 export class CodexView extends BaseView {
     constructor() {
@@ -85,32 +85,44 @@ export class CodexView extends BaseView {
 
         container.innerHTML = '';
 
-        CODEX_FEATURES.forEach(feature => {
-            const unlocked = feature.isUnlocked(state);
-            
-            const row = document.createElement('div');
-            row.className = `codex-row${unlocked ? '' : ' locked'}${this.selectedFeatureId === feature.id ? ' active' : ''}`;
-            row.dataset.id = feature.id;
+        CODEX_CATEGORIES.forEach(category => {
+            const categoryFeatures = CODEX_FEATURES.filter(f => f.categoryId === category.id);
+            if (categoryFeatures.length === 0) return;
 
-            const iconSpan = document.createElement('span');
-            iconSpan.className = 'codex-icon';
-            iconSpan.textContent = unlocked ? feature.icon : '❓';
+            // Render category header
+            const header = document.createElement('div');
+            header.className = 'codex-category-header';
+            header.innerHTML = `<span class="codex-category-icon">${category.icon}</span><span class="codex-category-name">${this.t(category.nameKey)}</span>`;
+            container.appendChild(header);
 
-            const nameSpan = document.createElement('span');
-            nameSpan.className = 'codex-name';
-            nameSpan.textContent = this.t(feature.nameKey);
+            // Render features in this category
+            categoryFeatures.forEach(feature => {
+                const unlocked = feature.isUnlocked(state);
+                
+                const row = document.createElement('div');
+                row.className = `codex-row${unlocked ? '' : ' locked'}${this.selectedFeatureId === feature.id ? ' active' : ''}`;
+                row.dataset.id = feature.id;
 
-            row.appendChild(iconSpan);
-            row.appendChild(nameSpan);
+                const iconSpan = document.createElement('span');
+                iconSpan.className = 'codex-icon';
+                iconSpan.textContent = unlocked ? feature.icon : '❓';
 
-            if (!unlocked) {
-                const lockSpan = document.createElement('span');
-                lockSpan.className = 'codex-lock';
-                lockSpan.innerHTML = '🔒';
-                row.appendChild(lockSpan);
-            }
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'codex-name';
+                nameSpan.textContent = this.t(feature.nameKey);
 
-            container.appendChild(row);
+                row.appendChild(iconSpan);
+                row.appendChild(nameSpan);
+
+                if (!unlocked) {
+                    const lockSpan = document.createElement('span');
+                    lockSpan.className = 'codex-lock';
+                    lockSpan.innerHTML = '🔒';
+                    row.appendChild(lockSpan);
+                }
+
+                container.appendChild(row);
+            });
         });
     }
 
@@ -155,18 +167,14 @@ export class CodexView extends BaseView {
                 </div>
                 <div class="codex-explanation-section">
                     <h4>${this.t('nav_codex')}</h4>
-                    <p class="codex-explanation-text" style="opacity: 0.5; font-style: italic;">
-                        ${this.t('codex_locked_placeholder')}
-                    </p>
+                    <p class="codex-explanation-text" style="opacity: 0.5; font-style: italic;">${this.t('codex_locked_placeholder')}</p>
                 </div>
             `;
         } else {
             detailsHtml += `
                 <div class="codex-explanation-section">
                     <h4>${this.t('nav_codex')}</h4>
-                    <p class="codex-explanation-text">
-                        ${this.t(feature.descKey)}
-                    </p>
+                    <p class="codex-explanation-text">${this.t(feature.descKey)}</p>
                 </div>
             `;
         }

@@ -852,8 +852,8 @@ export class HeroesView extends BaseView {
         return skillTierPoints >= 12 && (hero.magicTier || 0) >= 7;
     }
 
-    _openMagicCircleModal() {
-        const hero = this.lastRawState?.heroes?.find(h => h.id === this.selectedHeroId);
+    _openMagicCircleModal(overrideHero = null) {
+        const hero = overrideHero || this.lastRawState?.heroes?.find(h => h.id === this.selectedHeroId);
         if (!hero) return;
 
         // Uses imported MagicCircleService, GLYPH_DATA, computeGlyphEffect, computeGlyphCostMult
@@ -865,6 +865,8 @@ export class HeroesView extends BaseView {
         // Composition state
         let composition = []; // array of { slotIndex, glyphId }
         let customName = '';
+        let selectedTiers = {};
+        const isSimulator = hero.id === 'simulator_fake_hero';
 
         const overlay = document.createElement('div');
         overlay.className = 'modal-overlay trainer-modal-overlay';
@@ -873,7 +875,7 @@ export class HeroesView extends BaseView {
             const glyphIds = composition.map(c => c.glyphId);
             const glyphTiers = {};
             for (const c of composition) {
-                glyphTiers[c.glyphId] = glyphMastery[c.glyphId]?.tier || 1;
+                glyphTiers[c.glyphId] = selectedTiers[c.glyphId] || glyphMastery[c.glyphId]?.tier || 1;
             }
 
             const composeResult = composition.length > 0
@@ -902,33 +904,106 @@ export class HeroesView extends BaseView {
             };
 
             const slotHtml = [];
-            for (let i = 0; i < maxSlots; i++) {
-                const slotComp = composition.find(c => c.slotIndex === i);
+            for (let i = 0; i < 25; i++) {
+                const isUnlocked = i < maxSlots;
                 const isCore = i === 0;
-                const label = isCore ? 'CORE' : `R${i}`;
-                if (slotComp) {
-                    const g = GLYPH_DATA[slotComp.glyphId];
-                    const tier = glyphMastery[slotComp.glyphId]?.tier || 1;
-                    const symbol = MagicCircleService.getGlyphSymbol(tier);
-                    slotHtml.push(`<div class="circle-slot filled ${isCore ? 'core-slot' : ''}" data-slot="${i}" title="Click to remove">${label}: ${this.t(g.id)} ${symbol}</div>`);
+                
+                let left, top;
+                if (isCore) {
+                    left = 50;
+                    top = 50;
                 } else {
-                    slotHtml.push(`<div class="circle-slot empty ${isCore ? 'core-slot' : ''}" data-slot="${i}">${label}: —</div>`);
+                    const ring = Math.floor((i - 1) / 6) + 1;
+                    const slotInRing = (i - 1) % 6;
+                    const radius = ring * 11.5; // percentage
+                    const angle = slotInRing * (2 * Math.PI / 6) - Math.PI / 2; // top starts at -90deg
+                    left = 50 + radius * Math.cos(angle);
+                    top = 50 + radius * Math.sin(angle);
                 }
+
+                const slotComp = composition.find(c => c.slotIndex === i);
+                const label = isCore ? 'CORE' : `R${i}`;
+                
+                let slotClass = 'mandala-slot';
+                let content = '';
+                let title = '';
+                
+                if (!isUnlocked) {
+                    slotClass += ' locked';
+                    content = '🔒';
+                    title = `${label} (Locked - Magic Tier ${i + 1} required)`;
+                } else if (slotComp) {
+                    slotClass += ' filled';
+                    const g = GLYPH_DATA[slotComp.glyphId];
+                    const tier = selectedTiers[slotComp.glyphId] || glyphMastery[slotComp.glyphId]?.tier || 1;
+                    const symbol = MagicCircleService.getGlyphSymbol(tier);
+                    const emoji = g.type === 'core' ? (g.element === 'fire' ? '🔥' : g.element === 'water' ? '💧' : g.element === 'wind' ? '🌪️' : g.element === 'storm' ? '⚡' : g.element === 'light' ? '✨' : '🌑') : '';
+                    content = `<div class="slot-icon">${emoji || g.id.replace('glyph_', '').slice(0, 3).toUpperCase()}</div><span class="slot-tier">${symbol}</span>`;
+                    title = `${label}: ${this.t(g.id) || g.id} ${symbol} (Click to remove)`;
+                } else {
+                    slotClass += ' empty';
+                    content = isCore ? '⚡' : '＋';
+                    title = `${label} (Empty - Click a glyph in the palette to insert)`;
+                }
+                
+                if (isCore) {
+                    slotClass += ' core-slot';
+                }
+
+                slotHtml.push(`
+                    <div class="${slotClass}" data-slot="${i}" title="${title}" style="position: absolute; left: ${left.toFixed(2)}%; top: ${top.toFixed(2)}%; transform: translate(-50%, -50%);">
+                        ${content}
+                    </div>
+                `);
             }
 
             const paletteHtml = Object.entries(catalog).map(([cat, glyphs]) => {
                 if (glyphs.length === 0) return '';
                 const glyphButtons = glyphs.map(g => {
-                    const tier = glyphMastery[g.id]?.tier || 1;
+                    const tier = selectedTiers[g.id] || glyphMastery[g.id]?.tier || 1;
                     const symbol = MagicCircleService.getGlyphSymbol(tier);
                     const isUsed = composition.some(c => c.glyphId === g.id);
-                    const disabled = isUsed || composition.length >= maxSlots || (composition.length === 0 && g.type !== 'core');
-                    return `<button class="btn btn-sm glyph-btn ${isUsed ? 'used' : ''}" data-glyph="${g.id}" ${disabled ? 'disabled' : ''}>${this.t(g.id)} ${symbol}</button>`;
+                    
+                    // Core is never disabled (just replaces Core).
+                    // Complementary is disabled if all Ring slots are full.
+                    let disabled = false;
+                    if (g.type !== 'core') {
+                        const ringSlotsFilled = composition.filter(c => c.slotIndex > 0).length;
+                        const maxRingSlots = maxSlots - 1;
+                        if (ringSlotsFilled >= maxRingSlots) {
+                            disabled = true;
+                        }
+                    }
+                    
+                    let tierSelectHtml = '';
+                    if (isSimulator) {
+                        tierSelectHtml = `
+                            <select class="glyph-tier-select" data-glyph="${g.id}" style="margin-left: 6px;">
+                                ${[1, 2, 3, 4, 5, 6, 7].map(t => {
+                                    const sym = MagicCircleService.getGlyphSymbol(t);
+                                    return `<option value="${t}" ${t === tier ? 'selected' : ''}>${sym} (T${t})</option>`;
+                                }).join('')}
+                            </select>
+                        `;
+                    }
+
+                    return `
+                        <div class="glyph-palette-item" style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 4px; margin-bottom: 6px;">
+                            <button class="btn btn-sm glyph-btn ${isUsed ? 'used' : ''}" data-glyph="${g.id}" ${disabled ? 'disabled' : ''} style="flex: 1; text-align: left; background: transparent; border: none; padding: 4px 8px; font-size: 0.75rem;">
+                                ${this.t(g.id) || g.id} ${symbol}
+                            </button>
+                            ${tierSelectHtml}
+                        </div>
+                    `;
                 }).join('');
                 return `
-                    <div class="glyph-category">
-                        <h5>${categoryLabels[cat]}</h5>
-                        <div class="glyph-buttons">${glyphButtons}</div>
+                    <div class="glyph-category" style="margin-bottom: 12px;">
+                        <h5 style="margin: 0 0 6px 0; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 4px;">
+                            ${categoryLabels[cat]}
+                        </h5>
+                        <div class="glyph-buttons" style="display: flex; flex-direction: column;">
+                            ${glyphButtons}
+                        </div>
                     </div>
                 `;
             }).join('');
@@ -947,59 +1022,227 @@ export class HeroesView extends BaseView {
             ` : '<div class="spell-preview empty">Select a Core glyph to begin composing.</div>';
 
             overlay.innerHTML = `
-                <div class="trainer-dialogue-box magic-circle-box" style="max-width: 640px; max-height: 90vh; overflow-y: auto;">
-                    <div class="trainer-header">
+                <style>
+                .mandala-slot {
+                    cursor: pointer;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    width: 36px;
+                    height: 36px;
+                    border-radius: 50%;
+                    font-size: 0.65rem;
+                    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+                    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+                    z-index: 2;
+                    border: 1.5px solid transparent;
+                }
+                .mandala-slot.empty {
+                    background: rgba(255, 255, 255, 0.03);
+                    border: 1.5px dashed rgba(255, 255, 255, 0.15);
+                    color: rgba(255, 255, 255, 0.35);
+                }
+                .mandala-slot.empty:hover {
+                    background: rgba(255, 255, 255, 0.12);
+                    border-color: rgba(255, 255, 255, 0.45);
+                    color: #fff;
+                    transform: translate(-50%, -50%) scale(1.15);
+                    box-shadow: 0 0 10px rgba(255,255,255,0.2);
+                }
+                .mandala-slot.core-slot.empty {
+                    background: rgba(255, 109, 0, 0.05);
+                    border: 1.5px dashed rgba(255, 109, 0, 0.4);
+                    color: rgba(255, 109, 0, 0.7);
+                }
+                .mandala-slot.core-slot.empty:hover {
+                    background: rgba(255, 109, 0, 0.15);
+                    border-color: rgba(255, 109, 0, 0.8);
+                    color: #ffd180;
+                }
+                .mandala-slot.filled {
+                    background: linear-gradient(135deg, #4a148c, #311b92);
+                    border: 1.5px solid #7c4dff;
+                    color: #fff;
+                    box-shadow: 0 0 10px rgba(124, 77, 255, 0.6);
+                }
+                .mandala-slot.filled:hover {
+                    transform: translate(-50%, -50%) scale(1.15);
+                    box-shadow: 0 0 15px rgba(124, 77, 255, 0.9);
+                }
+                .mandala-slot.filled.core-slot {
+                    background: linear-gradient(135deg, #e65100, #ff3d00);
+                    border: 1.5px solid #ffab40;
+                    box-shadow: 0 0 15px rgba(255, 61, 0, 0.7);
+                }
+                .mandala-slot.filled.core-slot:hover {
+                    box-shadow: 0 0 20px rgba(255, 61, 0, 1);
+                }
+                .mandala-slot.locked {
+                    background: rgba(0, 0, 0, 0.6);
+                    border: 1.5px solid rgba(255, 255, 255, 0.04);
+                    color: rgba(255, 255, 255, 0.12);
+                    cursor: not-allowed;
+                    box-shadow: none;
+                }
+                .slot-tier {
+                    position: absolute;
+                    bottom: -4px;
+                    right: -4px;
+                    font-size: 0.55rem;
+                    background: rgba(0, 0, 0, 0.85);
+                    border-radius: 4px;
+                    padding: 0 2px;
+                    color: #ffd700;
+                    border: 1px solid rgba(255,255,255,0.1);
+                    pointer-events: none;
+                }
+                .slot-icon {
+                    font-weight: bold;
+                    font-size: 0.65rem;
+                    line-height: 1;
+                    pointer-events: none;
+                }
+                .glyph-palette-item {
+                    transition: all 0.2s ease;
+                }
+                .glyph-palette-item:hover {
+                    background: rgba(255,255,255,0.06) !important;
+                    border-color: rgba(255,255,255,0.18) !important;
+                }
+                .glyph-btn.used {
+                    color: #ffd700 !important;
+                    font-weight: bold;
+                }
+                .glyph-tier-select {
+                    background: rgba(0,0,0,0.5);
+                    color: #ffab40;
+                    border: 1px solid rgba(255,255,255,0.15);
+                    border-radius: 4px;
+                    padding: 2px 4px;
+                    font-size: 0.65rem;
+                    font-weight: bold;
+                    outline: none;
+                    cursor: pointer;
+                }
+                .glyph-tier-select option {
+                    background: #121212;
+                    color: #fff;
+                }
+                /* Custom scrollbar for left palette panel */
+                .glyph-palette-scroll::-webkit-scrollbar {
+                    width: 6px;
+                }
+                .glyph-palette-scroll::-webkit-scrollbar-track {
+                    background: rgba(0,0,0,0.15);
+                    border-radius: 3px;
+                }
+                .glyph-palette-scroll::-webkit-scrollbar-thumb {
+                    background: rgba(255,255,255,0.15);
+                    border-radius: 3px;
+                }
+                .glyph-palette-scroll::-webkit-scrollbar-thumb:hover {
+                    background: rgba(255,255,255,0.25);
+                }
+                </style>
+                
+                <div class="trainer-dialogue-box magic-circle-box" style="max-width: 1000px; width: 90vw; max-height: 85vh; display: flex; flex-direction: column; overflow: hidden; padding: 20px;">
+                    <div class="trainer-header" style="flex-shrink: 0; margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 12px;">
                         <span class="trainer-icon">🔮</span>
-                        <h3>${this.t('magic_circle_title') || 'Magic Circle'} — ${hero.name}</h3>
-                        <span style="font-size:0.8rem;color:var(--text-muted);">Tier ${hero.magicTier} · ${maxSlots} slots</span>
+                        <h3 style="margin: 0; display: inline-block;">${this.t('magic_circle_title') || 'Magic Circle'} — ${hero.name}</h3>
+                        <span style="font-size:0.8rem;color:var(--text-muted); margin-left: 12px;">Tier ${hero.magicTier} · ${maxSlots} slots</span>
                     </div>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-                        <div>
-                            <h4 style="font-size:0.85rem;color:var(--text-muted);margin-bottom:8px;">Circle Slots</h4>
-                            <div class="circle-slots">${slotHtml.join('')}</div>
+                    
+                    <div style="display: grid; grid-template-columns: 280px 1fr; gap: 24px; flex: 1; overflow: hidden;">
+                        <!-- Left Panel: Glyph Palette with inner scroll -->
+                        <div class="glyph-palette-scroll" style="display: flex; flex-direction: column; overflow-y: auto; padding-right: 8px; border-right: 1px solid rgba(255,255,255,0.08); max-height: 100%;">
+                            <h4 style="font-size:0.85rem;color:var(--text-primary);margin: 0 0 12px 0;">Glyph Palette</h4>
+                            <div class="glyph-palette">
+                                ${paletteHtml}
+                            </div>
                         </div>
-                        <div>
-                            <h4 style="font-size:0.85rem;color:var(--text-muted);margin-bottom:8px;">Preview</h4>
-                            ${previewHtml}
+                        
+                        <!-- Right Panel: Mandala & Preview -->
+                        <div style="display: grid; grid-template-columns: 340px 1fr; gap: 24px; align-items: center; justify-content: center; height: 100%; overflow-y: auto;">
+                            <!-- Mandala Container -->
+                            <div style="display: flex; justify-content: center; align-items: center; flex-shrink: 0;">
+                                <div class="mandala-container" style="position: relative; width: 340px; height: 340px; background: rgba(0,0,0,0.3); border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.05); box-shadow: inset 0 0 20px rgba(0,0,0,0.6);">
+                                    <!-- Concentric Ring Backgrounds -->
+                                    <div class="mandala-ring" style="position: absolute; top: 38.5%; left: 38.5%; width: 23%; height: 23%; border: 1.5px dashed rgba(255,255,255,0.15); border-radius: 50%; pointer-events: none;"></div>
+                                    <div class="mandala-ring" style="position: absolute; top: 27%; left: 27%; width: 46%; height: 46%; border: 1.5px dashed rgba(255,255,255,0.1); border-radius: 50%; pointer-events: none;"></div>
+                                    <div class="mandala-ring" style="position: absolute; top: 15.5%; left: 15.5%; width: 69%; height: 69%; border: 1.5px dashed rgba(255,255,255,0.08); border-radius: 50%; pointer-events: none;"></div>
+                                    <div class="mandala-ring" style="position: absolute; top: 4%; left: 4%; width: 92%; height: 92%; border: 1.5px dashed rgba(255,255,255,0.05); border-radius: 50%; pointer-events: none;"></div>
+                                    
+                                    ${slotHtml.join('')}
+                                </div>
+                            </div>
+                            
+                            <!-- Spell Details, Name, & Actions -->
+                            <div style="display: flex; flex-direction: column; justify-content: space-between; height: 100%; min-height: 340px; padding: 8px 0;">
+                                <div>
+                                    <h4 style="font-size:0.85rem;color:var(--text-muted);margin: 0 0 12px 0;">Preview</h4>
+                                    ${previewHtml}
+                                </div>
+                                
+                                <div style="margin-top: 16px;">
+                                    <input type="text" id="spell-name-input" placeholder="${this.t('ui_spell_name_placeholder') || 'Custom spell name...'}" value="${customName}" maxlength="30" style="width:100%;padding:10px;border-radius:var(--radius-md);border:1px solid var(--glass-border);background:rgba(0,0,0,0.2);color:var(--text-primary); outline: none;">
+                                </div>
+                                
+                                <div class="trainer-footer" style="display: flex; gap: 8px; margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 16px;">
+                                    <button class="btn btn-primary btn-sm" id="btn-inscribe-spell" ${!spell ? 'disabled' : ''} style="flex: 1;">${this.t('ui_inscribe') || 'Inscribe to Codex'}</button>
+                                    <button class="btn btn-secondary btn-sm" id="btn-clear-circle">${this.t('ui_clear') || 'Clear'}</button>
+                                    <button class="btn btn-secondary btn-sm" id="btn-magic-close">${this.t('ui_btn_close') || 'Close'}</button>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div style="margin-top:12px;">
-                        <h4 style="font-size:0.85rem;color:var(--text-muted);margin-bottom:8px;">Glyph Palette</h4>
-                        <div class="glyph-palette">${paletteHtml}</div>
-                    </div>
-                    <div style="margin-top:12px;">
-                        <input type="text" id="spell-name-input" placeholder="${this.t('ui_spell_name_placeholder') || 'Custom spell name...'}" value="${customName}" maxlength="30" style="width:100%;padding:8px;border-radius:var(--radius-md);border:1px solid var(--glass-border);background:rgba(0,0,0,0.2);color:var(--text-primary);">
-                    </div>
-                    <div class="trainer-footer" style="margin-top:12px;">
-                        <button class="btn btn-primary btn-sm" id="btn-inscribe-spell" ${!spell ? 'disabled' : ''}>${this.t('ui_inscribe') || 'Inscribe to Codex'}</button>
-                        <button class="btn btn-secondary btn-sm" id="btn-clear-circle">${this.t('ui_clear') || 'Clear'}</button>
-                        <button class="btn btn-secondary btn-sm" id="btn-magic-close">${this.t('ui_btn_close') || 'Close'}</button>
                     </div>
                 </div>
             `;
 
             // Event listeners
-            overlay.querySelectorAll('.circle-slot').forEach(slotEl => {
+            overlay.querySelectorAll('.mandala-slot').forEach(slotEl => {
                 slotEl.addEventListener('click', () => {
                     const slotIdx = parseInt(slotEl.dataset.slot);
-                    composition = composition.filter(c => c.slotIndex !== slotIdx);
-                    renderModal();
+                    if (slotIdx >= maxSlots) return; // Locked
+                    
+                    const isFilled = composition.some(c => c.slotIndex === slotIdx);
+                    if (isFilled) {
+                        composition = composition.filter(c => c.slotIndex !== slotIdx);
+                        renderModal();
+                    }
                 });
             });
 
             overlay.querySelectorAll('.glyph-btn:not([disabled])').forEach(btn => {
                 btn.addEventListener('click', () => {
                     const gid = btn.dataset.glyph;
-                    // Find first empty slot
-                    const usedSlots = new Set(composition.map(c => c.slotIndex));
-                    for (let i = 0; i < maxSlots; i++) {
-                        if (!usedSlots.has(i)) {
-                            composition.push({ slotIndex: i, glyphId: gid });
-                            break;
+                    const g = GLYPH_DATA[gid];
+                    if (!g) return;
+
+                    if (g.type === 'core') {
+                        // Place in Slot 0, replacing existing Core if any
+                        composition = composition.filter(c => c.slotIndex !== 0);
+                        composition.push({ slotIndex: 0, glyphId: gid });
+                    } else {
+                        // Place in first empty Ring slot (1 to maxSlots - 1)
+                        const usedSlots = new Set(composition.map(c => c.slotIndex));
+                        for (let i = 1; i < maxSlots; i++) {
+                            if (!usedSlots.has(i)) {
+                                composition.push({ slotIndex: i, glyphId: gid });
+                                break;
+                            }
                         }
                     }
-                    // Sort so core is first
                     composition.sort((a, b) => a.slotIndex - b.slotIndex);
+                    renderModal();
+                });
+            });
+
+            overlay.querySelectorAll('.glyph-tier-select').forEach(select => {
+                select.addEventListener('change', (e) => {
+                    const gid = select.dataset.glyph;
+                    const newTier = parseInt(e.target.value);
+                    selectedTiers[gid] = newTier;
                     renderModal();
                 });
             });
@@ -1016,6 +1259,11 @@ export class HeroesView extends BaseView {
             if (inscribeBtn) {
                 inscribeBtn.addEventListener('click', () => {
                     if (!spell) return;
+                    if (hero.id === 'simulator_fake_hero') {
+                        this.ui.showToast(this.t('simulator_inscribe_disabled') || 'Spell composed! (Inscriptions disabled in simulator mode)', 'info');
+                        close();
+                        return;
+                    }
                     this.emit('inscribeSpell', { heroId: this.selectedHeroId, spell });
                     close();
                 });

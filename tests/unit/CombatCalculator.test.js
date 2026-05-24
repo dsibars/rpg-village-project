@@ -174,9 +174,13 @@ test('CombatCalculator: calculate support skill', () => {
 
 test('CombatCalculator: calculate with party trait magicPowerBoost', () => {
     const skill = { id: 'small_fire_ball', stat: 'magicPower', baseMultiplier: 1.2, category: 'magic', tier: 2, element: 'fire', targetType: 'single_enemy' };
+    const origRandom = Math.random;
+    Math.random = () => 0;
+
     const resultWithout = CombatCalculator.calculate(mockAttacker, mockDefender, skill, 0, {});
     const resultWith = CombatCalculator.calculate(mockAttacker, mockDefender, skill, 0, { magicPowerBoost: 0.10 });
 
+    Math.random = origRandom;
     assert.ok(resultWith.amount > resultWithout.amount);
 });
 

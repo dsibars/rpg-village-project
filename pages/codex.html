@@ -74,6 +74,30 @@
         overflow-y: auto;
     }
 
+    /* Codex category headers */
+    .codex-category-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 12px 6px;
+        font-family: 'Outfit', sans-serif;
+        font-weight: 700;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: var(--accent-color);
+        border-bottom: 1px solid rgba(90, 105, 250, 0.15);
+        margin-top: 4px;
+    }
+
+    .codex-category-header:first-child {
+        margin-top: 0;
+    }
+
+    .codex-category-icon {
+        font-size: 1rem;
+    }
+
     /* Codex list items */
     .codex-row {
         display: flex;
@@ -208,6 +232,7 @@
         font-size: 0.9rem;
         color: var(--text-secondary);
         line-height: 1.4;
+        white-space: pre-wrap;
     }
 
     .codex-explanation-section {
@@ -231,6 +256,7 @@
         font-size: 0.95rem;
         color: var(--text-secondary);
         line-height: 1.6;
+        white-space: pre-wrap;
     }
 
     @keyframes fadeIn {
