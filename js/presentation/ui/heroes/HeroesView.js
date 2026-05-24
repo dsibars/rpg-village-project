@@ -708,7 +708,7 @@ export class HeroesView extends BaseView {
             const currentDay = this.lastRawState?.village?.day || 0;
             const dialogue = WitchService.getDialogue(selectedHero, this.ui?.i18n, currentDay);
             WitchService.recordVisit(selectedHero, currentDay);
-            const elementIcons = { fire: '🔥', water: '💧', wind: '🌪️', storm: '⚡', light: '✨', dark: '🌑', neutral: '🔮' };
+            const elementIcons = { fire: '🔥', water: '💧', wind: '🌪️', storm: '⚡', light: '✨', dark: '🌑', earth: '🪨', neutral: '🔮' };
             const elementIcon = elementIcons[dialogue.element] || '🔮';
 
             overlay.innerHTML = `
@@ -909,7 +909,7 @@ export class HeroesView extends BaseView {
         };
 
         const getElementIcon = (element) => {
-            const map = { fire: '🔥', water: '💧', wind: '🌬️', storm: '⚡', light: '☀️', dark: '🌑' };
+            const map = { fire: '🔥', water: '💧', wind: '🌬️', storm: '⚡', light: '☀️', dark: '🌑', earth: '🪨' };
             return map[element] || '';
         };
 

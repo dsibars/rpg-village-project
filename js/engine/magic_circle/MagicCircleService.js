@@ -1,10 +1,12 @@
 import {
     GLYPH_DATA,
+    CORE_ALLY_EFFECTS,
     MAGIC_TIER_THRESHOLDS,
     GLYPH_TIER_QUALITY,
     GLYPH_MASTERY_THRESHOLDS,
     computeGlyphEffect,
-    computeGlyphCostMult
+    computeGlyphCostMult,
+    glyphHasGrowthPotential
 } from '../shared/data/GameConstants.js';
 import { Result } from '../shared/core/Result.js';
 
@@ -77,13 +79,10 @@ export class MagicCircleService {
 
         let totalDamageMult = 1.0;
         let totalCostMult = 1.0;
-        let targetType = 'single_enemy';
         const effects = {
-            extraTargets: 0,
             pierce: 0,
             poisonStacks: 0,
             sleepChance: 0,
-            shieldPercent: 0,
             speedBoost: 0,
             reflectChance: 0,
             lifesteal: 0,
@@ -105,10 +104,6 @@ export class MagicCircleService {
             if (glyphEffects.critBonus) {
                 effects.critBonus += glyphEffects.critBonus;
             }
-            if (glyphEffects.extraTargets) {
-                effects.extraTargets += glyphEffects.extraTargets;
-                targetType = 'all_enemies';
-            }
             if (glyphEffects.pierce) {
                 effects.pierce += glyphEffects.pierce;
             }
@@ -117,9 +112,6 @@ export class MagicCircleService {
             }
             if (glyphEffects.sleepChance) {
                 effects.sleepChance += glyphEffects.sleepChance;
-            }
-            if (glyphEffects.shieldPercent) {
-                effects.shieldPercent += glyphEffects.shieldPercent;
             }
             if (glyphEffects.speedBoost) {
                 effects.speedBoost += glyphEffects.speedBoost;
@@ -148,17 +140,34 @@ export class MagicCircleService {
         const coreEffectMult = coreEffectMults[coreTier - 1];
         const coreCostMult = coreCostMults[coreTier - 1];
 
+        // Determine targeting based on boolean glyph presence
+        const hasAegis = glyphIds.includes('glyph_aegis');
+        const hasMulti = glyphIds.includes('glyph_multi');
+
+        let targetType;
+        if (hasAegis && hasMulti) {
+            targetType = 'all_allies';
+        } else if (hasAegis) {
+            targetType = 'single_ally';
+        } else if (hasMulti) {
+            targetType = 'all_enemies';
+        } else {
+            targetType = 'single_enemy';
+        }
+
         const baseMpCost = core.baseCost * coreCostMult;
         const mpCost = Math.max(1, Math.floor(baseMpCost * totalCostMult * efficiencyMult));
         const damage = Math.floor(core.baseDamage * coreEffectMult * totalDamageMult);
 
         const spell = {
             id: `spell_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
-            name: customName || this._generateSpellName(core.element, glyphs, effects),
+            name: customName || this._generateSpellName(core.element, glyphs, effects, hasAegis),
             mpCost,
             damage,
             element: core.element,
             targetType,
+            category: hasAegis ? 'support' : 'offensive',
+            allyFactor: core.allyFactor || 0.2,
             effects,
             glyphIds: [...glyphIds],
             glyphTiers: { ...glyphTiers },
@@ -226,6 +235,8 @@ export class MagicCircleService {
      */
     static checkGlyphMastery(glyphId, currentTier, totalUses) {
         if (currentTier >= 7) return null;
+        const glyph = GLYPH_DATA[glyphId];
+        if (!glyphHasGrowthPotential(glyph)) return null;
         const threshold = GLYPH_MASTERY_THRESHOLDS[currentTier - 1];
         if (totalUses >= threshold) {
             return currentTier + 1;
@@ -236,23 +247,35 @@ export class MagicCircleService {
     /**
      * Auto-generate a spell name from composition.
      */
-    static _generateSpellName(coreElement, glyphs, effects) {
+    static _generateSpellName(coreElement, glyphs, effects, isSupport = false) {
         const powerCount = glyphs.filter(g => g.type === 'power').length;
         const effectNames = glyphs.filter(g => g.type === 'effect').map(g => g.id.replace('glyph_', ''));
 
         const elementNames = {
             fire: 'Fire', water: 'Water', wind: 'Wind',
-            storm: 'Storm', light: 'Light', dark: 'Dark'
+            storm: 'Storm', light: 'Light', dark: 'Dark', earth: 'Earth'
         };
+
+        if (isSupport) {
+            const supportPrefixes = {
+                fire: 'Empowering', water: 'Restoring', wind: 'Swift',
+                storm: 'Focusing', light: 'Soothing', dark: 'Invigorating', earth: 'Fortifying'
+            };
+            const prefix = supportPrefixes[coreElement] || 'Blessed';
+            let name = `${prefix} ${elementNames[coreElement] || 'Mystic'}`;
+            if (effectNames.includes('multi')) name += ' Chorus';
+            if (effectNames.includes('leech')) name += ' of Hunger'; // rare on support
+            return name.trim();
+        }
 
         const prefixes = ['Lesser', 'Small', '', 'Greater', 'Grand', 'Legendary'];
         const prefix = prefixes[Math.min(5, powerCount)] || '';
 
         let name = `${prefix} ${elementNames[coreElement] || 'Mystic'}`;
-        if (effects.extraTargets > 0) name += ' Wave';
+        if (effectNames.includes('multi')) name += ' Wave';
         if (effects.lifesteal > 0) name += ' of Hunger';
         if (effects.sleepChance > 0) name += ' of Slumber';
-        if (effects.shieldPercent > 0) name += ' Ward';
+        if (effectNames.includes('aegis')) name += ' Ward';
         if (effectNames.length === 0 && powerCount === 0) name += ' Spark';
 
         return name.trim();

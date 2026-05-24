@@ -184,18 +184,30 @@ Every Glyph exists in **multiple quality grades**. Higher-tier Glyphs represent 
 
 **Formula:** Tier N requires `500 × 4^(N-2)` uses to reach from Tier N-1. The jump from Tier 4 to 5 is roughly 5× harder than 3 to 4.
 
+#### Static Glyphs (No Tier Growth)
+
+Some Glyphs are **conceptually boolean** — their effect does not improve with higher tiers. These Glyphs still display a tier symbol (`+`), but they **never evolve past Tier 1** through mastery. Their cost and effect are fixed regardless of tier.
+
+| Glyph | Why Static |
+|---|---|
+| `glyph_multi` | Hitting "all targets" is binary — there's no gradation |
+| `glyph_aegis` | Targeting allies is binary — there's no gradation |
+
+> **Design rationale:** A hero who draws the Multi glyph a thousand times doesn't "draw it better" — they already know how to make it hit everything. The mastery system only applies to Glyphs whose effect or cost actually scales with tier.
+
 ### Glyph Categories
 
 **Core Glyphs** — Placed in the center slot. Determine element and base power.
 
-| ID | Element | Base DMG | Base MP |
-|----|---------|----------|---------|
-| `glyph_fire` | 🔥 Fire | High | Medium |
-| `glyph_water` | 💧 Water | Low | Low |
-| `glyph_wind` | 🌪️ Wind | Medium | Low |
-| `glyph_storm` | ⚡ Storm | Medium | High |
-| `glyph_light` | ✨ Light | Low | High |
-| `glyph_dark` | 🌑 Dark | Very High | Very High |
+| ID | Element | Base DMG | Base MP | Ally Factor |
+|----|---------|----------|---------|-------------|
+| `glyph_fire` | 🔥 Fire | High | Medium | 0.20 |
+| `glyph_water` | 💧 Water | Low | Low | 0.25 |
+| `glyph_wind` | 🌪️ Wind | Medium | Low | 0.22 |
+| `glyph_storm` | ⚡ Storm | Medium | High | 0.18 |
+| `glyph_light` | ✨ Light | Low | High | 0.30 |
+| `glyph_dark` | 🌑 Dark | Very High | Very High | 0.15 |
+| `glyph_earth` | 🪨 Earth | Medium | Medium | 0.25 |
 
 **Power Glyphs** — Amplify damage or effects.
 
@@ -209,11 +221,11 @@ Every Glyph exists in **multiple quality grades**. Higher-tier Glyphs represent 
 
 | ID | Name | Tier 1 Effect | Tier N Scaling |
 |----|------|---------------|----------------|
-| `glyph_multi` | Multi | +1 target | +1 target per 2 tiers |
+| `glyph_multi` | Multi | Hit **all** possible targets | Boolean (no tiers) |
 | `glyph_pierce` | Pierce | Ignore 15% DEF | +10% ignore per tier |
 | `glyph_venom` | Venom | Apply poison DoT | +1 stack per 2 tiers |
 | `glyph_slumber` | Slumber | 20% Sleep chance | +10% chance per tier |
-| `glyph_aegis` | Aegis | Convert to ally shield | +20% shield per tier |
+| `glyph_aegis` | Aegis | **Invert target to allies** | Boolean (no tiers) |
 | `glyph_celerity` | Celerity | Grant +20% SPD | +10% SPD per tier |
 | `glyph_reflect` | Reflect | 30% reflect chance | +10% chance per tier |
 | `glyph_leech` | Leech | Heal 10% of damage | +5% heal per tier |
@@ -305,8 +317,58 @@ The custom name is stored with the spell and displayed in combat. Auto-generated
 > **Player examples:**
 > - *"Inferno's Kiss"* — Fire + Potentiate `++` ×3
 > - *"Zeus"* — Storm + Focus `+++` + Pierce
-> - *"Mom's Hug"* — Light + Aegis + Extend
+> - *"Mom's Hug"* — Light + Aegis → single-target heal
 > - *"The Hell"* — Dark + Potentiate `✦✦✦` ×6, Multi, Leech (Tier 20+ mage)
+
+---
+
+## Ally-Targeted Spells (Inversion)
+
+By adding the **Aegis** glyph to any composition, the spell's polarity inverts: instead of harming enemies, it benefits allies. Every core element produces a different beneficial effect when inverted.
+
+### Targeting Matrix
+
+| Aegis | Multi | Result |
+|-------|-------|--------|
+| ❌ No | ❌ No | Single enemy |
+| ❌ No | ✅ Yes | All enemies |
+| ✅ Yes | ❌ No | Single ally |
+| ✅ Yes | ✅ Yes | All allies |
+
+> **Multi** is now a **boolean** glyph: it costs +250% MP and always hits **all possible targets** (all enemies, or all allies if Aegis is present). No tiered target count.
+
+### Elemental Inversion Effects
+
+| Core Element | Inverted Effect | Type |
+|---|---|---|
+| 🔥 **Fire** | +ATK buff | `buff_atk` (3 turns) |
+| 💧 **Water** | +MP restore | `restore_mp` (instant) |
+| 🌪️ **Wind** | +SPD buff | `buff_spd` (3 turns) |
+| ⚡ **Storm** | +Crit chance buff | `buff_crit` (3 turns) |
+| ✨ **Light** | +HP heal | `heal_hp` (instant) |
+| 🌑 **Dark** | +Stamina restore | `restore_stamina` (instant) |
+| 🪨 **Earth** | +DEF buff | `buff_def` (3 turns) |
+
+### Effect Amount
+
+Ally effect amount = `Spell Damage × Ally Factor`
+
+Each core has a built-in **allyFactor** that scales the effect:
+- **Light** (0.30) — strongest healer
+- **Water / Earth** (0.25) — balanced support
+- **Wind** (0.22) — moderate
+- **Fire** (0.20) — aggressive buff
+- **Storm** (0.18) — precision buff
+- **Dark** (0.15) — lowest, but highest base damage
+
+> **Example:** A Tier 3 Light spell dealing 40 damage heals for `40 × 0.30 = 12 HP`.
+
+### Design Examples
+
+- *"Mom's Hug"* — Light + Aegis → single-target heal
+- *"Group Therapy"* — Light + Aegis + Multi → party-wide heal (+250% MP cost)
+- *"Iron Wall"* — Earth + Aegis + Multi → party-wide DEF buff
+- *"Second Wind"* — Wind + Aegis → single-target SPD buff
 
 ---
 
@@ -543,7 +605,7 @@ On first entering the Arcane Sanctum:
 | `small_fire_ball` | Glyph Tablet: Fire Core T1 |
 | `medium_fire_ball` | Glyph Tablet: Fire Core T2 + Potentiate T1 |
 | `meteor` | Glyph Tablet: Fire Core T3 + Potentiate T2 + Multi T2 |
-| `small_heal` | Glyph Tablet: Light Core T1 |
+| `small_heal` | Glyph Tablet: Light Core T1 + Aegis T1 |
 | `haste` | Glyph Tablet: Light Core T1 + Celerity T1 |
 
 Heroes who knew these skills auto-learn the Glyphs. Others receive the tablets in inventory.

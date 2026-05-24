@@ -56,20 +56,39 @@ export class CombatAI {
             if (!MagicCircleService.canCast(spell, actor.magicTier || 1)) continue;
             if ((actor.mp || 0) < spell.mpCost) continue;
 
-            const aoe = spell.targetType === 'all_enemies';
-            // Estimate power: damage per target × number of targets
-            const targetCount = aoe ? enemies.filter(e => e.hp > 0).length : 1;
-            const power = (spell.damage || 0) * targetCount;
+            const isSupport = spell.category === 'support' ||
+                              spell.targetType === 'single_ally' ||
+                              spell.targetType === 'all_allies';
 
-            actions.push({
-                type: 'spell',
-                index: i,
-                power,
-                targetType: spell.targetType || 'single_enemy',
-                aoe,
-                resource: 'mp',
-                cost: spell.mpCost
-            });
+            if (isSupport) {
+                const allyCount = spell.targetType === 'all_allies' ? allies.filter(a => a.hp > 0).length : 1;
+                const power = (spell.damage || 0) * (spell.allyFactor || 0.2) * allyCount;
+                actions.push({
+                    type: 'spell',
+                    index: i,
+                    power,
+                    targetType: spell.targetType || 'single_ally',
+                    aoe: spell.targetType === 'all_allies',
+                    isSupport: true,
+                    resource: 'mp',
+                    cost: spell.mpCost
+                });
+            } else {
+                const aoe = spell.targetType === 'all_enemies';
+                // Estimate power: damage per target × number of targets
+                const targetCount = aoe ? enemies.filter(e => e.hp > 0).length : 1;
+                const power = (spell.damage || 0) * targetCount;
+
+                actions.push({
+                    type: 'spell',
+                    index: i,
+                    power,
+                    targetType: spell.targetType || 'single_enemy',
+                    aoe,
+                    resource: 'mp',
+                    cost: spell.mpCost
+                });
+            }
         }
 
         // Fallback: basic attack
@@ -80,7 +99,17 @@ export class CombatAI {
         // 1. Check for Healing needs (Smart only)
         const injuredAllies = allies.filter(a => a.hp > 0 && a.hp / a.maxHp <= 0.7);
         if (injuredAllies.length > 0 && type === 'smart') {
-            // Healing spells would be prioritized here; none in Phase 0 base set
+            const supportActions = actions.filter(a => a.isSupport).sort((a, b) => b.power - a.power);
+            if (supportActions.length > 0) {
+                const chosen = supportActions[0];
+                const aliveAllies = allies.map((a, idx) => ({ a, idx })).filter(item => item.a.hp > 0);
+                aliveAllies.sort((a, b) => (a.a.hp / a.a.maxHp) - (b.a.hp / b.a.maxHp));
+                const allyTargetIndex = aliveAllies.length > 0 ? aliveAllies[0].idx : 0;
+                return {
+                    spellIndex: chosen.index,
+                    targetIndex: chosen.targetType === 'single_ally' ? allyTargetIndex : null
+                };
+            }
         }
 
         // 2. Offensive logic — sort by power
@@ -90,14 +119,21 @@ export class CombatAI {
 
         // Smart AI: prefer AoE when 2+ enemies, otherwise highest single-target
         if (type === 'smart' && aliveEnemies.length >= 2) {
-            const aoeActions = actions.filter(a => a.aoe).sort((a, b) => b.power - a.power);
+            const aoeActions = actions.filter(a => a.aoe && !a.isSupport).sort((a, b) => b.power - a.power);
             if (aoeActions.length > 0) {
                 const chosen = aoeActions[0];
                 return this._formatAction(chosen, aliveEnemies);
             }
         }
 
-        // Default: highest power action
+        // Default: highest power action (excluding support unless no offense available)
+        const offensiveActions = actions.filter(a => !a.isSupport);
+        if (offensiveActions.length > 0) {
+            offensiveActions.sort((a, b) => b.power - a.power);
+            return this._formatAction(offensiveActions[0], aliveEnemies);
+        }
+
+        // If only support actions remain, use highest power support
         actions.sort((a, b) => b.power - a.power);
         const chosen = actions[0];
         return this._formatAction(chosen, aliveEnemies);

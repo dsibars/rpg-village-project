@@ -562,7 +562,7 @@ export class CombatView {
         const spellButtons = codex.map((spell, idx) => {
           const canCast = this._canCastSpellInCombat(currentHero, spell, idx);
           const mpText = `${spell.mpCost} MP`;
-          const elementIcon = { fire: '🔥', water: '💧', wind: '🌪️', storm: '⚡', light: '✨', dark: '🌑' }[spell.element] || '🔮';
+          const elementIcon = { fire: '🔥', water: '💧', wind: '🌪️', storm: '⚡', light: '✨', dark: '🌑', earth: '🪨' }[spell.element] || '🔮';
           return `<button class="btn btn-secondary" data-spell-idx="${idx}" ${!canCast ? 'disabled' : ''} style="flex:1 1 140px;">${elementIcon} ${spell.name} <span style="font-size:0.8rem;opacity:0.8;">(${mpText})</span></button>`;
         }).join('');
         controlPanel.innerHTML = `

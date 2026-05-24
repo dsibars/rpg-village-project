@@ -6,6 +6,18 @@ export class CombatCalculator {
      */
     static getFinalStat(entity, statName) {
         let baseVal = entity[statName] || 0;
+
+        // Apply active buffs that match the requested stat
+        if (entity.statusEffects && entity.statusEffects.length > 0) {
+            const buffs = entity.statusEffects.filter(e =>
+                e.type.startsWith('buff_') &&
+                e.stat === statName &&
+                e.duration > 0
+            );
+            const totalBuff = buffs.reduce((sum, b) => sum + (b.value || 0), 0);
+            baseVal += totalBuff;
+        }
+
         return Math.max(1, baseVal);
     }
 

@@ -336,6 +336,29 @@ export const GLYPH_MASTERY_THRESHOLDS = [
 ];
 
 /**
+ * Checks whether a glyph has any growth potential across tiers.
+ * A glyph has no growth if ALL effects have perTier === 0 AND costMult.perTier === 0.
+ * Core glyphs always have growth (their baseDamage/baseCost scale with tier in compose).
+ * Such glyphs effectively cap at Tier 1 — the selector still shows T1 only.
+ * @param {Object} glyph - from GLYPH_DATA
+ * @returns {boolean}
+ */
+export function glyphHasGrowthPotential(glyph) {
+    if (!glyph) return false;
+    // Core glyphs always have tier-based scaling (baseDamage × coreEffectMult, baseCost × coreCostMult)
+    if (glyph.type === 'core') return true;
+    // Check cost multiplier growth
+    if (glyph.costMult && glyph.costMult.perTier > 0) return true;
+    // Check effect growth
+    if (glyph.effect) {
+        for (const formula of Object.values(glyph.effect)) {
+            if (formula.perTier > 0) return true;
+        }
+    }
+    return false;
+}
+
+/**
  * Canonical Glyph Catalog — 19 glyphs across 4 categories.
  * Each glyph defines base effects that are multiplied by GLYPH_TIER_QUALITY.
  * Cost modifiers are per-glyph linear formulas.
@@ -344,27 +367,31 @@ export const GLYPH_DATA = {
     // ─── Core Glyphs (element + base power) ───
     glyph_fire: {
         id: 'glyph_fire', type: 'core', element: 'fire',
-        baseDamage: 10, baseCost: 5
+        baseDamage: 10, baseCost: 5, allyFactor: 0.20
     },
     glyph_water: {
         id: 'glyph_water', type: 'core', element: 'water',
-        baseDamage: 8, baseCost: 4
+        baseDamage: 8, baseCost: 4, allyFactor: 0.25
     },
     glyph_wind: {
         id: 'glyph_wind', type: 'core', element: 'wind',
-        baseDamage: 9, baseCost: 4
+        baseDamage: 9, baseCost: 4, allyFactor: 0.22
     },
     glyph_storm: {
         id: 'glyph_storm', type: 'core', element: 'storm',
-        baseDamage: 11, baseCost: 6
+        baseDamage: 11, baseCost: 6, allyFactor: 0.18
     },
     glyph_light: {
         id: 'glyph_light', type: 'core', element: 'light',
-        baseDamage: 8, baseCost: 6
+        baseDamage: 8, baseCost: 6, allyFactor: 0.30
     },
     glyph_dark: {
         id: 'glyph_dark', type: 'core', element: 'dark',
-        baseDamage: 14, baseCost: 10
+        baseDamage: 14, baseCost: 10, allyFactor: 0.15
+    },
+    glyph_earth: {
+        id: 'glyph_earth', type: 'core', element: 'earth',
+        baseDamage: 9, baseCost: 5, allyFactor: 0.25
     },
 
     // ─── Power Glyphs (amplify) ───
@@ -387,8 +414,8 @@ export const GLYPH_DATA = {
     // ─── Effect Glyphs (behaviours) ───
     glyph_multi: {
         id: 'glyph_multi', type: 'effect',
-        effect: { extraTargets: { base: 1, perTier: 0.5 } }, // +1 per 2 tiers
-        costMult: { base: 1.25, perTier: 0.25 }
+        effect: { allTargets: { base: 1, perTier: 0 } }, // boolean: all possible targets
+        costMult: { base: 3.5, perTier: 0 } // +250% MP cost
     },
     glyph_pierce: {
         id: 'glyph_pierce', type: 'effect',
@@ -407,8 +434,8 @@ export const GLYPH_DATA = {
     },
     glyph_aegis: {
         id: 'glyph_aegis', type: 'effect',
-        effect: { shieldPercent: { base: 0.20, perTier: 0.20 } },
-        costMult: { base: 1.20, perTier: 0.20 }
+        effect: { targetAllies: { base: 1, perTier: 0 } }, // boolean: invert to ally targeting
+        costMult: { base: 1.5, perTier: 0 } // +50% MP cost
     },
     glyph_celerity: {
         id: 'glyph_celerity', type: 'effect',
@@ -435,6 +462,20 @@ export const GLYPH_DATA = {
 };
 
 /**
+ * Maps each core element to its ally-targeted support effect.
+ * Used when a spell contains the Aegis (ally inversion) glyph.
+ */
+export const CORE_ALLY_EFFECTS = {
+    fire:   { type: 'buff_atk',        duration: 3, stat: 'strength' },
+    water:  { type: 'restore_mp',      duration: 0 },
+    wind:   { type: 'buff_spd',        duration: 3, stat: 'speed' },
+    storm:  { type: 'buff_crit',       duration: 3, stat: 'critChance' },
+    light:  { type: 'heal_hp',         duration: 0 },
+    dark:   { type: 'restore_stamina', duration: 0 },
+    earth:  { type: 'buff_def',        duration: 3, stat: 'defense' }
+};
+
+/**
  * Compute a glyph's effect value at a given mastery tier.
  * @param {Object} glyph - from GLYPH_DATA
  * @param {number} tier - 1-7
@@ -448,7 +489,7 @@ export function computeGlyphEffect(glyph, tier) {
     for (const [key, formula] of Object.entries(glyph.effect)) {
         const raw = formula.base + formula.perTier * (t - 1);
         // Integer-only effects get floored; float effects keep precision
-        const integerEffects = ['extraTargets', 'poisonStacks', 'duration'];
+        const integerEffects = ['poisonStacks', 'duration'];
         const value = integerEffects.includes(key) ? Math.floor(raw) : raw;
         // Apply quality multiplier to multiplicative effects
         result[key] = key === 'damageMult' ? Math.max(1, value * q.effectMult) : value;

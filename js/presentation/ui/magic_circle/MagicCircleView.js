@@ -42,7 +42,7 @@ export class MagicCircleView {
             case 'glyph_extend':
                 return `Increases duration of effects by +${effects.duration} turn${effects.duration > 1 ? 's' : ''}. (+${costPercent}% MP cost)`;
             case 'glyph_multi':
-                return `Hits +${effects.extraTargets} extra target${effects.extraTargets > 1 ? 's' : ''}. (+${costPercent}% MP cost)`;
+                return `Hits all possible targets. (+${costPercent}% MP cost)`;
             case 'glyph_pierce':
                 return `Ignores ${Math.round(effects.pierce * 100)}% of target's Defense. (+${costPercent}% MP cost)`;
             case 'glyph_venom':
@@ -50,7 +50,7 @@ export class MagicCircleView {
             case 'glyph_slumber':
                 return `Grants a ${Math.round(effects.sleepChance * 100)}% chance to induce Sleep. (+${costPercent}% MP cost)`;
             case 'glyph_aegis':
-                return `Generates a shield equal to ${Math.round(effects.shieldPercent * 100)}% of damage dealt. (+${costPercent}% MP cost)`;
+                return `Targets allies instead of enemies. (+${costPercent}% MP cost)`;
             case 'glyph_celerity':
                 return `Increases Speed by +${Math.round(effects.speedBoost * 100)}% during combat. (+${costPercent}% MP cost)`;
             case 'glyph_reflect':
@@ -177,17 +177,19 @@ export class MagicCircleView {
                     }
                 }
 
-                let tierSelectHtml = '';
-                if (isSimulator) {
-                    tierSelectHtml = `
-                        <select class="glyph-tier-select" data-glyph="${gid}" style="margin-left: 8px; font-size: 0.65rem; padding: 2px; border-radius: 4px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); color: #fff;">
-                            ${[1, 2, 3, 4, 5, 6, 7].map(t => {
-                                const sym = MagicCircleService.getGlyphSymbol(t);
-                                return `<option value="${t}" ${t === tier ? 'selected' : ''}>${sym} (T${t})</option>`;
-                            }).join('')}
-                        </select>
-                    `;
-                }
+                // Tier selector: hero can tune any glyph from Tier 1 up to their max mastered tier.
+                // This represents how "masterfully" they draw the glyph in this composition.
+                const maxMasteredTier = glyphMastery[gid]?.tier || 1;
+                const currentTier = selectedTiers[gid] || maxMasteredTier;
+                const tierSelectHtml = `
+                    <select class="glyph-tier-select" data-glyph="${gid}" style="margin-left: 8px; font-size: 0.65rem; padding: 2px; border-radius: 4px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); color: #fff; flex-shrink: 0;">
+                        ${Array.from({ length: maxMasteredTier }, (_, i) => {
+                            const t = i + 1;
+                            const sym = MagicCircleService.getGlyphSymbol(t);
+                            return `<option value="${t}" ${t === currentTier ? 'selected' : ''}>${sym} (T${t})</option>`;
+                        }).join('')}
+                    </select>
+                `;
 
                 return `
                     <div class="glyph-card ${isUsed ? 'used' : ''} ${isSelected ? 'selected' : ''}" data-glyph="${gid}">
@@ -244,7 +246,7 @@ export class MagicCircleView {
                     const g = GLYPH_DATA[slotComp.glyphId];
                     const tier = selectedTiers[slotComp.glyphId] || glyphMastery[slotComp.glyphId]?.tier || 1;
                     const symbol = MagicCircleService.getGlyphSymbol(tier);
-                    const emoji = g.type === 'core' ? (g.element === 'fire' ? '🔥' : g.element === 'water' ? '💧' : g.element === 'wind' ? '🌪️' : g.element === 'storm' ? '⚡' : g.element === 'light' ? '✨' : '🌑') : '';
+                    const emoji = g.type === 'core' ? (g.element === 'fire' ? '🔥' : g.element === 'water' ? '💧' : g.element === 'wind' ? '🌪️' : g.element === 'storm' ? '⚡' : g.element === 'light' ? '✨' : g.element === 'earth' ? '🪨' : '🌑') : '';
                     content = `<div class="slot-icon">${emoji || g.id.replace('glyph_', '').slice(0, 3).toUpperCase()}</div><span class="slot-tier">${symbol}</span>`;
                     title = `${label}: ${this.t(g.id) || g.id} ${symbol}`;
                 } else {
@@ -283,7 +285,12 @@ export class MagicCircleView {
                     <div class="preview-stat" style="margin-bottom: 6px; font-size: 0.85rem;"><strong>${this.t('ui_damage') || 'Damage'}:</strong> <span style="font-size: 1rem; color: #4ade80; font-weight: bold;">${spell.damage}</span></div>
                     <div class="preview-stat" style="margin-bottom: 6px; font-size: 0.85rem;"><strong>${this.t('ui_mp_cost') || 'MP Cost'}:</strong> <span style="font-size: 1rem; color: #60a5fa; font-weight: bold;">${spell.mpCost}</span></div>
                     <div class="preview-stat" style="margin-bottom: 6px; font-size: 0.85rem;"><strong>${this.t('ui_element') || 'Element'}:</strong> <span style="text-transform: capitalize;">${spell.element}</span></div>
-                    <div class="preview-stat" style="margin-bottom: 6px; font-size: 0.85rem;"><strong>${this.t('ui_target') || 'Target'}:</strong> ${spell.targetType === 'all_enemies' ? 'All Enemies' : 'Single Enemy'}</div>
+                    <div class="preview-stat" style="margin-bottom: 6px; font-size: 0.85rem;"><strong>${this.t('ui_target') || 'Target'}:</strong> ${
+                        spell.targetType === 'all_enemies' ? 'All Enemies' :
+                        spell.targetType === 'all_allies' ? 'All Allies' :
+                        spell.targetType === 'single_ally' ? 'Single Ally' :
+                        'Single Enemy'
+                    }</div>
                     <div class="mp-budget-bar" style="margin-top:12px;height:8px;background:rgba(255,255,255,0.08);border-radius:4px;overflow:hidden;border: 1px solid rgba(255,255,255,0.05);">
                         <div style="width:${Math.min(100, (spell.mpCost / Math.max(1, maxMp)) * 100)}%;height:100%;background:${budgetColor};border-radius:4px;box-shadow: 0 0 8px ${budgetColor};"></div>
                     </div>
@@ -471,7 +478,7 @@ export class MagicCircleView {
                 });
             });
 
-            // Simulator tier select listener
+            // Tier select listener
             this.overlay.querySelectorAll('.glyph-tier-select').forEach(select => {
                 select.addEventListener('change', (e) => {
                     const gid = select.dataset.glyph;

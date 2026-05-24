@@ -290,3 +290,46 @@ test('CombatCalculator: falls back to baseMultiplier when no family', () => {
     assert.strictEqual(result.hits, 1);
     assert.ok(result.amount > 0);
 });
+
+
+// --- Buff Stat Application Tests ---
+
+test('CombatCalculator: getFinalStat applies active buffs', () => {
+    const entity = {
+        strength: 10,
+        defense: 5,
+        speed: 8,
+        statusEffects: [
+            { type: 'buff_atk', duration: 2, value: 5, stat: 'strength' },
+            { type: 'buff_def', duration: 2, value: 3, stat: 'defense' }
+        ]
+    };
+
+    assert.strictEqual(CombatCalculator.getFinalStat(entity, 'strength'), 15);
+    assert.strictEqual(CombatCalculator.getFinalStat(entity, 'defense'), 8);
+    assert.strictEqual(CombatCalculator.getFinalStat(entity, 'speed'), 8);
+});
+
+test('CombatCalculator: getFinalStat ignores expired buffs', () => {
+    const entity = {
+        strength: 10,
+        statusEffects: [
+            { type: 'buff_atk', duration: 0, value: 5, stat: 'strength' },
+            { type: 'buff_atk', duration: 2, value: 3, stat: 'strength' }
+        ]
+    };
+
+    assert.strictEqual(CombatCalculator.getFinalStat(entity, 'strength'), 13);
+});
+
+test('CombatCalculator: getFinalStat clamps to minimum 1 even with debuffs', () => {
+    const entity = {
+        strength: 2,
+        statusEffects: [
+            // Simulating a negative buff (not in design, but defensively handled)
+            { type: 'buff_atk', duration: 2, value: -10, stat: 'strength' }
+        ]
+    };
+
+    assert.strictEqual(CombatCalculator.getFinalStat(entity, 'strength'), 1);
+});

@@ -118,3 +118,90 @@ test('MagicCircle: tier-locked casting', () => {
     assert.strictEqual(result.success, false);
     assert.strictEqual(result.error, 'error_magic_tier_too_low');
 });
+
+
+test('MagicCircle: compose ally-targeted support spell', () => {
+    const result = MagicCircleService.compose(
+        ['glyph_light', 'glyph_aegis'],
+        { 'glyph_light': 1, 'glyph_aegis': 1 }
+    );
+    assert.strictEqual(result.success, true);
+    assert.strictEqual(result.data.category, 'support');
+    assert.strictEqual(result.data.targetType, 'single_ally');
+    assert.strictEqual(result.data.allyFactor, 0.30);
+    assert.ok(result.data.name.includes('Soothing') || result.data.name.includes('Light'));
+});
+
+test('MagicCircle: compose ally-targeted AoE support spell', () => {
+    const result = MagicCircleService.compose(
+        ['glyph_light', 'glyph_aegis', 'glyph_multi'],
+        { 'glyph_light': 1, 'glyph_aegis': 1, 'glyph_multi': 1 }
+    );
+    assert.strictEqual(result.success, true);
+    assert.strictEqual(result.data.category, 'support');
+    assert.strictEqual(result.data.targetType, 'all_allies');
+});
+
+test('MagicCircle: earth core composition', () => {
+    const result = MagicCircleService.compose(
+        ['glyph_earth', 'glyph_aegis'],
+        { 'glyph_earth': 1, 'glyph_aegis': 1 }
+    );
+    assert.strictEqual(result.success, true);
+    assert.strictEqual(result.data.element, 'earth');
+    assert.strictEqual(result.data.category, 'support');
+    assert.strictEqual(result.data.allyFactor, 0.25);
+});
+
+test('MagicCircle: offensive spell with boolean multi targets all enemies', () => {
+    const result = MagicCircleService.compose(
+        ['glyph_fire', 'glyph_multi'],
+        { 'glyph_fire': 1, 'glyph_multi': 1 }
+    );
+    assert.strictEqual(result.success, true);
+    assert.strictEqual(result.data.targetType, 'all_enemies');
+    assert.strictEqual(result.data.category, 'offensive');
+});
+
+test('MagicCircle: aegis cost multiplier increases mp cost', () => {
+    const withoutAegis = MagicCircleService.compose(
+        ['glyph_light'],
+        { 'glyph_light': 1 }
+    );
+    const withAegis = MagicCircleService.compose(
+        ['glyph_light', 'glyph_aegis'],
+        { 'glyph_light': 1, 'glyph_aegis': 1 }
+    );
+    assert.ok(withAegis.data.mpCost > withoutAegis.data.mpCost);
+});
+
+test('MagicCircle: multi cost multiplier increases mp cost significantly', () => {
+    const withoutMulti = MagicCircleService.compose(
+        ['glyph_fire'],
+        { 'glyph_fire': 1 }
+    );
+    const withMulti = MagicCircleService.compose(
+        ['glyph_fire', 'glyph_multi'],
+        { 'glyph_fire': 1, 'glyph_multi': 1 }
+    );
+    // Multi adds +250% cost = 3.5x multiplier
+    assert.ok(withMulti.data.mpCost > withoutMulti.data.mpCost * 2);
+});
+
+
+test('MagicCircle: boolean glyph does not evolve through mastery', () => {
+    const multiEvo = MagicCircleService.checkGlyphMastery('glyph_multi', 1, 999999);
+    const aegisEvo = MagicCircleService.checkGlyphMastery('glyph_aegis', 1, 999999);
+    assert.strictEqual(multiEvo, null);
+    assert.strictEqual(aegisEvo, null);
+});
+
+test('MagicCircle: growing glyph evolves at correct threshold', () => {
+    const potentiateEvo = MagicCircleService.checkGlyphMastery('glyph_potentiate', 1, 500);
+    assert.strictEqual(potentiateEvo, 2);
+});
+
+test('MagicCircle: growing glyph does not evolve before threshold', () => {
+    const potentiateEvo = MagicCircleService.checkGlyphMastery('glyph_potentiate', 1, 499);
+    assert.strictEqual(potentiateEvo, null);
+});

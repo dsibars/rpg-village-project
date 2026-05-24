@@ -216,3 +216,156 @@ test('BattleService: inscribed physical skill fails if not enough MP', () => {
     assert.strictEqual(result.success, false);
     assert.strictEqual(result.error, 'error_not_enough_mp');
 });
+
+
+test('BattleService: cast offensive spell deals damage', () => {
+    const inventory = new InventoryService();
+    const battle = new BattleService(inventory);
+    const hero = {
+        ...mockHero, mp: 50, maxMp: 50, magicTier: 5,
+        knownGlyphs: ['glyph_fire'], glyphMastery: {}
+    };
+    const enemy = { ...mockEnemy };
+    battle.startBattle([hero], [enemy]);
+
+    const offensiveSpell = {
+        id: 's1', name: 'Fireball', mpCost: 5, damage: 20,
+        element: 'fire', targetType: 'single_enemy',
+        category: 'offensive', allyFactor: 0.20,
+        effects: {}, glyphIds: ['glyph_fire'], glyphTiers: { 'glyph_fire': 1 }
+    };
+
+    const initialEnemyHp = enemy.hp;
+    const result = battle.castSpell(hero, offensiveSpell, 0);
+
+    assert.strictEqual(result.success, true);
+    assert.ok(enemy.hp < initialEnemyHp);
+    assert.strictEqual(battle.log.filter(e => e.type === 'SPELL_DAMAGE').length, 1);
+});
+
+test('BattleService: cast support spell heals ally', () => {
+    const inventory = new InventoryService();
+    const battle = new BattleService(inventory);
+    const hero = {
+        ...mockHero, hp: 50, mp: 50, maxMp: 50, magicTier: 5,
+        knownGlyphs: ['glyph_light', 'glyph_aegis'], glyphMastery: {}
+    };
+    const ally = {
+        id: 'h2', name: 'Ally', type: 'Hero', hp: 40, maxHp: 100,
+        mp: 10, maxMp: 10, strength: 8, defense: 4, speed: 8
+    };
+    const enemy = { ...mockEnemy };
+    battle.startBattle([hero, ally], [enemy]);
+
+    const healSpell = {
+        id: 's2', name: 'Soothing Light', mpCost: 8, damage: 20,
+        element: 'light', targetType: 'single_ally',
+        category: 'support', allyFactor: 0.30,
+        effects: {}, glyphIds: ['glyph_light', 'glyph_aegis'], glyphTiers: {}
+    };
+
+    const initialAllyHp = ally.hp;
+    const result = battle.castSpell(hero, healSpell, 1); // target ally at index 1
+
+    assert.strictEqual(result.success, true);
+    assert.ok(ally.hp > initialAllyHp);
+    assert.strictEqual(battle.log.filter(e => e.type === 'HEAL').length, 1);
+});
+
+test('BattleService: cast support buff applies status effect', () => {
+    const inventory = new InventoryService();
+    const battle = new BattleService(inventory);
+    const hero = {
+        ...mockHero, mp: 50, maxMp: 50, magicTier: 5,
+        knownGlyphs: ['glyph_earth', 'glyph_aegis'], glyphMastery: {}
+    };
+    const ally = {
+        id: 'h2', name: 'Ally', type: 'Hero', hp: 80, maxHp: 100,
+        mp: 10, maxMp: 10, strength: 8, defense: 4, speed: 8
+    };
+    const enemy = { ...mockEnemy };
+    battle.startBattle([hero, ally], [enemy]);
+
+    const buffSpell = {
+        id: 's3', name: 'Fortifying Earth', mpCost: 7, damage: 15,
+        element: 'earth', targetType: 'single_ally',
+        category: 'support', allyFactor: 0.25,
+        effects: {}, glyphIds: ['glyph_earth', 'glyph_aegis'], glyphTiers: {}
+    };
+
+    const result = battle.castSpell(hero, buffSpell, 1);
+
+    assert.strictEqual(result.success, true);
+    assert.ok(ally.statusEffects && ally.statusEffects.length > 0);
+    const buff = ally.statusEffects.find(e => e.type === 'buff_def');
+    assert.ok(buff);
+    assert.strictEqual(buff.duration, 3);
+    assert.ok(buff.value > 0);
+});
+
+test('BattleService: ally-targeted spell does not damage allies', () => {
+    const inventory = new InventoryService();
+    const battle = new BattleService(inventory);
+    const hero = {
+        ...mockHero, mp: 50, maxMp: 50, magicTier: 5,
+        knownGlyphs: ['glyph_light', 'glyph_aegis'], glyphMastery: {}
+    };
+    const ally = {
+        id: 'h2', name: 'Ally', type: 'Hero', hp: 80, maxHp: 100,
+        mp: 10, maxMp: 10, strength: 8, defense: 4, speed: 8
+    };
+    const enemy = { ...mockEnemy };
+    battle.startBattle([hero, ally], [enemy]);
+
+    const supportSpell = {
+        id: 's4', name: 'Soothing Light', mpCost: 8, damage: 20,
+        element: 'light', targetType: 'single_ally',
+        category: 'support', allyFactor: 0.30,
+        effects: { poisonStacks: 2 }, // poison should be ignored on support
+        glyphIds: ['glyph_light', 'glyph_aegis'], glyphTiers: {}
+    };
+
+    const initialAllyHp = ally.hp;
+    battle.castSpell(hero, supportSpell, 1);
+
+    // Ally should be healed, not damaged, and no poison applied
+    assert.ok(ally.hp > initialAllyHp);
+    assert.ok(!ally.statusEffects || ally.statusEffects.length === 0 || !ally.statusEffects.find(e => e.type === 'poison'));
+});
+
+test('BattleService: support AoE spell targets all allies', () => {
+    const inventory = new InventoryService();
+    const battle = new BattleService(inventory);
+    const hero = {
+        ...mockHero, mp: 50, maxMp: 50, magicTier: 5,
+        knownGlyphs: ['glyph_light', 'glyph_aegis', 'glyph_multi'], glyphMastery: {}
+    };
+    const ally1 = {
+        id: 'h2', name: 'Ally1', type: 'Hero', hp: 50, maxHp: 100,
+        mp: 10, maxMp: 10, strength: 8, defense: 4, speed: 8
+    };
+    const ally2 = {
+        id: 'h3', name: 'Ally2', type: 'Hero', hp: 60, maxHp: 100,
+        mp: 10, maxMp: 10, strength: 8, defense: 4, speed: 8
+    };
+    const enemy = { ...mockEnemy };
+    battle.startBattle([hero, ally1, ally2], [enemy]);
+
+    const aoeHeal = {
+        id: 's5', name: 'Soothing Light Chorus', mpCost: 20, damage: 20,
+        element: 'light', targetType: 'all_allies',
+        category: 'support', allyFactor: 0.30,
+        effects: {}, glyphIds: ['glyph_light', 'glyph_aegis', 'glyph_multi'], glyphTiers: {}
+    };
+
+    const initialAlly1Hp = ally1.hp;
+    const initialAlly2Hp = ally2.hp;
+    const result = battle.castSpell(hero, aoeHeal);
+
+    assert.strictEqual(result.success, true);
+    assert.ok(ally1.hp > initialAlly1Hp);
+    assert.ok(ally2.hp > initialAlly2Hp);
+    // all_allies includes caster + all allies = 3 heal events
+    const healEvents = battle.log.filter(e => e.type === 'HEAL');
+    assert.strictEqual(healEvents.length, 3);
+});

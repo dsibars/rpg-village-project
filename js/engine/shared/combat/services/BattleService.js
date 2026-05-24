@@ -1,7 +1,7 @@
 import { CombatCalculator } from '../core/CombatCalculator.js';
 import { CombatAI } from '../core/CombatAI.js';
 import { Result } from '../../core/Result.js';
-import { SKILLS_DATA, CONSUMABLES_DATA } from '../../data/GameConstants.js';
+import { SKILLS_DATA, CONSUMABLES_DATA, CORE_ALLY_EFFECTS } from '../../data/GameConstants.js';
 import { MagicCircleService } from '../../../magic_circle/MagicCircleService.js';
 
 export class BattleService {
@@ -466,8 +466,11 @@ export class BattleService {
         const existing = target.statusEffects.find(e => e.type === effect.type);
         if (existing) {
             existing.duration = Math.max(existing.duration, effect.duration);
+            if (effect.value !== undefined) {
+                existing.value = Math.max(existing.value || 0, effect.value);
+            }
         } else {
-            target.statusEffects.push(effect);
+            target.statusEffects.push({ ...effect });
         }
         if (target.recalculateStats) target.recalculateStats({});
     }
@@ -542,6 +545,17 @@ export class BattleService {
             return Result.fail('error_no_targets');
         }
 
+        const isSupport = spell.category === 'support' ||
+                          spell.targetType === 'single_ally' ||
+                          spell.targetType === 'all_allies';
+
+        if (isSupport) {
+            return this._castSupportSpell(actor, spell, baseTargets, isActorHero);
+        }
+        return this._castOffensiveSpell(actor, spell, baseTargets, isActorHero);
+    }
+
+    _castOffensiveSpell(actor, spell, baseTargets, isActorHero) {
         const actionEvents = [];
         const effects = spell.effects || {};
 
@@ -605,6 +619,89 @@ export class BattleService {
                     amount: heal,
                     source: 'leech'
                 });
+            }
+
+            actionEvents.push(event);
+            this.log.push(event);
+        }
+
+        this._checkBattleEnd();
+        if (this.isOver) {
+            return Result.ok({ actionEvents, battleOver: true, winner: this.winner });
+        }
+        return this._advanceTurn({ actionEvents });
+    }
+
+    _castSupportSpell(actor, spell, targets, isActorHero) {
+        const allyEffect = CORE_ALLY_EFFECTS[spell.element];
+        const actionEvents = [];
+
+        for (const target of targets) {
+            const amount = Math.max(1, Math.floor(spell.damage * (spell.allyFactor || 0.2)));
+            const event = {
+                actorId: actor.id,
+                actorName: actor.name,
+                actorIsHero: isActorHero,
+                targetId: target.id,
+                targetName: target.name,
+                targetIsHero: this.heroes.includes(target),
+                spellName: spell.name,
+                element: spell.element,
+                amount: 0
+            };
+
+            if (!allyEffect) {
+                // Fallback: generic heal if element not mapped
+                target.hp = Math.min(target.maxHp, target.hp + amount);
+                event.type = 'HEAL';
+                event.amount = amount;
+            } else {
+                switch (allyEffect.type) {
+                    case 'heal_hp':
+                        target.hp = Math.min(target.maxHp, target.hp + amount);
+                        event.type = 'HEAL';
+                        event.amount = amount;
+                        break;
+                    case 'restore_mp':
+                        target.mp = Math.min(target.maxMp, target.mp + amount);
+                        event.type = 'MP_RESTORE';
+                        event.amount = amount;
+                        break;
+                    case 'restore_stamina':
+                        if (target.stamina !== undefined && target.maxStamina !== undefined) {
+                            target.stamina = Math.min(target.maxStamina, target.stamina + amount);
+                            event.type = 'STAMINA_RESTORE';
+                            event.amount = amount;
+                        } else {
+                            event.type = 'SPELL_SUPPORT';
+                            event.amount = 0;
+                        }
+                        break;
+                    case 'buff_atk':
+                        this._applyStatusEffect(target, { type: 'buff_atk', duration: allyEffect.duration, value: amount, stat: allyEffect.stat });
+                        event.type = 'BUFF_ATK';
+                        event.amount = amount;
+                        break;
+                    case 'buff_def':
+                        this._applyStatusEffect(target, { type: 'buff_def', duration: allyEffect.duration, value: amount, stat: allyEffect.stat });
+                        event.type = 'BUFF_DEF';
+                        event.amount = amount;
+                        break;
+                    case 'buff_spd':
+                        this._applyStatusEffect(target, { type: 'buff_spd', duration: allyEffect.duration, value: amount, stat: allyEffect.stat });
+                        event.type = 'BUFF_SPD';
+                        event.amount = amount;
+                        break;
+                    case 'buff_crit':
+                        this._applyStatusEffect(target, { type: 'buff_crit', duration: allyEffect.duration, value: amount, stat: allyEffect.stat });
+                        event.type = 'BUFF_CRIT';
+                        event.amount = amount;
+                        break;
+                    default:
+                        target.hp = Math.min(target.maxHp, target.hp + amount);
+                        event.type = 'HEAL';
+                        event.amount = amount;
+                }
             }
 
             actionEvents.push(event);

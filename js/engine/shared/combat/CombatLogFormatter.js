@@ -30,6 +30,17 @@ export class CombatLogFormatter {
                 return this._formatStatusExpired(event);
             case 'USE_CONSUMABLE':
                 return this._formatUseConsumable(event);
+            case 'SPELL_DAMAGE':
+                return this._formatSpellDamage(event);
+            case 'MP_RESTORE':
+                return this._formatMpRestore(event);
+            case 'STAMINA_RESTORE':
+                return this._formatStaminaRestore(event);
+            case 'BUFF_ATK':
+            case 'BUFF_DEF':
+            case 'BUFF_SPD':
+            case 'BUFF_CRIT':
+                return this._formatBuff(event);
             default:
                 return `[${event.type}] ${JSON.stringify(event)}`;
         }
@@ -114,6 +125,50 @@ export class CombatLogFormatter {
             target: event.targetName,
             amount: event.amount,
             stat: statLabel
+        });
+    }
+
+    _formatSpellDamage(event) {
+        let msg = this.i18n.t('log_spell_damage', {
+            attacker: event.actorName,
+            spell: event.spellName,
+            target: event.targetName,
+            damage: event.amount
+        });
+        if (event.targetDefeated) {
+            msg += ` ${this.i18n.t('log_target_defeated', { target: event.targetName })}`;
+        }
+        return msg;
+    }
+
+    _formatMpRestore(event) {
+        return this.i18n.t('log_mp_restore', {
+            attacker: event.actorName,
+            target: event.targetName,
+            amount: event.amount
+        });
+    }
+
+    _formatStaminaRestore(event) {
+        return this.i18n.t('log_stamina_restore', {
+            attacker: event.actorName,
+            target: event.targetName,
+            amount: event.amount
+        });
+    }
+
+    _formatBuff(event) {
+        const buffKeyMap = {
+            BUFF_ATK: 'log_buff_atk',
+            BUFF_DEF: 'log_buff_def',
+            BUFF_SPD: 'log_buff_spd',
+            BUFF_CRIT: 'log_buff_crit'
+        };
+        const key = buffKeyMap[event.type] || 'log_buff_generic';
+        return this.i18n.t(key, {
+            attacker: event.actorName,
+            target: event.targetName,
+            amount: event.amount
         });
     }
 }

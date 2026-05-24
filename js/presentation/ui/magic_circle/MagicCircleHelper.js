@@ -1,0 +1,274 @@
+import { GLYPH_DATA, CORE_ALLY_EFFECTS, computeGlyphEffect, computeGlyphCostMult, glyphHasGrowthPotential } from '../../../engine/shared/data/GameConstants.js';
+import { MagicCircleService } from '../../../engine/magic_circle/MagicCircleService.js';
+
+/**
+ * MagicCircleHelper — Pure presentation logic for the Magic Circle UI.
+ * No DOM. No side effects. Just data → strings.
+ *
+ * The UX implementer should use these helpers instead of re-implementing
+ * effect formatting, target resolution, or ally-effect mapping.
+ */
+
+// ─── Effect Chip Formatting ───
+
+const EFFECT_CHIP_MAP = {
+    pierce:       { icon: '⚔️',  labelKey: 'mc_effect_pierce' },
+    poisonStacks: { icon: '☠️',  labelKey: 'mc_effect_poison' },
+    sleepChance:  { icon: '💤',  labelKey: 'mc_effect_sleep' },
+    lifesteal:    { icon: '🧛',  labelKey: 'mc_effect_leech' },
+    speedBoost:   { icon: '💨',  labelKey: 'mc_effect_speed' },
+    reflectChance:{ icon: '🔄',  labelKey: 'mc_effect_reflect' },
+    critBonus:    { icon: '🎯',  labelKey: 'mc_effect_crit' },
+    costReduction:{ icon: '💎',  labelKey: 'mc_effect_cost_reduce' }
+};
+
+const HARMFUL_EFFECTS = ['poisonStacks', 'sleepChance', 'pierce', 'lifesteal'];
+
+/**
+ * Build an array of effect chip objects for a composed spell.
+ * @param {Object} effects — spell.effects
+ * @param {boolean} isSupport — spell.category === 'support'
+ * @returns {Array<{icon: string, label: string, value: string}>}
+ */
+export function buildEffectChips(effects, isSupport = false) {
+    const chips = [];
+    for (const [key, config] of Object.entries(EFFECT_CHIP_MAP)) {
+        const value = effects?.[key];
+        if (!value || value <= 0) continue;
+        if (isSupport && HARMFUL_EFFECTS.includes(key)) continue;
+
+        let displayValue;
+        if (key === 'poisonStacks') {
+            displayValue = Math.floor(value);
+        } else if (key === 'sleepChance') {
+            displayValue = Math.round(value * 100);
+        } else {
+            displayValue = Math.round(value * 100);
+        }
+        chips.push({
+            icon: config.icon,
+            labelKey: config.labelKey,
+            value: displayValue
+        });
+    }
+    return chips;
+}
+
+/**
+ * Build the main "power" display for the preview card.
+ * Returns { labelKey, value } for the top stat (Damage / Heal / Buff / Restore).
+ * @param {Object} spell
+ * @returns {{labelKey: string, value: number}}
+ */
+export function getPowerDisplay(spell) {
+    if (!spell) return { labelKey: 'mc_preview_damage', value: 0 };
+
+    if (spell.category === 'support') {
+        const amount = Math.max(1, Math.floor(spell.damage * (spell.allyFactor || 0.2)));
+        const allyEffect = CORE_ALLY_EFFECTS[spell.element];
+        if (!allyEffect) return { labelKey: 'mc_preview_heal', value: amount };
+
+        const labelMap = {
+            heal_hp: 'mc_preview_heal',
+            restore_mp: 'mc_preview_restore_mp',
+            restore_stamina: 'mc_preview_restore_stamina',
+            buff_atk: 'mc_preview_buff_atk',
+            buff_def: 'mc_preview_buff_def',
+            buff_spd: 'mc_preview_buff_spd',
+            buff_crit: 'mc_preview_buff_crit'
+        };
+        return { labelKey: labelMap[allyEffect.type] || 'mc_preview_heal', value: amount };
+    }
+
+    return { labelKey: 'mc_preview_damage', value: spell.damage };
+}
+
+// ─── Target Resolution ───
+
+/**
+ * Resolve target polarity and count from a spell.
+ * @param {Object} spell
+ * @returns {{polarity: 'enemy'|'ally', count: 'single'|'all'}}
+ */
+export function resolveTarget(spell) {
+    if (!spell) return { polarity: 'enemy', count: 'single' };
+    const targetType = spell.targetType || 'single_enemy';
+    return {
+        polarity: targetType.includes('ally') ? 'ally' : 'enemy',
+        count: targetType.startsWith('all_') ? 'all' : 'single'
+    };
+}
+
+/**
+ * Get the display label key for a target type.
+ * @param {string} targetType
+ * @returns {string} i18n key
+ */
+export function getTargetLabelKey(targetType) {
+    const map = {
+        single_enemy: 'mc_preview_target_single_enemy',
+        all_enemies: 'mc_preview_target_all_enemies',
+        single_ally: 'mc_preview_target_single_ally',
+        all_allies: 'mc_preview_target_all_allies'
+    };
+    return map[targetType] || 'mc_preview_target_single_enemy';
+}
+
+// ─── Glyph Card Helpers ───
+
+/**
+ * Check if a glyph is "static" (no functional tier growth).
+ * @param {Object} glyph — from GLYPH_DATA
+ * @returns {boolean}
+ */
+export function isStaticGlyph(glyph) {
+    return !glyphHasGrowthPotential(glyph);
+}
+
+/**
+ * Get the maximum selectable tier for a glyph given a hero's mastery.
+ * @param {Object} glyph — from GLYPH_DATA
+ * @param {number} masteredTier — hero's mastery tier for this glyph
+ * @returns {number}
+ */
+export function getMaxSelectableTier(glyph, masteredTier) {
+    if (isStaticGlyph(glyph)) return 1;
+    return Math.max(1, Math.min(7, masteredTier || 1));
+}
+
+/**
+ * Build a tier option list for a glyph selector.
+ * @param {Object} glyph
+ * @param {number} masteredTier
+ * @returns {Array<{tier: number, symbol: string}>}
+ */
+export function buildTierOptions(glyph, masteredTier) {
+    const max = getMaxSelectableTier(glyph, masteredTier);
+    return Array.from({ length: max }, (_, i) => ({
+        tier: i + 1,
+        symbol: MagicCircleService.getGlyphSymbol(i + 1)
+    }));
+}
+
+/**
+ * Get a short abbreviation for a non-core glyph (for mandala slot display).
+ * e.g. "POT" for glyph_potentiate, "MUL" for glyph_multi.
+ * @param {Object} glyph
+ * @returns {string}
+ */
+export function getGlyphAbbreviation(glyph) {
+    if (!glyph) return '?';
+    if (glyph.type === 'core') return '';
+    return glyph.id.replace('glyph_', '').substring(0, 3).toUpperCase();
+}
+
+/**
+ * Get the element emoji for a core glyph.
+ * @param {string} element
+ * @returns {string}
+ */
+export function getElementEmoji(element) {
+    const map = {
+        fire: '🔥', water: '💧', wind: '🌪️',
+        storm: '⚡', light: '✨', dark: '🌑', earth: '🪨'
+    };
+    return map[element] || '🔮';
+}
+
+/**
+ * Get the element color token (for CSS theming).
+ * @param {string} element
+ * @returns {string} CSS color value
+ */
+export function getElementColor(element) {
+    const map = {
+        fire: '#ef4444',   // red-500
+        water: '#3b82f6',  // blue-500
+        wind: '#10b981',   // emerald-500
+        storm: '#f59e0b',  // amber-500
+        light: '#fbbf24',  // amber-400
+        dark: '#a855f7',   // purple-500
+        earth: '#84cc16'   // lime-500
+    };
+    return map[element] || '#6366f1'; // indigo-500 fallback
+}
+
+// ─── MP Budget ───
+
+/**
+ * Compute budget state from spell cost and hero max MP.
+ * @param {number} mpCost
+ * @param {number} maxMp
+ * @returns {{ratio: number, color: string, labelKey: string, isOverBudget: boolean}}
+ */
+export function computeBudgetState(mpCost, maxMp) {
+    const ratio = mpCost / Math.max(1, maxMp);
+    if (ratio > 0.90) {
+        return { ratio, color: '#ef4444', labelKey: 'mc_budget_over', isOverBudget: true };
+    }
+    if (ratio > 0.75) {
+        return { ratio, color: '#f59e0b', labelKey: 'mc_budget_warning', isOverBudget: false };
+    }
+    return { ratio, color: '#10b981', labelKey: 'mc_budget_within', isOverBudget: false };
+}
+
+// ─── Slot Positioning (Mandala Math) ───
+
+/**
+ * Compute the CSS left/top percentages for a mandala slot.
+ * Core slot is center. Ring slots are hexagonally arranged.
+ * @param {number} slotIndex — 0 = core, 1–24 = ring slots
+ * @returns {{left: number, top: number}}
+ */
+export function getSlotPosition(slotIndex) {
+    if (slotIndex === 0) {
+        return { left: 50, top: 50 };
+    }
+    const ring = Math.floor((slotIndex - 1) / 6) + 1;
+    const slotInRing = (slotIndex - 1) % 6;
+    const radius = ring * 11.2; // percentage from center
+    const angle = slotInRing * (2 * Math.PI / 6) - Math.PI / 2;
+    return {
+        left: 50 + radius * Math.cos(angle),
+        top: 50 + radius * Math.sin(angle)
+    };
+}
+
+/**
+ * Get the ring number for a slot (0 for core).
+ * @param {number} slotIndex
+ * @returns {number}
+ */
+export function getSlotRing(slotIndex) {
+    if (slotIndex === 0) return 0;
+    return Math.floor((slotIndex - 1) / 6) + 1;
+}
+
+// ─── Composition Validation ───
+
+/**
+ * Check if a glyph is valid for a given slot.
+ * @param {Object} glyph
+ * @param {number} slotIndex — 0 = core
+ * @returns {boolean}
+ */
+export function isValidForSlot(glyph, slotIndex) {
+    if (!glyph) return false;
+    if (slotIndex === 0) return glyph.type === 'core';
+    return glyph.type !== 'core';
+}
+
+/**
+ * Find the next empty slot index, starting from slot 1.
+ * Returns null if no empty slots.
+ * @param {Array<{slotIndex}>} composition
+ * @param {number} maxSlots
+ * @returns {number|null}
+ */
+export function findNextEmptySlot(composition, maxSlots) {
+    const used = new Set(composition.map(c => c.slotIndex));
+    for (let i = 1; i < maxSlots; i++) {
+        if (!used.has(i)) return i;
+    }
+    return null;
+}
