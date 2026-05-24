@@ -861,5 +861,29 @@ export const en = {
     ui_advisory_title: 'Village Undefended',
     ui_advisory_cancel: 'Cancel',
     ui_advisory_proceed: 'Proceed Anyway',
-    error_hero_on_expedition: 'This hero is currently on an expedition and cannot be assigned to defense.'
+    error_hero_on_expedition: 'This hero is currently on an expedition and cannot be assigned to defense.',
+
+    // Additional UI elements
+    ui_select_item: "Select an item to view details.",
+    ui_forge_select_item: "Select a piece of equipment from the inventory to upgrade.",
+    ui_shop_subtitle: "Purchase supplies, weaponry, and protective gear for your heroes.",
+    ui_lvl: "Lvl",
+    ui_about: "About",
+    ui_version: "Version",
+    ui_built_with: "Built with ❤️ and Specs.",
+
+    // Missing JS UI and core elements
+    body_circle_empty: "No glyphs inscribed",
+    body_inscription_pending: "Inscription in progress",
+    error_body_circle_must_be_7: "Body circle must have exactly 7 glyphs.",
+    ui_cheaper_recruits: "Cheaper recruits",
+    ui_days_remaining: "days remaining",
+    ui_heroes: "heroes",
+    ui_more_insights: "More insights",
+    ui_overwrite: "Overwrite",
+    ui_save: "Save",
+    ui_selected: "Selected",
+    ui_slots: "Slots",
+    ui_tier3_maps: "Tier 3 maps",
+    witch_mastery_detected: "Glyph mastery whispers detected..."
 };

@@ -95,5 +95,10 @@ export class BestiaryView extends BaseView {
 
             grid.appendChild(card);
         });
+
+        // Translate the dynamic content inside the grid
+        if (this.ui) {
+            this.ui.translateView(grid);
+        }
     }
 }

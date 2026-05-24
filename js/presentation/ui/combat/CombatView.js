@@ -459,7 +459,7 @@ export class CombatView {
         });
         controlPanel.innerHTML = `
           <div class="combat-control-buttons">
-            <button class="btn btn-secondary" id="btn-action-attack" style="flex:1 1 120px;">⚔️ ${this.t('single_strike')}</button>
+            <button class="btn btn-secondary" id="btn-action-attack" style="flex:1 1 120px;">⚔️ ${this.t('family_single_strike')}</button>
             <button class="btn btn-secondary" id="btn-action-skills" style="flex:1 1 120px;" ${!hasSkills ? 'disabled' : ''}>✨ ${this.t('ui_skills')}</button>
             <button class="btn btn-secondary" id="btn-action-magic" style="flex:1 1 120px;" ${!canCastSpells ? 'disabled' : ''}>🔮 ${this.t('ui_magic') || 'Magic'}</button>
             <button class="btn btn-secondary" id="btn-action-items" style="flex:1 1 120px;" ${battle.itemUsedThisTurn ? 'disabled' : ''}>🎒 ${this.t('combat_items')} ${battle.itemUsedThisTurn ? '(' + (this.t('ui_once_per_turn') || '1/Turn') + ')' : ''}</button>
@@ -467,7 +467,7 @@ export class CombatView {
         `;
         controlPanel.querySelector('#btn-action-attack').addEventListener('click', () => {
           overlay.menuState = 'targeting';
-          overlay.selectedAction = { type: 'attack', id: 'single_strike', name: this.t('single_strike') };
+          overlay.selectedAction = { type: 'attack', id: 'single_strike', name: this.t('family_single_strike') };
           render();
         });
         const btnSkills = controlPanel.querySelector('#btn-action-skills');

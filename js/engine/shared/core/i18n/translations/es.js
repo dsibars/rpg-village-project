@@ -788,4 +788,28 @@ export const es = {
     ui_auto_combat_running: 'Ejecutando combate automático...',
     ui_enemy_planning: 'El enemigo está planeando su acción...',
     ui_once_per_turn: '1/Turno',
+
+    // Additional UI elements
+    ui_select_item: "Selecciona un objeto para ver los detalles.",
+    ui_forge_select_item: "Selecciona una pieza de equipo del inventario para mejorar.",
+    ui_shop_subtitle: "Compra suministros, armamento y equipo de protección para tus héroes.",
+    ui_lvl: "Niv",
+    ui_about: "Acerca de",
+    ui_version: "Versión",
+    ui_built_with: "Creado con ❤️ y Specs.",
+
+    // Missing JS UI and core elements
+    body_circle_empty: "Sin glifos grabados",
+    body_inscription_pending: "Grabado en progreso",
+    error_body_circle_must_be_7: "El círculo corporal debe tener exactamente 7 glifos.",
+    ui_cheaper_recruits: "Reclutas más baratos",
+    ui_days_remaining: "días restantes",
+    ui_heroes: "héroes",
+    ui_more_insights: "Más revelaciones",
+    ui_overwrite: "Sobrescribir",
+    ui_save: "Guardar",
+    ui_selected: "Seleccionado",
+    ui_slots: "Ranuras",
+    ui_tier3_maps: "Mapas de Tier 3",
+    witch_mastery_detected: "Susurros de maestría de glifos detectados..."
 };

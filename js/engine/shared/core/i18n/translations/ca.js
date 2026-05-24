@@ -788,4 +788,28 @@ export const ca = {
     ui_auto_combat_running: 'Executant combat automàtic...',
     ui_enemy_planning: 'L\'enemic està planificant la seva acció...',
     ui_once_per_turn: '1/Torn',
+
+    // Additional UI elements
+    ui_select_item: "Selecciona un objecte per veure els detalls.",
+    ui_forge_select_item: "Selecciona una peça d'equip de l'inventari per millorar.",
+    ui_shop_subtitle: "Compra subministraments, armament i equip de protecció per als teus herois.",
+    ui_lvl: "Niv",
+    ui_about: "Quant a",
+    ui_version: "Versió",
+    ui_built_with: "Creat amb ❤️ i Specs.",
+
+    // Missing JS UI and core elements
+    body_circle_empty: "Sense glifs gravats",
+    body_inscription_pending: "Gravat en curs",
+    error_body_circle_must_be_7: "El cercle corporal ha de tenir exactament 7 glifs.",
+    ui_cheaper_recruits: "Reclutes més barats",
+    ui_days_remaining: "dies restants",
+    ui_heroes: "herois",
+    ui_more_insights: "Més revelacions",
+    ui_overwrite: "Sobrescriure",
+    ui_save: "Desar",
+    ui_selected: "Seleccionat",
+    ui_slots: "Ranures",
+    ui_tier3_maps: "Mapes de Tier 3",
+    witch_mastery_detected: "Murmuris de maestria de glifs detectats..."
 };

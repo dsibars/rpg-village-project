@@ -789,4 +789,28 @@ export const eu = {
     ui_auto_combat_running: 'Borroka automatikoa martxan...',
     ui_enemy_planning: 'Etsaia ekintza planifikatzen ari da...',
     ui_once_per_turn: '1/Txanda',
+
+    // Additional UI elements
+    ui_select_item: "Hautatu objektu bat xehetasunak ikusteko.",
+    ui_forge_select_item: "Hautatu inbentarioko ekipamendu zati bat hobetzeko.",
+    ui_shop_subtitle: "Erosi hornigaiak, armak eta babes-ekipamendua zure heroientzat.",
+    ui_lvl: "Mail",
+    ui_about: "Honi buruz",
+    ui_version: "Bertsioa",
+    ui_built_with: "❤️ eta Specs-ekin egina.",
+
+    // Missing JS UI and core elements
+    body_circle_empty: "Ez dago gliforik grabatuta",
+    body_inscription_pending: "Grabatzea abian",
+    error_body_circle_must_be_7: "Gorputz-zirkuluak zehazki 7 glifo izan behar ditu.",
+    ui_cheaper_recruits: "Errekruta merkeagoak",
+    ui_days_remaining: "egun geratzen dira",
+    ui_heroes: "heroiak",
+    ui_more_insights: "Ikuspegi gehiago",
+    ui_overwrite: "Gainidatzi",
+    ui_save: "Gorde",
+    ui_selected: "Hautatua",
+    ui_slots: "Zirrikituak",
+    ui_tier3_maps: "Tier 3 mapak",
+    witch_mastery_detected: "Glifo-maisutzaren xuxurlak hauteman dira..."
 };
