@@ -1,6 +1,7 @@
 import { persistence } from '../../shared/core/Persistence.js';
 import { Result } from '../../shared/core/Result.js';
 import { Enemy } from '../../shared/combat/models/Enemy.js';
+import { LootService } from './LootService.js';
 
 /**
  * ExpeditionService handles manual combat challenges, stage progression,
@@ -13,6 +14,7 @@ export class ExpeditionService {
         this.heroService = heroService;
         this.villageService = villageService;
         this.inventoryService = inventoryService;
+        this.lootService = new LootService(this._getRegionData.bind(this));
         
         this.STORAGE_KEY = 'expedition_state';
         this.state = this._load();
@@ -696,13 +698,13 @@ export class ExpeditionService {
         }
 
         // Loot drop (equipment)
-        const loot = this._generateLootDrop(exp.regionId);
+        const loot = this.lootService.generateLootDrop(exp.regionId);
         if (loot) {
             this.inventoryService.addEquipment(loot);
         }
 
         // Consumable drops (MP potions for mage balance)
-        const consumables = this._generateConsumableDrops(exp.regionId);
+        const consumables = this.lootService.generateConsumableDrops(exp.regionId);
         consumables.forEach(({ id, qty }) => {
             this.villageService.addItemToInventory(id, qty);
         });
@@ -802,68 +804,13 @@ export class ExpeditionService {
         this.save();
     }
 
+    // Backward-compat wrappers delegating to LootService
     _generateLootDrop(regionId) {
-        // 40% chance for equipment drop
-        if (Math.random() >= 0.40) return null;
-
-        const rData = this._getRegionData(regionId);
-        const materialTiers = ['wooden', 'iron', 'steel', 'gold', 'mythril'];
-        const material = materialTiers[Math.min(rData.baseLevel || 1, materialTiers.length) - 1];
-
-        const isWeapon = Math.random() < 0.5;
-        let item = {
-            type: isWeapon ? 'weapon' : 'armor',
-            material: material,
-            level: 0,
-            affixes: []
-        };
-
-        if (isWeapon) {
-            const families = ['dagger', 'broadsword', 'battle_axe', 'wand'];
-            item.family = families[Math.floor(Math.random() * families.length)];
-        } else {
-            const archetypes = ['plate', 'leather', 'robes'];
-            const slots = ['head', 'body', 'legs', 'rightHand'];
-            item.archetype = archetypes[Math.floor(Math.random() * archetypes.length)];
-            item.slot = slots[Math.floor(Math.random() * slots.length)];
-        }
-
-        // Affix roll
-        const affixPool = ['vampire', 'sage', 'titan', 'assassin', 'phoenix'];
-        const roll = Math.random();
-        const numAffixes = roll < 0.02 ? 2 : (roll < 0.12 ? 1 : 0);
-        for (let i = 0; i < numAffixes; i++) {
-            const affix = affixPool[Math.floor(Math.random() * affixPool.length)];
-            if (!item.affixes.includes(affix)) {
-                item.affixes.push(affix);
-            }
-        }
-
-        return item;
+        return this.lootService.generateLootDrop(regionId);
     }
 
     _generateConsumableDrops(regionId) {
-        const drops = [];
-        const rData = this._getRegionData(regionId);
-        const regionLevel = rData.baseLevel || 1;
-
-        // Guaranteed 1 tiny_mp_potion, plus 50% chance for an extra one
-        // Additional potion per region level above 1 (capped at +2)
-        const baseQty = 1;
-        const bonusQty = Math.random() < 0.5 ? 1 : 0;
-        const levelBonus = Math.min(2, Math.max(0, regionLevel - 1));
-        const totalMpPotions = baseQty + bonusQty + levelBonus;
-
-        if (totalMpPotions > 0) {
-            drops.push({ id: 'tiny_mp_potion', qty: totalMpPotions });
-        }
-
-        // Small chance for HP potion as well (30% for 1)
-        if (Math.random() < 0.30) {
-            drops.push({ id: 'tiny_hp_potion', qty: 1 });
-        }
-
-        return drops;
+        return this.lootService.generateConsumableDrops(regionId);
     }
 
     _trackBestiary(templateId) {
@@ -899,25 +846,7 @@ export class ExpeditionService {
     }
 
     _createEnemy(templateId, isBoss, level = 1) {
-        // Mock data registry for enemies
-        const templates = {
-            slime_green: { name: 'Green Slime', type: 'beast', maxHp: 20, strength: 3, defense: 2, speed: 2 },
-            slime_fire: { name: 'Fire Slime', type: 'beast', maxHp: 30, strength: 5, defense: 3, speed: 3, element: 'fire' },
-            wild_boar: { name: 'Wild Boar', type: 'beast', maxHp: 40, strength: 6, defense: 4, speed: 4 },
-            goblin_scout: { name: 'Goblin Scout', type: 'humanoid', maxHp: 25, strength: 4, defense: 2, speed: 6 },
-            goblin_grunt: { name: 'Goblin Grunt', type: 'humanoid', maxHp: 35, strength: 5, defense: 4, speed: 2 },
-            goblin_brute: { name: 'Goblin Brute', type: 'humanoid', maxHp: 55, strength: 7, defense: 5, speed: 1 },
-            goblin_king: { name: 'Goblin King', type: 'humanoid', maxHp: 120, strength: 10, defense: 6, speed: 4, isBoss: true },
-            goblin_shaman: { name: 'Goblin Shaman', type: 'humanoid', maxHp: 40, strength: 5, defense: 3, speed: 5, element: 'storm' },
-            bat_small: { name: 'Small Bat', type: 'beast', maxHp: 22, strength: 4, defense: 2, speed: 7 },
-            spider_minor: { name: 'Minor Spider', type: 'beast', maxHp: 28, strength: 5, defense: 3, speed: 4 },
-            crab_shell: { name: 'Shell Crab', type: 'beast', maxHp: 35, strength: 5, defense: 5, speed: 2 },
-            water_spirit_minor: { name: 'Minor Water Spirit', type: 'elemental', maxHp: 25, strength: 4, defense: 2, speed: 5, element: 'water' },
-            skeleton_warrior: { name: 'Skeleton Warrior', type: 'undead', maxHp: 35, strength: 5, defense: 3, speed: 3 },
-            ghost_wisp: { name: 'Ghost Wisp', type: 'undead', maxHp: 20, strength: 3, defense: 1, speed: 8, element: 'wind' },
-            ice_elemental: { name: 'Ice Elemental', type: 'elemental', maxHp: 45, strength: 6, defense: 5, speed: 2, element: 'water' },
-            young_drake: { name: 'Young Drake', type: 'dragon', maxHp: 70, strength: 8, defense: 6, speed: 4, element: 'fire' }
-        };
+        const templates = this.getEnemyTemplates();
         const t = templates[templateId] || templates['slime_green'];
         
         // Apply level scaling: Base * 1.1^(level - 1)

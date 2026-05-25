@@ -2,9 +2,10 @@ import { BaseView } from '../BaseView.js';
 import { getEquipmentName, getEquipmentStats } from '../shared/EquipmentHelper.js';
 import { SKILLS_DATA, TECHNIQUE_FAMILIES, GLYPH_DATA, computeGlyphEffect, computeGlyphCostMult } from '../../../engine/shared/data/GameConstants.js';
 import { Hero } from '../../../engine/heroes/models/Hero.js';
-import { MagicCircleService } from '../../../engine/magic_circle/MagicCircleService.js';
-import { TrainerService } from '../../../engine/trainer/TrainerService.js';
-import { WitchService } from '../../../engine/witch/WitchService.js';
+import { HeroEquipmentModal } from './components/HeroEquipmentModal.js';
+import { TrainerModal, WitchModal, AcademyModal, HallOfFameModal } from './components/HeroTrainingModals.js';
+import { HeroInscriptionModal } from './components/HeroInscriptionModal.js';
+import { HeroGambitModal } from './components/HeroGambitModal.js';
 
 export class HeroesView extends BaseView {
     constructor() {
@@ -100,6 +101,13 @@ export class HeroesView extends BaseView {
                     this._openGambitModal();
                     return;
                 }
+                
+                const backBtn = e.target.closest('.btn-mobile-back');
+                if (backBtn) {
+                    this.selectedHeroId = null;
+                    this.ui.update(this.lastRawState);
+                    return;
+                }
             });
         }
     }
@@ -149,6 +157,15 @@ export class HeroesView extends BaseView {
     }
 
     onUpdate(state) {
+        const layout = this.root.querySelector('.master-detail-layout');
+        if (layout) {
+            if (this.selectedHeroId) {
+                layout.classList.add('detail-active');
+            } else {
+                layout.classList.remove('detail-active');
+            }
+        }
+        
         this.renderHeroesList(state.heroes);
         this.renderRecruitButton(state);
         this.renderHeroDetail(state);
@@ -382,6 +399,9 @@ export class HeroesView extends BaseView {
         }
 
         this.elements.detail.innerHTML = `
+            <div class="mobile-only-header btn-mobile-back">
+                ← ${this.t('ui_back') || 'Back to Roster'}
+            </div>
             <div class="hero-profile">
                 <div class="hero-detail-header-card">
                     <div class="hero-portrait-container">
@@ -532,336 +552,28 @@ export class HeroesView extends BaseView {
 
     _openEquipModal(slot) {
         const hero = this.lastRawState.heroes.find(h => h.id === this.selectedHeroId);
-        if (!hero || hero.activity !== 'idle') return;
-
-        const currentItem = hero.equipment[slot];
-
-        // Filter eligible items in inventory
-        const eligibleItems = this.inventoryEquipment.filter(item => {
-            if (slot === 'leftHand' || slot === 'rightHand') {
-                return item.type === 'weapon' || (item.type === 'armor' && item.slot === slot);
-            } else {
-                return item.type === 'armor' && item.slot === slot;
-            }
-        });
-
-        const modalOverlay = document.createElement('div');
-        modalOverlay.className = 'modal-overlay';
-        modalOverlay.style.zIndex = '2000';
-
-        const t = this.t.bind(this);
-
-        const currentStats = currentItem ? getEquipmentStats(currentItem) : {};
-
-        const formatDelta = (val, label) => {
-            if (val === 0) return '';
-            const color = val > 0 ? 'var(--success)' : 'var(--danger)';
-            const sign = val > 0 ? '+' : '';
-            return `<span style="color:${color}; font-weight:700;">${sign}${val} ${label}</span>`;
-        };
-
-        let itemsHtml = '';
-        if (eligibleItems.length === 0) {
-            itemsHtml = `<div style="text-align:center; padding: 25px; color: var(--text-muted); font-size: 0.95rem;">${t('ui_no_items')}</div>`;
-        } else {
-            itemsHtml = eligibleItems.map(item => {
-                const statsObj = getEquipmentStats(item);
-                const statLines = [];
-                const deltaLines = [];
-
-                const pushStat = (key, label) => {
-                    const val = statsObj[key] || 0;
-                    const cur = currentStats[key] || 0;
-                    if (val || cur) {
-                        statLines.push(`${val > 0 ? '+' : ''}${val} ${label}`);
-                        const delta = val - cur;
-                        if (delta !== 0) deltaLines.push(formatDelta(delta, label));
-                    }
-                };
-
-                pushStat('strength', t('ui_stats_power') || 'STR');
-                pushStat('defense', 'DEF');
-                pushStat('maxHp', 'HP');
-                pushStat('maxMp', 'MP');
-                pushStat('magicPower', 'MAG');
-                pushStat('speed', 'SPD');
-                if (statsObj.evasion || currentStats.evasion) {
-                    const eva = statsObj.evasion || 0;
-                    const curEva = currentStats.evasion || 0;
-                    statLines.push(`${eva > 0 ? '+' : ''}${eva}% EVA`);
-                    const delta = eva - curEva;
-                    if (delta !== 0) deltaLines.push(formatDelta(delta, '% EVA'));
-                }
-
-                const desc = statLines.join(', ');
-                const deltas = deltaLines.join(' ');
-
-                return `
-                    <div class="list-item" style="display: flex; justify-content: space-between; align-items: center; padding: 12px; margin-bottom: 8px; cursor: default;">
-                        <div style="flex: 1; text-align: left; padding-right: 10px;">
-                            <div style="font-weight:700; color: var(--text-primary);">${getEquipmentName(item, t)}</div>
-                            <div style="font-size:0.8rem; color:var(--text-secondary); margin-top: 2px;">${desc}</div>
-                            ${deltas ? `<div style="font-size:0.75rem; margin-top: 2px;">${deltas}</div>` : ''}
-                        </div>
-                        <button class="btn btn-primary btn-sm btn-select-equip" data-id="${item.id}" style="min-width: 70px;">
-                            ${t('ui_equip') || 'Equip'}
-                        </button>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        modalOverlay.innerHTML = `
-            <div class="modal-body" style="max-width: 480px; max-height: 80vh; display: flex; flex-direction: column;">
-                <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--glass-border); padding-bottom: 10px;">
-                    <h3 style="margin: 0; font-size:1.1rem; color: var(--accent-color);">${t('ui_equip')} - ${t('slot_' + slot)}</h3>
-                    <button class="btn btn-secondary btn-sm" id="btn-close-equip-modal" style="padding: 4px 8px; font-size: 0.8rem;">❌</button>
-                </div>
-                
-                <div style="flex: 1; overflow-y: auto; margin-bottom: 15px; padding-right: 5px;">
-                    ${currentItem ? `
-                        <div style="background: rgba(239, 68, 68, 0.05); border: 1px dashed var(--danger); padding: 12px; border-radius: var(--radius-md); display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                            <div style="text-align: left;">
-                                <div style="font-size: 0.8rem; color: var(--text-muted);">${t('ui_equipped') || 'Equipped'}:</div>
-                                <div style="font-weight: 700; color: var(--danger); margin-top: 2px;">${getEquipmentName(currentItem, t)}</div>
-                            </div>
-                            <button class="btn btn-danger btn-sm" id="btn-unequip-slot" style="padding: 6px 12px; font-size: 0.8rem;">
-                                ${t('ui_unequip') || 'Unequip'}
-                            </button>
-                        </div>
-                    ` : ''}
-                    
-                    <div style="font-weight: 700; font-size: 0.85rem; margin-bottom: 10px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; text-align: left;">
-                        ${t('ui_available_gear') || 'Available Gear'}
-                    </div>
-                    ${itemsHtml}
-                </div>
-                
-                <div class="modal-actions" style="border-top: 1px solid var(--glass-border); padding-top: 12px; display: flex; justify-content: flex-end;">
-                    <button class="btn btn-secondary btn-sm" id="btn-cancel-equip-modal">${t('btn_cancel')}</button>
-                </div>
-            </div>
-        `;
-
-        document.body.appendChild(modalOverlay);
-
-        const closeModal = () => {
-            document.body.removeChild(modalOverlay);
-        };
-
-        modalOverlay.querySelector('#btn-close-equip-modal').addEventListener('click', closeModal);
-        modalOverlay.querySelector('#btn-cancel-equip-modal').addEventListener('click', closeModal);
-
-        if (currentItem) {
-            modalOverlay.querySelector('#btn-unequip-slot').addEventListener('click', () => {
-                this.emit('unequipItem', { heroId: this.selectedHeroId, slot });
-                closeModal();
-            });
-        }
-
-        modalOverlay.querySelectorAll('.btn-select-equip').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const itemId = btn.dataset.id;
-                this.emit('equipItem', { heroId: this.selectedHeroId, slot, itemId });
-                closeModal();
-            });
-        });
+        HeroEquipmentModal.show(hero, slot, this.inventoryEquipment, this.t.bind(this), this.emit.bind(this));
     }
 
     _openTrainerModal() {
         const hero = this.lastRawState?.heroes?.find(h => h.id === this.selectedHeroId);
-        if (!hero) return;
-
-        const dialogue = TrainerService.getDialogue(hero, this.ui?.i18n);
-
-        const overlay = document.createElement('div');
-        overlay.className = 'modal-overlay trainer-modal-overlay';
-        overlay.innerHTML = `
-            <div class="trainer-dialogue-box">
-                <div class="trainer-header">
-                    <span class="trainer-icon">💪</span>
-                    <h3>${this.t('trainer_title') || 'Training Grounds'}</h3>
-                </div>
-                <div class="trainer-lines">
-                    ${dialogue.lines.map(line => `<p class="trainer-line">"${line}"</p>`).join('')}
-                </div>
-                <div class="trainer-footer">
-                    <span class="trainer-category">${dialogue.category}</span>
-                    <button class="btn btn-secondary btn-sm" id="btn-trainer-close">${this.t('ui_btn_close') || 'Close'}</button>
-                </div>
-            </div>
-        `;
-
-        document.body.appendChild(overlay);
-
-        const close = () => {
-            overlay.style.opacity = '0';
-            overlay.style.transition = 'opacity 0.3s ease';
-            setTimeout(() => overlay.remove(), 300);
-        };
-
-        overlay.querySelector('#btn-trainer-close').addEventListener('click', close);
-        overlay.addEventListener('click', (e) => {
-            if (e.target === overlay) close();
-        });
+        TrainerModal.show(hero, this.ui?.i18n, this.t.bind(this));
     }
 
     _openWitchModal() {
         const heroes = this.lastRawState?.heroes || [];
-        let selectedHero = heroes.find(h => h.id === this.selectedHeroId) || heroes[0];
-        if (!selectedHero) return;
-
-        const overlay = document.createElement('div');
-        overlay.className = 'modal-overlay trainer-modal-overlay';
-
-        const renderWitch = () => {
-            const currentDay = this.lastRawState?.village?.day || 0;
-            const dialogue = WitchService.getDialogue(selectedHero, this.ui?.i18n, currentDay);
-            WitchService.recordVisit(selectedHero, currentDay);
-            const elementIcons = { fire: '🔥', water: '💧', wind: '🌪️', storm: '⚡', light: '✨', dark: '🌑', earth: '🪨', neutral: '🔮' };
-            const elementIcon = elementIcons[dialogue.element] || '🔮';
-
-            overlay.innerHTML = `
-                <div class="trainer-dialogue-box witch-dialogue-box" style="max-width: 520px;">
-                    <div class="trainer-header">
-                        <span class="trainer-icon">🌙</span>
-                        <h3>${this.t('witch_title') || 'Witch\'s Hut'}</h3>
-                    </div>
-                    <div style="margin-bottom: 12px;">
-                        <select id="witch-hero-select" class="gambit-select" style="width: 100%;">
-                            ${heroes.map(h => `<option value="${h.id}" ${h.id === selectedHero.id ? 'selected' : ''}>${h.name} (Tier ${h.magicTier || 1})</option>`).join('')}
-                        </select>
-                    </div>
-                    <div class="trainer-lines">
-                        ${dialogue.lines.map(line => `<p class="trainer-line witch-line">${elementIcon} "${line}"</p>`).join('')}
-                    </div>
-                    ${dialogue.masteryHints.length > 0 ? `
-                    <div style="margin-top: 8px; font-size: 0.8rem; color: var(--accent-color);">
-                        ${this.t('witch_mastery_detected') || 'Glyph mastery whispers detected...'}
-                    </div>
-                    ` : ''}
-                    <div class="trainer-footer">
-                        <span class="trainer-category witch-category">${dialogue.category} · ${dialogue.element}</span>
-                        <button class="btn btn-secondary btn-sm" id="btn-witch-close">${this.t('ui_btn_close') || 'Close'}</button>
-                    </div>
-                </div>
-            `;
-
-            overlay.querySelector('#witch-hero-select').addEventListener('change', (e) => {
-                selectedHero = heroes.find(h => h.id === e.target.value);
-                renderWitch();
-            });
-
-            overlay.querySelector('#btn-witch-close').addEventListener('click', () => {
-                WitchService.recordVisit(selectedHero);
-                this.emit('updateHero', { hero: selectedHero });
-                close();
-            });
-        };
-
-        document.body.appendChild(overlay);
-        renderWitch();
-
-        const close = () => {
-            overlay.style.opacity = '0';
-            overlay.style.transition = 'opacity 0.3s ease';
-            setTimeout(() => overlay.remove(), 300);
-        };
-
-        overlay.addEventListener('click', (e) => {
-            if (e.target === overlay) close();
-        });
+        WitchModal.show(heroes, this.selectedHeroId, this.ui?.i18n, this.t.bind(this), this.lastRawState, this.emit.bind(this));
     }
 
     _openAcademyModal() {
         const hero = this.lastRawState?.heroes?.find(h => h.id === this.selectedHeroId);
-        if (!hero) return;
-
         const designs = this.ui?.adapter?.engine?.getSpellDesigns() || [];
-        const allHeroes = this.lastRawState?.heroes || [];
-        const otherHeroes = allHeroes.filter(h => h.id !== hero.id);
-
-        const overlay = document.createElement('div');
-        overlay.className = 'modal-overlay trainer-modal-overlay';
-        overlay.innerHTML = `
-            <div class="trainer-dialogue-box academy-dialogue-box" style="max-width: 540px;">
-                <div class="trainer-header">
-                    <span class="trainer-icon">📚</span>
-                    <h3>${this.t('academy_title') || 'Glyph Academy'}</h3>
-                </div>
-                <div style="margin-bottom: 16px;">
-                    <h4 style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 8px;">${this.t('ui_design_library') || 'Design Library'}</h4>
-                    ${designs.length === 0 ? `<p style="color: var(--text-muted); font-size: 0.85rem;">No designs saved yet.</p>` :
-                        designs.map(d => `<div class="academy-design-card"><strong>${d.name}</strong> — ${d.glyphIds.length} glyphs, ${d.mpCost} MP</div>`).join('')}
-                </div>
-                <div class="trainer-footer">
-                    <button class="btn btn-secondary btn-sm" id="btn-academy-close">${this.t('ui_btn_close') || 'Close'}</button>
-                </div>
-            </div>
-        `;
-
-        document.body.appendChild(overlay);
-
-        const close = () => {
-            overlay.style.opacity = '0';
-            overlay.style.transition = 'opacity 0.3s ease';
-            setTimeout(() => overlay.remove(), 300);
-        };
-
-        overlay.querySelector('#btn-academy-close').addEventListener('click', close);
-        overlay.addEventListener('click', (e) => {
-            if (e.target === overlay) close();
-        });
+        AcademyModal.show(hero, designs, this.t.bind(this));
     }
 
     _openHallOfFameModal() {
         const hero = this.lastRawState?.heroes?.find(h => h.id === this.selectedHeroId);
-        if (!hero) return;
-
-        const stats = hero.lifetimeStats || {};
-        const titles = hero.titles || [];
-
-        const overlay = document.createElement('div');
-        overlay.className = 'modal-overlay trainer-modal-overlay';
-        overlay.innerHTML = `
-            <div class="trainer-dialogue-box hall-dialogue-box" style="max-width: 480px;">
-                <div class="trainer-header">
-                    <span class="trainer-icon">🏆</span>
-                    <h3>${this.t('hall_of_fame_title') || 'Hall of Fame'}</h3>
-                </div>
-                <div style="margin-bottom: 16px;">
-                    <div class="hall-stat-grid">
-                        <div class="hall-stat"><span>${this.t('ui_stats_enemies_defeated') || 'Enemies'}</span><strong>${stats.enemiesDefeated || 0}</strong></div>
-                        <div class="hall-stat"><span>${this.t('ui_stats_damage_dealt') || 'Damage'}</span><strong>${stats.damageDealt || 0}</strong></div>
-                        <div class="hall-stat"><span>${this.t('ui_stats_expeditions') || 'Expeditions'}</span><strong>${stats.expeditionsCompleted || 0}</strong></div>
-                        <div class="hall-stat"><span>${this.t('ui_stats_battles_won') || 'Wins'}</span><strong>${stats.battlesWon || 0}</strong></div>
-                    </div>
-                </div>
-                <div style="margin-bottom: 16px;">
-                    <h4 style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">Titles</h4>
-                    <div class="hall-titles">
-                        ${titles.length === 0 ? '<span style="color: var(--text-muted); font-size: 0.85rem;">No titles yet.</span>' :
-                            titles.map(t => `<span class="hall-title-badge">${this.t(t) || t}</span>`).join('')}
-                    </div>
-                </div>
-                <div class="trainer-footer">
-                    <button class="btn btn-secondary btn-sm" id="btn-hall-close">${this.t('ui_btn_close') || 'Close'}</button>
-                </div>
-            </div>
-        `;
-
-        document.body.appendChild(overlay);
-
-        const close = () => {
-            overlay.style.opacity = '0';
-            overlay.style.transition = 'opacity 0.3s ease';
-            setTimeout(() => overlay.remove(), 300);
-        };
-
-        overlay.querySelector('#btn-hall-close').addEventListener('click', close);
-        overlay.addEventListener('click', (e) => {
-            if (e.target === overlay) close();
-        });
+        HallOfFameModal.show(hero, this.t.bind(this));
     }
 
     _canBodyInscribe(hero) {
@@ -896,164 +608,7 @@ export class HeroesView extends BaseView {
 
     _openBodyInscriptionModal() {
         const hero = this.lastRawState?.heroes?.find(h => h.id === this.selectedHeroId);
-        if (!hero) return;
-
-        const maxSlots = 7;
-        const knownGlyphs = new Set(hero.knownGlyphs || []);
-        const allGlyphs = Object.values(GLYPH_DATA);
-        const glyphTiers = hero.glyphMastery || {};
-
-        // Current body circle (or pending)
-        const current = hero.bodyInscription || { glyphIds: [], glyphTiers: {} };
-        let selectedGlyphIds = [...(current.glyphIds || [])];
-        const isInscribing = hero.bodyInscriptionDaysRemaining > 0;
-        const pending = hero.pendingBodyInscription;
-
-        const overlay = document.createElement('div');
-        overlay.className = 'modal-overlay trainer-modal-overlay';
-
-        const getGlyphSymbol = (gid) => {
-            const tier = glyphTiers[gid]?.tier || 1;
-            const symbols = ['+', '++', '+++', '✦', '✦✦', '✦✦✦', '✶'];
-            return symbols[Math.min(6, tier - 1)];
-        };
-
-        const getElementIcon = (element) => {
-            const map = { fire: '🔥', water: '💧', wind: '🌬️', storm: '⚡', light: '☀️', dark: '🌑', earth: '🪨' };
-            return map[element] || '';
-        };
-
-        const render = () => {
-            const coreCount = selectedGlyphIds.filter(gid => {
-                const g = GLYPH_DATA[gid];
-                return g && g.type === 'core';
-            }).length;
-            const hasCore = coreCount >= 1;
-            const slotsUsed = selectedGlyphIds.length;
-            const slotsLeft = maxSlots - slotsUsed;
-
-            // Compute preview hybrid cost (client-side estimate)
-            let hybridCost = 0;
-            if (hasCore) {
-                let base = 8;
-                for (const gid of selectedGlyphIds) {
-                    const g = GLYPH_DATA[gid];
-                    const tier = glyphTiers[gid]?.tier || 1;
-                    switch (gid) {
-                        case 'glyph_potentiate': base += 2 * tier; break;
-                        case 'glyph_multi': base += 5; break;
-                        case 'glyph_pierce': base += 3; break;
-                        case 'glyph_leech': base += 2; break;
-                        case 'glyph_focus': base += 2; break;
-                    }
-                }
-                hybridCost = Math.floor(base * (1 + (hero.magicTier || 1) / 20));
-            }
-
-            overlay.innerHTML = `
-                <div class="trainer-dialogue-box inscribe-dialogue-box" style="max-width: 560px;">
-                    <div class="trainer-header">
-                        <span class="trainer-icon">✦</span>
-                        <h3>${this.t('body_inscription_title') || 'Body Inscription'}</h3>
-                    </div>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">
-                        ${this.t('body_inscription_desc') || 'Compose glyphs into your body circle. Requires 1 Core glyph. Inscribed heroes gain hybrid skill casting (STA + MP).'}
-                    </p>
-                    <div style="margin-bottom: 12px; display:flex; justify-content:space-between;">
-                        <strong>${this.t('ui_inscribed_slots') || 'Slots'}:</strong> ${slotsUsed} / ${maxSlots}
-                        ${hybridCost > 0 ? `<span style="color:var(--accent-color);">Hybrid MP: ${hybridCost}</span>` : ''}
-                    </div>
-                    ${isInscribing ? `<div style="background:rgba(255,193,7,0.15); border:1px solid rgba(255,193,7,0.3); border-radius:6px; padding:8px; margin-bottom:12px; font-size:0.8rem; color:#ffc107;">
-                        ⏳ ${this.t('body_inscription_pending') || 'Inscription in progress'}: ${hero.bodyInscriptionDaysRemaining} ${this.t('ui_days_remaining') || 'days remaining'}
-                    </div>` : ''}
-                    <div style="background:rgba(255,255,255,0.05); border-radius:8px; padding:10px; margin-bottom:12px; min-height:48px;">
-                        ${selectedGlyphIds.length === 0
-                            ? `<span style="color:var(--text-muted); font-size:0.8rem;">${this.t('body_circle_empty') || 'No glyphs inscribed'}</span>`
-                            : `<div style="display:flex; flex-wrap:wrap; gap:6px;">
-                                ${selectedGlyphIds.map(gid => {
-                                    const g = GLYPH_DATA[gid];
-                                    return `<div style="background:rgba(255,255,255,0.1); padding:4px 8px; border-radius:4px; font-size:0.8rem; display:flex; align-items:center; gap:4px;">
-                                        <span>${getElementIcon(g.element)}</span>
-                                        <span>${this.t(g.nameKey) || g.id}</span>
-                                        <span style="color:var(--accent-color);">${getGlyphSymbol(gid)}</span>
-                                        <button class="btn-glyph-remove" data-gid="${gid}" style="background:none; border:none; color:#ff6b6b; cursor:pointer; font-size:0.85rem;">×</button>
-                                    </div>`;
-                                }).join('')}
-                            </div>`}
-                    </div>
-                    <div style="max-height: 280px; overflow-y: auto;">
-                        ${allGlyphs.map(g => {
-                            const isKnown = knownGlyphs.has(g.id);
-                            const isSelected = selectedGlyphIds.includes(g.id);
-                            const canSelect = isKnown && !isSelected && slotsLeft > 0;
-                            const tier = glyphTiers[g.id]?.tier || 1;
-                            const typeColor = g.type === 'core' ? '#ff9f43' : g.type === 'power' ? '#5f27cd' : g.type === 'efficiency' ? '#10ac84' : '#00d2d3';
-                            return `
-                            <div class="inscribe-skill-row ${isSelected ? 'inscribed' : ''} ${!isKnown ? 'not-learned' : ''}" style="border-left:3px solid ${typeColor};">
-                                <span class="inscribe-skill-name">${getElementIcon(g.element)} ${this.t(g.nameKey) || g.id} <small style="color:var(--text-muted);">${getGlyphSymbol(g.id)}</small></span>
-                                <span class="inscribe-skill-cost" style="font-size:0.75rem; text-transform:uppercase; color:${typeColor};">${g.type}</span>
-                                ${isSelected
-                                    ? `<span style="font-size:0.75rem; color:var(--accent-color);">${this.t('ui_selected') || 'Selected'}</span>`
-                                    : canSelect
-                                        ? `<button class="btn btn-primary btn-sm btn-glyph-select" data-gid="${g.id}">${this.t('ui_add') || 'Add'}</button>`
-                                        : `<span class="inscribe-locked">${!isKnown ? (this.t('ui_not_learned') || 'Not learned') : (slotsLeft <= 0 ? (this.t('ui_no_slots') || 'No slots') : '')}</span>`}
-                            </div>
-                            `;
-                        }).join('')}
-                    </div>
-                    <div class="trainer-footer" style="display:flex; gap:8px; justify-content:flex-end;">
-                        <button class="btn btn-primary btn-sm" id="btn-inscribe-save" ${!hasCore || slotsUsed !== maxSlots ? 'disabled' : ''}>${hero.bodyInscription ? (this.t('ui_overwrite') || 'Overwrite') : (this.t('ui_save') || 'Save')}</button>
-                        <button class="btn btn-secondary btn-sm" id="btn-inscribe-close">${this.t('ui_btn_close') || 'Close'}</button>
-                    </div>
-                    ${!hasCore && slotsUsed > 0 ? `<p style="color:#ff6b6b; font-size:0.8rem; margin-top:8px;">${this.t('error_no_core_glyph') || 'At least one Core glyph is required.'}</p>` : ''}
-                    ${slotsUsed > 0 && slotsUsed < maxSlots ? `<p style="color:#ff9f43; font-size:0.8rem; margin-top:8px;">${this.t('error_body_circle_must_be_7') || 'Body circle must have exactly 7 glyphs.'}</p>` : ''}
-                </div>
-            `;
-
-            // Bind events
-            overlay.querySelectorAll('.btn-glyph-select').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    selectedGlyphIds.push(e.target.dataset.gid);
-                    render();
-                });
-            });
-
-            overlay.querySelectorAll('.btn-glyph-remove').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    selectedGlyphIds = selectedGlyphIds.filter(id => id !== e.target.dataset.gid);
-                    render();
-                });
-            });
-
-            overlay.querySelector('#btn-inscribe-close').addEventListener('click', close);
-
-            const saveBtn = overlay.querySelector('#btn-inscribe-save');
-            if (saveBtn) {
-                saveBtn.addEventListener('click', () => {
-                    const glyphTierMap = {};
-                    for (const gid of selectedGlyphIds) {
-                        glyphTierMap[gid] = glyphTiers[gid]?.tier || 1;
-                    }
-                    this.emit('inscribeBodyCircle', { heroId: this.selectedHeroId, glyphIds: selectedGlyphIds, glyphTiers: glyphTierMap });
-                    close();
-                });
-            }
-
-        };
-
-        document.body.appendChild(overlay);
-
-        const close = () => {
-            overlay.style.opacity = '0';
-            overlay.style.transition = 'opacity 0.3s ease';
-            setTimeout(() => overlay.remove(), 300);
-        };
-
-        overlay.addEventListener('click', (e) => {
-            if (e.target === overlay) close();
-        });
-
-        render();
+        HeroInscriptionModal.show(hero, this.t.bind(this), this.emit.bind(this));
     }
 
     /**
@@ -1088,367 +643,15 @@ export class HeroesView extends BaseView {
 
     _openGambitModal() {
         const hero = this.lastRawState?.heroes?.find(h => h.id === this.selectedHeroId);
-        if (!hero) return;
-
-        const gambits = hero.gambits || [];
-        const fallbackAction = hero.fallbackAction || 'single_strike'; // default basic attack
-        const knownFamilyIds = new Set(hero.knownFamilies || ['single_strike']);
-        const learnedFamilies = Object.values(TECHNIQUE_FAMILIES).filter(f => knownFamilyIds.has(f.id));
-        const spellCodex = hero.spellCodex || [];
-        const inventoryConsumables = this.inventoryEquipment || []; // using existing inventory ref for items
-
-        const overlay = document.createElement('div');
-        overlay.className = 'modal-overlay trainer-modal-overlay gambit-v1-overlay';
-        overlay.innerHTML = `
-            <div class="trainer-dialogue-box gambit-dialogue-box" style="max-width: 650px; display: flex; flex-direction: column; height: 85vh;">
-                <div class="trainer-header">
-                    <span class="trainer-icon">🎲</span>
-                    <h3>${this.t('gambit_title') || 'Gambits'} - ${hero.name}</h3>
-                </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                    <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">
-                        ${this.t('gambit_desc') || 'Set conditional battle behaviors. Evaluated top-to-bottom; first match wins.'}
-                    </p>
-                    <button class="btn btn-primary btn-sm" id="btn-gambit-test" style="background-color: var(--accent-color);">
-                        🧪 ${this.t('gambit_test_mode_btn') || 'Test Gambits'}
-                    </button>
-                </div>
-                
-                <div style="display: flex; gap: 8px; margin-bottom: 12px; font-size: 0.85rem;">
-                    <strong>${this.t('ui_gambit_count') || 'Gambits'}:</strong> ${gambits.length} / 12
-                    <div style="flex: 1;"></div>
-                    <button class="btn btn-secondary btn-sm" id="btn-gambit-preset">📋 ${this.t('gambit_preset_btn') || 'Suggest Preset'}</button>
-                </div>
-
-                <div class="gambit-list-v1" style="flex: 1; overflow-y: auto; padding-right: 8px; border: 1px solid var(--glass-border); border-radius: 4px; padding: 4px;">
-                    <!-- Render dynamic slots 1-12 -->
-                    ${Array.from({length: 12}).map((_, idx) => {
-                        const g = gambits[idx];
-                        if (g) {
-                            return `
-                            <div class="gambit-row-v1 ${g.enabled === false ? 'gambit-disabled' : ''}" data-id="${g.id}">
-                                <div class="gambit-idx">${idx + 1}</div>
-                                <div class="gambit-content">
-                                    <div class="gambit-rule-text">${this._formatGambitRule(g)}</div>
-                                </div>
-                                <div class="gambit-actions">
-                                    <button class="btn btn-sm btn-move-gambit" data-id="${g.id}" data-dir="-1" ${idx === 0 ? 'disabled' : ''}>▲</button>
-                                    <button class="btn btn-sm btn-move-gambit" data-id="${g.id}" data-dir="1" ${idx === gambits.length - 1 ? 'disabled' : ''}>▼</button>
-                                    <button class="btn btn-sm btn-toggle-gambit ${g.enabled === false ? 'btn-primary' : 'btn-secondary'}" data-id="${g.id}">${g.enabled === false ? 'Enable' : 'Disable'}</button>
-                                    <button class="btn btn-danger btn-sm btn-remove-gambit" data-id="${g.id}">×</button>
-                                </div>
-                            </div>`;
-                        } else {
-                            return `
-                            <div class="gambit-row-v1 empty-slot" style="opacity: 0.5; border-style: dashed;">
-                                <div class="gambit-idx">${idx + 1}</div>
-                                <div class="gambit-content" style="color: var(--text-muted); font-size: 0.85rem;">Empty Slot</div>
-                            </div>`;
-                        }
-                    }).join('')}
-                    
-                    <!-- Locked Fallback Row -->
-                    <div class="gambit-row-v1 fallback-row" style="background: rgba(255, 107, 107, 0.1); border: 1px solid rgba(255, 107, 107, 0.3); margin-top: 8px;">
-                        <div class="gambit-idx" style="color: #ff6b6b;">0</div>
-                        <div class="gambit-content">
-                            <div class="gambit-rule-text" style="color: #ff6b6b;"><strong>FALLBACK:</strong> Always → <span id="fallback-display">${this.t('family_' + fallbackAction) || fallbackAction}</span></div>
-                        </div>
-                        <div class="gambit-actions">
-                            <select id="gambit-fallback-select" class="gambit-select" style="font-size: 0.8rem; padding: 2px;">
-                                ${learnedFamilies.map(f => `<option value="${f.id}" ${fallbackAction === f.id ? 'selected' : ''}>${this.t('family_' + f.id)}</option>`).join('')}
-                                <option value="defend" ${fallbackAction === 'defend' ? 'selected' : ''}>Defend</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="gambit-add-section-v1" style="margin-top: 12px; padding: 12px; background: rgba(0,0,0,0.2); border-radius: 6px;">
-                    <h4 style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">${this.t('ui_add_gambit') || 'Add Gambit'}</h4>
-                    <div class="gambit-form-v1" style="display: flex; gap: 8px; flex-wrap: wrap;">
-                        <select id="new-gambit-condition" class="gambit-select" style="flex: 1; min-width: 120px;">
-                            <option value="ALLY_HP_LT_50">Ally HP < 50%</option>
-                            <option value="ALLY_HP_LT_25">Ally HP < 25%</option>
-                            <option value="SELF_HP_LT_50">Self HP < 50%</option>
-                            <option value="SELF_MP_LT_25">Self MP < 25%</option>
-                            <option value="ANY_ENEMY">Any Enemy</option>
-                            <option value="ENEMY_COUNT_GT_2">Enemies > 2</option>
-                        </select>
-                        <select id="new-gambit-action" class="gambit-select" style="flex: 1; min-width: 120px;">
-                            <optgroup label="Techniques">
-                                ${learnedFamilies.map(f => {
-                                    const skillData = SKILLS_DATA[f.id];
-                                    const targetType = skillData ? skillData.targetType : 'single_enemy';
-                                    return `<option value="tech:${f.id}" data-target-type="${targetType}">${this.t('family_' + f.id)}</option>`;
-                                }).join('')}
-                            </optgroup>
-                            <optgroup label="Spells">
-                                ${spellCodex.map((s, i) => `<option value="spell:${i}" data-target-type="${s.targetType || 'single_enemy'}">${s.name}</option>`).join('')}
-                            </optgroup>
-                        </select>
-                        <select id="new-gambit-target" class="gambit-select" style="flex: 1; min-width: 120px;">
-                            <option value="weakest_enemy">${this.t('gambit_target_weakest_enemy') || 'Weakest Enemy'}</option>
-                            <option value="strongest_enemy">${this.t('gambit_target_strongest_enemy') || 'Strongest Enemy'}</option>
-                            <option value="lowest_hp_enemy">${this.t('gambit_target_lowest_hp_enemy') || 'Lowest HP Enemy'}</option>
-                            <option value="highest_hp_enemy">${this.t('gambit_target_highest_hp_enemy') || 'Highest HP Enemy'}</option>
-                            <option value="random_enemy">${this.t('gambit_target_random_enemy') || 'Random Enemy'}</option>
-                            <option value="all_enemies">${this.t('gambit_target_all_enemies') || 'All Enemies'}</option>
-                            <option value="weakest_ally">${this.t('gambit_target_weakest_ally') || 'Weakest Ally'}</option>
-                            <option value="strongest_ally">${this.t('gambit_target_strongest_ally') || 'Strongest Ally'}</option>
-                            <option value="lowest_hp_ally">${this.t('gambit_target_lowest_hp_ally') || 'Lowest HP Ally'}</option>
-                            <option value="highest_hp_ally">${this.t('gambit_target_highest_hp_ally') || 'Highest HP Ally'}</option>
-                            <option value="random_ally">${this.t('gambit_target_random_ally') || 'Random Ally'}</option>
-                            <option value="all_allies">${this.t('gambit_target_all_allies') || 'All Allies'}</option>
-                            <option value="self">${this.t('gambit_target_self') || 'Self'}</option>
-                        </select>
-                        <button class="btn btn-primary btn-sm" id="btn-add-gambit-v1" ${gambits.length >= 12 ? 'disabled' : ''}>➕ Add</button>
-                    </div>
-                </div>
-
-                <div class="trainer-footer" style="margin-top: 16px;">
-                    <button class="btn btn-secondary btn-sm" id="btn-gambit-close">${this.t('ui_btn_close') || 'Close'}</button>
-                </div>
-            </div>
-        `;
-
-        document.body.appendChild(overlay);
-
-        const close = () => {
-            overlay.style.opacity = '0';
-            overlay.style.transition = 'opacity 0.3s ease';
-            setTimeout(() => overlay.remove(), 300);
-        };
-
-        overlay.querySelector('#btn-gambit-close').addEventListener('click', close);
-        overlay.addEventListener('click', (e) => {
-            if (e.target === overlay) close();
-        });
-
-        // Event wiring for Test Mode, Add, Remove, Toggle, Move, Fallback will be handled by EngineAdapter.
-        // For Phase 1 HTML/CSS layout, we emit events for Kimi to wire in Phase 2.
-        overlay.querySelectorAll('.btn-remove-gambit').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                this.emit('removeGambit', { heroId: this.selectedHeroId, gambitId: e.target.dataset.id });
-                close();
-            });
-        });
-
-        overlay.querySelectorAll('.btn-toggle-gambit').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                this.emit('toggleGambit', { heroId: this.selectedHeroId, gambitId: e.target.dataset.id });
-                close();
-            });
-        });
-
-        overlay.querySelectorAll('.btn-move-gambit').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                this.emit('moveGambit', { heroId: this.selectedHeroId, gambitId: e.target.dataset.id, direction: parseInt(e.target.dataset.dir) });
-                close();
-            });
-        });
-
-        // Target Resolution Negotiation: filter target dropdown based on action's innate targetType
-        const actionSelect = overlay.querySelector('#new-gambit-action');
-        const targetSelect = overlay.querySelector('#new-gambit-target');
-
-        const _filterTargets = () => {
-            const selectedOption = actionSelect.options[actionSelect.selectedIndex];
-            if (!selectedOption) return;
-            const innateTargetType = selectedOption.dataset.targetType || 'single_enemy';
-
-            const compatibility = {
-                'single_enemy': ['weakest_enemy', 'strongest_enemy', 'lowest_hp_enemy', 'highest_hp_enemy', 'random_enemy'],
-                'enemy_splash': ['weakest_enemy', 'strongest_enemy', 'lowest_hp_enemy', 'highest_hp_enemy', 'random_enemy'],
-                'all_enemies': ['all_enemies'],
-                'single_ally': ['weakest_ally', 'strongest_ally', 'lowest_hp_ally', 'highest_hp_ally', 'random_ally', 'self'],
-                'all_allies': ['all_allies'],
-                'self': ['self'],
-                'none': []
-            };
-
-            const allowed = compatibility[innateTargetType] || [];
-            let firstAllowed = null;
-            Array.from(targetSelect.options).forEach(opt => {
-                const isAllowed = allowed.includes(opt.value);
-                opt.style.display = isAllowed ? '' : 'none';
-                opt.disabled = !isAllowed;
-                if (isAllowed && !firstAllowed) firstAllowed = opt.value;
-            });
-
-            // Lock fixed targets: if only one option or specific fixed types
-            if (['all_enemies', 'all_allies', 'self'].includes(innateTargetType)) {
-                targetSelect.value = innateTargetType === 'self' ? 'self' : innateTargetType;
-                targetSelect.disabled = true;
-            } else if (allowed.length === 0) {
-                targetSelect.disabled = true;
-            } else {
-                targetSelect.disabled = false;
-                if (!allowed.includes(targetSelect.value)) {
-                    targetSelect.value = firstAllowed;
-                }
-            }
-        };
-
-        if (actionSelect) {
-            actionSelect.addEventListener('change', _filterTargets);
-            _filterTargets(); // Initial filter
-        }
-
-        const addBtn = overlay.querySelector('#btn-add-gambit-v1');
-        if (addBtn) {
-            addBtn.addEventListener('click', () => {
-                const conditionRaw = overlay.querySelector('#new-gambit-condition').value;
-                const actionRaw = overlay.querySelector('#new-gambit-action').value;
-                const target = overlay.querySelector('#new-gambit-target').value;
-                const [actionType, actionId] = actionRaw.split(':');
-
-                // Map UI condition strings to spec Condition Objects
-                const conditionMap = {
-                    'ALLY_HP_LT_50': { type: 'ally_hp', operator: '<', value: 0.5 },
-                    'ALLY_HP_LT_25': { type: 'ally_hp', operator: '<', value: 0.25 },
-                    'SELF_HP_LT_50': { type: 'self_hp', operator: '<', value: 0.5 },
-                    'SELF_MP_LT_25': { type: 'self_mp', operator: '<', value: 0.25 },
-                    'ANY_ENEMY': { type: 'always', value: true },
-                    'ENEMY_COUNT_GT_2': { type: 'enemy_count', operator: '>', value: 2 }
-                };
-                const condition = conditionMap[conditionRaw] || { type: 'always', value: true };
-
-                // Resolve spell payload: use spell name instead of index
-                let payload = actionId;
-                if (actionType === 'spell') {
-                    const spellIdx = parseInt(actionId, 10);
-                    const spell = spellCodex[spellIdx];
-                    payload = spell ? spell.name : actionId;
-                }
-
-                const gambit = {
-                    id: 'gambit_v1_' + Date.now(),
-                    conditions: [{ op: 'SINGLE', left: condition, right: null }],
-                    action: { type: actionType === 'tech' ? 'skill' : actionType, payload: payload },
-                    target: target,
-                    enabled: true
-                };
-                this.emit('addGambit', { heroId: this.selectedHeroId, gambit });
-                close();
-            });
-        }
-
-        const fallbackSelect = overlay.querySelector('#gambit-fallback-select');
-        if (fallbackSelect) {
-            fallbackSelect.addEventListener('change', (e) => {
-                this.emit('updateFallbackAction', { heroId: this.selectedHeroId, action: e.target.value });
-            });
-        }
-
-        const testBtn = overlay.querySelector('#btn-gambit-test');
-        if (testBtn) {
-            testBtn.addEventListener('click', () => {
-                this.emit('testGambits', { heroId: this.selectedHeroId });
-                // We don't close the modal here, we wait for test completion payload
-            });
-        }
-        
-        const presetBtn = overlay.querySelector('#btn-gambit-preset');
-        if (presetBtn) {
-            presetBtn.addEventListener('click', () => {
-                this.emit('suggestPreset', { heroId: this.selectedHeroId });
-                close();
-            });
-        }
+        HeroGambitModal.show(hero, this.inventoryEquipment, this.t.bind(this), this.emit.bind(this));
     }
 
     _formatGambitRule(gambit) {
-        // v1.0 Array-based format support
-        let condText = 'Always';
-        if (gambit.conditions && gambit.conditions.length > 0) {
-            condText = gambit.conditions.map(c => {
-                const left = c.left || c;
-                if (left.type === 'always') return 'Always';
-                const opMap = { '<': '<', '>': '>', '=': '=', '<=': '<=', '>=': '>=' };
-                const op = opMap[left.operator] || left.operator || '';
-                const val = left.value !== undefined ? left.value : '';
-                return `${left.type} ${op} ${val}`;
-            }).join(' AND ');
-        } else if (gambit.condition) {
-            condText = gambit.condition;
-        }
-
-        let actionText = '';
-        if (gambit.action && typeof gambit.action === 'object') {
-            actionText = gambit.action.payload || gambit.action.id || '';
-        } else {
-            actionText = gambit.skillId || gambit.action || '';
-        }
-
-        const targetText = gambit.target || 'Auto';
-        
-        // Try to translate if keys exist
-        const translatedCond = this.t(condText) || condText;
-        const translatedAction = this.t('family_' + actionText) || this.t(actionText) || actionText;
-        const translatedTarget = this.t('gambit_target_' + targetText) || targetText;
-
-        return `<span style="color:var(--text-primary); font-weight: 500;">${translatedCond}</span> → <span style="color:var(--accent-color);">${translatedAction}</span> ON <span style="color:#10ac84;">${translatedTarget}</span>`;
+        return HeroGambitModal.formatGambitRule(gambit, this.t.bind(this));
     }
 
     showGambitTestResults(result, healthScore, rating) {
-        const overlay = document.createElement('div');
-        overlay.className = 'modal-overlay gambit-test-overlay';
-        
-        const winRate = Math.floor((result.victories / result.runs) * 100);
-        
-        let witchDialogue = '';
-        if (rating === 'ironclad') {
-            witchDialogue = `"${this.t('gambit_witch_ironclad') || 'A flawless design. The threads of fate weave to your will.'}"`;
-        } else if (rating === 'functional') {
-            witchDialogue = `"${this.t('gambit_witch_functional') || 'It holds... for now. But chaos seeks the smallest crack.'}"`;
-        } else {
-            witchDialogue = `"${this.t('gambit_witch_fragile') || 'Brittle. The weave unravels at the slightest breeze.'}"`;
-        }
-        
-        overlay.innerHTML = `
-            <div class="gambit-test-dialogue" style="border-radius: var(--radius-lg); padding: 20px;">
-                <div class="trainer-header">
-                    <span class="trainer-icon">🧪</span>
-                    <h3>${this.t('gambit_test_mode_title') || 'Gambit Simulation Results'}</h3>
-                </div>
-                
-                <div class="test-health-gauge">
-                    <div class="health-score-circle ${rating}">${healthScore}</div>
-                    <div style="flex: 1;">
-                        <h4 style="margin: 0; color: var(--text-primary); font-size: 1.1rem;">${this.t('ui_health_score') || 'Health Score'}: <span style="text-transform: capitalize;">${rating}</span></h4>
-                        <div style="margin-top: 4px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.85rem; color: var(--text-muted);">
-                            <div><strong>${this.t('ui_win_rate') || 'Win Rate'}:</strong> ${winRate}% (${result.victories}/${result.runs})</div>
-                            <div><strong>${this.t('ui_avg_hp') || 'Avg HP'}:</strong> ${result.avgHpRemaining}%</div>
-                            <div><strong>${this.t('ui_avg_mp') || 'Avg MP'}:</strong> ${result.avgMpRemaining}%</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div style="margin-bottom: 16px; padding: 12px; background: rgba(156, 39, 176, 0.1); border-left: 3px solid #9c27b0; border-radius: 4px;">
-                    <span style="font-size: 1.2rem; margin-right: 8px;">🌙</span>
-                    <span style="font-style: italic; color: #e1bee7; font-size: 0.9rem;">${witchDialogue}</span>
-                </div>
-                
-                <h4 style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">${this.t('ui_combat_log') || 'Combat Log (Sample)'}</h4>
-                <div class="test-combat-log">
-                    ${result.log.map(line => {
-                        if (line.startsWith('---')) return `<div class="test-combat-log-line run-header">${line}</div>`;
-                        if (line.includes('[Rule')) return `<div class="test-combat-log-line rule-match">${line}</div>`;
-                        return `<div class="test-combat-log-line">${line}</div>`;
-                    }).join('')}
-                </div>
-                
-                <div class="trainer-footer" style="margin-top: 16px; justify-content: flex-end;">
-                    <button class="btn btn-secondary btn-sm" id="btn-close-test">${this.t('ui_btn_close') || 'Close'}</button>
-                </div>
-            </div>
-        `;
-        
-        document.body.appendChild(overlay);
-        
-        overlay.querySelector('#btn-close-test').addEventListener('click', () => {
-            overlay.style.opacity = '0';
-            setTimeout(() => overlay.remove(), 300);
-        });
+        HeroGambitModal.showTestResults(result, healthScore, rating, this.t.bind(this));
     }
 }
 
