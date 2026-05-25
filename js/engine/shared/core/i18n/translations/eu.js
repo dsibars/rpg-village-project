@@ -176,6 +176,7 @@ export const eu = {
     ui_clear: "Garbitu",
     ui_damage: "Kaltea",
     ui_mp_cost: "MP Kostua",
+    ui_mp: "MP",
     ui_element: "Elementua",
     ui_target: "Helburua",
     error_no_core_glyph: "Sorginkariak Glifo Nukleoa behar du",
@@ -415,6 +416,10 @@ export const eu = {
     ui_settings_magic_simulator: "Zirkulu Magikoaren Simulagailua",
     ui_settings_magic_simulator_desc: "Simulatu zirkulu magikoaren konposaketa, glifo guztiak maila gorenean dituen 25. mailako heroi batekin.",
     simulator_inscribe_disabled: "Loa osatuta! (Inskripzioak desgaituta daude simulagailu moduan)",
+    mc_inscribe: "Idatzi Loa",
+    mc_inscribe_disabled: "Idatzi (Simulagailua)",
+    mc_drawer_title: "{slot} Zirgailuaren Konfigurazioa",
+    mc_drawer_title_core: "MUINAREN (Erdiko) Konfigurazioa",
     simulator_hero_name: "Artximago Simulagailua",
 
     // Intro Narrative

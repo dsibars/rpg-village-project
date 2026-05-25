@@ -1,7 +1,8 @@
 # Kimi AI — RPG Village Quick Start
 
 > **Purpose**: Minimal session bootstrap. All game knowledge lives in `docs/`.  
-> **Rule**: Read `AGENTS.md` first, then relevant `docs/` specs. This file only has project logistics.
+> **Rule**: Read `AGENTS.md` first (root and `.kimi/`), then relevant `docs/` specs. This file only has project logistics.
+> **Memory**: This project uses `.kimi/memory.db` (SQLite FTS5) for session persistence. See `.kimi/memory.sh` and `.kimi/AGENTS.md`.
 
 ## Project Structure
 
@@ -15,7 +16,7 @@
 
 ## Key Conventions
 
-- **Spec-first**: Read `docs/` before touching `js/engine/`. `AGENTS.md` has the master index.
+- **Spec-first**: Read `docs/` before touching `js/engine/`. Root `AGENTS.md` has the master index.
 - **Engine = pure logic**, no DOM. `js/presentation/ui/` handles all DOM.
 - **Result pattern**: Engine methods return `{ success, data, error }`.
 - **Electron**: Code isolated in `infrastructure/electron/`. `ELECTRON_RUN_AS_NODE=1` breaks Electron APIs — the `electron:run` script unsets it.
@@ -39,4 +40,4 @@ make test         # Run all tests
 make clean        # Remove dist/ and out/
 ```
 
-*Last updated: 2026-05-22*
+*Last updated: 2026-05-24*

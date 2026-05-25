@@ -170,8 +170,8 @@ export class UIController {
     /**
      * Helper to get translated string.
      */
-    t(key) {
-        return this.i18n ? this.i18n.t(key) : key;
+    t(key, params = {}) {
+        return this.i18n ? this.i18n.t(key, params) : key;
     }
 
     /**

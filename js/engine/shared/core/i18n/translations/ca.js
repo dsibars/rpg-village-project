@@ -176,6 +176,7 @@ export const ca = {
     ui_clear: "Netejar",
     ui_damage: "Dany",
     ui_mp_cost: "Cost de MP",
+    ui_mp: "MP",
     ui_element: "Element",
     ui_target: "Objectiu",
     error_no_core_glyph: "L'encanteri necessita un Glif Nucli",
@@ -414,6 +415,10 @@ export const ca = {
     ui_settings_magic_simulator: "Simulador del Cercle Màgic",
     ui_settings_magic_simulator_desc: "Simula la composició de cercles màgics amb un heroi de nivell 25 que té tots els glifos al nivell màxim.",
     simulator_inscribe_disabled: "¡Heixell compost! (Les inscripcions estan desactivades en mode simulador)",
+    mc_inscribe: "Inscriure Heixell",
+    mc_inscribe_disabled: "Inscriure (Simulador)",
+    mc_drawer_title: "Configuració de la Ranura {slot}",
+    mc_drawer_title_core: "Configuració del NUCLI (Centre)",
     simulator_hero_name: "Simulador d'Arximag",
 
     // Intro Narrative

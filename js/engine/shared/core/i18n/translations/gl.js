@@ -176,6 +176,7 @@ export const gl = {
     ui_clear: "Limpar",
     ui_damage: "Dano",
     ui_mp_cost: "Coste de MP",
+    ui_mp: "MP",
     ui_element: "Elemento",
     ui_target: "Obxectivo",
     error_no_core_glyph: "O feitizo necesita un Glifo Núcleo",
@@ -412,6 +413,10 @@ export const gl = {
     ui_settings_magic_simulator: "Simulador do Círculo Máxico",
     ui_settings_magic_simulator_desc: "Simula a composición de círculos máxicos cun heroe de nivel 25 que ten todos os glifos ao nivel máximo.",
     simulator_inscribe_disabled: "¡Feitizo composto! (As inscricións están desactivadas en modo simulador)",
+    mc_inscribe: "Inscribir Feitizo",
+    mc_inscribe_disabled: "Inscribir (Simulador)",
+    mc_drawer_title: "Configuración da Ranura {slot}",
+    mc_drawer_title_core: "Configuración do NÚCLEO (Centro)",
     simulator_hero_name: "Simulador de Arximago",
 
     // Intro Narrative

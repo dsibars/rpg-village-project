@@ -147,3 +147,8 @@ out/
 dist/
 *.zip
 itch.config
+
+# Agent Shared Memory — live data (never commit)
+.agents_shared_memory/memory.db
+.agents_shared_memory/docs_hash
+.agents_shared_memory/docs_hash_history

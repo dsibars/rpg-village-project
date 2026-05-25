@@ -176,6 +176,7 @@ export const es = {
     ui_clear: "Limpiar",
     ui_damage: "Daño",
     ui_mp_cost: "Coste de MP",
+    ui_mp: "MP",
     ui_element: "Elemento",
     ui_target: "Objetivo",
     error_no_core_glyph: "El hechizo necesita un Glifo Núcleo",
@@ -309,6 +310,10 @@ export const es = {
     ui_settings_magic_simulator: "Simulador del Círculo Mágico",
     ui_settings_magic_simulator_desc: "Simula la composición de círculos mágicos con un héroe de nivel 25 que tiene todos los glifos al nivel máximo.",
     simulator_inscribe_disabled: "¡Hechizo compuesto! (Las inscripciones están deshabilitadas en modo simulador)",
+    mc_inscribe: "Inscribir Hechizo",
+    mc_inscribe_disabled: "Inscribir (Simulador)",
+    mc_drawer_title: "Configuración de Ranura {slot}",
+    mc_drawer_title_core: "Configuración del NÚCLEO (Centro)",
     simulator_hero_name: "Simulador de Archimago",
     
     // Intro Narrative

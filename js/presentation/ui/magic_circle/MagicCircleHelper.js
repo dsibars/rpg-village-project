@@ -163,6 +163,29 @@ export function getGlyphAbbreviation(glyph) {
 }
 
 /**
+ * Get the display icon for any glyph (core or non-core).
+ * @param {Object} glyph
+ * @returns {string}
+ */
+export function getGlyphIcon(glyph) {
+    if (!glyph) return '🔮';
+    if (glyph.type === 'core') {
+        const map = {
+            fire: '🔥', water: '💧', wind: '🌪️',
+            storm: '⚡', light: '✨', dark: '🌑', earth: '🪨'
+        };
+        return map[glyph.element] || '🔮';
+    }
+    const map = {
+        glyph_potentiate: '💪', glyph_focus: '🎯', glyph_extend: '⏳',
+        glyph_multi: '👥', glyph_pierce: '⚔️', glyph_venom: '☠️',
+        glyph_slumber: '💤', glyph_aegis: '🛡️', glyph_celerity: '💨',
+        glyph_reflect: '🔄', glyph_leech: '🧛', glyph_streamline: '💎'
+    };
+    return map[glyph.id] || '🔮';
+}
+
+/**
  * Get the element emoji for a core glyph.
  * @param {string} element
  * @returns {string}
