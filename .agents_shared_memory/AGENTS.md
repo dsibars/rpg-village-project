@@ -5,8 +5,15 @@
 ## Rule 1: General Memories
 After every significant decision, bug fix, architecture change, or user preference revelation, run:
 ```bash
-./.agents_shared_memory/memory.sh add <topic> <tags> <summary> <details> [files]
+./.agents_shared_memory/memory.sh add <topic> <tags> <summary> <details> [files] [assumptions]
 ```
+
+**Hard Enforcements (The script WILL reject your memory if you violate these):**
+- `<topic>` must be strictly `snake_case` (e.g., `combat_bug_fix`). No spaces or special characters.
+- `<tags>` must be comma-separated with NO spaces (e.g., `bug,ui,refactor`).
+- `<details>` must be less than 2000 characters. Synthesize your text! (Note: PM categories bypass this length limit).
+- `[files]` must be valid, existing file paths relative to the project root.
+- `[assumptions]` is an optional but highly encouraged parameter to explicitly log any guesses you made.
 
 ## Rule 2: PM Knowledge (Product Manager Context)
 When the user asks for high-level project understanding, use `pm-search`. Trigger phrases include:
@@ -110,3 +117,11 @@ If you discover a bug or strange code implementation committed in the past:
 4. Run `./.agents_shared_memory/memory.sh pm-compare <pm_type> <hash_before> <hash_after>` to directly diff the design mental models around that commit.
 
 This allows agents to diagnose if a bug was caused by bad code, or if the code was actually perfectly executing an experimental, outdated version of the game design!
+
+### Search Strategy (Context Window Protection)
+Never perform a broad `search` across all historical data unless strictly necessary. Doing so dumps massive JSON responses into the agent's context window, degrading reasoning capacity.
+
+**Golden Rules for Searching:**
+1. **Hash-Bounded Searches:** By default, restrict your searches to the current or most recent hashes. You can retrieve recent hashes via `./.agents_shared_memory/memory.sh hash-history 5`, and then search those specific hashes: `./.agents_shared_memory/memory.sh search "query" 5 <hash>`.
+2. **Chronological Pagination:** If the recent hashes do not contain the answer, move backward in time block-by-block. Query an older hash, read the JSON, synthesize/summarize what you learned, and *then* query the next older hash. Never dump massive historical JSON arrays into your context at once.
+3. **Log Assumptions Implicitly:** When adding memories via `add`, do not log stream-of-consciousness thoughts. Log **Implicit Assumptions** as formalized bullet points in the details field.
