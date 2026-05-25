@@ -105,10 +105,11 @@ As the hero levels up, they earn **Skill Points** at fixed milestones. Each Skil
 
 ### Tier Unlocks Automatically
 
-- The player **never sees the counter**.
-- After a battle, the skill might silently upgrade.
-- Next time they open the skills menu, "×7" became "×8".
-- No notification. No fanfare. Just muscle memory deepening.
+### Tier Unlocks Automatically
+
+- The player sees a **visible progress bar** (visual only, no exact numeric ratio).
+- Why? Anticipation is a core engagement loop, but hiding the exact numbers prevents mindless grinding while still allowing players to strategically assign heroes to optimize tier-ups before difficult battles.
+- Upon reaching the threshold, the skill upgrades silently in the background, but the UI provides a **"Tier Up!" flash animation** when the menu is opened.
 
 ---
 
@@ -259,7 +260,7 @@ Max 6 families. Unlimited tiers per family.
 ### Layout Rules
 
 - **Unlocked families** first, sorted by tier (highest first).
-- Show **×N tier badge**, **STA cost**, and a **progress bar** (subtle, no numbers — just "how deep has this hero gone with this technique").
+- Show **×N tier badge**, **STA cost**, and a **visual progress bar** (no exact ratio) to encourage optimization through anticipation.
 - **Locked families** below, grayed out, with level requirement.
 - **Skill Points** display if > 0, with a "Spend" prompt.
 - **No "Equip/Unequip".** Families are permanent once learned.

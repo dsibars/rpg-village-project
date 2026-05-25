@@ -217,6 +217,38 @@ export class EngineAdapter {
                     }
                     this.forceUpdate();
                 });
+                view.on('updateFallbackAction', (data) => {
+                    const result = this.engine.updateHeroFallbackAction(data.heroId, data.action);
+                    if (!result.success) {
+                        this.ui.showToast(this.engine.i18n.t(result.error) || result.error);
+                    }
+                    this.forceUpdate();
+                });
+                view.on('testGambits', (data) => {
+                    const result = this.engine.testHeroGambits(data.heroId);
+                    if (!result.success) {
+                        this.ui.showToast(this.engine.i18n.t(result.error) || result.error);
+                    } else {
+                        // Launch the test modal
+                        this.ui.views.get('heroes').showGambitTestResults(
+                            result.data.result, 
+                            result.data.healthScore, 
+                            result.data.rating
+                        );
+                    }
+                    this.forceUpdate();
+                });
+                view.on('suggestPreset', (data) => {
+                    const result = this.engine.suggestHeroGambitPreset(data.heroId);
+                    if (!result.success) {
+                        this.ui.showToast(this.engine.i18n.t(result.error) || result.error);
+                    } else {
+                        const count = result.data.addedCount;
+                        const presetName = this.engine.i18n.t(result.data.presetId) || result.data.presetId;
+                        this.ui.showToast(`Applied ${presetName} (+${count} gambits)`);
+                    }
+                    this.forceUpdate();
+                });
             }
 
             if (domain === 'shop') {

@@ -1,5 +1,6 @@
 import { CombatCalculator } from '../core/CombatCalculator.js';
 import { CombatAI } from '../core/CombatAI.js';
+import { GambitService } from '../../../gambit/GambitService.js';
 import { Result } from '../../core/Result.js';
 import { SKILLS_DATA, CONSUMABLES_DATA, CORE_ALLY_EFFECTS } from '../../data/GameConstants.js';
 import { MagicCircleService } from '../../../magic_circle/MagicCircleService.js';
@@ -208,13 +209,46 @@ export class BattleService {
     }
 
     performAutoAction(entity, statusResults = []) {
-        const context = {
-            actor: entity,
-            allies: this.heroes.includes(entity) ? this.heroes : this.enemies,
-            enemies: this.heroes.includes(entity) ? this.enemies : this.heroes,
-            type: 'smart'
-        };
+        const allies = this.heroes.includes(entity) ? this.heroes : this.enemies;
+        const enemies = this.heroes.includes(entity) ? this.enemies : this.heroes;
 
+        // Spec 4.0: Gambits override CombatAI entirely when enabled
+        if (entity.gambits && entity.gambits.length > 0) {
+            const gambitDecision = GambitService.evaluate(entity, allies, enemies);
+            if (gambitDecision) {
+                if (gambitDecision.skillId) {
+                    return this.executeAction(entity, gambitDecision.skillId, gambitDecision.targetIndex, statusResults);
+                }
+                if (gambitDecision.spellIndex !== undefined) {
+                    const spell = entity.spellCodex?.[gambitDecision.spellIndex];
+                    if (spell) {
+                        return this.castSpell(entity, spell, gambitDecision.targetIndex);
+                    }
+                }
+                if (gambitDecision.itemId) {
+                    const targetId = gambitDecision.targetIndex !== null ? allies[gambitDecision.targetIndex]?.id : entity.id;
+                    return this.useConsumable(entity, gambitDecision.itemId, targetId);
+                }
+                if (gambitDecision.defend) {
+                    return this._handleDefend(entity);
+                }
+                if (gambitDecision.flee) {
+                    return this._handleFlee(entity, allies);
+                }
+            }
+            // No gambit matched OR action failed → Slot 0 Fallback
+            const fallback = GambitService.getFallbackAction(entity, allies);
+            if (fallback.skillId) {
+                return this.executeAction(entity, fallback.skillId, fallback.targetIndex, statusResults);
+            }
+            if (fallback.defend) {
+                return this._handleDefend(entity);
+            }
+            return Result.ok({ actionEvents: [], battleOver: false });
+        }
+
+        // No gambits → CombatAI takes over
+        const context = { actor: entity, allies, enemies, type: 'smart' };
         const decision = CombatAI.decideAction(context);
         if (decision.spellIndex !== undefined) {
             const spell = entity.spellCodex?.[decision.spellIndex];
@@ -223,6 +257,48 @@ export class BattleService {
             }
         }
         return this.executeAction(entity, decision.skillId, decision.targetIndex, statusResults);
+    }
+
+    _handleDefend(entity) {
+        const event = {
+            type: 'defend',
+            actorId: entity.id,
+            actorName: entity.name,
+            message: `${entity.name} defends.`,
+            targetIsHero: this.heroes.includes(entity)
+        };
+        this.log.push(event);
+        // v1.0: Defend simply ends the turn. In future, could add a temporary defense buff.
+        return Result.ok({ actionEvents: [event], battleOver: false });
+    }
+
+    _handleFlee(entity, allies) {
+        const success = Math.random() < 0.5;
+        if (success) {
+            const event = {
+                type: 'flee',
+                actorId: entity.id,
+                actorName: entity.name,
+                message: `${entity.name} leads the party to safety!`,
+                success: true,
+                targetIsHero: this.heroes.includes(entity)
+            };
+            this.log.push(event);
+            this.isOver = true;
+            this.winner = 'escape';
+            return Result.ok({ actionEvents: [event], battleOver: true, winner: 'escape' });
+        } else {
+            const event = {
+                type: 'flee',
+                actorId: entity.id,
+                actorName: entity.name,
+                message: `${entity.name} attempted to flee but failed!`,
+                success: false,
+                targetIsHero: this.heroes.includes(entity)
+            };
+            this.log.push(event);
+            return Result.ok({ actionEvents: [event], battleOver: false });
+        }
     }
 
     executeAction(actor, skillId, targetIndex = null, statusResults = [], forcedTier = null) {

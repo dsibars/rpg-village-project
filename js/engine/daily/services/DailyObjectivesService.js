@@ -21,9 +21,12 @@ export class DailyObjectivesService {
         const defaultState = {
             day: 1,
             objectives: [],
+            pendingChoices: [],
             allCompletedDay: null
         };
-        return persistence.load(this.STORAGE_KEY, defaultState);
+        const loaded = persistence.load(this.STORAGE_KEY, defaultState);
+        if (!loaded.pendingChoices) loaded.pendingChoices = [];
+        return loaded;
     }
 
     save() {
@@ -31,19 +34,19 @@ export class DailyObjectivesService {
     }
 
     generateForDay(day) {
-        if (this.state.day === day && this.state.objectives.length > 0) {
+        if (this.state.day === day && (this.state.objectives.length > 0 || this.state.pendingChoices.length > 0)) {
             return;
         }
 
         this.state.day = day;
         this.state.allCompletedDay = null;
+        this.state.objectives = [];
 
-        // Pick 2-3 random objectives with scaled targets
-        const count = 2 + Math.floor(Math.random() * 2); // 2 or 3
+        // Generate 4 objective choices; player picks 2
         const shuffled = [...OBJECTIVE_TYPES].sort(() => Math.random() - 0.5);
-        const picked = shuffled.slice(0, count);
+        const picked = shuffled.slice(0, 4);
 
-        this.state.objectives = picked.map(type => {
+        this.state.pendingChoices = picked.map(type => {
             const target = type.target[Math.floor(Math.random() * type.target.length)];
             return {
                 id: type.id,
@@ -92,11 +95,35 @@ export class DailyObjectivesService {
     }
 
     getState() {
+        const status = this.state.pendingChoices.length > 0 ? 'choosing'
+            : this.state.objectives.length > 0 ? 'active'
+            : 'idle';
         return {
             day: this.state.day,
             objectives: this.state.objectives,
+            pendingChoices: this.state.pendingChoices,
+            status,
             allCompleted: this.state.allCompletedDay === this.state.day
         };
+    }
+
+    pickObjectives(objectiveIds) {
+        if (!Array.isArray(objectiveIds) || objectiveIds.length !== 2) {
+            return Result.fail('error_invalid_selection_count');
+        }
+        if (this.state.pendingChoices.length === 0) {
+            return Result.fail('error_no_pending_choices');
+        }
+        const pendingIds = this.state.pendingChoices.map(o => o.id);
+        const allValid = objectiveIds.every(id => pendingIds.includes(id));
+        if (!allValid) {
+            return Result.fail('error_invalid_objective_selection');
+        }
+
+        this.state.objectives = this.state.pendingChoices.filter(o => objectiveIds.includes(o.id));
+        this.state.pendingChoices = [];
+        this.save();
+        return Result.ok({ objectives: this.state.objectives });
     }
 
     claimReward(objectiveId) {

@@ -41,6 +41,7 @@ Hand-crafted "Story Missions" are injected into the discovery tree at specific m
 ## The Assignment & Execution Lifecycle
 
 ### 1. Assignment Phase
+- **Combat Intel**: Before assigning heroes, the expedition node card reveals all unique enemy types that will be encountered. This pre-expedition intel allows players to optimally configure their party's Gambits and equipment for the specific threat profile.
 - **Assigning Heroes**: Heroes can be assigned to an available expedition node.
 - **Lock-in**: While an expedition is in its initial stage (Stage 0), you can assign or unassign heroes freely.
 - **Mid-Expedition Restrictions**: Once an expedition has progressed past the first stage, **no new heroes can be assigned** to it.
@@ -51,6 +52,9 @@ Hand-crafted "Story Missions" are injected into the discovery tree at specific m
 - **Automatic Resolution**: Combat and exploration do not happen instantly upon clicking. They are executed automatically when the game advances to the next day (`GameEngine.nextDay()`).
 - **1 Stage = 1 Day**: A single stage of an expedition is resolved each time a day passes. For example, a 3-stage expedition requires at least 3 days to complete.
 - **Rewards**: Rewards are granted automatically when the final stage is successfully completed.
+  - **Gold & Materials**: Defined by the expedition node.
+  - **Equipment Loot**: 40% chance for a random weapon or armor drop scaled to region level.
+  - **Consumable Drops**: Guaranteed `tiny_mp_potion` (1 base + 1 per region level above 1, capped at +2) with a 50% chance for an additional potion. Also a 30% chance for 1 `tiny_hp_potion`. These drops ensure mages can sustain 4–5 spell casts per expedition.
 
 ### 3. Failing & Retiring (Unassigning)
 An expedition is failed if all heroes are defeated during a daily combat resolution.
@@ -63,6 +67,9 @@ An expedition is failed if all heroes are defeated during a daily combat resolut
 
 ### 4. Discovery on Success
 Failing an expedition **does not** trigger the Discovery Logic. New paths are only revealed when the final stage of an expedition is completed successfully.
+
+### 5. First-Clear Speed Boost
+When a region is cleared for the **first time** (transitioning from 0 to 1 clears), all participating heroes receive a **permanent +2 Speed** bonus. This is a one-time reward per region; subsequent clears do not grant additional speed. The boost is applied to `baseSpeed` and persists across saves.
 
 ## Region Unlock Conditions
 

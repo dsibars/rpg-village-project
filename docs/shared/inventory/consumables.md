@@ -18,5 +18,9 @@ Consumables are stackable items with immediate effects when used in or out of co
 - **Battle**: Using an item does **not** consume the hero's action phase; the hero can still use a skill on the same turn.
 - **Targeting**: Consumables target a single ally or the actor.
 
+## Acquisition
+- **Shop**: Basic potions can be purchased directly from the village shop.
+- **Expedition Drops**: `tiny_mp_potion` and `tiny_hp_potion` drop as completion rewards from expeditions (see [Explore Module](../explore/expeditions.md) for drop rates). This is the primary source of MP sustain for mages in the field.
+
 ## Data Registry
 See [consumables_data.md](consumables_data.md) for the full list of available consumables.

@@ -12,6 +12,8 @@ import { CalendarService } from './calendar/services/CalendarService.js';
 import { AcademyService } from './academy/AcademyService.js';
 import { TitleService } from './hall_of_fame/TitleService.js';
 import { UnlockService } from './shared/services/UnlockService.js';
+import { SimulationRunner } from './gambit/SimulationRunner.js';
+import { GambitHealthService } from './gambit/GambitHealthService.js';
 import { persistence } from './shared/core/Persistence.js';
 const DEBUG = false;
 
@@ -255,6 +257,71 @@ export class GameEngine {
         const check = this._assertHeroAvailable(heroId);
         if (!check.success) return check;
         return this.heroService.moveHeroGambit(heroId, gambitId, direction);
+    }
+
+    updateHeroFallbackAction(heroId, action) {
+        const check = this._assertHeroAvailable(heroId);
+        if (!check.success) return check;
+        const hero = this.heroService.get(heroId);
+        if (!hero) return Result.fail('error_hero_not_found');
+        
+        // This relies on Hero.js setFallbackAction which we need to make sure exists
+        if (typeof hero.setFallbackAction === 'function') {
+            const result = hero.setFallbackAction(action);
+            if (result.success) this.heroService.saveAll();
+            return result;
+        } else {
+            hero.fallbackAction = action;
+            this.heroService.saveAll();
+            return Result.ok(true);
+        }
+    }
+
+    testHeroGambits(heroId, scenarioId = 'reg_greenfields') {
+        const hero = this.heroService.get(heroId);
+        if (!hero) return Result.fail('error_hero_not_found');
+        
+        // Get enemy pool for the scenario region
+        const enemyPool = this.expeditionService?.getEnemyPoolForRegion?.(scenarioId) || [];
+        if (enemyPool.length === 0) {
+            return Result.fail('error_no_enemies_for_scenario');
+        }
+        
+        // Build encounter: 1-3 enemies based on region difficulty
+        const encounterCount = Math.min(3, Math.max(1, Math.floor(Math.random() * 3) + 1));
+        const enemies = [];
+        for (let i = 0; i < encounterCount; i++) {
+            const template = enemyPool[Math.floor(Math.random() * enemyPool.length)];
+            enemies.push({ ...template, id: template.id + '_' + i });
+        }
+        
+        const result = SimulationRunner.runHeadless(hero, enemies, this.inventoryService, scenarioId, 10);
+        const health = GambitHealthService.calculateScore(hero, result);
+        
+        return Result.ok({
+            result,
+            healthScore: health.score,
+            rating: health.rating
+        });
+    }
+
+    suggestHeroGambitPreset(heroId) {
+        const check = this._assertHeroAvailable(heroId);
+        if (!check.success) return check;
+        const hero = this.heroService.get(heroId);
+        if (!hero) return Result.fail('error_hero_not_found');
+
+        const preset = GambitService.getPresetForHero(hero);
+        if (!preset) return Result.fail('error_no_preset_matches');
+
+        const result = GambitService.applyPreset(hero, preset.id);
+        if (!result.success) return result;
+
+        this.heroService.saveAll();
+
+        // Count how many rules were actually added (non-empty slots before vs after)
+        // applyPreset fills empty slots only, so we report the preset name
+        return Result.ok({ presetId: preset.id, presetName: preset.name, addedCount: result.data || 0 });
     }
 
     equipHeroItem(heroId, slot, equipmentId) {

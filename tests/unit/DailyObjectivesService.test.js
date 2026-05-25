@@ -10,15 +10,17 @@ import assert from 'node:assert';
 import { DailyObjectivesService } from '../../js/engine/daily/services/DailyObjectivesService.js';
 import { InventoryService } from '../../js/engine/shared/inventory/services/InventoryService.js';
 
-test('DailyObjectivesService: generateForDay creates objectives', () => {
+test('DailyObjectivesService: generateForDay creates 4 pending choices', () => {
     const inventory = new InventoryService();
     const service = new DailyObjectivesService(inventory);
 
     service.generateForDay(1);
-    const objectives = service.getObjectives();
+    const state = service.getState();
 
-    assert.ok(objectives.length >= 2 && objectives.length <= 3);
-    objectives.forEach(obj => {
+    assert.strictEqual(state.pendingChoices.length, 4);
+    assert.strictEqual(state.objectives.length, 0);
+    assert.strictEqual(state.status, 'choosing');
+    state.pendingChoices.forEach(obj => {
         assert.ok(obj.id);
         assert.ok(obj.label);
         assert.ok(obj.target > 0);
@@ -33,10 +35,10 @@ test('DailyObjectivesService: generateForDay is idempotent for same day', () => 
     const service = new DailyObjectivesService(inventory);
 
     service.generateForDay(1);
-    const first = service.getObjectives().map(o => o.id);
+    const first = service.getState().pendingChoices.map(o => o.id);
 
     service.generateForDay(1);
-    const second = service.getObjectives().map(o => o.id);
+    const second = service.getState().pendingChoices.map(o => o.id);
 
     assert.deepStrictEqual(first, second);
 });
@@ -46,19 +48,56 @@ test('DailyObjectivesService: generateForDay regenerates for new day', () => {
     const service = new DailyObjectivesService(inventory);
 
     service.generateForDay(1);
-    const first = service.getObjectives().map(o => o.id);
+    const first = service.getState().pendingChoices.map(o => o.id);
 
     service.generateForDay(2);
-    const second = service.getObjectives().map(o => o.id);
+    const second = service.getState().pendingChoices.map(o => o.id);
 
     // Not guaranteed to be different, but day and state should update
     assert.strictEqual(service.getState().day, 2);
+});
+
+test('DailyObjectivesService: pickObjectives selects 2 from 4', () => {
+    const inventory = new InventoryService();
+    const service = new DailyObjectivesService(inventory);
+    service.generateForDay(1);
+
+    const choices = service.getState().pendingChoices;
+    const result = service.pickObjectives([choices[0].id, choices[1].id]);
+    assert.strictEqual(result.success, true);
+    assert.strictEqual(service.getState().objectives.length, 2);
+    assert.strictEqual(service.getState().pendingChoices.length, 0);
+    assert.strictEqual(service.getState().status, 'active');
+});
+
+test('DailyObjectivesService: pickObjectives fails with wrong count', () => {
+    const inventory = new InventoryService();
+    const service = new DailyObjectivesService(inventory);
+    service.generateForDay(1);
+
+    const choices = service.getState().pendingChoices;
+    const result = service.pickObjectives([choices[0].id]);
+    assert.strictEqual(result.success, false);
+    assert.strictEqual(result.error, 'error_invalid_selection_count');
+});
+
+test('DailyObjectivesService: pickObjectives fails with invalid ids', () => {
+    const inventory = new InventoryService();
+    const service = new DailyObjectivesService(inventory);
+    service.generateForDay(1);
+
+    const result = service.pickObjectives(['fake_id_1', 'fake_id_2']);
+    assert.strictEqual(result.success, false);
+    assert.strictEqual(result.error, 'error_invalid_objective_selection');
 });
 
 test('DailyObjectivesService: track increments progress', () => {
     const inventory = new InventoryService();
     const service = new DailyObjectivesService(inventory);
     service.generateForDay(1);
+
+    const choices = service.getState().pendingChoices;
+    service.pickObjectives([choices[0].id, choices[1].id]);
 
     // Find an objective we can track
     const objectives = service.getObjectives();
@@ -74,6 +113,9 @@ test('DailyObjectivesService: track caps at target', () => {
     const service = new DailyObjectivesService(inventory);
     service.generateForDay(1);
 
+    const choices = service.getState().pendingChoices;
+    service.pickObjectives([choices[0].id, choices[1].id]);
+
     const objectives = service.getObjectives();
     const targetObj = objectives[0];
 
@@ -86,6 +128,9 @@ test('DailyObjectivesService: track only affects matching objectives', () => {
     const inventory = new InventoryService();
     const service = new DailyObjectivesService(inventory);
     service.generateForDay(1);
+
+    const choices = service.getState().pendingChoices;
+    service.pickObjectives([choices[0].id, choices[1].id]);
 
     const objectives = service.getObjectives();
     const objA = objectives[0];
@@ -104,6 +149,9 @@ test('DailyObjectivesService: all-completed bonus grants materials', () => {
     const service = new DailyObjectivesService(inventory);
     service.generateForDay(1);
 
+    const choices = service.getState().pendingChoices;
+    service.pickObjectives([choices[0].id, choices[1].id]);
+
     const objectives = service.getObjectives();
     objectives.forEach(obj => {
         service.track(obj.id, obj.target);
@@ -119,6 +167,9 @@ test('DailyObjectivesService: all-completed bonus fires only once per day', () =
     const inventory = new InventoryService();
     const service = new DailyObjectivesService(inventory);
     service.generateForDay(1);
+
+    const choices = service.getState().pendingChoices;
+    service.pickObjectives([choices[0].id, choices[1].id]);
 
     const objectives = service.getObjectives();
     objectives.forEach(obj => service.track(obj.id, obj.target));
@@ -137,6 +188,9 @@ test('DailyObjectivesService: claimReward success', () => {
     const service = new DailyObjectivesService(inventory);
     service.generateForDay(1);
 
+    const choices = service.getState().pendingChoices;
+    service.pickObjectives([choices[0].id, choices[1].id]);
+
     const obj = service.getObjectives()[0];
     service.track(obj.id, obj.target);
 
@@ -150,6 +204,9 @@ test('DailyObjectivesService: claimReward fails if not completed', () => {
     const service = new DailyObjectivesService(inventory);
     service.generateForDay(1);
 
+    const choices = service.getState().pendingChoices;
+    service.pickObjectives([choices[0].id, choices[1].id]);
+
     const obj = service.getObjectives()[0];
     const result = service.claimReward(obj.id);
     assert.strictEqual(result.success, false);
@@ -160,6 +217,9 @@ test('DailyObjectivesService: claimReward fails if already claimed', () => {
     const inventory = new InventoryService();
     const service = new DailyObjectivesService(inventory);
     service.generateForDay(1);
+
+    const choices = service.getState().pendingChoices;
+    service.pickObjectives([choices[0].id, choices[1].id]);
 
     const obj = service.getObjectives()[0];
     service.track(obj.id, obj.target);
@@ -177,8 +237,13 @@ test('DailyObjectivesService: getState reflects completion', () => {
 
     let state = service.getState();
     assert.strictEqual(state.allCompleted, false);
+    assert.strictEqual(state.status, 'choosing');
+
+    const choices = service.getState().pendingChoices;
+    service.pickObjectives([choices[0].id, choices[1].id]);
 
     service.getObjectives().forEach(obj => service.track(obj.id, obj.target));
     state = service.getState();
     assert.strictEqual(state.allCompleted, true);
+    assert.strictEqual(state.status, 'active');
 });

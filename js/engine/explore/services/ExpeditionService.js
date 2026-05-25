@@ -51,6 +51,13 @@ export class ExpeditionService {
         if (!loaded.regions) loaded.regions = defaultState.regions;
         if (!loaded.completedIds) loaded.completedIds = [];
 
+        // Migrate regions missing firstClearBonusGiven
+        for (const region of Object.values(loaded.regions)) {
+            if (region.firstClearBonusGiven === undefined) {
+                region.firstClearBonusGiven = false;
+            }
+        }
+
         // Migrate old singular activeExpedition to array
         if (loaded.activeExpedition && !loaded.activeExpeditions) {
             loaded.activeExpeditions = [loaded.activeExpedition];
@@ -665,9 +672,19 @@ export class ExpeditionService {
         // Update Region Discovery
         const region = this.state.regions[exp.regionId];
         if (region) {
+            const wasFirstClear = region.clears === 0;
             region.clears++;
             region.availableNodes = region.availableNodes.filter(n => n.id !== exp.id);
             this._generateNextNodes(exp.regionId);
+
+            // First-clear permanent speed boost
+            if (wasFirstClear && !region.firstClearBonusGiven) {
+                region.firstClearBonusGiven = true;
+                heroes.forEach(h => {
+                    h.addPermanentSpeedBonus(2);
+                });
+                this.heroService.saveAll();
+            }
         }
 
         // Grant rewards
@@ -678,11 +695,18 @@ export class ExpeditionService {
             });
         }
 
-        // Loot drop
+        // Loot drop (equipment)
         const loot = this._generateLootDrop(exp.regionId);
         if (loot) {
             this.inventoryService.addEquipment(loot);
         }
+
+        // Consumable drops (MP potions for mage balance)
+        const consumables = this._generateConsumableDrops(exp.regionId);
+        consumables.forEach(({ id, qty }) => {
+            this.villageService.addItemToInventory(id, qty);
+        });
+
         if (exp.reward.special) {
             const s = exp.reward.special;
             if (s.type === 'hero') {
@@ -772,6 +796,7 @@ export class ExpeditionService {
         this.state.regions[regionId] = {
             clears: 0,
             unlocked: true,
+            firstClearBonusGiven: false,
             availableNodes: [this._createProceduralNode(regionId, rData, 0)]
         };
         this.save();
@@ -815,6 +840,30 @@ export class ExpeditionService {
         }
 
         return item;
+    }
+
+    _generateConsumableDrops(regionId) {
+        const drops = [];
+        const rData = this._getRegionData(regionId);
+        const regionLevel = rData.baseLevel || 1;
+
+        // Guaranteed 1 tiny_mp_potion, plus 50% chance for an extra one
+        // Additional potion per region level above 1 (capped at +2)
+        const baseQty = 1;
+        const bonusQty = Math.random() < 0.5 ? 1 : 0;
+        const levelBonus = Math.min(2, Math.max(0, regionLevel - 1));
+        const totalMpPotions = baseQty + bonusQty + levelBonus;
+
+        if (totalMpPotions > 0) {
+            drops.push({ id: 'tiny_mp_potion', qty: totalMpPotions });
+        }
+
+        // Small chance for HP potion as well (30% for 1)
+        if (Math.random() < 0.30) {
+            drops.push({ id: 'tiny_hp_potion', qty: 1 });
+        }
+
+        return drops;
     }
 
     _trackBestiary(templateId) {

@@ -1,12 +1,19 @@
 # Daily Objectives Specification
 
 ## Overview
-Daily Objectives provide rotating short-term goals that encourage diverse gameplay. Each in-game day, 2–3 random objectives are generated. Completing objectives grants rewards, and completing all objectives for the day grants a bonus.
+Daily Objectives provide rotating short-term goals that encourage diverse gameplay. Each in-game day, **4 random objectives are generated** and the player **chooses 2** to pursue. Completing the chosen objectives grants rewards, and completing both chosen objectives for the day grants a bonus.
 
 ## Generation
 - Objectives are generated at the start of each day (first `nextDay()` call of that day).
-- If objectives already exist for the current day, they are preserved.
-- When the day counter advances, new objectives are generated.
+- If objectives already exist or pending choices are available for the current day, they are preserved.
+- When the day counter advances, 4 new objective choices are generated.
+
+## Choice Phase
+Before objectives become active, the player must **pick 2 out of 4** randomly generated choices:
+- The 4 choices are shown in the Village view with their labels, targets, and rewards.
+- Once 2 are selected, they become the active objectives for the day.
+- Until the player makes a choice, no objectives are active and no progress is tracked.
+- The choice is final for that day; objectives cannot be swapped after locking in.
 
 ## Objective Types
 
@@ -50,7 +57,14 @@ When **all** objectives for the current day are completed:
 ```javascript
 {
     day: 1,
-    objectives: [
+    status: 'choosing',      // 'choosing' | 'active' | 'idle'
+    pendingChoices: [        // 4 generated objectives awaiting player selection
+        { id: 'defeat_enemies', label: 'obj_defeat_enemies', target: 5, progress: 0, completed: false, reward: { gold: 50, material_wood: 10 } },
+        { id: 'spend_gold', label: 'obj_spend_gold', target: 200, progress: 0, completed: false, reward: { gold: 30, material_stone: 5 } },
+        { id: 'complete_expeditions', label: 'obj_complete_expeditions', target: 2, progress: 0, completed: false, reward: { gold: 80, material_iron: 3 } },
+        { id: 'craft_items', label: 'obj_craft_items', target: 2, progress: 0, completed: false, reward: { gold: 35, material_iron: 5 } }
+    ],
+    objectives: [            // The 2 objectives the player actually selected
         {
             id: 'defeat_enemies',
             label: 'obj_defeat_enemies',

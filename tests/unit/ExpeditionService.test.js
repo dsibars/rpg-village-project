@@ -164,3 +164,71 @@ test('ExpeditionService: Retire specific expedition', () => {
     expeditionService.retire('exp_tutorial_cave');
     assert.strictEqual(expeditionService.state.activeExpeditions.length, 0);
 });
+
+test('ExpeditionService: first clear grants permanent speed boost', () => {
+    const { expeditionService, heroService } = createServices();
+    const hero = heroService.add({ name: 'Test Hero', origin: 'origin_warrior', level: 1 }).data;
+    const initialSpeed = hero.baseSpeed;
+
+    const exp = expeditionService.getExpeditions()[0];
+    const activeExp = {
+        id: exp.id,
+        currentStage: exp.stages.length,
+        heroIds: [hero.id],
+        status: 'assigned'
+    };
+    expeditionService.state.activeExpeditions.push(activeExp);
+    expeditionService._finishExpedition(exp, activeExp);
+
+    assert.strictEqual(hero.baseSpeed, initialSpeed + 2);
+    assert.strictEqual(expeditionService.state.regions[exp.regionId].firstClearBonusGiven, true);
+});
+
+test('ExpeditionService: second clear does not grant speed boost', () => {
+    const { expeditionService, heroService } = createServices();
+    const hero = heroService.add({ name: 'Test Hero', origin: 'origin_warrior', level: 1 }).data;
+
+    // First clear
+    const exp = expeditionService.getExpeditions()[0];
+    const activeExp1 = {
+        id: exp.id,
+        currentStage: exp.stages.length,
+        heroIds: [hero.id],
+        status: 'assigned'
+    };
+    expeditionService.state.activeExpeditions.push(activeExp1);
+    expeditionService._finishExpedition(exp, activeExp1);
+    const speedAfterFirst = hero.baseSpeed;
+
+    // Second clear
+    const exp2 = expeditionService._createProceduralNode(exp.regionId, expeditionService._getRegionData(exp.regionId), 1);
+    expeditionService.state.regions[exp.regionId].availableNodes.push(exp2);
+    const activeExp2 = {
+        id: exp2.id,
+        currentStage: exp2.stages.length,
+        heroIds: [hero.id],
+        status: 'assigned'
+    };
+    expeditionService.state.activeExpeditions.push(activeExp2);
+    expeditionService._finishExpedition(exp2, activeExp2);
+
+    assert.strictEqual(hero.baseSpeed, speedAfterFirst);
+});
+
+test('ExpeditionService: consumable drops include MP potions', () => {
+    const { expeditionService } = createServices();
+    const drops = expeditionService._generateConsumableDrops('reg_greenfields');
+
+    const mpPotion = drops.find(d => d.id === 'tiny_mp_potion');
+    assert.ok(mpPotion, 'Should drop tiny_mp_potion');
+    assert.ok(mpPotion.qty >= 1 && mpPotion.qty <= 2, 'Should drop 1-2 MP potions for level 1 region');
+});
+
+test('ExpeditionService: higher level regions drop more MP potions', () => {
+    const { expeditionService } = createServices();
+    const drops = expeditionService._generateConsumableDrops('reg_frozen_peaks');
+
+    const mpPotion = drops.find(d => d.id === 'tiny_mp_potion');
+    assert.ok(mpPotion, 'Should drop tiny_mp_potion');
+    assert.ok(mpPotion.qty >= 3 && mpPotion.qty <= 4, 'Should drop 3-4 MP potions for level 5 region');
+});

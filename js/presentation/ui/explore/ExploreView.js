@@ -199,6 +199,14 @@ export class ExploreView extends BaseView {
 
         const canStart = !isLocked && (!isAtMax || isActiveNode) && availableHeroes.length > 0;
 
+        const uniqueEnemies = new Set();
+        exp.stages.forEach(s => {
+            if (s.enemies) s.enemies.forEach(e => uniqueEnemies.add(e));
+        });
+        const enemiesHtml = Array.from(uniqueEnemies).map(e => {
+            return `<span class="exp-enemy-badge" style="background: rgba(255,59,48,0.1); color: #ff3b30; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; border: 1px solid rgba(255,59,48,0.3); display: inline-block;">${this.t('enemy_' + e) || e}</span>`;
+        }).join('');
+
         this.elements.detailContent.innerHTML = `
             ${dashboardHtml}
             <div class="expedition-profile">
@@ -211,6 +219,7 @@ export class ExploreView extends BaseView {
                 <div class="exp-stats">
                     <p><strong>${this.t('ui_exp_stages')}:</strong> ${exp.stages.length}</p>
                     <p><strong>${this.t('ui_exp_base_reward')}:</strong> ${exp.reward.gold || 0} ${this.t('village_gold')}</p>
+                    ${enemiesHtml ? `<div style="margin-top: 8px;"><strong style="font-size: 0.85rem; text-transform: uppercase; color: var(--text-muted);">${this.t('ui_intel_enemies') || 'Combat Intel'}</strong><div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:6px;">${enemiesHtml}</div></div>` : ''}
                 </div>
                 
                 <div class="hero-selector">

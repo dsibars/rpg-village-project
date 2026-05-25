@@ -108,7 +108,9 @@ export class Hero {
         this.bodyInscription = this._migrateBodyInscription(data.bodyInscription);
         this.pendingBodyInscription = data.pendingBodyInscription || null;
         this.bodyInscriptionDaysRemaining = data.bodyInscriptionDaysRemaining || 0;
-        this.gambits = data.gambits || [];
+        this.gambits = this._migrateGambits(data.gambits || []);
+        this.fallbackAction = data.fallbackAction || 'basic_attack';
+        this.presetId = data.presetId || null;
         this.statusEffects = data.statusEffects || [];
         this.phoenixUsed = data.phoenixUsed || false;
         this.mealBuffs = data.mealBuffs || [];
@@ -547,6 +549,11 @@ export class Hero {
         this.stamina = this.maxStamina;
     }
 
+    addPermanentSpeedBonus(amount) {
+        this.baseSpeed += amount;
+        this.recalculateStats();
+    }
+
     increaseStat(statId) {
         if (this.statPoints <= 0) return Result.fail('error_no_stat_points');
 
@@ -681,6 +688,62 @@ export class Hero {
         return null;
     }
 
+    _migrateGambits(gambits) {
+        if (!Array.isArray(gambits)) return [];
+        return gambits.map(g => {
+            // Already new format
+            if (g.conditions && Array.isArray(g.conditions)) return g;
+            if (!g.condition) return g;
+
+            // Migrate old flat condition string to new Condition Object
+            const threshold = g.threshold;
+            let conditionType;
+            let operator = '<';
+            let value;
+
+            switch (g.condition) {
+                case 'self_hp_below':
+                    conditionType = 'self_hp';
+                    value = threshold ?? 0.5;
+                    break;
+                case 'ally_hp_below':
+                    conditionType = 'ally_hp';
+                    value = threshold ?? 0.5;
+                    break;
+                case 'self_mp_below':
+                    conditionType = 'self_mp';
+                    value = threshold ?? 0.3;
+                    break;
+                case 'self_stamina_below':
+                    conditionType = 'self_sta';
+                    value = threshold ?? 0.3;
+                    break;
+                case 'always':
+                    conditionType = 'always';
+                    operator = undefined;
+                    value = true;
+                    break;
+                default:
+                    conditionType = g.condition;
+                    value = threshold;
+            }
+
+            const left = { type: conditionType };
+            if (operator !== undefined) left.operator = operator;
+            if (value !== undefined) left.value = value;
+
+            const migrated = {
+                id: g.id,
+                conditions: [{ op: 'SINGLE', left, right: null }],
+                action: { type: 'skill', payload: g.skillId || null },
+                target: null,
+                enabled: g.enabled !== false
+            };
+
+            return migrated;
+        });
+    }
+
     // --- Body Inscription (Glyph-based 7-slot circle) ---
 
     inscribeBodyCircle(glyphIds, glyphTiers = {}) {
@@ -767,12 +830,20 @@ export class Hero {
 
     // --- Gambits ---
 
+    setFallbackAction(action) {
+        if (!action) return Result.fail('error_invalid_action');
+        this.fallbackAction = action;
+        return Result.ok(true);
+    }
+
     addGambit(gambit) {
         if (!gambit || !gambit.id) return Result.fail('error_invalid_gambit');
         this.gambits = this.gambits || [];
         if (this.gambits.length >= 12) return Result.fail('error_gambit_limit_reached');
         if (this.gambits.find(g => g.id === gambit.id)) return Result.fail('error_gambit_duplicate_id');
-        this.gambits.push({ ...gambit, enabled: gambit.enabled !== false });
+        // Auto-migrate old-format gambits before storing
+        const migrated = this._migrateGambits([gambit])[0];
+        this.gambits.push(migrated);
         return Result.ok(true);
     }
 
@@ -845,6 +916,8 @@ export class Hero {
             bodyInscription: this.bodyInscription ? JSON.parse(JSON.stringify(this.bodyInscription)) : null,
             pendingBodyInscription: this.pendingBodyInscription ? JSON.parse(JSON.stringify(this.pendingBodyInscription)) : null,
             bodyInscriptionDaysRemaining: this.bodyInscriptionDaysRemaining,
+            fallbackAction: this.fallbackAction,
+            presetId: this.presetId,
             gambits: JSON.parse(JSON.stringify(this.gambits)),
             statusEffects: JSON.parse(JSON.stringify(this.statusEffects)),
             phoenixUsed: this.phoenixUsed,
