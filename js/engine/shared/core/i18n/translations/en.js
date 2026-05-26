@@ -419,6 +419,7 @@ export const en = {
     ui_exp_exploration: "Exploration",
     ui_exp_stages: "Stages",
     ui_exp_base_reward: "Base Reward",
+    ui_intel_enemies: "Combat Intel",
     ui_select_heroes: "Select Heroes",
     ui_under_construction: "Under Construction",
     error_already_in_queue: "Building is already under construction.",

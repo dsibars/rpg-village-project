@@ -390,7 +390,15 @@ export class GambitService {
                 target: rule.target,
                 enabled: true
             };
-            // Leave payload null for player to select specific skill/spell
+            // Auto-fill null payload with first available skill/spell
+            if (newRule.action.type === 'skill' && !newRule.action.payload) {
+                const availableSkill = (hero.knownFamilies || []).find(f => f && SKILLS_DATA[f]);
+                newRule.action.payload = availableSkill || null;
+            }
+            if (newRule.action.type === 'spell' && !newRule.action.payload) {
+                const availableSpell = (hero.spellCodex || []).find(s => s && s.name);
+                newRule.action.payload = availableSpell ? availableSpell.name : null;
+            }
             currentRules.push(newRule);
         }
 

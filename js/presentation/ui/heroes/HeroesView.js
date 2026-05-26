@@ -5,7 +5,7 @@ import { Hero } from '../../../engine/heroes/models/Hero.js';
 import { HeroEquipmentModal } from './components/HeroEquipmentModal.js';
 import { TrainerModal, WitchModal, AcademyModal, HallOfFameModal } from './components/HeroTrainingModals.js';
 import { HeroInscriptionModal } from './components/HeroInscriptionModal.js';
-import { HeroGambitModal } from './components/HeroGambitModal.js';
+import { GambitView } from '../gambit/GambitView.js';
 
 export class HeroesView extends BaseView {
     constructor() {
@@ -643,15 +643,21 @@ export class HeroesView extends BaseView {
 
     _openGambitModal() {
         const hero = this.lastRawState?.heroes?.find(h => h.id === this.selectedHeroId);
-        HeroGambitModal.show(hero, this.inventoryEquipment, this.t.bind(this), this.emit.bind(this));
+        if (!hero) return;
+        this.ui.openGambitOverlay({
+            hero,
+            inventoryEquipment: this.inventoryEquipment,
+            t: this.t.bind(this),
+            emit: this.emit.bind(this)
+        });
     }
 
     _formatGambitRule(gambit) {
-        return HeroGambitModal.formatGambitRule(gambit, this.t.bind(this));
+        return GambitView.formatGambitRule(gambit, this.t.bind(this));
     }
 
     showGambitTestResults(result, healthScore, rating) {
-        HeroGambitModal.showTestResults(result, healthScore, rating, this.t.bind(this));
+        GambitView.showTestResults(result, healthScore, rating, this.t.bind(this));
     }
 }
 

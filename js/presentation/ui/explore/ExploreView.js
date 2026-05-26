@@ -204,7 +204,7 @@ export class ExploreView extends BaseView {
             if (s.enemies) s.enemies.forEach(e => uniqueEnemies.add(e));
         });
         const enemiesHtml = Array.from(uniqueEnemies).map(e => {
-            return `<span class="exp-enemy-badge" style="background: rgba(255,59,48,0.1); color: #ff3b30; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; border: 1px solid rgba(255,59,48,0.3); display: inline-block;">${this.t('enemy_' + e) || e}</span>`;
+            return `<span class="exp-enemy-badge" style="background: rgba(255,59,48,0.1); color: #ff3b30; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; border: 1px solid rgba(255,59,48,0.3); display: inline-block;">${this.t(e) || e}</span>`;
         }).join('');
 
         this.elements.detailContent.innerHTML = `

@@ -84,9 +84,18 @@ export class BattleService {
         }
 
         // 0. Stamina Regeneration (8% max STA per turn)
-        if (currentEntity.maxStamina > 0) {
+        if (currentEntity.maxStamina > 0 && currentEntity.stamina < currentEntity.maxStamina) {
             const regen = Math.floor(currentEntity.maxStamina * 0.08);
-            currentEntity.stamina = Math.min(currentEntity.maxStamina, currentEntity.stamina + regen);
+            const actualRegen = Math.min(regen, currentEntity.maxStamina - currentEntity.stamina);
+            currentEntity.stamina += actualRegen;
+            if (actualRegen > 0) {
+                this.log.push({
+                    type: 'STAMINA_REGEN',
+                    actorId: currentEntity.id,
+                    amount: actualRegen,
+                    message: `${currentEntity.name} recovered stamina.`
+                });
+            }
         }
 
         // 0.1 Stun / Sleep Check — skip turn if incapacitated
@@ -883,6 +892,17 @@ export class BattleService {
         }
         const nextEntity = this.turnOrder[this.currentTurnIndex];
         return Result.ok({ ...data, nextEntityId: nextEntity?.id });
+    }
+
+    /**
+     * Restore full stamina for all living heroes. Called between battles.
+     */
+    restoreStaminaForHeroes() {
+        for (const hero of this.heroes) {
+            if (hero.hp > 0 && hero.maxStamina > 0) {
+                hero.stamina = hero.maxStamina;
+            }
+        }
     }
 
     _checkBattleEnd() {

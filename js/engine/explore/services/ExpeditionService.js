@@ -648,6 +648,9 @@ export class ExpeditionService {
             finalResult = Result.ok({ status: 'failed', expId, expName, combatLog });
         }
 
+        // Restore stamina for heroes between battles
+        this.battleService.restoreStaminaForHeroes();
+
         // Reset battle service state
         this.battleService.reset();
 

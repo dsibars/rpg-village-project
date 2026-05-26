@@ -264,36 +264,21 @@ export class CombatView {
       });
       grid.appendChild(heroesCol);
 
-      // Middle column: log + actions
-      const middleCol = document.createElement('div');
-      middleCol.className = 'combat-log-column';
-      const logTitle = document.createElement('div');
-      logTitle.className = 'combat-column-title';
-      logTitle.textContent = this.t('combat_log');
-      middleCol.appendChild(logTitle);
-
-      const logConsole = document.createElement('div');
-      logConsole.className = 'combat-log-console';
-      logConsole.id = 'combat-log-console';
-      (battle.log || []).slice(-20).forEach(entry => {
-        const line = document.createElement('div');
-        line.innerHTML = this._formatLogEntryHtml(entry);
-        line.style.cssText = 'margin-bottom:4px;line-height:1.4;';
-        logConsole.appendChild(line);
-      });
-      middleCol.appendChild(logConsole);
+      // Middle column: action panel only
+      const actionCol = document.createElement('div');
+      actionCol.className = 'combat-action-column';
 
       const turnBanner = document.createElement('div');
       turnBanner.className = 'combat-current-turn-banner';
       const activeActorName = activeActor ? (this.t(activeActor.name) || activeActor.name) : '...';
       turnBanner.textContent = activeActor ? this.t('ui_turn').replace('{name}', activeActorName) : '...';
-      middleCol.appendChild(turnBanner);
+      actionCol.appendChild(turnBanner);
 
       const controlPanel = document.createElement('div');
       controlPanel.className = 'combat-control-panel';
       controlPanel.id = 'combat-control-panel';
-      middleCol.appendChild(controlPanel);
-      grid.appendChild(middleCol);
+      actionCol.appendChild(controlPanel);
+      grid.appendChild(actionCol);
 
       // Enemies column
       const enemiesCol = document.createElement('div');
@@ -365,6 +350,26 @@ export class CombatView {
       grid.appendChild(enemiesCol);
 
       container.appendChild(grid);
+
+      // Full-width combat log below the grid
+      const logSection = document.createElement('div');
+      logSection.className = 'combat-log-section';
+      const logTitle = document.createElement('div');
+      logTitle.className = 'combat-column-title';
+      logTitle.textContent = this.t('combat_log');
+      logSection.appendChild(logTitle);
+
+      const logConsole = document.createElement('div');
+      logConsole.className = 'combat-log-console';
+      logConsole.id = 'combat-log-console';
+      (battle.log || []).slice(-20).forEach(entry => {
+        const line = document.createElement('div');
+        line.innerHTML = this._formatLogEntryHtml(entry);
+        line.style.cssText = 'margin-bottom:4px;line-height:1.4;';
+        logConsole.appendChild(line);
+      });
+      logSection.appendChild(logConsole);
+      container.appendChild(logSection);
 
       // Scroll log to bottom
       const consoleEl = logConsole;

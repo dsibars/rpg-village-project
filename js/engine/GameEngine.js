@@ -617,6 +617,14 @@ export class GameEngine {
             healedLog.push({ heroName: hero.name, amount: actualHeal });
         });
 
+        // Restore full stamina for all idle heroes at the village
+        const idleHeroes = this.heroService.list().filter(h => h.hp > 0 && this.expeditionService.getHeroActivity(h.id).type === 'idle');
+        idleHeroes.forEach(hero => {
+            if (hero.maxStamina > 0) {
+                hero.stamina = hero.maxStamina;
+            }
+        });
+
         // --- Training Grounds Passive XP ---
         const trainingGroundsLevel = this.villageService.getState().infrastructure.training_grounds || 0;
         const xpGainRate = 0.05 * trainingGroundsLevel; // +5% per level
