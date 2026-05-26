@@ -8,7 +8,7 @@ export class BaseModal {
      * @param {string} options.maxWidth - Max width (e.g., '480px')
      * @param {Function} options.onClose - Callback when closed
      */
-    static show({ title, contentHtml, icon = '', className = '', maxWidth = '480px', onClose = null }) {
+    static show({ title, contentHtml, contentElement, icon = '', className = '', maxWidth = '480px', onClose = null }) {
         const overlay = document.createElement('div');
         overlay.className = 'modal-overlay';
         overlay.style.zIndex = '2000';
@@ -23,10 +23,16 @@ export class BaseModal {
                 </div>
                 
                 <div class="modal-content-area" style="flex: 1; overflow-y: auto; padding-right: 5px;">
-                    ${contentHtml}
+                    ${contentHtml || ''}
                 </div>
             </div>
         `;
+
+        if (contentElement) {
+            const contentArea = overlay.querySelector('.modal-content-area');
+            contentArea.innerHTML = '';
+            contentArea.appendChild(contentElement);
+        }
 
         document.body.appendChild(overlay);
 

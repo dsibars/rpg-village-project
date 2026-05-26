@@ -34,6 +34,12 @@ export class BaseView {
         const domainState = state[this.domain];
         if (!domainState) return;
 
+        // If the view opts into custom granular diffing, bypass JSON stringify
+        if (this.useCustomDiffing) {
+            this.onUpdate(state);
+            return;
+        }
+
         // Smart Diffing: Only trigger onUpdate if the state has changed
         // We use JSON stringify for a simple deep comparison of the domain state
         const stateString = JSON.stringify({ 
