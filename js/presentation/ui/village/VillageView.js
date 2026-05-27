@@ -1,4 +1,11 @@
 import { BaseView } from '../BaseView.js';
+import { VillageCanvas } from './components/VillageCanvas.js';
+import { LaborPool } from './components/LaborPool.js';
+import { ConstructionQueue } from './components/ConstructionQueue.js';
+import { DailyObjectives } from './components/DailyObjectives.js';
+import { VillageCalendar } from './components/VillageCalendar.js';
+import { VillageDefense } from './components/VillageDefense.js';
+import { DailyReportModal } from './components/DailyReportModal.js';
 
 /**
  * VillageView - Manages the main village dashboard.
@@ -30,6 +37,55 @@ export class VillageView extends BaseView {
             btnRecallReport: this.$('#btn-recall-report'),
             dailyReportContainer: this.$('#daily-report-container')
         };
+
+        // Initialize subcomponents
+        this.villageCanvas = new VillageCanvas({ t: this.t.bind(this) });
+        const canvasContainer = this.$('#village-canvas-container');
+        if (canvasContainer) {
+            canvasContainer.innerHTML = '';
+            canvasContainer.appendChild(this.villageCanvas.root);
+        }
+
+        this.laborPool = new LaborPool({ t: this.t.bind(this) });
+        if (this.elements.roleControls) {
+            this.elements.roleControls.innerHTML = '';
+            this.elements.roleControls.appendChild(this.laborPool.root);
+        }
+
+        this.constructionQueue = new ConstructionQueue({
+            t: this.t.bind(this),
+            container: this.elements.constructionList
+        });
+
+        this.dailyObjectives = new DailyObjectives({
+            t: this.t.bind(this),
+            container: this.elements.objectivesList
+        });
+
+        this.villageCalendar = new VillageCalendar({
+            t: this.t.bind(this),
+            seasonIcon: this.elements.calendarSeasonIcon,
+            seasonLabel: this.elements.calendarSeasonLabel,
+            dayLabel: this.elements.calendarDayOfSeason,
+            eventsContainer: this.elements.calendarEventsList
+        });
+
+        this.villageDefense = new VillageDefense({
+            t: this.t.bind(this),
+            countEl: this.elements.defenseCount,
+            assignmentsContainer: this.elements.defenseAssignmentsList
+        });
+
+        this.dailyReportModal = new DailyReportModal({
+            t: this.t.bind(this),
+            container: this.elements.dailyReportContainer,
+            onAcknowledge: () => {
+                if (this.lastReportState) {
+                    this.dismissedReportDay = this.lastReportState.day;
+                    this.updateDailyReportVisibility(this.lastReportState);
+                }
+            }
+        });
 
         // Sub-view navigation (Village / Buildings)
         this.root.addEventListener('click', (e) => {
@@ -76,7 +132,7 @@ export class VillageView extends BaseView {
             if (dismissBtn) {
                 if (this.lastReportState) {
                     this.dismissedReportDay = this.lastReportState.day;
-                    this.renderDailyReport(this.lastReportState);
+                    this.updateDailyReportVisibility(this.lastReportState);
                 }
                 return;
             }
@@ -85,7 +141,7 @@ export class VillageView extends BaseView {
             if (recallBtn) {
                 this.dismissedReportDay = null;
                 if (this.lastReportState) {
-                    this.renderDailyReport(this.lastReportState);
+                    this.updateDailyReportVisibility(this.lastReportState);
                 }
                 return;
             }
@@ -119,470 +175,36 @@ export class VillageView extends BaseView {
         this.lastReportState = village.lastDailyReport;
 
         // Render Canvas Visuals
-        this.renderVillageCanvas(village);
+        this.villageCanvas.update(village);
 
         // Worker Roles
-        this.renderRoles(village.population);
-
-        // Construction Queue
-        this.renderConstructionQueue(village.constructionQueue);
-
-        // Daily Objectives
-        this.renderDailyObjectives(state.dailyObjectives);
-
-        // Calendar & Defense
-        this.renderCalendar(state.calendar);
-        this.renderDefense(state.calendar, state.heroes);
-
-        // Daily Report (Modal Overlay)
-        this.renderDailyReport(village.lastDailyReport);
-    }
-
-    renderVillageCanvas(village) {
-        const canvas = this.$('#village-canvas-container');
-        if (!canvas) return;
-
-        const infra = village.infrastructure || {};
-        
-        const tiles = [
-            { id: 'townhall', name: 'Town Hall', icon: '🏛️', lvl: 1, active: true },
-            { id: 'housing', name: this.t('village_housing') || 'Housing', icon: '🏠', lvl: infra.housing || 0, active: (infra.housing || 0) > 0 },
-            { id: 'farm', name: this.t('village_farm') || 'Farm', icon: '🌾', lvl: infra.farm || 0, active: (infra.farm || 0) > 0 },
-            { id: 'warehouse', name: this.t('village_warehouse') || 'Warehouse', icon: '📦', lvl: infra.warehouse || 0, active: (infra.warehouse || 0) > 0 },
-            { id: 'blacksmith', name: this.t('village_blacksmith') || 'Blacksmith', icon: '⚒️', lvl: infra.blacksmith || 0, active: (infra.blacksmith || 0) > 0 },
-            { id: 'training_grounds', name: this.t('village_training_grounds') || 'Training Grounds', icon: '💪', lvl: infra.training_grounds || 0, active: (infra.training_grounds || 0) > 0 },
-            { id: 'explorer_guild', name: this.t('village_explorer_guild') || 'Explorer Guild', icon: '🧭', lvl: infra.explorer_guild || 0, active: (infra.explorer_guild || 0) > 0 },
-            { id: 'witchs_hut', name: this.t('village_witchs_hut') || "Witch's Hut", icon: '🔮', lvl: infra.witchs_hut || 0, active: (infra.witchs_hut || 0) > 0 },
-            { id: 'arcane_sanctum', name: this.t('village_arcane_sanctum') || 'Arcane Sanctum', icon: '✨', lvl: infra.arcane_sanctum || 0, active: (infra.arcane_sanctum || 0) > 0 },
-            { id: 'infirmary', name: this.t('village_infirmary') || 'Infirmary', icon: '🏥', lvl: infra.infirmary || 0, active: (infra.infirmary || 0) > 0 },
-            { id: 'tavern', name: this.t('village_tavern') || 'Tavern', icon: '🍺', lvl: infra.tavern || 0, active: (infra.tavern || 0) > 0 }
-        ];
-
-        canvas.innerHTML = `
-            <div class="village-grid">
-                ${tiles.map(tile => {
-                    const statusClass = tile.active ? 'active' : 'locked';
-                    const lvlLabel = this.t('ui_level') || 'Level';
-                    const displayedIcon = tile.active ? tile.icon : '🔒';
-                    const displayedLvl = tile.active ? `${lvlLabel} ${tile.lvl}` : (this.t('ui_locked') || 'Locked');
-                    
-                    return `
-                        <div class="village-tile ${statusClass}">
-                            <div class="village-tile-icon">${displayedIcon}</div>
-                            <div class="village-tile-name">${tile.name}</div>
-                            <div class="village-tile-level">${displayedLvl}</div>
-                        </div>
-                    `;
-                }).join('')}
-            </div>
-        `;
-    }
-
-    renderDailyReport(report) {
-        const container = this.elements.dailyReportContainer || this.$('#daily-report-container');
-        const recallBtn = this.elements.btnRecallReport || this.$('#btn-recall-report');
-        if (!container) return;
-
-        if (!report) {
-            container.style.display = 'none';
-            container.classList.remove('daily-report-overlay');
-            if (recallBtn) recallBtn.style.display = 'none';
-            return;
-        }
-
-        // If report has been dismissed for the day, hide the overlay modal and show floating recall button
-        if (this.dismissedReportDay === report.day) {
-            container.style.display = 'none';
-            container.classList.remove('daily-report-overlay');
-            if (recallBtn) recallBtn.style.display = 'inline-flex';
-            return;
-        }
-
-        // Show as active modal overlay and hide the recall button
-        container.style.display = 'flex';
-        container.classList.add('daily-report-overlay');
-        if (recallBtn) recallBtn.style.display = 'none';
-
-        let builtHtml = '';
-        if (report.completed && report.completed.length > 0) {
-            builtHtml = `
-                <div class="report-section">
-                    <span class="report-icon">🔨</span>
-                    <span>${this.t('ui_report_built')} ${report.completed.map(id => this.t('village_' + id)).join(', ')}</span>
-                </div>
-            `;
-        }
-
-        let growthHtml = '';
-        if (report.growth > 0) {
-            growthHtml = `
-                <div class="report-section">
-                    <span class="report-icon">👶</span>
-                    <span>${this.t('ui_report_growth').replace('{amount}', report.growth)}</span>
-                </div>
-            `;
-        }
-
-        let minerHtml = '';
-        if (report.minerYield && (report.minerYield.wood > 0 || report.minerYield.stone > 0)) {
-            const yields = [];
-            if (report.minerYield.wood > 0) yields.push(`${report.minerYield.wood} ${this.t('material_wood')}`);
-            if (report.minerYield.stone > 0) yields.push(`${report.minerYield.stone} ${this.t('material_stone')}`);
-            minerHtml = `
-                <div class="report-section success">
-                    <span class="report-icon">⛏️</span>
-                    <span>${this.t('ui_report_miner').replace('{yield}', yields.join(', '))}</span>
-                </div>
-            `;
-        }
-
-        let expHtml = '';
-        if (report.expedition) {
-            const exp = report.expedition;
-            const expName = this.t(exp.expId) || exp.expName || 'Expedition';
-            
-            if (exp.status === 'completed') {
-                let rewardsStr = '';
-                if (exp.reward) {
-                    const rewards = [];
-                    if (exp.reward.gold) rewards.push(`${exp.reward.gold} ${this.t('village_gold')}`);
-                    if (exp.reward.items) {
-                        for (const [id, qty] of Object.entries(exp.reward.items)) {
-                            rewards.push(`${qty} ${this.t(id) || id}`);
-                        }
-                    }
-                    rewardsStr = rewards.join(', ');
-                }
-                expHtml = `
-                    <div class="report-section success">
-                        <span class="report-icon">✨</span>
-                        <span>${this.t('ui_report_exp_completed').replace('{name}', expName).replace('{rewards}', rewardsStr)}</span>
-                    </div>
-                `;
-            } else if (exp.status === 'failed') {
-                expHtml = `
-                    <div class="report-section danger">
-                        <span class="report-icon">💀</span>
-                        <span>${this.t('ui_report_exp_failed').replace('{name}', expName)}</span>
-                    </div>
-                `;
-            } else if (exp.status === 'progress') {
-                expHtml = `
-                    <div class="report-section">
-                        <span class="report-icon">⚔️</span>
-                        <span>${this.t('ui_report_exp_progress').replace('{name}', expName)}</span>
-                    </div>
-                `;
-            }
-        }
-
-        let recoveryHtml = '';
-        if (report.recovery && report.recovery.length > 0) {
-            const healedStr = report.recovery.map(h => `${h.heroName} (+${h.amount} HP)`).join(', ');
-            recoveryHtml = `
-                <div class="report-section success">
-                    <span class="report-icon">💖</span>
-                    <span>${this.t('ui_report_recovery').replace('{healed}', healedStr)}</span>
-                </div>
-            `;
-        }
-
-        let trainingHtml = '';
-        if (report.training && report.training.length > 0) {
-            const leveled = report.training.filter(t => t.leveledUp).map(t => t.heroName);
-            if (leveled.length > 0) {
-                trainingHtml = `
-                    <div class="report-section success">
-                        <span class="report-icon">💪</span>
-                        <span>${this.t('ui_report_training_level').replace('{heroes}', leveled.join(', '))}</span>
-                    </div>
-                `;
-            } else {
-                trainingHtml = `
-                    <div class="report-section">
-                        <span class="report-icon">💪</span>
-                        <span>${this.t('ui_report_training').replace('{count}', report.training.length)}</span>
-                    </div>
-                `;
-            }
-        }
-
-        let tavernHtml = '';
-        if (report.tavernRecruit) {
-            const hero = report.tavernRecruit;
-            tavernHtml = `
-                <div class="report-section success">
-                    <span class="report-icon">🍺</span>
-                    <span>${this.t('ui_report_tavern_recruit').replace('{name}', hero.name).replace('{origin}', this.t(hero.origin))}</span>
-                </div>
-            `;
-        }
-
-        let raidHtml = '';
-        if (report.raid) {
-            const raid = report.raid;
-            if (raid.isVictory) {
-                raidHtml = `
-                    <div class="report-section success">
-                        <span class="report-icon">🛡️</span>
-                        <span>${this.t('ui_report_raid_victory')
-                            .replace('{defense}', raid.defensePower)
-                            .replace('{raid}', raid.raidPower)
-                            .replace('{gold}', raid.goldReward || 0)}</span>
-                    </div>
-                `;
-            } else {
-                const damagedStr = raid.damagedBuilding
-                    ? this.t('ui_report_raid_damaged').replace('{building}', this.t('village_' + raid.damagedBuilding) || raid.damagedBuilding)
-                    : '';
-                raidHtml = `
-                    <div class="report-section danger">
-                        <span class="report-icon">⚠️</span>
-                        <span>${this.t('ui_report_raid_defeat')
-                            .replace('{defense}', raid.defensePower)
-                            .replace('{raid}', raid.raidPower)
-                            .replace('{wood}', raid.woodLoss || 0)
-                            .replace('{stone}', raid.stoneLoss || 0)
-                            .replace('{damaged}', damagedStr)}</span>
-                    </div>
-                `;
-            }
-        }
-
-        container.innerHTML = `
-            <div class="card widget daily-report-modal-content">
-                <div class="daily-report-header">
-                    <h3>${this.t('ui_daily_report_title').replace('{day}', report.day - 1)}</h3>
-                    <button class="btn-close-report" data-action="dismiss-report" title="${this.t('ui_close') || 'Close'}">×</button>
-                </div>
-                <div class="report-content">
-                    <div class="report-section ${report.starvation ? 'danger' : ''}">
-                        <span class="report-icon">🍞</span>
-                        <span>${report.starvation ? this.t('ui_report_starvation') : this.t('ui_report_food').replace('{amount}', report.consumed)}</span>
-                    </div>
-                    ${growthHtml}
-                    ${minerHtml}
-                    ${builtHtml}
-                    ${recoveryHtml}
-                    ${trainingHtml}
-                    ${expHtml}
-                    ${tavernHtml}
-                    ${raidHtml}
-                </div>
-                <div class="daily-report-footer" style="margin-top: 15px; text-align: center;">
-                    <button class="btn btn-primary btn-sm shine-effect" data-action="dismiss-report">
-                        <span data-i18n="ui_btn_acknowledge">${this.t('ui_btn_acknowledge') || 'Acknowledge'}</span>
-                    </button>
-                </div>
-            </div>
-        `;
-    }
-
-    renderRoles(population) {
-        if (!this.elements.roleControls) return;
-
-        const roles = population.roles || { builder: population.builders || 0, farmer: 0, miner: 0, scout: 0 };
-        const total = population.total || 0;
-        const used = Object.values(roles).reduce((a, b) => a + b, 0);
-        const available = total - used;
-
+        const { available, total } = this.laborPool.update(village.population);
         if (this.elements.laborPoolStatus) {
             this.elements.laborPoolStatus.textContent = ` (${available} ${this.t('ui_available') || 'Available'} / ${total} ${this.t('ui_total') || 'Total'})`;
         }
 
-        const ROLE_ICONS = {
-            builder: '🔨',
-            farmer: '🌾',
-            miner: '⛏️',
-            scout: '👁️'
-        };
+        // Construction Queue
+        this.constructionQueue.update(village.constructionQueue);
 
-        const ROLE_EFFECTS = {
-            builder: this.t('ui_role_builder') || 'Construction',
-            farmer: this.t('ui_role_farmer') || '+10% food per farmer',
-            miner: this.t('ui_role_miner') || '20% chance for mats',
-            scout: this.t('ui_role_scout') || '-1 stage per 2 scouts'
-        };
+        // Daily Objectives
+        this.dailyObjectives.update(state.dailyObjectives);
 
-        this.elements.roleControls.innerHTML = Object.entries(roles).map(([role, count]) => {
-            const canInc = available > 0;
-            const canDec = count > 0;
-            return `
-                <div class="role-row">
-                    <span class="role-name">${ROLE_ICONS[role]} ${this.t('role_' + role) || role} <span style="font-size:0.75rem; color:var(--text-muted);">(${ROLE_EFFECTS[role]})</span></span>
-                    <div style="display:flex; align-items:center; gap:6px;">
-                         <button class="btn-role" data-role="${role}" data-role-action="dec" ${canDec ? '' : 'disabled'}>−</button>
-                        <span class="role-count">${count}</span>
-                        <button class="btn-role" data-role="${role}" data-role-action="inc" ${canInc ? '' : 'disabled'}>+</button>
-                    </div>
-                </div>
-            `;
-        }).join('');
+        // Calendar & Defense
+        this.villageCalendar.update(state.calendar);
+        this.villageDefense.update(state.calendar, state.heroes);
+
+        // Daily Report (Modal Overlay)
+        this.updateDailyReportVisibility(village.lastDailyReport);
     }
 
-    renderDailyObjectives(dailyObj) {
-        if (!this.elements.objectivesList) return;
+    updateDailyReportVisibility(report) {
+        const recallBtn = this.elements.btnRecallReport || this.$('#btn-recall-report');
+        this.dailyReportModal.update(report, this.dismissedReportDay);
 
-        if (!dailyObj || !dailyObj.objectives || dailyObj.objectives.length === 0) {
-            this.elements.objectivesList.innerHTML = `
-                <div class="empty-state" data-i18n="ui_no_objectives">${this.t('ui_no_objectives')}</div>`;
-            return;
+        if (report && this.dismissedReportDay === report.day) {
+            if (recallBtn) recallBtn.style.display = 'inline-flex';
+        } else {
+            if (recallBtn) recallBtn.style.display = 'none';
         }
-
-        const allDone = dailyObj.allCompleted;
-
-        let html = dailyObj.objectives.map(obj => {
-            const pct = Math.min(100, Math.floor((obj.progress / obj.target) * 100));
-            const isDone = obj.completed;
-            const label = (this.t(obj.label) || obj.label).replace('{target}', obj.target);
-
-            return `
-                <div class="objective-item ${isDone ? 'completed' : ''}">
-                    <div class="objective-header">
-                        <span class="objective-check">${isDone ? '✅' : '⬜'}</span>
-                        <span class="objective-label">${label}</span>
-                        <span class="objective-progress">${obj.progress} / ${obj.target}</span>
-                    </div>
-                    <div class="progress-container" style="margin-top: 6px;">
-                        <div class="progress-bar ${isDone ? 'success' : ''}" style="width: ${pct}%"></div>
-                    </div>
-                </div>
-            `;
-        }).join('');
-
-        if (allDone) {
-            html += `
-                <div class="objective-all-completed">
-                    <span>🎉</span> ${this.t('ui_all_objectives_done') || 'All objectives completed! Bonus rewards granted.'}
-                </div>
-            `;
-        }
-
-        this.elements.objectivesList.innerHTML = html;
-    }
-
-    renderConstructionQueue(queue) {
-        if (!this.elements.constructionList) return;
-
-        if (!queue || queue.length === 0) {
-            this.elements.constructionList.innerHTML = `
-                <div class="empty-state" data-i18n="ui_no_projects">
-                    ${this.t('ui_no_projects')}
-                </div>`;
-            return;
-        }
-
-        this.elements.constructionList.innerHTML = queue.map(project => `
-            <div class="list-item construction-item">
-                <div class="list-item-header">
-                    <span class="list-item-title">${this.t('village_' + project.buildingId)}</span>
-                    <span class="list-item-level">${this.t('ui_level') || 'Level'} ${project.targetLevel}</span>
-                </div>
-                <div class="construction-status">
-                    <span class="days-remaining">⏳ ${project.daysRemaining} ${this.t('ui_days') || 'Days'}</span>
-                </div>
-                <div class="progress-container">
-                    <div class="progress-bar warning" style="width: ${((project.duration - project.daysRemaining) / project.duration) * 100}%"></div>
-                </div>
-            </div>
-        `).join('');
-    }
-
-    renderCalendar(calendar) {
-        if (!calendar) return;
-
-        const SEASON_ICONS = {
-            spring: '🌸',
-            summer: '☀️',
-            autumn: '🍂',
-            winter: '❄️'
-        };
-
-        if (this.elements.calendarSeasonIcon) {
-            this.elements.calendarSeasonIcon.textContent = SEASON_ICONS[calendar.season] || '📅';
-        }
-        if (this.elements.calendarSeasonLabel) {
-            this.elements.calendarSeasonLabel.textContent = this.t('season_' + calendar.season) || calendar.season;
-        }
-        if (this.elements.calendarDayOfSeason) {
-            this.elements.calendarDayOfSeason.textContent = calendar.dayOfSeason;
-        }
-
-        if (this.elements.calendarEventsList) {
-            const events = calendar.upcomingEvents || [];
-            if (events.length === 0) {
-                this.elements.calendarEventsList.innerHTML = `
-                    <div class="empty-state" data-i18n="ui_no_events">${this.t('ui_no_events')}</div>
-                `;
-            } else {
-                this.elements.calendarEventsList.innerHTML = events.slice(0, 5).map(ev => {
-                    const isRaid = ev.type === 'raid';
-                    const daysAway = ev.day - (calendar.day || 1);
-                    const isUrgent = isRaid && daysAway <= 2;
-                    const icon = isRaid ? '⚔️' : '📅';
-                    const label = isRaid ? this.t('event_raid') || 'Raid' : this.t('event_' + ev.type) || ev.type;
-                    const dayLabel = daysAway === 0 ? this.t('ui_today') || 'Today' : (daysAway === 1 ? this.t('ui_tomorrow') || 'Tomorrow' : `D+${daysAway}`);
-                    return `
-                        <div class="event-item ${isUrgent ? 'event-urgent' : ''}">
-                            <span class="event-icon">${icon}</span>
-                            <span class="event-day">${dayLabel}</span>
-                            <span class="event-label">${label}</span>
-                        </div>
-                    `;
-                }).join('');
-            }
-        }
-    }
-
-    renderDefense(calendar, heroes) {
-        if (!calendar) return;
-
-        const assigned = calendar.defenseAssigned || [];
-        if (this.elements.defenseCount) {
-            this.elements.defenseCount.textContent = assigned.length;
-        }
-
-        if (!this.elements.defenseAssignmentsList) return;
-
-        const maxDefenders = 4;
-        const idleHeroes = (heroes || []).filter(h => h.activity === 'idle' && h.hp > 0);
-        const canAssign = assigned.length < maxDefenders;
-
-        let html = '';
-
-        if (assigned.length > 0) {
-            html += `<div class="defenders-row" style="display:flex; flex-wrap:wrap; gap:4px; margin-bottom:8px;">`;
-            assigned.forEach(heroId => {
-                const hero = (heroes || []).find(h => h.id === heroId);
-                const heroName = hero ? hero.name : heroId;
-                html += `
-                    <span class="defender-chip">
-                        ${heroName}
-                        <button class="remove-btn" data-defense-action="unassign" data-hero-id="${heroId}" title="${this.t('ui_remove') || 'Remove'}">×</button>
-                    </span>
-                `;
-            });
-            html += `</div>`;
-        }
-
-        if (idleHeroes.length > 0 && canAssign) {
-            html += `<div class="defense-assign-section"><h4>${this.t('ui_assign_defender') || 'Assign Defender'}</h4>`;
-            idleHeroes.forEach(hero => {
-                if (!assigned.includes(hero.id)) {
-                    html += `
-                        <button class="assign-btn" data-defense-action="assign" data-hero-id="${hero.id}">
-                            + ${hero.name}
-                        </button>
-                    `;
-                }
-            });
-            html += `</div>`;
-        }
-
-        if (assigned.length === 0 && idleHeroes.length === 0) {
-            html = `<div class="empty-state" data-i18n="ui_no_defenders">${this.t('ui_no_defenders')}</div>`;
-        }
-
-        this.elements.defenseAssignmentsList.innerHTML = html;
     }
 }

@@ -1,5 +1,6 @@
 import { BaseModal } from '../../components/modal/BaseModal.js';
 import { getEquipmentName, getEquipmentStats } from '../../shared/EquipmentHelper.js';
+import { el } from '../../shared/utils/DOMUtils.js';
 
 export class HeroEquipmentModal {
     static show(hero, slot, inventoryEquipment, t, emit) {
@@ -19,20 +20,55 @@ export class HeroEquipmentModal {
         const currentStats = currentItem ? getEquipmentStats(currentItem) : {};
 
         const formatDelta = (val, label) => {
-            if (val === 0) return '';
+            if (val === 0) return null;
             const color = val > 0 ? 'var(--success)' : 'var(--danger)';
             const sign = val > 0 ? '+' : '';
-            return `<span style="color:${color}; font-weight:700;">${sign}${val} ${label}</span>`;
+            return el('span', { style: { color, fontWeight: '700' } }, [`${sign}${val} ${label}`]);
         };
 
-        let itemsHtml = '';
+        const modal = {
+            close: () => {}
+        };
+
+        let currentItemEl = null;
+        if (currentItem) {
+            currentItemEl = el('div', {
+                style: {
+                    background: 'rgba(239, 68, 68, 0.05)',
+                    border: '1px dashed var(--danger)',
+                    padding: '12px',
+                    borderRadius: 'var(--radius-md)',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: '15px'
+                }
+            }, [
+                el('div', { style: { textAlign: 'left' } }, [
+                    el('div', { style: { fontSize: '0.8rem', color: 'var(--text-muted)' } }, [t('ui_equipped') || 'Equipped']),
+                    el('div', { style: { fontWeight: '700', color: 'var(--danger)', marginTop: '2px' } }, [getEquipmentName(currentItem, t)])
+                ]),
+                el('button', {
+                    class: 'btn btn-danger btn-sm',
+                    style: { padding: '6px 12px', fontSize: '0.8rem' },
+                    onClick: () => {
+                        emit('unequipItem', { heroId: hero.id, slot });
+                        modal.close();
+                    }
+                }, [t('ui_unequip') || 'Unequip'])
+            ]);
+        }
+
+        let itemsEl;
         if (eligibleItems.length === 0) {
-            itemsHtml = `<div style="text-align:center; padding: 25px; color: var(--text-muted); font-size: 0.95rem;">${t('ui_no_items')}</div>`;
+            itemsEl = el('div', {
+                style: { textAlign: 'center', padding: '25px', color: 'var(--text-muted)', fontSize: '0.95rem' }
+            }, [t('ui_no_items') || 'No items available']);
         } else {
-            itemsHtml = eligibleItems.map(item => {
+            const listItems = eligibleItems.map(item => {
                 const statsObj = getEquipmentStats(item);
                 const statLines = [];
-                const deltaLines = [];
+                const deltaNodes = [];
 
                 const pushStat = (key, label) => {
                     const val = statsObj[key] || 0;
@@ -40,7 +76,13 @@ export class HeroEquipmentModal {
                     if (val || cur) {
                         statLines.push(`${val > 0 ? '+' : ''}${val} ${label}`);
                         const delta = val - cur;
-                        if (delta !== 0) deltaLines.push(formatDelta(delta, label));
+                        const deltaNode = formatDelta(delta, label);
+                        if (deltaNode) {
+                            if (deltaNodes.length > 0) {
+                                deltaNodes.push(' ');
+                            }
+                            deltaNodes.push(deltaNode);
+                        }
                     }
                 };
 
@@ -50,80 +92,79 @@ export class HeroEquipmentModal {
                 pushStat('maxMp', 'MP');
                 pushStat('magicPower', 'MAG');
                 pushStat('speed', 'SPD');
+
                 if (statsObj.evasion || currentStats.evasion) {
                     const eva = statsObj.evasion || 0;
                     const curEva = currentStats.evasion || 0;
                     statLines.push(`${eva > 0 ? '+' : ''}${eva}% EVA`);
                     const delta = eva - curEva;
-                    if (delta !== 0) deltaLines.push(formatDelta(delta, '% EVA'));
+                    const deltaNode = formatDelta(delta, '% EVA');
+                    if (deltaNode) {
+                        if (deltaNodes.length > 0) {
+                            deltaNodes.push(' ');
+                        }
+                        deltaNodes.push(deltaNode);
+                    }
                 }
 
                 const desc = statLines.join(', ');
-                const deltas = deltaLines.join(' ');
 
-                return `
-                    <div class="list-item" style="display: flex; justify-content: space-between; align-items: center; padding: 12px; margin-bottom: 8px; cursor: default;">
-                        <div style="flex: 1; text-align: left; padding-right: 10px;">
-                            <div style="font-weight:700; color: var(--text-primary);">${getEquipmentName(item, t)}</div>
-                            <div style="font-size:0.8rem; color:var(--text-secondary); margin-top: 2px;">${desc}</div>
-                            ${deltas ? `<div style="font-size:0.75rem; margin-top: 2px;">${deltas}</div>` : ''}
-                        </div>
-                        <button class="btn btn-primary btn-sm btn-select-equip" data-id="${item.id}" style="min-width: 70px;">
-                            ${t('ui_equip') || 'Equip'}
-                        </button>
-                    </div>
-                `;
-            }).join('');
+                return el('div', {
+                    class: 'list-item',
+                    style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', marginBottom: '8px', cursor: 'default' }
+                }, [
+                    el('div', { style: { flex: '1', textAlign: 'left', paddingRight: '10px' } }, [
+                        el('div', { style: { fontWeight: '700', color: 'var(--text-primary)' } }, [getEquipmentName(item, t)]),
+                        el('div', { style: { fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '2px' } }, [desc]),
+                        deltaNodes.length > 0 ? el('div', { style: { fontSize: '0.75rem', marginTop: '2px' } }, deltaNodes) : null
+                    ].filter(Boolean)),
+                    el('button', {
+                        class: 'btn btn-primary btn-sm btn-select-equip',
+                        style: { minWidth: '70px' },
+                        onClick: () => {
+                            emit('equipItem', { heroId: hero.id, slot, itemId: item.id });
+                            modal.close();
+                        }
+                    }, [t('ui_equip') || 'Equip'])
+                ]);
+            });
+
+            itemsEl = el('div', {}, listItems);
         }
 
-        let contentHtml = `
-            ${currentItem ? `
-                <div style="background: rgba(239, 68, 68, 0.05); border: 1px dashed var(--danger); padding: 12px; border-radius: var(--radius-md); display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <div style="text-align: left;">
-                        <div style="font-size: 0.8rem; color: var(--text-muted);">${t('ui_equipped') || 'Equipped'}:</div>
-                        <div style="font-weight: 700; color: var(--danger); margin-top: 2px;">${getEquipmentName(currentItem, t)}</div>
-                    </div>
-                    <button class="btn btn-danger btn-sm" id="btn-unequip-slot" style="padding: 6px 12px; font-size: 0.8rem;">
-                        ${t('ui_unequip') || 'Unequip'}
-                    </button>
-                </div>
-            ` : ''}
-            
-            <div style="font-weight: 700; font-size: 0.85rem; margin-bottom: 10px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; text-align: left;">
-                ${t('ui_available_gear') || 'Available Gear'}
-            </div>
-            ${itemsHtml}
-            
-            <div class="modal-actions" style="border-top: 1px solid var(--glass-border); padding-top: 12px; display: flex; justify-content: flex-end; margin-top: auto;">
-                <button class="btn btn-secondary btn-sm" id="btn-cancel-equip-modal">${t('btn_cancel')}</button>
-            </div>
-        `;
+        const cancelBtn = el('button', {
+            class: 'btn btn-secondary btn-sm',
+            onClick: () => modal.close()
+        }, [t('btn_cancel') || 'Cancel']);
+
+        const contentElement = el('div', { style: { display: 'flex', flexDirection: 'column', height: '100%' } }, [
+            currentItemEl,
+            el('div', {
+                style: {
+                    fontWeight: '700',
+                    fontSize: '0.85rem',
+                    marginBottom: '10px',
+                    color: 'var(--text-secondary)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    textAlign: 'left'
+                }
+            }, [t('ui_available_gear') || 'Available Gear']),
+            itemsEl,
+            el('div', {
+                class: 'modal-actions',
+                style: { borderTop: '1px solid var(--glass-border)', paddingTop: '12px', display: 'flex', justifyContent: 'flex-end', marginTop: 'auto' }
+            }, [cancelBtn])
+        ].filter(Boolean));
 
         const title = `${t('ui_equip')} - ${t('slot_' + slot)}`;
         
-        const modal = BaseModal.show({
+        const res = BaseModal.show({
             title: title,
-            contentHtml: contentHtml,
+            contentElement: contentElement,
             maxWidth: '480px'
         });
 
-        const overlay = modal.overlay;
-
-        overlay.querySelector('#btn-cancel-equip-modal').addEventListener('click', modal.close);
-
-        if (currentItem) {
-            overlay.querySelector('#btn-unequip-slot').addEventListener('click', () => {
-                emit('unequipItem', { heroId: hero.id, slot });
-                modal.close();
-            });
-        }
-
-        overlay.querySelectorAll('.btn-select-equip').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const itemId = btn.dataset.id;
-                emit('equipItem', { heroId: hero.id, slot, itemId });
-                modal.close();
-            });
-        });
+        modal.close = res.close;
     }
 }

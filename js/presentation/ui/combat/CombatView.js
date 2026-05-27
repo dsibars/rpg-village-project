@@ -1,5 +1,6 @@
 import { SKILLS_DATA } from '../../../engine/shared/data/GameConstants.js';
 import { CombatLogFormatter } from '../../../engine/shared/combat/CombatLogFormatter.js';
+import { el, diffList } from '../shared/utils/DOMUtils.js';
 
 export class CombatView {
   constructor({ i18n }) {
@@ -66,8 +67,9 @@ export class CombatView {
       }
       const entry = events[index];
       const entryDiv = document.createElement('div');
-      entryDiv.innerHTML = this._formatLogEntryHtml(entry);
       entryDiv.style.cssText = 'margin-bottom:4px;opacity:0;transition:opacity 0.3s;';
+      const formatted = this._formatLogEntry(entry);
+      entryDiv.appendChild(formatted);
       logContainer.appendChild(entryDiv);
       requestAnimationFrame(() => { entryDiv.style.opacity = '1'; });
       index++;
@@ -78,14 +80,113 @@ export class CombatView {
     this.isCombatOverlayOpen = true;
     this.onCombatComplete = onComplete;
     this.lastLogLength = 0;
-    const overlay = document.createElement('div');
-    overlay.id = 'combat-overlay';
-    overlay.className = 'combat-overlay';
-    const container = document.createElement('div');
-    container.className = 'combat-container';
+
+    const overlay = el('div', { id: 'combat-overlay', class: 'combat-overlay' });
+    const container = el('div', { class: 'combat-container' });
     overlay.appendChild(container);
     document.body.appendChild(overlay);
     this.overlay = overlay;
+
+    // --- Header ---
+    const title = el('h2', {});
+    const stageLabel = el('div', { style: { fontSize: '0.9rem', color: 'var(--text-secondary)', marginTop: '4px' } });
+    const titleWrap = el('div', {}, [title, stageLabel]);
+
+    const autoBtn = el('button', { class: 'btn btn-sm' });
+    const skipBtn = el('button', { class: 'btn btn-secondary btn-sm' });
+    const headerControls = el('div', { class: 'combat-header-controls' }, [autoBtn, skipBtn]);
+    const header = el('div', { class: 'combat-header' }, [titleWrap, headerControls]);
+
+    autoBtn.addEventListener('click', () => {
+      if (overlay.battleRef && overlay.battleRef.isOver) return;
+      if (this.engine && this.engine.battleService) {
+        this.engine.battleService.autoBattle = !this.engine.battleService.autoBattle;
+      }
+      if (this.adapter) this.adapter.forceUpdate();
+    });
+
+    skipBtn.addEventListener('click', () => {
+      if (overlay.battleRef && overlay.battleRef.isOver) return;
+      if (this.engine && this.engine.skipBattle) {
+        this.engine.skipBattle();
+      }
+      if (this.adapter) this.adapter.forceUpdate();
+    });
+
+    // --- Grid ---
+    const grid = el('div', { class: 'combat-grid' });
+
+    // Heroes column
+    const heroesCol = el('div', { class: 'combat-column' });
+    const heroesTitle = el('div', { class: 'combat-column-title' });
+    heroesCol.appendChild(heroesTitle);
+    const heroCards = [];
+    (battleContext.heroes || []).forEach((hero, index) => {
+      const card = this._createCombatHeroCard(hero, index);
+      heroCards.push(card);
+      heroesCol.appendChild(card.root);
+    });
+    grid.appendChild(heroesCol);
+
+    // Action column
+    const actionCol = el('div', { class: 'combat-action-column' });
+    const turnBanner = el('div', { class: 'combat-current-turn-banner' });
+    actionCol.appendChild(turnBanner);
+
+    // Control panel
+    const controlPanel = this._buildControlPanel(overlay);
+    actionCol.appendChild(controlPanel.root);
+    grid.appendChild(actionCol);
+
+    // Enemies column
+    const enemiesCol = el('div', { class: 'combat-column' });
+    const enemiesTitle = el('div', { class: 'combat-column-title' });
+    enemiesCol.appendChild(enemiesTitle);
+    const enemyCards = [];
+    (battleContext.enemies || []).forEach((enemy, index) => {
+      const card = this._createCombatEnemyCard(enemy, index);
+      enemyCards.push(card);
+      enemiesCol.appendChild(card.root);
+    });
+    grid.appendChild(enemiesCol);
+
+    // --- Log section ---
+    const logTitle = el('div', { class: 'combat-column-title' });
+    const logConsole = el('div', { class: 'combat-log-console', id: 'combat-log-console' });
+    const logSection = el('div', { class: 'combat-log-section' }, [logTitle, logConsole]);
+
+    container.appendChild(header);
+    container.appendChild(grid);
+    container.appendChild(logSection);
+
+    // Store battle ref on overlay for access in event handlers
+    overlay.battleRef = battleContext;
+    // Initialize menu state
+    overlay.menuState = 'main';
+    overlay.selectedAction = null;
+    overlay.selectedFamily = null;
+
+    // Grid click delegation for targeting
+    grid.addEventListener('click', (e) => {
+      if (overlay.menuState !== 'targeting') return;
+      const card = e.target.closest('.targetable');
+      if (!card) return;
+      const heroIndex = card.getAttribute('data-hero-index');
+      const enemyIndex = card.getAttribute('data-enemy-index');
+      if (heroIndex !== null) {
+        const idx = parseInt(heroIndex);
+        const targetHero = overlay.battleRef && overlay.battleRef.heroes ? overlay.battleRef.heroes[idx] : null;
+        if (targetHero && targetHero.hp > 0) {
+          this._executeTargetAction(idx, targetHero.id);
+        }
+      } else if (enemyIndex !== null) {
+        const idx = parseInt(enemyIndex);
+        const targetEnemy = overlay.battleRef && overlay.battleRef.enemies ? overlay.battleRef.enemies[idx] : null;
+        if (targetEnemy && targetEnemy.hp > 0) {
+          this._executeTargetAction(idx, targetEnemy.id);
+        }
+      }
+    });
 
     const render = () => {
       const state = this.lastState;
@@ -99,614 +200,669 @@ export class CombatView {
       }
 
       const battle = state.activeBattle;
+      overlay.battleRef = battle;
+
       const activeExp = (state.activeExpeditions || []).find(e => e.status === 'combat');
       const currentStageNum = activeExp ? activeExp.currentStage + 1 : 1;
       const stageText = `${this.t('exp_stage')} ${currentStageNum}`;
 
-      const menuState = overlay.menuState || 'main';
-      const selectedAction = overlay.selectedAction || null;
-      const currentHash = JSON.stringify(battle) + menuState + (selectedAction ? selectedAction.id : '');
-      if (overlay.lastRenderHash === currentHash) {
-        return;
-      }
-      overlay.lastRenderHash = currentHash;
+      const activeActor = battle.turnOrder[battle.currentTurnIndex];
+      const isHeroTurn = activeActor && activeActor.type === 'Hero';
 
-      this._animateLastEvents(battle);
-
-      // Header
-      const header = document.createElement('div');
-      header.className = 'combat-header';
-      const titleWrap = document.createElement('div');
-      const title = document.createElement('h2');
+      // Update header
       title.textContent = activeExp ? (this.t(activeExp.id) !== activeExp.id ? this.t(activeExp.id) : activeExp.name) : this.t('combat_battle_title');
-      titleWrap.appendChild(title);
-      const stageLabel = document.createElement('div');
-      stageLabel.style.cssText = 'font-size:0.9rem;color:var(--text-secondary);margin-top:4px;';
       stageLabel.textContent = stageText;
-      titleWrap.appendChild(stageLabel);
-      header.appendChild(titleWrap);
-      const controls = document.createElement('div');
-      controls.className = 'combat-header-controls';
-      const autoBtn = document.createElement('button');
+      heroesTitle.textContent = this.t('combat_heroes');
+      enemiesTitle.textContent = this.t('combat_enemies');
       autoBtn.textContent = `${this.t('btn_auto_combat')} ${battle.autoBattle ? '(ON)' : '(OFF)'}`;
       autoBtn.className = `btn btn-sm ${battle.autoBattle ? 'btn-primary' : 'btn-secondary'}`;
       autoBtn.disabled = battle.isOver;
-      autoBtn.addEventListener('click', () => {
-        if (battle.isOver) return;
-        if (this.engine && this.engine.battleService) {
-          this.engine.battleService.autoBattle = !this.engine.battleService.autoBattle;
-        }
-        if (this.adapter) this.adapter.forceUpdate();
-      });
-      controls.appendChild(autoBtn);
-      const skipBtn = document.createElement('button');
       skipBtn.textContent = this.t('btn_skip_combat');
-      skipBtn.className = 'btn btn-secondary btn-sm';
       skipBtn.disabled = battle.isOver;
-      skipBtn.addEventListener('click', () => {
-        if (battle.isOver) return;
-        if (this.engine && this.engine.skipBattle) {
-          this.engine.skipBattle();
-        }
-        if (this.adapter) this.adapter.forceUpdate();
-      });
-      controls.appendChild(skipBtn);
-      header.appendChild(controls);
-      container.innerHTML = '';
-      container.appendChild(header);
 
-      // Grid
-      const grid = document.createElement('div');
-      grid.className = 'combat-grid';
-
-      // Heroes column
-      const heroesCol = document.createElement('div');
-      heroesCol.className = 'combat-column';
-      const heroesTitle = document.createElement('div');
-      heroesTitle.className = 'combat-column-title';
-      heroesTitle.textContent = this.t('combat_heroes');
-      heroesCol.appendChild(heroesTitle);
-
-      const activeActor = battle.turnOrder[battle.currentTurnIndex];
-      (battle.heroes || []).forEach((hero, index) => {
+      // Update hero cards
+      heroCards.forEach((card, index) => {
+        const hero = battle.heroes[index];
+        if (!hero) return;
         const isCurrentTurn = activeActor && activeActor.id === hero.id;
-        const isDead = hero.hp <= 0;
-        const hpPct = hero.maxHp ? Math.max(0, Math.min(100, (hero.hp / hero.maxHp) * 100)) : 0;
-        const mpPct = hero.maxMp ? Math.max(0, Math.min(100, (hero.mp / hero.maxMp) * 100)) : 0;
-
-        const card = document.createElement('div');
-        card.className = `combat-card hero-card ${isCurrentTurn ? 'active' : ''} ${isDead ? 'dead' : ''}`;
-        card.dataset.heroId = hero.id;
-        card.dataset.heroIndex = index;
-
-        const avatar = document.createElement('div');
-        avatar.className = 'combat-card-avatar';
-        avatar.textContent = isDead ? '💀' : '⚔️';
-        card.appendChild(avatar);
-
-        const info = document.createElement('div');
-        info.className = 'combat-card-info';
-        const headerRow = document.createElement('div');
-        headerRow.className = 'combat-card-header';
-        const nameSpan = document.createElement('span');
-        nameSpan.className = 'combat-card-name';
-        nameSpan.textContent = hero.name;
-        headerRow.appendChild(nameSpan);
-        const lvlSpan = document.createElement('span');
-        lvlSpan.className = 'combat-card-level';
-        lvlSpan.textContent = `Lv.${hero.level}`;
-        headerRow.appendChild(lvlSpan);
-        info.appendChild(headerRow);
-
-        const hpBarWrap = document.createElement('div');
-        hpBarWrap.className = 'combat-bar-container';
-        const hpBar = document.createElement('div');
-        hpBar.className = 'combat-bar combat-bar-hp';
-        hpBar.style.width = `${hpPct}%`;
-        hpBarWrap.appendChild(hpBar);
-        info.appendChild(hpBarWrap);
-        const hpText = document.createElement('div');
-        hpText.className = 'combat-bar-text';
-        hpText.innerHTML = `<span>${this.t('ui_stats_hp') || 'HP'}</span><span>${hero.hp}/${hero.maxHp}</span>`;
-        info.appendChild(hpText);
-
-        if (hero.maxStamina > 0) {
-          const staPct = hero.maxStamina ? Math.max(0, Math.min(100, (hero.stamina / hero.maxStamina) * 100)) : 0;
-          const staBarWrap = document.createElement('div');
-          staBarWrap.className = 'combat-bar-container';
-          staBarWrap.style.height = '4px';
-          const staBar = document.createElement('div');
-          staBar.className = 'combat-bar combat-bar-stamina';
-          staBar.style.width = `${staPct}%`;
-          staBarWrap.appendChild(staBar);
-          info.appendChild(staBarWrap);
-          const staText = document.createElement('div');
-          staText.className = 'combat-bar-text';
-          staText.style.fontSize = '0.7rem';
-          staText.innerHTML = `<span>${this.t('ui_stamina')}</span><span>${hero.stamina}/${hero.maxStamina}</span>`;
-          info.appendChild(staText);
-        }
-
-        if (hero.maxMp > 0) {
-          const mpBarWrap = document.createElement('div');
-          mpBarWrap.className = 'combat-bar-container';
-          mpBarWrap.style.height = '4px';
-          const mpBar = document.createElement('div');
-          mpBar.className = 'combat-bar combat-bar-mp';
-          mpBar.style.width = `${mpPct}%`;
-          mpBarWrap.appendChild(mpBar);
-          info.appendChild(mpBarWrap);
-          const mpText = document.createElement('div');
-          mpText.className = 'combat-bar-text';
-          mpText.style.fontSize = '0.7rem';
-          mpText.innerHTML = `<span>${this.t('ui_stats_mp') || 'MP'}</span><span>${hero.mp}/${hero.maxMp}</span>`;
-          info.appendChild(mpText);
-        }
-
-        const statuses = document.createElement('div');
-        statuses.className = 'combat-card-statuses';
-        (hero.statusEffects || []).forEach(st => {
-          const badge = document.createElement('span');
-          badge.className = 'combat-status-badge';
-          const iconMap = { poison: '🤢', burn: '🔥', regen: '💚', haste: '⭐', sleep: '💤', stun: '💫' };
-          badge.textContent = iconMap[st.type] || st.type;
-          badge.title = `${st.type} (${st.duration} turns)`;
-          statuses.appendChild(badge);
-        });
-        info.appendChild(statuses);
-
-        const effects = document.createElement('div');
-        effects.className = 'combat-effects-container';
-        effects.id = `effects-hero-${hero.id}`;
-        card.appendChild(info);
-        card.appendChild(effects);
-        heroesCol.appendChild(card);
+        card.update(hero, isCurrentTurn);
       });
-      grid.appendChild(heroesCol);
 
-      // Middle column: action panel only
-      const actionCol = document.createElement('div');
-      actionCol.className = 'combat-action-column';
+      // Update enemy cards
+      enemyCards.forEach((card, index) => {
+        const enemy = battle.enemies[index];
+        if (!enemy) return;
+        const isCurrentTurn = activeActor && activeActor.id === enemy.id;
+        card.update(enemy, isCurrentTurn);
+      });
 
-      const turnBanner = document.createElement('div');
-      turnBanner.className = 'combat-current-turn-banner';
+      // Update turn banner
       const activeActorName = activeActor ? (this.t(activeActor.name) || activeActor.name) : '...';
       turnBanner.textContent = activeActor ? this.t('ui_turn').replace('{name}', activeActorName) : '...';
-      actionCol.appendChild(turnBanner);
 
-      const controlPanel = document.createElement('div');
-      controlPanel.className = 'combat-control-panel';
-      controlPanel.id = 'combat-control-panel';
-      actionCol.appendChild(controlPanel);
-      grid.appendChild(actionCol);
+      // Log and animations
+      const log = battle.log || [];
+      const newLogEntries = log.slice(this.lastLogLength);
+      this._animateEvents(newLogEntries);
+      this._appendLogEntries(logConsole, newLogEntries);
+      this.lastLogLength = log.length;
 
-      // Enemies column
-      const enemiesCol = document.createElement('div');
-      enemiesCol.className = 'combat-column';
-      const enemiesTitle = document.createElement('div');
-      enemiesTitle.className = 'combat-column-title';
-      enemiesTitle.textContent = this.t('combat_enemies');
-      enemiesCol.appendChild(enemiesTitle);
+      // Clear targetable classes from previous render
+      grid.querySelectorAll('.targetable').forEach(c => c.classList.remove('targetable'));
 
-      (battle.enemies || []).forEach((enemy, index) => {
-        const isCurrentTurn = activeActor && activeActor.id === enemy.id;
-        const isDead = enemy.hp <= 0;
-        const hpPct = enemy.maxHp ? Math.max(0, Math.min(100, (enemy.hp / enemy.maxHp) * 100)) : 0;
-
-        const card = document.createElement('div');
-        card.className = `combat-card enemy-card ${isCurrentTurn ? 'active' : ''} ${isDead ? 'dead' : ''}`;
-        card.dataset.enemyIndex = index;
-
-        const avatar = document.createElement('div');
-        avatar.className = 'combat-card-avatar';
-        avatar.textContent = isDead ? '💀' : '👾';
-        card.appendChild(avatar);
-
-        const info = document.createElement('div');
-        info.className = 'combat-card-info';
-        const headerRow = document.createElement('div');
-        headerRow.className = 'combat-card-header';
-        const nameSpan = document.createElement('span');
-        nameSpan.className = 'combat-card-name';
-        nameSpan.textContent = this.t(enemy.name) || enemy.name;
-        headerRow.appendChild(nameSpan);
-        const lvlSpan = document.createElement('span');
-        lvlSpan.className = 'combat-card-level';
-        lvlSpan.textContent = `Lv.${enemy.level || 1}`;
-        headerRow.appendChild(lvlSpan);
-        info.appendChild(headerRow);
-
-        const hpBarWrap = document.createElement('div');
-        hpBarWrap.className = 'combat-bar-container';
-        const hpBar = document.createElement('div');
-        hpBar.className = 'combat-bar combat-bar-hp';
-        hpBar.style.width = `${hpPct}%`;
-        hpBarWrap.appendChild(hpBar);
-        info.appendChild(hpBarWrap);
-        const hpText = document.createElement('div');
-        hpText.className = 'combat-bar-text';
-        hpText.innerHTML = `<span>HP</span><span>${enemy.hp}/${enemy.maxHp}</span>`;
-        info.appendChild(hpText);
-
-        const statuses = document.createElement('div');
-        statuses.className = 'combat-card-statuses';
-        (enemy.statusEffects || []).forEach(st => {
-          const badge = document.createElement('span');
-          badge.className = 'combat-status-badge';
-          const iconMap = { poison: '🤢', burn: '🔥', regen: '💚', haste: '⭐', sleep: '💤', stun: '💫' };
-          badge.textContent = iconMap[st.type] || st.type;
-          badge.title = `${st.type} (${st.duration} turns)`;
-          statuses.appendChild(badge);
-        });
-        info.appendChild(statuses);
-
-        const effects = document.createElement('div');
-        effects.className = 'combat-effects-container';
-        effects.id = `effects-enemy-${index}`;
-        card.appendChild(info);
-        card.appendChild(effects);
-        enemiesCol.appendChild(card);
-      });
-      grid.appendChild(enemiesCol);
-
-      container.appendChild(grid);
-
-      // Full-width combat log below the grid
-      const logSection = document.createElement('div');
-      logSection.className = 'combat-log-section';
-      const logTitle = document.createElement('div');
-      logTitle.className = 'combat-column-title';
+      // Update control panel
       logTitle.textContent = this.t('combat_log');
-      logSection.appendChild(logTitle);
-
-      const logConsole = document.createElement('div');
-      logConsole.className = 'combat-log-console';
-      logConsole.id = 'combat-log-console';
-      (battle.log || []).slice(-20).forEach(entry => {
-        const line = document.createElement('div');
-        line.innerHTML = this._formatLogEntryHtml(entry);
-        line.style.cssText = 'margin-bottom:4px;line-height:1.4;';
-        logConsole.appendChild(line);
-      });
-      logSection.appendChild(logConsole);
-      container.appendChild(logSection);
-
-      // Scroll log to bottom
-      const consoleEl = logConsole;
-      if (consoleEl) {
-        consoleEl.scrollTop = consoleEl.scrollHeight;
-      }
-
-      // Battle end → show resolution inline
-      if (battle.isOver) {
-        const preview = this.engine && this.engine.getBattleResolutionPreview ? this.engine.getBattleResolutionPreview() : null;
-        const isVictory = preview ? preview.isVictory : battle.winner === 'heroes';
-        const resultColor = isVictory ? '#4caf50' : '#f44336';
-        const resultText = isVictory ? this.t('victory') : this.t('defeat');
-
-        let summaryHtml = '';
-        if (preview && preview.summary) {
-          summaryHtml = preview.summary.map(s => {
-            let text = `<strong>${s.heroName}</strong>: `;
-            if (s.hpLost > 0) text += `<span style="color:#f44336;font-size:0.9em;">-${s.hpLost} HP</span> | `;
-            else if (s.hpLost < 0) text += `<span style="color:#4caf50;font-size:0.9em;">+${-s.hpLost} HP</span> | `;
-            text += `<span style="color:#03a9f4;font-size:0.9em;">+${s.expEarned} EXP</span>`;
-            if (s.leveledUp) text += ` <span style="color:#ffeb3b;font-weight:bold;font-size:0.9em;">(LEVEL UP!)</span>`;
-            return `<div style="margin-bottom:5px;">${text}</div>`;
-          }).join('');
-        }
-
-        let rewardsHtml = '';
-        if (preview && preview.isLastStage && preview.rewards) {
-          const rewards = [];
-          if (preview.rewards.gold) rewards.push(`💰 ${preview.rewards.gold} Gold`);
-          if (preview.rewards.items) {
-            for (const [itemId, qty] of Object.entries(preview.rewards.items)) {
-              rewards.push(`📦 ${qty}x ${this.t(itemId) || itemId}`);
-            }
-          }
-          if (rewards.length > 0) {
-            rewardsHtml = `
-              <div style="margin-top:15px;border-top:1px solid rgba(255,255,255,0.1);padding-top:10px;">
-                <h4 style="color:#ffeb3b;margin:0 0 5px 0;">${this.t('combat_rewards')}</h4>
-                <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;font-size:0.95rem;">
-                  ${rewards.map(r => `<span style="background:rgba(255,235,59,0.1);border:1px solid rgba(255,235,59,0.3);padding:4px 8px;border-radius:4px;">${r}</span>`).join('')}
-                </div>
-              </div>`;
-          }
-        }
-
-        controlPanel.innerHTML = `
-          <div style="text-align:center;margin-bottom:15px;width:100%;">
-            <h3 style="color:${resultColor};font-size:1.6rem;margin:0 0 10px 0;">${resultText}</h3>
-            <div style="background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);padding:12px;border-radius:6px;text-align:left;max-height:240px;overflow-y:auto;display:block;width:100%;box-sizing:border-box;">
-              ${summaryHtml}
-              ${rewardsHtml}
-            </div>
-          </div>
-          <button class="btn btn-primary" id="btn-resolve-battle" style="width:100%;">${this.t('ui_btn_close')}</button>
-        `;
-        controlPanel.querySelector('#btn-resolve-battle').addEventListener('click', () => {
-          if (this.engine && this.engine.resolveBattle) {
-            this.engine.resolveBattle();
-          }
-          overlay.style.opacity = '0';
-          overlay.style.transition = 'opacity 0.3s ease';
-          setTimeout(() => {
-            overlay.remove();
-            this.isCombatOverlayOpen = false;
-            this.renderCombatOverlay = null;
-            this.overlay = null;
-            if (this.onCombatComplete) this.onCombatComplete();
-            if (this.adapter) this.adapter.forceUpdate();
-          }, 300);
-        });
-        return;
-      }
-
-      // Normal combat flow
-      const isHeroTurn = activeActor && activeActor.type === 'Hero';
-      if (!isHeroTurn || battle.autoBattle) {
-        controlPanel.innerHTML = `<div class="combat-control-message">${battle.autoBattle ? this.t('ui_auto_combat_running') || 'Running Auto-Combat...' : this.t('ui_enemy_planning') || 'Enemy is planning action...'}</div>`;
-        return;
-      }
-
-      const currentHero = battle.heroes.find(h => h.id === activeActor.id);
-      if (!currentHero) return;
-
-      if (menuState === 'main') {
-        const knownFamilies = currentHero.knownFamilies || ['single_strike'];
-        const hasSkills = knownFamilies.length > 1;
-        const codex = currentHero.spellCodex || [];
-        const hasSpells = codex.length > 0;
-        const canCastSpells = codex.some((s, idx) => {
-            return this._canCastSpellInCombat(currentHero, s, idx);
-        });
-        controlPanel.innerHTML = `
-          <div class="combat-control-buttons">
-            <button class="btn btn-secondary" id="btn-action-attack" style="flex:1 1 120px;">⚔️ ${this.t('family_single_strike')}</button>
-            <button class="btn btn-secondary" id="btn-action-skills" style="flex:1 1 120px;" ${!hasSkills ? 'disabled' : ''}>✨ ${this.t('ui_skills')}</button>
-            <button class="btn btn-secondary" id="btn-action-magic" style="flex:1 1 120px;" ${!canCastSpells ? 'disabled' : ''}>🔮 ${this.t('ui_magic') || 'Magic'}</button>
-            <button class="btn btn-secondary" id="btn-action-items" style="flex:1 1 120px;" ${battle.itemUsedThisTurn ? 'disabled' : ''}>🎒 ${this.t('combat_items')} ${battle.itemUsedThisTurn ? '(' + (this.t('ui_once_per_turn') || '1/Turn') + ')' : ''}</button>
-          </div>
-        `;
-        controlPanel.querySelector('#btn-action-attack').addEventListener('click', () => {
-          overlay.menuState = 'targeting';
-          overlay.selectedAction = { type: 'attack', id: 'single_strike', name: this.t('family_single_strike') };
-          render();
-        });
-        const btnSkills = controlPanel.querySelector('#btn-action-skills');
-        if (btnSkills) {
-          btnSkills.addEventListener('click', () => {
-            overlay.menuState = 'skills';
-            render();
-          });
-        }
-        const btnMagic = controlPanel.querySelector('#btn-action-magic');
-        if (btnMagic) {
-          btnMagic.addEventListener('click', () => {
-            overlay.menuState = 'magic';
-            render();
-          });
-        }
-        const btnItems = controlPanel.querySelector('#btn-action-items');
-        if (btnItems) {
-          btnItems.addEventListener('click', () => {
-            overlay.menuState = 'items';
-            render();
-          });
-        }
-      } else if (menuState === 'skills') {
-        const knownFamilies = (currentHero.knownFamilies || []).filter(f => f !== 'single_strike');
-        const hybridMpCost = currentHero.getHybridMpCost ? currentHero.getHybridMpCost() : 0;
-        const familyButtons = knownFamilies.map(familyId => {
-          const skillData = SKILLS_DATA[familyId];
-          if (!skillData) return '';
-          const tier = currentHero.techniqueTiers && currentHero.techniqueTiers[familyId] || 1;
-          const staCost = skillData.staminaCostBase + skillData.staminaCostPerTier * (tier - 1);
-          const mpCost = hybridMpCost;
-          const canAffordSta = (currentHero.stamina || 0) >= staCost;
-          const canAffordMp = mpCost <= 0 || (currentHero.mp || 0) >= mpCost;
-          const canAfford = canAffordSta && canAffordMp;
-          const familyName = this.t('family_' + familyId) || familyId;
-          const mpLabel = mpCost > 0 ? ` + ${mpCost} MP` : '';
-          return `<button class="btn btn-secondary" data-family-id="${familyId}" ${!canAfford ? 'disabled' : ''} style="flex:1 1 140px;">${familyName} <span style="font-size:0.8rem;opacity:0.8;">(Tier ${tier} · ${staCost} STA${mpLabel})</span></button>`;
-        }).join('');
-        controlPanel.innerHTML = `
-          <div class="combat-control-back"><button class="btn btn-secondary btn-sm" id="btn-skill-back">◀ ${this.t('btn_back')}</button></div>
-          <div class="combat-control-buttons">${familyButtons || `<div style="color:var(--text-muted);">${this.t('ui_no_techniques')}</div>`}</div>
-        `;
-        controlPanel.querySelector('#btn-skill-back').addEventListener('click', () => {
-          overlay.menuState = 'main';
-          render();
-        });
-        controlPanel.querySelectorAll('[data-family-id]').forEach(btn => {
-          btn.addEventListener('click', () => {
-            const familyId = btn.getAttribute('data-family-id');
-            overlay.menuState = 'family_tiers';
-            overlay.selectedFamily = familyId;
-            render();
-          });
-        });
-      } else if (menuState === 'family_tiers') {
-        const familyId = overlay.selectedFamily;
-        const skillData = SKILLS_DATA[familyId];
-        const maxTier = currentHero.techniqueTiers && currentHero.techniqueTiers[familyId] || 1;
-        const familyName = this.t('family_' + familyId) || familyId;
-        const hybridMpCost = currentHero.getHybridMpCost ? currentHero.getHybridMpCost() : 0;
-        const tierButtons = [];
-        for (let t = maxTier; t >= 1; t--) {
-          const staCost = skillData.staminaCostBase + skillData.staminaCostPerTier * (t - 1);
-          const canAffordSta = (currentHero.stamina || 0) >= staCost;
-          const canAffordMp = hybridMpCost <= 0 || (currentHero.mp || 0) >= hybridMpCost;
-          const canAfford = canAffordSta && canAffordMp;
-          const label = t === maxTier ? '⚡ ' : t === 1 ? '💧 ' : '';
-          const mpLabel = hybridMpCost > 0 ? ` + ${hybridMpCost} MP` : '';
-          tierButtons.push(`<button class="btn btn-secondary" data-tier="${t}" ${!canAfford ? 'disabled' : ''} style="flex:1 1 100px;">${label}Tier ${t} <span style="font-size:0.8rem;opacity:0.8;">(${staCost} STA${mpLabel})</span></button>`);
-        }
-        controlPanel.innerHTML = `
-          <div class="combat-control-back"><button class="btn btn-secondary btn-sm" id="btn-tier-back">◀ ${this.t('btn_back')}</button></div>
-          <div class="combat-control-message" style="font-weight:700;">${familyName}</div>
-          <div class="combat-control-buttons">${tierButtons.join('')}</div>
-        `;
-        controlPanel.querySelector('#btn-tier-back').addEventListener('click', () => {
-          overlay.menuState = 'skills';
-          overlay.selectedFamily = null;
-          render();
-        });
-        controlPanel.querySelectorAll('[data-tier]').forEach(btn => {
-          btn.addEventListener('click', () => {
-            const tier = parseInt(btn.getAttribute('data-tier'));
-            overlay.menuState = 'targeting';
-            overlay.selectedAction = { type: 'skill', id: familyId, name: this.t('family_' + familyId), tier };
-            render();
-          });
-        });
-      } else if (menuState === 'magic') {
-        const codex = currentHero.spellCodex || [];
-        const spellButtons = codex.map((spell, idx) => {
-          const canCast = this._canCastSpellInCombat(currentHero, spell, idx);
-          const mpText = `${spell.mpCost} MP`;
-          const elementIcon = { fire: '🔥', water: '💧', wind: '🌪️', storm: '⚡', light: '✨', dark: '🌑', earth: '🪨' }[spell.element] || '🔮';
-          return `<button class="btn btn-secondary" data-spell-idx="${idx}" ${!canCast ? 'disabled' : ''} style="flex:1 1 140px;">${elementIcon} ${spell.name} <span style="font-size:0.8rem;opacity:0.8;">(${mpText})</span></button>`;
-        }).join('');
-        controlPanel.innerHTML = `
-          <div class="combat-control-back"><button class="btn btn-secondary btn-sm" id="btn-magic-back">◀ ${this.t('btn_back')}</button></div>
-          <div class="combat-control-buttons">${spellButtons || `<div style="color:var(--text-muted);">${this.t('ui_no_spells')}</div>`}</div>
-        `;
-        controlPanel.querySelector('#btn-magic-back').addEventListener('click', () => {
-          overlay.menuState = 'main';
-          render();
-        });
-        controlPanel.querySelectorAll('[data-spell-idx]').forEach(btn => {
-          btn.addEventListener('click', () => {
-            const idx = parseInt(btn.getAttribute('data-spell-idx'));
-            const spell = currentHero.spellCodex[idx];
-            overlay.menuState = 'targeting';
-            overlay.selectedAction = { type: 'spell', index: idx, name: spell.name };
-            render();
-          });
-        });
-      } else if (menuState === 'items') {
-        const inventory = state.inventory || {};
-        const consumables = inventory.consumables || {};
-        const itemsButtons = Object.keys(consumables).filter(itemId => consumables[itemId] > 0).map(itemId => {
-          const itemName = this.t(itemId) || itemId;
-          return `<button class="btn btn-secondary" data-item-id="${itemId}" style="flex:1 1 140px;">${itemName} x${consumables[itemId]}</button>`;
-        }).join('');
-        controlPanel.innerHTML = `
-          <div class="combat-control-back"><button class="btn btn-secondary btn-sm" id="btn-item-back">◀ ${this.t('btn_back')}</button></div>
-          <div class="combat-control-buttons">${itemsButtons || `<div style="color:var(--text-muted);">${this.t('ui_no_consumables')}</div>`}</div>
-        `;
-        controlPanel.querySelector('#btn-item-back').addEventListener('click', () => {
-          overlay.menuState = 'main';
-          render();
-        });
-        controlPanel.querySelectorAll('[data-item-id]').forEach(btn => {
-          btn.addEventListener('click', () => {
-            const itemId = btn.getAttribute('data-item-id');
-            overlay.menuState = 'targeting';
-            overlay.selectedAction = { type: 'item', id: itemId, name: this.t(itemId) };
-            render();
-          });
-        });
-      } else if (menuState === 'targeting') {
-        const sel = overlay.selectedAction;
-        controlPanel.innerHTML = `
-          <div class="combat-control-back"><button class="btn btn-secondary btn-sm" id="btn-target-back">◀ ${this.t('btn_back')}</button></div>
-          <div class="combat-control-message" style="color:var(--success);font-weight:700;">${this.t('ui_choose_target')} — ${sel ? sel.name : ''}</div>
-        `;
-        controlPanel.querySelector('#btn-target-back').addEventListener('click', () => {
-          if (sel && sel.type === 'skill') {
-            overlay.menuState = sel.tier !== undefined ? 'family_tiers' : 'skills';
-          } else if (sel && sel.type === 'spell') {
-            overlay.menuState = 'magic';
-          } else if (sel && sel.type === 'item') {
-            overlay.menuState = 'items';
-          } else {
-            overlay.menuState = 'main';
-          }
-          render();
-        });
-
-        const skillData = sel && sel.type === 'skill' ? SKILLS_DATA[sel.id] : null;
-        const spellData = sel && sel.type === 'spell' ? currentHero.spellCodex?.[sel.index] : null;
-        const isFriendly = sel && (
-            (skillData && (skillData.targetType === 'single_ally' || skillData.targetType === 'all_allies')) ||
-            (spellData && (spellData.targetType === 'single_ally' || spellData.targetType === 'all_allies')) ||
-            (sel.type === 'item' && sel.id.includes('potion'))
-        );
-        if (isFriendly) {
-          grid.querySelectorAll('.hero-card').forEach(card => {
-            const idx = parseInt(card.getAttribute('data-hero-index'));
-            const targetHero = battle.heroes[idx];
-            if (targetHero && targetHero.hp > 0) {
-              card.classList.add('targetable');
-              card.addEventListener('click', () => this._executeTargetAction(idx, targetHero.id));
-            }
-          });
-        } else {
-          grid.querySelectorAll('.enemy-card').forEach(card => {
-            const idx = parseInt(card.getAttribute('data-enemy-index'));
-            const targetEnemy = battle.enemies[idx];
-            if (targetEnemy && targetEnemy.hp > 0) {
-              card.classList.add('targetable');
-              card.addEventListener('click', () => this._executeTargetAction(idx, targetEnemy.id));
-            }
-          });
-        }
-      }
+      this._updateControlPanel(controlPanel, battle, state, overlay, grid, activeActor, isHeroTurn);
     };
 
     this.renderCombatOverlay = render;
     render();
   }
 
-  _executeTargetAction(targetIndex, targetId) {
-    const overlay = document.getElementById('combat-overlay');
-    if (!overlay) return;
-    const selectedAction = overlay.selectedAction;
-    if (!selectedAction) return;
+  _createCombatHeroCard(hero, index) {
+    const avatar = el('div', { class: 'combat-card-avatar' });
+    const nameSpan = el('span', { class: 'combat-card-name' });
+    const lvlSpan = el('span', { class: 'combat-card-level' });
+    const headerRow = el('div', { class: 'combat-card-header' }, [nameSpan, lvlSpan]);
 
-    let result;
-    if (selectedAction.type === 'attack') {
-      result = this.engine.executeBattleAction('single_strike', targetIndex);
-    } else if (selectedAction.type === 'skill') {
-      result = this.engine.executeBattleAction(selectedAction.id, targetIndex, selectedAction.tier || null);
-    } else if (selectedAction.type === 'spell') {
-      result = this.engine.executeBattleSpell(selectedAction.index, targetIndex);
-    } else if (selectedAction.type === 'item') {
-      result = this.engine.useBattleConsumable(selectedAction.id, targetId);
+    const hpBar = el('div', { class: 'combat-bar combat-bar-hp' });
+    const hpBarWrap = el('div', { class: 'combat-bar-container' }, hpBar);
+    const hpLabel = el('span', {});
+    const hpValue = el('span', {});
+    const hpText = el('div', { class: 'combat-bar-text' }, [hpLabel, hpValue]);
+
+    let staBar, staBarWrap, staLabel, staValue, staText;
+    if (hero.maxStamina > 0) {
+      staBar = el('div', { class: 'combat-bar combat-bar-stamina' });
+      staBarWrap = el('div', { class: 'combat-bar-container', style: { height: '4px' } }, staBar);
+      staLabel = el('span', {});
+      staValue = el('span', {});
+      staText = el('div', { class: 'combat-bar-text', style: { fontSize: '0.7rem' } }, [staLabel, staValue]);
     }
 
-    if (result && !result.success) {
-      alert(this.t(result.error) || result.error);
+    let mpBar, mpBarWrap, mpLabel, mpValue, mpText;
+    if (hero.maxMp > 0) {
+      mpBar = el('div', { class: 'combat-bar combat-bar-mp' });
+      mpBarWrap = el('div', { class: 'combat-bar-container', style: { height: '4px' } }, mpBar);
+      mpLabel = el('span', {});
+      mpValue = el('span', {});
+      mpText = el('div', { class: 'combat-bar-text', style: { fontSize: '0.7rem' } }, [mpLabel, mpValue]);
+    }
+
+    const statuses = el('div', { class: 'combat-card-statuses' });
+    const effects = el('div', { class: 'combat-effects-container' });
+
+    const infoChildren = [headerRow, hpBarWrap, hpText];
+    if (staBarWrap) infoChildren.push(staBarWrap, staText);
+    if (mpBarWrap) infoChildren.push(mpBarWrap, mpText);
+    infoChildren.push(statuses);
+
+    const info = el('div', { class: 'combat-card-info' }, infoChildren);
+
+    const card = el('div', { class: 'combat-card hero-card', dataHeroId: hero.id, dataHeroIndex: index }, [avatar, info, effects]);
+
+    const update = (currentHero, isCurrentTurn) => {
+      const isDead = currentHero.hp <= 0;
+      card.className = `combat-card hero-card ${isCurrentTurn ? 'active' : ''} ${isDead ? 'dead' : ''}`;
+      avatar.textContent = isDead ? '💀' : '⚔️';
+      nameSpan.textContent = currentHero.name;
+      lvlSpan.textContent = `Lv.${currentHero.level}`;
+
+      const hpPct = currentHero.maxHp ? Math.max(0, Math.min(100, (currentHero.hp / currentHero.maxHp) * 100)) : 0;
+      hpBar.style.width = `${hpPct}%`;
+      hpLabel.textContent = this.t('ui_stats_hp') || 'HP';
+      hpValue.textContent = `${currentHero.hp}/${currentHero.maxHp}`;
+
+      if (staBar) {
+        const staPct = currentHero.maxStamina ? Math.max(0, Math.min(100, (currentHero.stamina / currentHero.maxStamina) * 100)) : 0;
+        staBar.style.width = `${staPct}%`;
+        staLabel.textContent = this.t('ui_stamina');
+        staValue.textContent = `${currentHero.stamina}/${currentHero.maxStamina}`;
+      }
+
+      if (mpBar) {
+        const mpPct = currentHero.maxMp ? Math.max(0, Math.min(100, (currentHero.mp / currentHero.maxMp) * 100)) : 0;
+        mpBar.style.width = `${mpPct}%`;
+        mpLabel.textContent = this.t('ui_stats_mp') || 'MP';
+        mpValue.textContent = `${currentHero.mp}/${currentHero.maxMp}`;
+      }
+
+      // Update status effects using diffList
+      const statusBadges = (currentHero.statusEffects || []).map(st => {
+        const iconMap = { poison: '🤢', burn: '🔥', regen: '💚', haste: '⭐', sleep: '💤', stun: '💫' };
+        return el('span', {
+          class: 'combat-status-badge',
+          dataId: st.type,
+          title: `${st.type} (${st.duration} turns)`
+        }, iconMap[st.type] || st.type);
+      });
+      diffList(statuses, statusBadges, 'data-id');
+    };
+
+    return { root: card, update };
+  }
+
+  _createCombatEnemyCard(enemy, index) {
+    const avatar = el('div', { class: 'combat-card-avatar' });
+    const nameSpan = el('span', { class: 'combat-card-name' });
+    const lvlSpan = el('span', { class: 'combat-card-level' });
+    const headerRow = el('div', { class: 'combat-card-header' }, [nameSpan, lvlSpan]);
+
+    const hpBar = el('div', { class: 'combat-bar combat-bar-hp' });
+    const hpBarWrap = el('div', { class: 'combat-bar-container' }, hpBar);
+    const hpLabel = el('span', {}, 'HP');
+    const hpValue = el('span', {});
+    const hpText = el('div', { class: 'combat-bar-text' }, [hpLabel, hpValue]);
+
+    const statuses = el('div', { class: 'combat-card-statuses' });
+    const effects = el('div', { class: 'combat-effects-container' });
+
+    const info = el('div', { class: 'combat-card-info' }, [headerRow, hpBarWrap, hpText, statuses]);
+    const card = el('div', { class: 'combat-card enemy-card', dataEnemyIndex: index }, [avatar, info, effects]);
+
+    const update = (currentEnemy, isCurrentTurn) => {
+      const isDead = currentEnemy.hp <= 0;
+      card.className = `combat-card enemy-card ${isCurrentTurn ? 'active' : ''} ${isDead ? 'dead' : ''}`;
+      avatar.textContent = isDead ? '💀' : '👾';
+      nameSpan.textContent = this.t(currentEnemy.name) || currentEnemy.name;
+      lvlSpan.textContent = `Lv.${currentEnemy.level || 1}`;
+
+      const hpPct = currentEnemy.maxHp ? Math.max(0, Math.min(100, (currentEnemy.hp / currentEnemy.maxHp) * 100)) : 0;
+      hpBar.style.width = `${hpPct}%`;
+      hpValue.textContent = `${currentEnemy.hp}/${currentEnemy.maxHp}`;
+
+      const statusBadges = (currentEnemy.statusEffects || []).map(st => {
+        const iconMap = { poison: '🤢', burn: '🔥', regen: '💚', haste: '⭐', sleep: '💤', stun: '💫' };
+        return el('span', {
+          class: 'combat-status-badge',
+          dataId: st.type,
+          title: `${st.type} (${st.duration} turns)`
+        }, iconMap[st.type] || st.type);
+      });
+      diffList(statuses, statusBadges, 'data-id');
+    };
+
+    return { root: card, update };
+  }
+
+  _buildControlPanel(overlay) {
+    // --- Battle End Screen ---
+    const battleEndResultTitle = el('h3', { style: { fontSize: '1.6rem', margin: '0 0 10px 0' } });
+    const battleEndSummary = el('div', { style: { background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', padding: '12px', borderRadius: '6px', textAlign: 'left', maxHeight: '240px', overflowY: 'auto', display: 'block', width: '100%', boxSizing: 'border-box' } });
+    const battleEndRewards = el('div', {});
+    const battleEndResolveBtn = el('button', { id: 'btn-resolve-battle', class: 'btn btn-primary', style: { width: '100%' } });
+    battleEndResolveBtn.addEventListener('click', () => {
+      if (this.engine && this.engine.resolveBattle) {
+        this.engine.resolveBattle();
+      }
+      overlay.style.opacity = '0';
+      overlay.style.transition = 'opacity 0.3s ease';
+      setTimeout(() => {
+        overlay.remove();
+        this.isCombatOverlayOpen = false;
+        this.renderCombatOverlay = null;
+        this.overlay = null;
+        if (this.onCombatComplete) this.onCombatComplete();
+        if (this.adapter) this.adapter.forceUpdate();
+      }, 300);
+    });
+    const battleEndScreen = el('div', { class: 'screen-battle-end', style: { display: 'none', textAlign: 'center', marginBottom: '15px', width: '100%' } }, [
+      battleEndResultTitle,
+      battleEndSummary,
+      battleEndRewards,
+      battleEndResolveBtn
+    ]);
+
+    // --- Message Screen ---
+    const messageText = el('div', { class: 'combat-control-message' });
+    const messageScreen = el('div', { class: 'screen-message', style: { display: 'none' } }, messageText);
+
+    // --- Main Screen ---
+    const btnAttack = el('button', { id: 'btn-action-attack', class: 'btn btn-secondary', style: { flex: '1 1 120px' } });
+    const btnSkills = el('button', { id: 'btn-action-skills', class: 'btn btn-secondary', style: { flex: '1 1 120px' } });
+    const btnMagic = el('button', { id: 'btn-action-magic', class: 'btn btn-secondary', style: { flex: '1 1 120px' } });
+    const btnItems = el('button', { id: 'btn-action-items', class: 'btn btn-secondary', style: { flex: '1 1 120px' } });
+    const mainButtons = el('div', { class: 'combat-control-buttons' }, [btnAttack, btnSkills, btnMagic, btnItems]);
+    const mainScreen = el('div', { class: 'screen-main', style: { display: 'none' } }, mainButtons);
+
+    btnAttack.addEventListener('click', () => {
+      overlay.menuState = 'targeting';
+      overlay.selectedAction = { type: 'attack', id: 'single_strike', name: this.t('family_single_strike') };
+      if (this.renderCombatOverlay) this.renderCombatOverlay();
+    });
+    btnSkills.addEventListener('click', () => {
+      overlay.menuState = 'skills';
+      if (this.renderCombatOverlay) this.renderCombatOverlay();
+    });
+    btnMagic.addEventListener('click', () => {
+      overlay.menuState = 'magic';
+      if (this.renderCombatOverlay) this.renderCombatOverlay();
+    });
+    btnItems.addEventListener('click', () => {
+      overlay.menuState = 'items';
+      if (this.renderCombatOverlay) this.renderCombatOverlay();
+    });
+
+    // --- Skills Screen ---
+    const btnSkillBack = el('button', { id: 'btn-skill-back', class: 'btn btn-secondary btn-sm' });
+    const skillsList = el('div', { class: 'combat-control-buttons' });
+    const skillsScreen = el('div', { class: 'screen-skills', style: { display: 'none' } }, [
+      el('div', { class: 'combat-control-back' }, btnSkillBack),
+      skillsList
+    ]);
+    btnSkillBack.addEventListener('click', () => {
+      overlay.menuState = 'main';
+      if (this.renderCombatOverlay) this.renderCombatOverlay();
+    });
+    skillsList.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-family-id]');
+      if (!btn) return;
+      const familyId = btn.getAttribute('data-family-id');
+      overlay.menuState = 'family_tiers';
+      overlay.selectedFamily = familyId;
+      if (this.renderCombatOverlay) this.renderCombatOverlay();
+    });
+
+    // --- Family Tiers Screen ---
+    const btnTierBack = el('button', { id: 'btn-tier-back', class: 'btn btn-secondary btn-sm' });
+    const familyNameText = el('div', { class: 'combat-control-message', style: { fontWeight: 700 } });
+    const tiersList = el('div', { class: 'combat-control-buttons' });
+    const familyTiersScreen = el('div', { class: 'screen-family-tiers', style: { display: 'none' } }, [
+      el('div', { class: 'combat-control-back' }, btnTierBack),
+      familyNameText,
+      tiersList
+    ]);
+    btnTierBack.addEventListener('click', () => {
+      overlay.menuState = 'skills';
+      overlay.selectedFamily = null;
+      if (this.renderCombatOverlay) this.renderCombatOverlay();
+    });
+    tiersList.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-tier]');
+      if (!btn) return;
+      const tier = parseInt(btn.getAttribute('data-tier'));
+      const familyId = overlay.selectedFamily;
+      overlay.menuState = 'targeting';
+      overlay.selectedAction = { type: 'skill', id: familyId, name: this.t('family_' + familyId), tier };
+      if (this.renderCombatOverlay) this.renderCombatOverlay();
+    });
+
+    // --- Magic Screen ---
+    const btnMagicBack = el('button', { id: 'btn-magic-back', class: 'btn btn-secondary btn-sm' });
+    const spellsList = el('div', { class: 'combat-control-buttons' });
+    const magicScreen = el('div', { class: 'screen-magic', style: { display: 'none' } }, [
+      el('div', { class: 'combat-control-back' }, btnMagicBack),
+      spellsList
+    ]);
+    btnMagicBack.addEventListener('click', () => {
+      overlay.menuState = 'main';
+      if (this.renderCombatOverlay) this.renderCombatOverlay();
+    });
+    spellsList.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-spell-idx]');
+      if (!btn) return;
+      const idx = parseInt(btn.getAttribute('data-spell-idx'));
+      const currentHero = this._getCurrentHero(overlay.battleRef);
+      const spell = currentHero && currentHero.spellCodex ? currentHero.spellCodex[idx] : null;
+      overlay.menuState = 'targeting';
+      overlay.selectedAction = { type: 'spell', index: idx, name: spell ? spell.name : this.t('ui_magic') };
+      if (this.renderCombatOverlay) this.renderCombatOverlay();
+    });
+
+    // --- Items Screen ---
+    const btnItemBack = el('button', { id: 'btn-item-back', class: 'btn btn-secondary btn-sm' });
+    const itemsList = el('div', { class: 'combat-control-buttons' });
+    const itemsScreen = el('div', { class: 'screen-items', style: { display: 'none' } }, [
+      el('div', { class: 'combat-control-back' }, btnItemBack),
+      itemsList
+    ]);
+    btnItemBack.addEventListener('click', () => {
+      overlay.menuState = 'main';
+      if (this.renderCombatOverlay) this.renderCombatOverlay();
+    });
+    itemsList.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-item-id]');
+      if (!btn) return;
+      const itemId = btn.getAttribute('data-item-id');
+      overlay.menuState = 'targeting';
+      overlay.selectedAction = { type: 'item', id: itemId, name: this.t(itemId) };
+      if (this.renderCombatOverlay) this.renderCombatOverlay();
+    });
+
+    // --- Targeting Screen ---
+    const btnTargetBack = el('button', { id: 'btn-target-back', class: 'btn btn-secondary btn-sm' });
+    const targetMessage = el('div', { class: 'combat-control-message', style: { color: 'var(--success)', fontWeight: 700 } });
+    const targetingScreen = el('div', { class: 'screen-targeting', style: { display: 'none' } }, [
+      el('div', { class: 'combat-control-back' }, btnTargetBack),
+      targetMessage
+    ]);
+    btnTargetBack.addEventListener('click', () => {
+      const sel = overlay.selectedAction;
+      if (sel && sel.type === 'skill') {
+        overlay.menuState = sel.tier !== undefined ? 'family_tiers' : 'skills';
+      } else if (sel && sel.type === 'spell') {
+        overlay.menuState = 'magic';
+      } else if (sel && sel.type === 'item') {
+        overlay.menuState = 'items';
+      } else {
+        overlay.menuState = 'main';
+      }
+      if (this.renderCombatOverlay) this.renderCombatOverlay();
+    });
+
+    const root = el('div', { class: 'combat-control-panel', id: 'combat-control-panel' }, [
+      battleEndScreen, messageScreen, mainScreen, skillsScreen,
+      familyTiersScreen, magicScreen, itemsScreen, targetingScreen
+    ]);
+
+    return {
+      root,
+      screens: {
+        battleEnd: battleEndScreen,
+        message: messageScreen,
+        main: mainScreen,
+        skills: skillsScreen,
+        familyTiers: familyTiersScreen,
+        magic: magicScreen,
+        items: itemsScreen,
+        targeting: targetingScreen
+      },
+      refs: {
+        battleEndResultTitle,
+        battleEndSummary,
+        battleEndRewards,
+        battleEndResolveBtn,
+        messageText,
+        btnAttack, btnSkills, btnMagic, btnItems,
+        btnSkillBack, btnTierBack, btnMagicBack, btnItemBack, btnTargetBack,
+        skillsList,
+        familyNameText, tiersList,
+        spellsList,
+        itemsList,
+        targetMessage
+      }
+    };
+  }
+
+  _getCurrentHero(battle) {
+    const activeActor = battle.turnOrder[battle.currentTurnIndex];
+    if (!activeActor || activeActor.type !== 'Hero') return null;
+    return battle.heroes.find(h => h.id === activeActor.id);
+  }
+
+  _updateControlPanel(controlPanel, battle, state, overlay, grid, activeActor, isHeroTurn) {
+    const { screens, refs } = controlPanel;
+
+    // Hide all screens first
+    Object.values(screens).forEach(s => { s.style.display = 'none'; });
+
+    if (battle.isOver) {
+      this._renderBattleEndScreen(refs, battle);
+      screens.battleEnd.style.display = '';
       return;
     }
 
-    overlay.menuState = 'main';
-    overlay.selectedAction = null;
-    if (this.adapter) this.adapter.forceUpdate();
+    if (!isHeroTurn || battle.autoBattle) {
+      refs.messageText.textContent = battle.autoBattle
+        ? (this.t('ui_auto_combat_running') || 'Running Auto-Combat...')
+        : (this.t('ui_enemy_planning') || 'Enemy is planning action...');
+      screens.message.style.display = '';
+      return;
+    }
+
+    const currentHero = this._getCurrentHero(battle);
+    if (!currentHero) return;
+
+    const menuState = overlay.menuState || 'main';
+
+    if (menuState === 'main') {
+      const knownFamilies = currentHero.knownFamilies || ['single_strike'];
+      const hasSkills = knownFamilies.length > 1;
+      const codex = currentHero.spellCodex || [];
+      const hasSpells = codex.length > 0;
+      const canCastSpells = codex.some((s, idx) => this._canCastSpellInCombat(currentHero, s, idx));
+
+      refs.btnAttack.textContent = `⚔️ ${this.t('family_single_strike')}`;
+      refs.btnSkills.disabled = !hasSkills;
+      refs.btnSkills.textContent = `✨ ${this.t('ui_skills')}`;
+      refs.btnMagic.disabled = !canCastSpells;
+      refs.btnMagic.textContent = `🔮 ${this.t('ui_magic') || 'Magic'}`;
+      const itemLabel = battle.itemUsedThisTurn
+        ? `🎒 ${this.t('combat_items')} (${this.t('ui_once_per_turn') || '1/Turn'})`
+        : `🎒 ${this.t('combat_items')}`;
+      refs.btnItems.textContent = itemLabel;
+      refs.btnItems.disabled = battle.itemUsedThisTurn;
+
+      screens.main.style.display = '';
+    } else if (menuState === 'skills') {
+      const knownFamilies = (currentHero.knownFamilies || []).filter(f => f !== 'single_strike');
+      const hybridMpCost = currentHero.getHybridMpCost ? currentHero.getHybridMpCost() : 0;
+
+      const skillButtons = knownFamilies.map(familyId => {
+        const skillData = SKILLS_DATA[familyId];
+        if (!skillData) return null;
+        const tier = currentHero.techniqueTiers && currentHero.techniqueTiers[familyId] || 1;
+        const staCost = skillData.staminaCostBase + skillData.staminaCostPerTier * (tier - 1);
+        const mpCost = hybridMpCost;
+        const canAffordSta = (currentHero.stamina || 0) >= staCost;
+        const canAffordMp = mpCost <= 0 || (currentHero.mp || 0) >= mpCost;
+        const canAfford = canAffordSta && canAffordMp;
+        const familyName = this.t('family_' + familyId) || familyId;
+        const mpLabel = mpCost > 0 ? ` + ${mpCost} MP` : '';
+        return el('button', {
+          class: 'btn btn-secondary',
+          dataId: `skill-${familyId}`,
+          disabled: !canAfford,
+          style: { flex: '1 1 140px' }
+        }, [
+          familyName,
+          ' ',
+          el('span', { style: { fontSize: '0.8rem', opacity: 0.8 } }, `(Tier ${tier} · ${staCost} STA${mpLabel})`)
+        ]);
+      }).filter(Boolean);
+
+      if (skillButtons.length === 0) {
+        skillButtons.push(el('div', { style: { color: 'var(--text-muted)' } }, this.t('ui_no_techniques')));
+      }
+
+      refs.btnSkillBack.textContent = `◀ ${this.t('btn_back')}`;
+      diffList(refs.skillsList, skillButtons, 'data-id');
+      screens.skills.style.display = '';
+    } else if (menuState === 'family_tiers') {
+      const familyId = overlay.selectedFamily;
+      const skillData = SKILLS_DATA[familyId];
+      const maxTier = currentHero.techniqueTiers && currentHero.techniqueTiers[familyId] || 1;
+      const familyName = this.t('family_' + familyId) || familyId;
+      const hybridMpCost = currentHero.getHybridMpCost ? currentHero.getHybridMpCost() : 0;
+
+      const tierButtons = [];
+      for (let t = maxTier; t >= 1; t--) {
+        const staCost = skillData.staminaCostBase + skillData.staminaCostPerTier * (t - 1);
+        const canAffordSta = (currentHero.stamina || 0) >= staCost;
+        const canAffordMp = hybridMpCost <= 0 || (currentHero.mp || 0) >= hybridMpCost;
+        const canAfford = canAffordSta && canAffordMp;
+        const label = t === maxTier ? '⚡ ' : t === 1 ? '💧 ' : '';
+        const mpLabel = hybridMpCost > 0 ? ` + ${hybridMpCost} MP` : '';
+        tierButtons.push(el('button', {
+          class: 'btn btn-secondary',
+          dataId: `tier-${t}`,
+          disabled: !canAfford,
+          style: { flex: '1 1 100px' }
+        }, [
+          `${label}Tier ${t}`,
+          ' ',
+          el('span', { style: { fontSize: '0.8rem', opacity: 0.8 } }, `(${staCost} STA${mpLabel})`)
+        ]));
+      }
+
+      refs.btnTierBack.textContent = `◀ ${this.t('btn_back')}`;
+      refs.familyNameText.textContent = familyName;
+      diffList(refs.tiersList, tierButtons, 'data-id');
+      screens.familyTiers.style.display = '';
+    } else if (menuState === 'magic') {
+      const codex = currentHero.spellCodex || [];
+      const spellButtons = codex.map((spell, idx) => {
+        const canCast = this._canCastSpellInCombat(currentHero, spell, idx);
+        const mpText = `${spell.mpCost} MP`;
+        const elementIcon = { fire: '🔥', water: '💧', wind: '🌪️', storm: '⚡', light: '✨', dark: '🌑', earth: '🪨' }[spell.element] || '🔮';
+        return el('button', {
+          class: 'btn btn-secondary',
+          dataId: `spell-${idx}`,
+          disabled: !canCast,
+          style: { flex: '1 1 140px' }
+        }, [
+          `${elementIcon} ${spell.name}`,
+          ' ',
+          el('span', { style: { fontSize: '0.8rem', opacity: 0.8 } }, `(${mpText})`)
+        ]);
+      });
+
+      if (spellButtons.length === 0) {
+        spellButtons.push(el('div', { style: { color: 'var(--text-muted)' } }, this.t('ui_no_spells')));
+      }
+
+      refs.btnMagicBack.textContent = `◀ ${this.t('btn_back')}`;
+      diffList(refs.spellsList, spellButtons, 'data-id');
+      screens.magic.style.display = '';
+    } else if (menuState === 'items') {
+      const inventory = state.inventory || {};
+      const consumables = inventory.consumables || {};
+      const itemButtons = Object.keys(consumables)
+        .filter(itemId => consumables[itemId] > 0)
+        .map(itemId => {
+          const itemName = this.t(itemId) || itemId;
+          return el('button', {
+            class: 'btn btn-secondary',
+            dataId: `item-${itemId}`,
+            style: { flex: '1 1 140px' }
+          }, `${itemName} x${consumables[itemId]}`);
+        });
+
+      if (itemButtons.length === 0) {
+        itemButtons.push(el('div', { style: { color: 'var(--text-muted)' } }, this.t('ui_no_consumables')));
+      }
+
+      refs.btnItemBack.textContent = `◀ ${this.t('btn_back')}`;
+      diffList(refs.itemsList, itemButtons, 'data-id');
+      screens.items.style.display = '';
+    } else if (menuState === 'targeting') {
+      const sel = overlay.selectedAction;
+      refs.btnTargetBack.textContent = `◀ ${this.t('btn_back')}`;
+      refs.targetMessage.textContent = `${this.t('ui_choose_target')} — ${sel ? sel.name : ''}`;
+
+      const skillData = sel && sel.type === 'skill' ? SKILLS_DATA[sel.id] : null;
+      const spellData = sel && sel.type === 'spell' ? currentHero.spellCodex?.[sel.index] : null;
+      const isFriendly = sel && (
+        (skillData && (skillData.targetType === 'single_ally' || skillData.targetType === 'all_allies')) ||
+        (spellData && (spellData.targetType === 'single_ally' || spellData.targetType === 'all_allies')) ||
+        (sel.type === 'item' && sel.id.includes('potion'))
+      );
+
+      if (isFriendly) {
+        grid.querySelectorAll('.hero-card').forEach(card => {
+          const idx = parseInt(card.getAttribute('data-hero-index'));
+          const targetHero = battle.heroes[idx];
+          if (targetHero && targetHero.hp > 0) {
+            card.classList.add('targetable');
+          }
+        });
+      } else {
+        grid.querySelectorAll('.enemy-card').forEach(card => {
+          const idx = parseInt(card.getAttribute('data-enemy-index'));
+          const targetEnemy = battle.enemies[idx];
+          if (targetEnemy && targetEnemy.hp > 0) {
+            card.classList.add('targetable');
+          }
+        });
+      }
+
+      screens.targeting.style.display = '';
+    }
   }
 
-  _canCastSpellInCombat(hero, spell, index) {
-    if (!spell || !hero) return false;
-    // Must have enough MP
-    if ((hero.mp || 0) < spell.mpCost) return false;
-    // Must have enough circle slots (tier-locked)
-    const magicTier = hero.magicTier || 1;
-    const maxSlots = Math.max(1, Math.min(25, magicTier));
-    if ((spell.glyphIds || []).length > maxSlots) return false;
-    return true;
+  _renderBattleEndScreen(refs, battle) {
+    const preview = this.engine && this.engine.getBattleResolutionPreview ? this.engine.getBattleResolutionPreview() : null;
+    const isVictory = preview ? preview.isVictory : battle.winner === 'heroes';
+    const resultColor = isVictory ? '#4caf50' : '#f44336';
+    const resultText = isVictory ? this.t('victory') : this.t('defeat');
+
+    refs.battleEndResultTitle.textContent = resultText;
+    refs.battleEndResultTitle.style.color = resultColor;
+
+    // Build summary
+    while (refs.battleEndSummary.firstChild) {
+      refs.battleEndSummary.removeChild(refs.battleEndSummary.firstChild);
+    }
+    if (preview && preview.summary) {
+      preview.summary.forEach(s => {
+        const row = el('div', { style: { marginBottom: '5px' } });
+        row.appendChild(el('strong', {}, s.heroName));
+        row.appendChild(document.createTextNode(': '));
+        if (s.hpLost > 0) {
+          row.appendChild(el('span', { style: { color: '#f44336', fontSize: '0.9em' } }, `-${s.hpLost} HP`));
+          row.appendChild(document.createTextNode(' | '));
+        } else if (s.hpLost < 0) {
+          row.appendChild(el('span', { style: { color: '#4caf50', fontSize: '0.9em' } }, `+${-s.hpLost} HP`));
+          row.appendChild(document.createTextNode(' | '));
+        }
+        row.appendChild(el('span', { style: { color: '#03a9f4', fontSize: '0.9em' } }, `+${s.expEarned} EXP`));
+        if (s.leveledUp) {
+          row.appendChild(document.createTextNode(' '));
+          row.appendChild(el('span', { style: { color: '#ffeb3b', fontWeight: 'bold', fontSize: '0.9em' } }, '(LEVEL UP!)'));
+        }
+        refs.battleEndSummary.appendChild(row);
+      });
+    }
+
+    // Build rewards
+    while (refs.battleEndRewards.firstChild) {
+      refs.battleEndRewards.removeChild(refs.battleEndRewards.firstChild);
+    }
+    if (preview && preview.isLastStage && preview.rewards) {
+      const rewards = [];
+      if (preview.rewards.gold) rewards.push(`💰 ${preview.rewards.gold} Gold`);
+      if (preview.rewards.items) {
+        for (const [itemId, qty] of Object.entries(preview.rewards.items)) {
+          rewards.push(`📦 ${qty}x ${this.t(itemId) || itemId}`);
+        }
+      }
+      if (rewards.length > 0) {
+        refs.battleEndRewards.appendChild(el('div', { style: { marginTop: '15px', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '10px' } }, [
+          el('h4', { style: { color: '#ffeb3b', margin: '0 0 5px 0' } }, this.t('combat_rewards')),
+          el('div', { style: { display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center', fontSize: '0.95rem' } },
+            rewards.map(r => el('span', { style: { background: 'rgba(255,235,59,0.1)', border: '1px solid rgba(255,235,59,0.3)', padding: '4px 8px', borderRadius: '4px' } }, r))
+          )
+        ]));
+      }
+    }
+
+    refs.battleEndResolveBtn.textContent = this.t('ui_btn_close');
   }
 
-  _formatLogEntryHtml(entry) {
+  _appendLogEntries(logConsole, newEntries) {
+    newEntries.forEach(entry => {
+      const line = el('div', { style: { marginBottom: '4px', lineHeight: 1.4 } });
+      const formatted = this._formatLogEntry(entry);
+      line.appendChild(formatted);
+      logConsole.appendChild(line);
+    });
+
+    // Cap at 100 entries
+    while (logConsole.children.length > 100) {
+      logConsole.removeChild(logConsole.firstChild);
+    }
+
+    logConsole.scrollTop = logConsole.scrollHeight;
+  }
+
+  _formatLogEntry(entry) {
     if (typeof entry === 'string') {
-      return `<span style="color:#aaa;">${entry}</span>`;
+      return el('span', { style: { color: '#aaa' } }, entry);
     }
     const ev = entry;
     let text = '';
     let color = '#aaa';
+    const extraChildren = [];
 
     if (ev.type === 'DAMAGE') {
       if (ev.isMiss) {
@@ -717,12 +873,18 @@ export class CombatView {
         text = skillLabel + this.t('log_attack', { attacker: ev.actorName, target: ev.targetName, damage: ev.amount });
         color = ev.actorIsHero ? '#4caf50' : '#f44336';
         if (ev.isCrit) text = '🔥 ' + text;
-        if (ev.targetDefeated) text += ` <span style="color:#ff3b30;font-weight:bold;">(${this.t('log_target_defeated') ? this.t('log_target_defeated').replace('{target}', '') : 'DEAD'} 💀)</span>`;
+        if (ev.targetDefeated) {
+          const defeatedText = this.t('log_target_defeated') ? this.t('log_target_defeated').replace('{target}', '') : 'DEAD';
+          extraChildren.push(el('span', { style: { color: '#ff3b30', fontWeight: 'bold' } }, `(${defeatedText} 💀)`));
+        }
       }
     } else if (ev.type === 'SPELL_DAMAGE') {
       text = this.t('log_spell_damage', { attacker: ev.actorName, spell: ev.spellName || this.t('ui_magic'), target: ev.targetName, damage: ev.amount });
       color = ev.actorIsHero ? '#9c27b0' : '#f44336';
-      if (ev.targetDefeated) text += ` <span style="color:#ff3b30;font-weight:bold;">(${this.t('log_target_defeated') ? this.t('log_target_defeated').replace('{target}', '') : 'DEAD'} 💀)</span>`;
+      if (ev.targetDefeated) {
+        const defeatedText = this.t('log_target_defeated') ? this.t('log_target_defeated').replace('{target}', '') : 'DEAD';
+        extraChildren.push(el('span', { style: { color: '#ff3b30', fontWeight: 'bold' } }, `(${defeatedText} 💀)`));
+      }
     } else if (ev.type === 'STUN_SKIP') {
       text = this.t('log_stun_skip', { actor: ev.actorName });
       color = '#ffcc00';
@@ -765,33 +927,72 @@ export class CombatView {
     }
 
     if (ev.targetHp !== undefined && ev.targetMaxHp !== undefined && !ev.targetDefeated) {
-      text += ` <span style="color:#8e8e93;font-size:0.85em;">(HP: ${ev.targetHp}/${ev.targetMaxHp})</span>`;
+      extraChildren.push(el('span', { style: { color: '#8e8e93', fontSize: '0.85em' } }, `(HP: ${ev.targetHp}/${ev.targetMaxHp})`));
     }
 
-    return `<span style="color:${color};">${text}</span>`;
+    if (extraChildren.length > 0) {
+      const children = [text];
+      extraChildren.forEach(child => {
+        children.push(' ');
+        children.push(child);
+      });
+      return el('span', { style: { color } }, children);
+    }
+    return el('span', { style: { color } }, text);
   }
 
-  _animateLastEvents(battle) {
-    const log = battle.log || [];
-    if (this.lastLogLength !== undefined && log.length > this.lastLogLength) {
-      const newEvents = log.slice(this.lastLogLength);
-      newEvents.forEach(ev => {
-        const targetName = ev.targetName;
-        if (!targetName) return;
-        if (ev.type === 'DAMAGE') {
-          const text = ev.isMiss ? this.t('miss') : `-${ev.amount}`;
-          const type = ev.isMiss ? 'miss' : 'damage';
-          this._triggerVisualEffect(targetName, text, type);
-        } else if (ev.type === 'HEAL' || ev.type === 'VAMP' || ev.type === 'TRAIT_REGEN' || ev.type === 'USE_CONSUMABLE') {
-          const label = ev.type === 'USE_CONSUMABLE' && ev.healType === 'HEAL_MP' ? 'MP' : 'HP';
-          const amount = ev.amount || ev.damage || 0;
-          this._triggerVisualEffect(targetName, `+${amount} ${label}`, 'heal');
-        } else if (ev.type === 'STATUS_TICK') {
-          this._triggerVisualEffect(targetName, `-${ev.damage}`, 'damage');
-        }
-      });
+  _animateEvents(events) {
+    events.forEach(ev => {
+      const targetName = ev.targetName;
+      if (!targetName) return;
+      if (ev.type === 'DAMAGE') {
+        const text = ev.isMiss ? this.t('miss') : `-${ev.amount}`;
+        const type = ev.isMiss ? 'miss' : 'damage';
+        this._triggerVisualEffect(targetName, text, type);
+      } else if (ev.type === 'HEAL' || ev.type === 'VAMP' || ev.type === 'TRAIT_REGEN' || ev.type === 'USE_CONSUMABLE') {
+        const label = ev.type === 'USE_CONSUMABLE' && ev.healType === 'HEAL_MP' ? 'MP' : 'HP';
+        const amount = ev.amount || ev.damage || 0;
+        this._triggerVisualEffect(targetName, `+${amount} ${label}`, 'heal');
+      } else if (ev.type === 'STATUS_TICK') {
+        this._triggerVisualEffect(targetName, `-${ev.damage}`, 'damage');
+      }
+    });
+  }
+
+  _executeTargetAction(targetIndex, targetId) {
+    const overlay = document.getElementById('combat-overlay');
+    if (!overlay) return;
+    const selectedAction = overlay.selectedAction;
+    if (!selectedAction) return;
+
+    let result;
+    if (selectedAction.type === 'attack') {
+      result = this.engine.executeBattleAction('single_strike', targetIndex);
+    } else if (selectedAction.type === 'skill') {
+      result = this.engine.executeBattleAction(selectedAction.id, targetIndex, selectedAction.tier || null);
+    } else if (selectedAction.type === 'spell') {
+      result = this.engine.executeBattleSpell(selectedAction.index, targetIndex);
+    } else if (selectedAction.type === 'item') {
+      result = this.engine.useBattleConsumable(selectedAction.id, targetId);
     }
-    this.lastLogLength = log.length;
+
+    if (result && !result.success) {
+      alert(this.t(result.error) || result.error);
+      return;
+    }
+
+    overlay.menuState = 'main';
+    overlay.selectedAction = null;
+    if (this.adapter) this.adapter.forceUpdate();
+  }
+
+  _canCastSpellInCombat(hero, spell, index) {
+    if (!spell || !hero) return false;
+    if ((hero.mp || 0) < spell.mpCost) return false;
+    const magicTier = hero.magicTier || 1;
+    const maxSlots = Math.max(1, Math.min(25, magicTier));
+    if ((spell.glyphIds || []).length > maxSlots) return false;
+    return true;
   }
 
   _triggerVisualEffect(targetName, text, type) {

@@ -5,7 +5,6 @@
 import { CombatView } from './combat/CombatView.js';
 import { UnlockNarrativeView } from './unlocks/UnlockNarrativeView.js';
 import { MagicCircleView } from './magic_circle/MagicCircleView.js';
-import { MagicCircleViewV2 } from './magic_circle/MagicCircleViewV2.js';
 import { GambitView } from './gambit/GambitView.js';
 const DEBUG = false;
 
@@ -54,7 +53,6 @@ export class UIController {
         this.combatView = new CombatView({ i18n: this.i18n });
         this.unlockNarrativeView = new UnlockNarrativeView(this.i18n);
         this.magicCircleView = new MagicCircleView({ i18n: this.i18n, ui: this });
-        this.magicCircleViewV2 = new MagicCircleViewV2({ i18n: this.i18n, ui: this });
         this.gambitView = new GambitView({ i18n: this.i18n, ui: this });
         
         this.views = new Map(); // domainName -> BaseView instance
@@ -422,10 +420,6 @@ export class UIController {
 
     openMagicCircleOverlay(options) {
         return this.magicCircleView.open(options);
-    }
-
-    openMagicCircleV2Overlay(options) {
-        return this.magicCircleViewV2.open(options);
     }
 
     openGambitOverlay(options) {

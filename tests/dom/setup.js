@@ -7,3 +7,6 @@ global.HTMLElement = dom.window.HTMLElement;
 global.DocumentFragment = dom.window.DocumentFragment;
 global.Event = dom.window.Event;
 global.SVGElement = dom.window.SVGElement || global.HTMLElement;
+global.requestAnimationFrame = (cb) => setTimeout(cb, 0);
+global.cancelAnimationFrame = (id) => clearTimeout(id);
+

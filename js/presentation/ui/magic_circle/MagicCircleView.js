@@ -1,9 +1,63 @@
-import { GLYPH_DATA, computeGlyphEffect, computeGlyphCostMult } from '../../../engine/shared/data/GameConstants.js';
+import { el, diffList } from '../shared/utils/DOMUtils.js';
 import { MagicCircleService } from '../../../engine/magic_circle/MagicCircleService.js';
+import { GLYPH_DATA, computeGlyphEffect, computeGlyphCostMult } from '../../../engine/shared/data/GameConstants.js';
+import {
+    buildEffectChips,
+    getPowerDisplay,
+    resolveTarget,
+    computeBudgetState,
+    getElementEmoji,
+    getElementColor,
+    isStaticGlyph,
+    getMaxSelectableTier,
+    getGlyphAbbreviation,
+    getGlyphIcon
+} from './MagicCircleHelper.js';
 
 /**
- * MagicCircleView - Dedicated full-screen overlay for composing magic circles (spells).
- * Cleanly decoupled from hero views, entities, and state mutation.
+ * Helper to calculate concentric coordinates for 25 slots.
+ * Slot 0 is core, slots 1-24 are arranged on 4 concentric rings (6 slots per ring).
+ */
+function getSlotCoords(i) {
+    if (i === 0) return { x: 50, y: 50 };
+    const ring = Math.floor((i - 1) / 6) + 1;
+    const slotInRing = (i - 1) % 6;
+    const radius = ring * 11.2; // percentage
+    const angle = slotInRing * (2 * Math.PI / 6) - Math.PI / 2; // top starts at -90deg
+    return {
+        x: 50 + radius * Math.cos(angle),
+        y: 50 + radius * Math.sin(angle)
+    };
+}
+
+/**
+ * Determine if slot i and slot j are adjacent in the mandala layout.
+ */
+function isAdjacent(i, j) {
+    if (i === j) return false;
+    if (i === 0) return j >= 1 && j <= 6;
+    if (j === 0) return i >= 1 && i <= 6;
+
+    const ringI = Math.floor((i - 1) / 6) + 1;
+    const ringJ = Math.floor((j - 1) / 6) + 1;
+    const posI = (i - 1) % 6;
+    const posJ = (j - 1) % 6;
+
+    // Same ring connection: adjacent in ring (wrapping around 0-5)
+    if (ringI === ringJ) {
+        return Math.abs(posI - posJ) === 1 || Math.abs(posI - posJ) === 5;
+    }
+
+    // Adjacent ring connection: same position on adjacent ring
+    if (Math.abs(ringI - ringJ) === 1) {
+        return posI === posJ;
+    }
+
+    return false;
+}
+
+/**
+ * MagicCircleView — Full-screen Magic Circle composition UI.
  */
 export class MagicCircleView {
     constructor({ i18n, ui }) {
@@ -12,17 +66,12 @@ export class MagicCircleView {
         this.overlay = null;
     }
 
-    /**
-     * Helper for translations.
-     */
-    t(key) {
-        return this.ui ? this.ui.t(key) : key;
+    t(key, params = {}) {
+        return this.ui ? this.ui.t(key, params) : key;
     }
 
     /**
      * Generates a descriptive string for a glyph at a given tier level.
-     * @param {Object} g - Glyph item from GLYPH_DATA
-     * @param {number} tier - Selected/Mastered tier of the glyph
      */
     getGlyphDescription(g, tier) {
         if (!g) return '';
@@ -64,12 +113,9 @@ export class MagicCircleView {
         }
     }
 
-    /**
-     * Opens the full-screen overlay.
-     */
     open(options) {
         const {
-            heroName = 'Archmage Simulator',
+            heroName = 'Hero',
             magicTier = 1,
             maxMp = 100,
             knownGlyphs = [],
@@ -79,453 +125,588 @@ export class MagicCircleView {
             onClose = null
         } = options;
 
-        // Local State
-        let composition = []; // array of { slotIndex, glyphId }
-        let customName = '';
-        let selectedTiers = {};
-        let focusedSlotIndex = null;
-        let activeCategory = 'all';
+        // Reset state properties on this instance
+        this.heroName = heroName;
+        this.magicTier = magicTier;
+        this.maxMp = maxMp;
+        this.knownGlyphs = knownGlyphs;
+        this.glyphMastery = glyphMastery;
+        this.isSimulator = isSimulator;
+        this.onConfirm = onConfirm;
+        this.onClose = onClose;
 
-        const maxSlots = MagicCircleService.getSlotCount(magicTier);
+        this.composition = [];      // { slotIndex, glyphId }
+        this.selectedTiers = {};    // { glyphId: tier }
+        this.customName = '';
+        this.focusedSlotIndex = null;
+        this.activeDrawerGlyphId = null;
 
-        // Create overlay element
-        this.overlay = document.createElement('div');
-        this.overlay.className = 'magic-circle-overlay';
+        this.maxSlots = MagicCircleService.getSlotCount(magicTier);
 
+        // ─── Define close handler early so overlay can reference it ───
         const close = () => {
+            window.removeEventListener('keydown', keyHandler);
             if (this.overlay) {
-                this.overlay.style.opacity = '0';
-                setTimeout(() => {
-                    if (this.overlay) {
-                        this.overlay.remove();
-                        this.overlay = null;
-                    }
-                    if (onClose) onClose();
-                }, 300);
+                this.overlay.remove();
+                this.overlay = null;
             }
+            if (onClose) onClose();
         };
 
+        // ─── Build Overlay Static Structure with el() ───
+        this.els = {};
+
+        // Top Margin refs
+        this.els.titleText = el('span', { className: 'mc-title-text' });
+        this.els.heroBadge = el('span', { className: 'mc-hero-badge' });
+        this.els.powerStat = el('span', { className: 'mc-power-stat' });
+        this.els.mpCost = el('span', { className: 'mc-mp-cost' });
+        this.els.budgetFill = el('div', { className: 'mc-budget-fill' });
+        this.els.budgetLabel = el('div', { className: 'mc-budget-label' });
+
+        const topMargin = el('div', { className: ['mc-top-margin', 'mc-margin-bar'] }, [
+            el('div', { className: 'mc-top-left' }, [
+                el('h2', {}, ['🔮 ', this.els.titleText]),
+                this.els.heroBadge
+            ]),
+            el('div', { className: 'mc-top-right' }, [
+                this.els.powerStat,
+                this.els.mpCost,
+                el('div', { className: 'mc-budget-container' }, [
+                    el('div', { className: 'mc-budget-track' }, [this.els.budgetFill]),
+                    this.els.budgetLabel
+                ])
+            ])
+        ]);
+
+        // Left Margin refs
+        this.els.polarityIcon = el('span', { className: 'mc-polarity-icon' });
+        this.els.polarityText = el('span', { className: 'mc-polarity-text' });
+        const leftMargin = el('div', { className: ['mc-left-margin', 'mc-margin-bar'] }, [
+            el('div', { className: 'mc-polarity-indicator' }, [
+                this.els.polarityIcon,
+                this.els.polarityText
+            ])
+        ]);
+
+        // Right Margin refs
+        this.els.countIcon = el('span', { className: 'mc-count-icon' });
+        this.els.countText = el('span', { className: 'mc-count-text' });
+        const rightMargin = el('div', { className: ['mc-right-margin', 'mc-margin-bar'] }, [
+            el('div', { className: 'mc-count-indicator' }, [
+                this.els.countIcon,
+                this.els.countText
+            ])
+        ]);
+
+        // Center Mandala refs
+        this.els.svg = el('svg', { className: 'mandala-connections-svg' });
+        this.els.slotsContainer = el('div', { className: 'mandala-slots-container' });
+        this.els.centerContainer = el('div', { className: 'mc-center-container' }, [
+            el('div', { className: 'mc-mandala-wrapper' }, [
+                el('div', { className: ['mandala-ring', 'ring-1', 'rotate-cw'] }),
+                el('div', { className: ['mandala-ring', 'ring-2', 'rotate-ccw'] }),
+                el('div', { className: ['mandala-ring', 'ring-3', 'rotate-cw'] }),
+                el('div', { className: ['mandala-ring', 'ring-4', 'rotate-ccw'] }),
+                this.els.svg,
+                this.els.slotsContainer
+            ])
+        ]);
+
+        // Drawer refs
+        this.els.drawerTitle = el('h3', { className: 'mc-drawer-title' });
+        this.els.paletteTitle = el('div', { className: 'mc-palette-title' });
+        this.els.paletteGrid = el('div', { className: 'mc-palette-grid' });
+        this.els.infoTitle = el('span', { className: 'mc-info-title' });
+        this.els.infoType = el('span', { className: 'mc-info-type' });
+        this.els.infoDescription = el('div', { className: 'mc-info-description' });
+        this.els.tuningValue = el('span', { className: 'mc-tuning-value' });
+
+        // Tier dial ticks (persistent, updated surgically)
+        this.els.dialTicksContainer = el('div', { className: 'mc-dial-ticks' });
+        this.dialTickEls = [];
+        for (let t = 1; t <= 7; t++) {
+            const tick = el('button', {
+                className: 'mc-dial-tick',
+                dataTier: t,
+                onClick: () => {
+                    if (this.activeDrawerGlyphId) {
+                        this.selectedTiers[this.activeDrawerGlyphId] = t;
+                        render();
+                    }
+                }
+            });
+            this.dialTickEls.push(tick);
+            this.els.dialTicksContainer.appendChild(tick);
+        }
+
+        this.els.selectedGlyphInfo = el('div', { className: 'mc-selected-glyph-info' }, [
+            el('div', { className: 'mc-info-header' }, [
+                this.els.infoTitle,
+                this.els.infoType
+            ]),
+            this.els.infoDescription,
+            el('div', { className: 'mc-tuning-section' }, [
+                el('div', { className: 'mc-tuning-label-container' }, [
+                    el('span', { className: 'mc-tuning-title' }, this.t('mc_dial_prompt') || 'Tier Tuning'),
+                    this.els.tuningValue
+                ]),
+                el('div', { className: 'mc-tuning-dial' }, [
+                    this.els.dialTicksContainer
+                ])
+            ])
+        ]);
+
+        this.els.emptyState = el('div', {
+            style: { textAlign: 'center', padding: '24px', color: '#64748b', fontStyle: 'italic', fontSize: '0.85rem' }
+        }, this.t('mc_slot_empty') || 'Select a glyph from the palette above to socket it.');
+
+        this.els.drawerContent = el('div', { className: 'mc-drawer-content' }, [
+            this.els.paletteTitle,
+            this.els.paletteGrid,
+            this.els.selectedGlyphInfo,
+            this.els.emptyState
+        ]);
+
+        // Remove button (persistent, visibility toggled)
+        this.els.removeBtn = el('button', {
+            className: ['mc-btn', 'mc-btn-danger', 'mc-btn-remove'],
+            onClick: () => {
+                this.composition = this.composition.filter(c => c.slotIndex !== this.focusedSlotIndex);
+                this.focusedSlotIndex = null;
+                render();
+            }
+        });
+        this.els.drawerActions = el('div', { className: 'mc-drawer-actions' }, [this.els.removeBtn]);
+
+        this.els.drawer = el('div', { className: 'mc-focused-drawer' }, [
+            el('div', { className: 'mc-drawer-header' }, [
+                this.els.drawerTitle,
+                el('button', {
+                    className: 'mc-drawer-close',
+                    onClick: () => {
+                        this.focusedSlotIndex = null;
+                        render();
+                    }
+                }, '✕')
+            ]),
+            this.els.drawerContent,
+            this.els.drawerActions
+        ]);
+
+        // Bottom Margin refs
+        this.els.elementDisplay = el('div', { className: 'mc-element-display' });
+        this.els.chipsContainer = el('div', { className: 'mc-chips-container' });
+        this.els.nameInput = el('input', { className: 'mc-name-input', type: 'text', maxlength: 30 });
+        this.els.inscribeBtn = el('button', {
+            className: ['mc-btn', 'mc-btn-primary', 'mc-btn-inscribe'],
+            onClick: () => {
+                const glyphIds = this.composition.map(c => c.glyphId);
+                const glyphTiers = {};
+                for (const c of this.composition) {
+                    glyphTiers[c.glyphId] = this.selectedTiers[c.glyphId] || this.glyphMastery[c.glyphId]?.tier || 1;
+                }
+                const composeResult = this.composition.length > 0
+                    ? MagicCircleService.compose(glyphIds, glyphTiers, this.customName || null)
+                    : null;
+                const spell = composeResult?.success ? composeResult.data : null;
+
+                if (!spell) return;
+
+                if (this.isSimulator) {
+                    if (this.ui && this.ui.showToast) {
+                        this.ui.showToast(this.t('simulator_inscribe_disabled') || 'Spell composed! (Inscriptions disabled in simulator mode)', 'info');
+                    }
+                    close();
+                    return;
+                }
+
+                if (onConfirm) onConfirm(spell);
+                close();
+            }
+        });
+        this.els.clearBtn = el('button', {
+            className: ['mc-btn', 'mc-btn-secondary', 'mc-btn-clear'],
+            onClick: () => {
+                this.composition = [];
+                this.selectedTiers = {};
+                this.focusedSlotIndex = null;
+                this.customName = '';
+                this.els.nameInput.value = '';
+                render();
+            }
+        });
+        this.els.closeBtn = el('button', {
+            className: ['mc-btn', 'mc-btn-secondary', 'mc-btn-close'],
+            onClick: close
+        });
+
+        const bottomMargin = el('div', { className: ['mc-bottom-margin', 'mc-margin-bar'] }, [
+            el('div', { className: 'mc-bottom-left' }, [
+                this.els.elementDisplay,
+                this.els.chipsContainer
+            ]),
+            el('div', { className: 'mc-bottom-right' }, [
+                el('div', { className: 'mc-name-input-wrapper' }, [this.els.nameInput]),
+                this.els.inscribeBtn,
+                this.els.clearBtn,
+                this.els.closeBtn
+            ])
+        ]);
+
+        this.overlay = el('div', { className: 'magic-circle-overlay' }, [
+            topMargin,
+            leftMargin,
+            rightMargin,
+            this.els.centerContainer,
+            this.els.drawer,
+            bottomMargin
+        ]);
+
+        const keyHandler = (e) => {
+            if (e.key === 'Escape') {
+                if (this.focusedSlotIndex !== null) {
+                    this.focusedSlotIndex = null;
+                    render();
+                } else {
+                    close();
+                }
+            }
+        };
+        window.addEventListener('keydown', keyHandler);
+
+        // ─── Create 25 slot elements once ───
+        this.slotRefs = [];
+        for (let i = 0; i < 25; i++) {
+            const coords = getSlotCoords(i);
+            const icon = el('div', { className: 'slot-icon' });
+            const abb = el('div', { className: 'slot-abb' });
+            const tier = el('span', { className: 'slot-tier' });
+
+            const slotEl = el('div', {
+                className: ['mandala-slot', i === 0 && 'core-slot'],
+                dataSlot: i,
+                style: { left: `${coords.x}%`, top: `${coords.y}%` },
+                onClick: () => {
+                    if (i >= this.maxSlots) return;
+                    this.focusedSlotIndex = this.focusedSlotIndex === i ? null : i;
+                    render();
+                }
+            });
+
+            this.els.slotsContainer.appendChild(slotEl);
+            this.slotRefs.push({ el: slotEl, icon, abb, tier });
+        }
+
+        // ─── Static action wiring ───
+        this.els.nameInput.placeholder = this.t('ui_spell_name_placeholder') || 'Custom spell name...';
+        this.els.nameInput.addEventListener('input', (e) => {
+            this.customName = e.target.value;
+            render();
+        });
+
+        // Palette card click delegation (bound once)
+        this.els.paletteGrid.addEventListener('click', (e) => {
+            const card = e.target.closest('.mc-palette-card');
+            if (!card) return;
+            const gid = card.dataset.glyph;
+            const existing = this.composition.find(c => c.slotIndex === this.focusedSlotIndex);
+            if (existing) {
+                existing.glyphId = gid;
+            } else {
+                this.composition.push({ slotIndex: this.focusedSlotIndex, glyphId: gid });
+            }
+            this.composition.sort((a, b) => a.slotIndex - b.slotIndex);
+            render();
+        });
+
+        // ─── Render Update Hook ───
         const render = () => {
-            const glyphIds = composition.map(c => c.glyphId);
+            const glyphIds = this.composition.map(c => c.glyphId);
             const glyphTiers = {};
-            for (const c of composition) {
-                glyphTiers[c.glyphId] = selectedTiers[c.glyphId] || glyphMastery[c.glyphId]?.tier || 1;
+            for (const c of this.composition) {
+                glyphTiers[c.glyphId] = this.selectedTiers[c.glyphId] || this.glyphMastery[c.glyphId]?.tier || 1;
             }
 
-            const composeResult = composition.length > 0
-                ? MagicCircleService.compose(glyphIds, glyphTiers, customName || null)
+            const composeResult = this.composition.length > 0
+                ? MagicCircleService.compose(glyphIds, glyphTiers, this.customName || null)
                 : null;
             const spell = composeResult?.success ? composeResult.data : null;
 
-            // Element determination for card styling
-            const coreGlyph = composition.find(c => c.slotIndex === 0);
-            const activeElement = coreGlyph ? GLYPH_DATA[coreGlyph.glyphId]?.element : null;
-            let previewClass = 'spell-preview-card';
-            if (activeElement) previewClass += ` el-${activeElement}`;
+            const { polarity, count } = resolveTarget(spell);
+            const isSupport = spell?.category === 'support';
 
-            // MP Budget Bar styling
-            let budgetColor = '#6366f1';
-            let budgetLabel = 'Within Budget';
-            if (spell) {
-                const ratio = spell.mpCost / Math.max(1, maxMp);
-                if (ratio > 0.90) {
-                    budgetColor = '#ef4444';
-                    budgetLabel = 'Over Budget';
-                } else if (ratio > 0.75) {
-                    budgetColor = '#f59e0b';
-                    budgetLabel = 'Warning';
-                }
+            // 1. Theme Color Bleed Classes
+            this.overlay.className = 'magic-circle-overlay';
+            if (isSupport) {
+                this.overlay.classList.add('mode-support');
+            }
+            if (spell && spell.element) {
+                this.overlay.classList.add(`el-active-${spell.element}`);
             }
 
-            // Filter glyph palette content
-            const filteredGlyphIds = knownGlyphs.filter(gid => {
-                const g = GLYPH_DATA[gid];
-                if (!g) return false;
-                if (activeCategory === 'all') return true;
-                return g.type === activeCategory;
-            });
+            // 2. Top Margin
+            this.els.titleText.textContent = this.t('magic_circle_title') || 'Magic Circle';
+            this.els.heroBadge.textContent = `${this.heroName} · Tier ${this.magicTier} (${this.maxSlots} slots)`;
 
-            // Group Tabs
-            const tabs = ['all', 'core', 'power', 'effect', 'efficiency'];
-            const tabLabels = {
-                all: 'All',
-                core: 'Core',
-                power: 'Power',
-                effect: 'Effect',
-                efficiency: 'Efficiency'
-            };
+            const power = getPowerDisplay(spell);
+            this.els.powerStat.textContent = this.t(power.labelKey, { value: power.value }) || '';
+            if (isSupport) {
+                this.els.powerStat.className = 'mc-power-stat val-heal';
+            } else {
+                this.els.powerStat.className = 'mc-power-stat';
+            }
 
-            const tabsHtml = tabs.map(t => `
-                <button class="glyph-filter-tab ${activeCategory === t ? 'active' : ''}" data-category="${t}">
-                    ${tabLabels[t]}
-                </button>
-            `).join('');
+            this.els.mpCost.textContent = `${spell ? spell.mpCost : 0} ${this.t('ui_mp') || 'MP'}`;
 
-            // Glyph Palette Cards
-            const glyphCardsHtml = filteredGlyphIds.map(gid => {
-                const g = GLYPH_DATA[gid];
-                const tier = selectedTiers[gid] || glyphMastery[gid]?.tier || 1;
-                const symbol = MagicCircleService.getGlyphSymbol(tier);
-                const isUsed = composition.some(c => c.glyphId === gid);
-                const desc = this.getGlyphDescription(g, tier);
+            const budget = computeBudgetState(spell ? spell.mpCost : 0, this.maxMp);
+            this.els.budgetFill.style.width = `${Math.min(100, budget.ratio * 100)}%`;
+            this.els.budgetFill.style.backgroundColor = budget.color;
+            this.els.budgetFill.style.boxShadow = `0 0 8px ${budget.color}`;
 
-                let isSelected = false;
-                if (focusedSlotIndex !== null) {
-                    const focusedSlot = composition.find(c => c.slotIndex === focusedSlotIndex);
-                    if (focusedSlot && focusedSlot.glyphId === gid) {
-                        isSelected = true;
+            this.els.budgetLabel.textContent = `${this.t(budget.labelKey) || ''} (${spell ? spell.mpCost : 0} / ${this.maxMp} ${this.t('ui_mp') || 'MP'})`;
+            this.els.budgetLabel.style.color = budget.color;
+
+            // 3. Left Margin (Polarity)
+            this.els.polarityIcon.textContent = isSupport ? '💚' : '⚔️';
+            this.els.polarityText.textContent = isSupport ? (this.t('mc_ally') || 'ALLY') : (this.t('mc_foe') || 'FOE');
+
+            // 4. Right Margin (Count)
+            this.els.countIcon.textContent = count === 'all' ? '👥' : '👤';
+            this.els.countText.textContent = count === 'all' ? (this.t('mc_all') || 'ALL') : (this.t('mc_one') || 'ONE');
+            const countIndicator = this.els.countIcon.parentElement;
+            if (count === 'all') {
+                countIndicator.className = 'mc-count-indicator all-active';
+            } else {
+                countIndicator.className = 'mc-count-indicator';
+            }
+
+            // 5. Update slots state selectively
+            this.slotRefs.forEach(slot => {
+                const i = parseInt(slot.el.dataset.slot);
+
+                slot.el.className = 'mandala-slot';
+                if (i === 0) slot.el.classList.add('core-slot');
+                slot.el.title = '';
+
+                if (i >= this.maxSlots) {
+                    slot.el.classList.add('locked');
+                    slot.el.textContent = '🔒';
+                    slot.el.title = this.t('mc_slot_locked', { tier: i + 1 }) || `Locked (Magic Tier ${i + 1} required)`;
+                } else {
+                    if (i === this.focusedSlotIndex) {
+                        slot.el.classList.add('focused-slot');
                     }
-                }
+                    const slotComp = this.composition.find(c => c.slotIndex === i);
+                    if (slotComp) {
+                        slot.el.classList.add('filled');
+                        const g = GLYPH_DATA[slotComp.glyphId];
+                        const tier = glyphTiers[slotComp.glyphId] || 1;
+                        const symbol = MagicCircleService.getGlyphSymbol(tier);
 
-                // Tier selector: hero can tune any glyph from Tier 1 up to their max mastered tier.
-                // This represents how "masterfully" they draw the glyph in this composition.
-                const maxMasteredTier = glyphMastery[gid]?.tier || 1;
-                const currentTier = selectedTiers[gid] || maxMasteredTier;
-                const tierSelectHtml = `
-                    <select class="glyph-tier-select" data-glyph="${gid}" style="margin-left: 8px; font-size: 0.65rem; padding: 2px; border-radius: 4px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); color: #fff; flex-shrink: 0;">
-                        ${Array.from({ length: maxMasteredTier }, (_, i) => {
-                            const t = i + 1;
-                            const sym = MagicCircleService.getGlyphSymbol(t);
-                            return `<option value="${t}" ${t === currentTier ? 'selected' : ''}>${sym} (T${t})</option>`;
-                        }).join('')}
-                    </select>
-                `;
+                        slot.el.textContent = '';
 
-                return `
-                    <div class="glyph-card ${isUsed ? 'used' : ''} ${isSelected ? 'selected' : ''}" data-glyph="${gid}">
-                        <div class="glyph-card-header">
-                            <div style="display: flex; align-items: center; gap: 6px;">
-                                <span class="glyph-card-title">${this.t(gid) || gid} ${symbol}</span>
-                            </div>
-                            <span class="glyph-card-badge ${g.type}">${g.type}</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
-                            <span class="glyph-card-desc">${desc}</span>
-                            ${tierSelectHtml}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            // Socket Slices layout mapping
-            const slotHtml = [];
-            for (let i = 0; i < 25; i++) {
-                const isUnlocked = i < maxSlots;
-                const isCore = i === 0;
-
-                let left, top;
-                if (isCore) {
-                    left = 50;
-                    top = 50;
-                } else {
-                    const ring = Math.floor((i - 1) / 6) + 1;
-                    const slotInRing = (i - 1) % 6;
-                    const radius = ring * 11.2; // percentage
-                    const angle = slotInRing * (2 * Math.PI / 6) - Math.PI / 2; // top starts at -90deg
-                    left = 50 + radius * Math.cos(angle);
-                    top = 50 + radius * Math.sin(angle);
-                }
-
-                const slotComp = composition.find(c => c.slotIndex === i);
-                const label = isCore ? 'CORE' : `R${i}`;
-
-                let slotClass = 'mandala-slot';
-                let content = '';
-                let title = '';
-
-                if (i === focusedSlotIndex) {
-                    slotClass += ' focused-slot';
-                }
-
-                if (!isUnlocked) {
-                    slotClass += ' locked';
-                    content = '🔒';
-                    title = `${label} (Locked - Magic Tier ${i + 1} required)`;
-                } else if (slotComp) {
-                    slotClass += ' filled';
-                    const g = GLYPH_DATA[slotComp.glyphId];
-                    const tier = selectedTiers[slotComp.glyphId] || glyphMastery[slotComp.glyphId]?.tier || 1;
-                    const symbol = MagicCircleService.getGlyphSymbol(tier);
-                    const emoji = g.type === 'core' ? (g.element === 'fire' ? '🔥' : g.element === 'water' ? '💧' : g.element === 'wind' ? '🌪️' : g.element === 'storm' ? '⚡' : g.element === 'light' ? '✨' : g.element === 'earth' ? '🪨' : '🌑') : '';
-                    content = `<div class="slot-icon">${emoji || g.id.replace('glyph_', '').slice(0, 3).toUpperCase()}</div><span class="slot-tier">${symbol}</span>`;
-                    title = `${label}: ${this.t(g.id) || g.id} ${symbol}`;
-                } else {
-                    slotClass += ' empty';
-                    content = isCore ? '⚡' : '＋';
-                    title = `${label} (Empty)`;
-                }
-
-                if (isCore) {
-                    slotClass += ' core-slot';
-                }
-
-                slotHtml.push(`
-                    <div class="${slotClass}" data-slot="${i}" title="${title}" style="position: absolute; left: ${left.toFixed(2)}%; top: ${top.toFixed(2)}%; transform: translate(-50%, -50%);">
-                        ${content}
-                    </div>
-                `);
-            }
-
-            // Socket Status Bar Text
-            let socketInfoText = 'Select any slot on the mandala to focus and insert a glyph.';
-            if (focusedSlotIndex !== null) {
-                const filledComp = composition.find(c => c.slotIndex === focusedSlotIndex);
-                if (filledComp) {
-                    const g = GLYPH_DATA[filledComp.glyphId];
-                    const tier = selectedTiers[filledComp.glyphId] || glyphMastery[filledComp.glyphId]?.tier || 1;
-                    const symbol = MagicCircleService.getGlyphSymbol(tier);
-                    socketInfoText = `<strong>Slot ${focusedSlotIndex === 0 ? 'CORE (Center)' : focusedSlotIndex} focused</strong>: Contains <strong>${this.t(g.id) || g.id} ${symbol}</strong>. Click slot again to clear it, or click a glyph in the library to overwrite it.`;
-                } else {
-                    socketInfoText = `<strong>Slot ${focusedSlotIndex === 0 ? 'CORE (Center)' : focusedSlotIndex} focused (Empty)</strong>. Click a glyph in the library to socket it here.`;
-                }
-            }
-
-            const previewHtml = spell ? `
-                <div class="${previewClass}">
-                    <div class="preview-stat" style="margin-bottom: 6px; font-size: 0.85rem;"><strong>${this.t('ui_damage') || 'Damage'}:</strong> <span style="font-size: 1rem; color: #4ade80; font-weight: bold;">${spell.damage}</span></div>
-                    <div class="preview-stat" style="margin-bottom: 6px; font-size: 0.85rem;"><strong>${this.t('ui_mp_cost') || 'MP Cost'}:</strong> <span style="font-size: 1rem; color: #60a5fa; font-weight: bold;">${spell.mpCost}</span></div>
-                    <div class="preview-stat" style="margin-bottom: 6px; font-size: 0.85rem;"><strong>${this.t('ui_element') || 'Element'}:</strong> <span style="text-transform: capitalize;">${spell.element}</span></div>
-                    <div class="preview-stat" style="margin-bottom: 6px; font-size: 0.85rem;"><strong>${this.t('ui_target') || 'Target'}:</strong> ${
-                        spell.targetType === 'all_enemies' ? 'All Enemies' :
-                        spell.targetType === 'all_allies' ? 'All Allies' :
-                        spell.targetType === 'single_ally' ? 'Single Ally' :
-                        'Single Enemy'
-                    }</div>
-                    <div class="mp-budget-bar" style="margin-top:12px;height:8px;background:rgba(255,255,255,0.08);border-radius:4px;overflow:hidden;border: 1px solid rgba(255,255,255,0.05);">
-                        <div style="width:${Math.min(100, (spell.mpCost / Math.max(1, maxMp)) * 100)}%;height:100%;background:${budgetColor};border-radius:4px;box-shadow: 0 0 8px ${budgetColor};"></div>
-                    </div>
-                    <div style="font-size:0.7rem;color:${budgetColor};margin-top:5px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">${budgetLabel} (${spell.mpCost} / ${maxMp} MP)</div>
-                </div>
-            ` : `<div class="spell-preview-card empty" style="color: var(--text-muted); font-style: italic; border: 1.5px dashed var(--glass-border); padding: 24px; text-align: center; border-radius: var(--radius-lg); background: transparent;">
-                    ${this.t('body_circle_empty') || 'Select a Core glyph in the center to forge your spell.'}
-                 </div>`;
-
-            this.overlay.innerHTML = `
-                <div class="magic-circle-container">
-                    <div class="magic-circle-header">
-                        <div style="display: flex; align-items: center; gap: 14px;">
-                            <span style="font-size: 2rem; filter: drop-shadow(0 0 8px var(--accent-color));">🔮</span>
-                            <div>
-                                <h2>${this.t('magic_circle_title') || 'Magic Circle'} — ${heroName}</h2>
-                                <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 2px;">
-                                    Tier ${magicTier} · ${maxSlots} slots available
-                                </div>
-                            </div>
-                        </div>
-                        <button class="btn btn-secondary btn-sm" id="btn-magic-header-close" style="padding: 6px 12px; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem;">✕</button>
-                    </div>
-
-                    <div class="magic-circle-grid">
-                        <!-- Left: Glyph Palette -->
-                        <div class="magic-circle-column">
-                            <h4 style="font-size: 0.95rem; color: var(--text-primary); margin: 0 0 12px 0; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 6px; flex-shrink: 0; font-family: 'Outfit', sans-serif;">
-                                Glyph Library
-                            </h4>
-                            <div class="glyph-filter-tabs">
-                                ${tabsHtml}
-                            </div>
-                            <div style="flex: 1; overflow-y: auto; padding-right: 4px;" class="custom-scrollbar">
-                                ${glyphCardsHtml || `<p style="font-size: 0.85rem; color: var(--text-muted); font-style: italic; text-align: center; margin-top: 20px;">No glyphs match this category.</p>`}
-                            </div>
-                        </div>
-
-                        <!-- Center: Mandala Canvas -->
-                        <div class="magic-circle-column magic-circle-center" style="background: radial-gradient(circle at center, rgba(30, 27, 75, 0.25) 0%, rgba(8, 9, 13, 0) 70%);">
-                            <div class="mandala-canvas">
-                                <div class="mandala-ring ring-1 rotate-cw"></div>
-                                <div class="mandala-ring ring-2 rotate-ccw"></div>
-                                <div class="mandala-ring ring-3 rotate-cw"></div>
-                                <div class="mandala-ring ring-4 rotate-ccw"></div>
-                                ${slotHtml.join('')}
-                            </div>
-                            <div class="socket-info-pane" style="width: 100%; max-width: 440px;">
-                                <div style="display: flex; gap: 10px; align-items: flex-start;">
-                                    <span style="font-size: 1.1rem; color: var(--accent-color);">ℹ️</span>
-                                    <div style="color: var(--text-secondary); line-height: 1.4;">${socketInfoText}</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Right: Preview and Controls -->
-                        <div class="magic-circle-column" style="justify-content: space-between;">
-                            <div>
-                                <h4 style="font-size: 0.95rem; color: var(--text-primary); margin: 0 0 16px 0; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 8px; font-family: 'Outfit', sans-serif;">
-                                    Spell Preview
-                                </h4>
-                                ${previewHtml}
-                            </div>
-
-                            <div style="margin-top: 24px; display: flex; flex-direction: column; gap: 16px;">
-                                <div>
-                                    <label style="display: block; font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; font-weight: 600; letter-spacing: 0.05em;">
-                                        Spell Name
-                                    </label>
-                                    <input type="text" id="spell-name-input" placeholder="${this.t('ui_spell_name_placeholder') || 'Custom spell name...'}" value="${customName}" maxlength="30" style="width: 100%; padding: 10px; border-radius: var(--radius-md); border: 1px solid var(--glass-border); background: rgba(0,0,0,0.3); color: var(--text-primary); outline: none; transition: border-color 0.2s;" onfocus="this.style.borderColor='var(--accent-color)'" onblur="this.style.borderColor='var(--glass-border)'">
-                                </div>
-
-                                <div style="display: flex; flex-direction: column; gap: 8px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 16px;">
-                                    <button class="btn btn-primary" id="btn-inscribe-spell" ${!spell ? 'disabled' : ''} style="width: 100%; padding: 10px; font-weight: bold; background: var(--accent-gradient); border: none; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);">
-                                        ${this.t('ui_inscribe') || 'Inscribe Spell'}
-                                    </button>
-                                    <div style="display: flex; gap: 8px;">
-                                        <button class="btn btn-secondary" id="btn-clear-circle" style="flex: 1; padding: 8px; font-size: 0.8rem; background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.08);">
-                                            ${this.t('ui_clear') || 'Clear'}
-                                        </button>
-                                        <button class="btn btn-secondary" id="btn-magic-close" style="flex: 1; padding: 8px; font-size: 0.8rem; background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.08);">
-                                            ${this.t('ui_btn_close') || 'Close'}
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            // Event Listeners
-            // Mandala slot click listener
-            this.overlay.querySelectorAll('.mandala-slot').forEach(slotEl => {
-                slotEl.addEventListener('click', () => {
-                    const slotIdx = parseInt(slotEl.dataset.slot);
-                    if (slotIdx >= maxSlots) return; // Locked
-
-                    const existingComp = composition.find(c => c.slotIndex === slotIdx);
-                    if (focusedSlotIndex === slotIdx) {
-                        // Clear if clicked twice
-                        if (existingComp) {
-                            composition = composition.filter(c => c.slotIndex !== slotIdx);
-                        }
-                        focusedSlotIndex = null;
-                    } else {
-                        focusedSlotIndex = slotIdx;
-                    }
-                    render();
-                });
-            });
-
-            // Category filters click listener
-            this.overlay.querySelectorAll('.glyph-filter-tab').forEach(tabBtn => {
-                tabBtn.addEventListener('click', () => {
-                    activeCategory = tabBtn.dataset.category;
-                    render();
-                });
-            });
-
-            // Glyph Card click listener
-            this.overlay.querySelectorAll('.glyph-card').forEach(cardEl => {
-                cardEl.addEventListener('click', (e) => {
-                    if (e.target.tagName === 'SELECT' || e.target.tagName === 'OPTION') return;
-
-                    const gid = cardEl.dataset.glyph;
-                    const g = GLYPH_DATA[gid];
-                    if (!g) return;
-
-                    if (focusedSlotIndex !== null) {
-                        if (focusedSlotIndex === 0 && g.type !== 'core') {
-                            this.ui.showToast('The center CORE socket only accepts Core glyphs!', 'warning');
-                            return;
-                        }
-                        if (focusedSlotIndex > 0 && g.type === 'core') {
-                            this.ui.showToast('Core glyphs must be socketed in the center CORE socket!', 'warning');
-                            return;
-                        }
-
-                        // Ensure uniqueness - remove this glyph if placed elsewhere
-                        composition = composition.filter(c => c.glyphId !== gid || c.slotIndex === focusedSlotIndex);
-
-                        // Socket it
-                        composition = composition.filter(c => c.slotIndex !== focusedSlotIndex);
-                        composition.push({ slotIndex: focusedSlotIndex, glyphId: gid });
-                        composition.sort((a, b) => a.slotIndex - b.slotIndex);
-
-                        // Advance focus index to next empty ring slot
-                        const usedSlots = new Set(composition.map(c => c.slotIndex));
-                        let nextFocus = null;
-                        for (let k = 1; k < maxSlots; k++) {
-                            if (!usedSlots.has(k)) {
-                                nextFocus = k;
-                                break;
-                            }
-                        }
-                        focusedSlotIndex = nextFocus;
-                    } else {
-                        // Auto-populate fallback
-                        if (g.type === 'core') {
-                            composition = composition.filter(c => c.slotIndex !== 0);
-                            composition.push({ slotIndex: 0, glyphId: gid });
+                        if (i === 0) {
+                            slot.el.classList.add(`el-${g.element}`);
+                            slot.icon.textContent = getElementEmoji(g.element);
+                            slot.tier.textContent = symbol;
+                            slot.el.appendChild(slot.icon);
+                            slot.el.appendChild(slot.tier);
                         } else {
-                            if (composition.some(c => c.glyphId === gid)) {
-                                this.ui.showToast('This glyph is already socketed in the circle!', 'warning');
-                                return;
-                            }
-                            const usedSlots = new Set(composition.map(c => c.slotIndex));
-                            let slotPlaced = false;
-                            for (let i = 1; i < maxSlots; i++) {
-                                if (!usedSlots.has(i)) {
-                                    composition.push({ slotIndex: i, glyphId: gid });
-                                    slotPlaced = true;
-                                    break;
-                                }
-                            }
-                            if (!slotPlaced) {
-                                this.ui.showToast('All unlocked sockets are full!', 'warning');
-                                return;
-                            }
+                            slot.icon.textContent = getGlyphIcon(g);
+                            slot.abb.textContent = getGlyphAbbreviation(g);
+                            slot.tier.textContent = symbol;
+                            slot.el.appendChild(slot.icon);
+                            slot.el.appendChild(slot.abb);
+                            slot.el.appendChild(slot.tier);
                         }
-                        composition.sort((a, b) => a.slotIndex - b.slotIndex);
+                        slot.el.title = `${i === 0 ? 'CORE' : 'Slot ' + i}: ${this.t(g.id) || g.id} ${symbol}`;
+                    } else {
+                        slot.el.classList.add('empty');
+                        slot.el.textContent = i === 0 ? '⚡' : '＋';
+                        slot.el.title = `${i === 0 ? 'CORE' : 'Slot ' + i} (${this.t('mc_slot_empty') || 'Empty'})`;
                     }
-                    render();
-                });
+                }
             });
 
-            // Tier select listener
-            this.overlay.querySelectorAll('.glyph-tier-select').forEach(select => {
-                select.addEventListener('change', (e) => {
-                    const gid = select.dataset.glyph;
-                    const newTier = parseInt(e.target.value);
-                    selectedTiers[gid] = newTier;
-                    render();
-                });
-            });
+            // 6. Draw connecting lines in SVG between filled adjacent slots
+            this.els.svg.replaceChildren();
+            const filledSlots = this.composition.filter(c => c.slotIndex < this.maxSlots);
+            const lineColor = spell ? getElementColor(spell.element) : 'rgba(255, 255, 255, 0.2)';
 
-            // Spell Name input listener
-            const nameInput = this.overlay.querySelector('#spell-name-input');
-            if (nameInput) {
-                nameInput.addEventListener('input', (e) => {
-                    customName = e.target.value;
-                });
-                nameInput.addEventListener('change', (e) => {
-                    customName = e.target.value;
-                    render();
-                });
+            for (let a = 0; a < filledSlots.length; a++) {
+                for (let b = a + 1; b < filledSlots.length; b++) {
+                    const u = filledSlots[a].slotIndex;
+                    const v = filledSlots[b].slotIndex;
+                    if (isAdjacent(u, v)) {
+                        const coordsU = getSlotCoords(u);
+                        const coordsV = getSlotCoords(v);
+                        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                        line.setAttribute('x1', `${coordsU.x}%`);
+                        line.setAttribute('y1', `${coordsU.y}%`);
+                        line.setAttribute('x2', `${coordsV.x}%`);
+                        line.setAttribute('y2', `${coordsV.y}%`);
+                        line.setAttribute('stroke', lineColor);
+                        line.setAttribute('class', 'mandala-connection-line');
+                        line.style.stroke = lineColor;
+                        line.style.opacity = '0.22';
+                        this.els.svg.appendChild(line);
+                    }
+                }
             }
 
-            // Inscription handler
-            const inscribeBtn = this.overlay.querySelector('#btn-inscribe-spell');
-            if (inscribeBtn) {
-                inscribeBtn.addEventListener('click', () => {
-                    if (!spell) return;
-                    if (isSimulator) {
-                        this.ui.showToast(this.t('simulator_inscribe_disabled') || 'Spell composed! (Inscriptions disabled in simulator mode)', 'info');
-                        close();
-                        return;
-                    }
-                    if (onConfirm) onConfirm(spell);
-                    close();
-                });
+            // 7. Bottom Margin (Element, Chips, Actions)
+            if (spell) {
+                const elemEmoji = getElementEmoji(spell.element);
+                this.els.elementDisplay.textContent = `${elemEmoji} ${spell.element.charAt(0).toUpperCase() + spell.element.slice(1)}`;
+            } else {
+                this.els.elementDisplay.textContent = `🔮 ${this.t('mc_effect_none') || 'None'}`;
             }
 
-            this.overlay.querySelector('#btn-clear-circle').addEventListener('click', () => {
-                composition = [];
-                customName = '';
-                focusedSlotIndex = null;
-                render();
-            });
+            this.els.chipsContainer.replaceChildren();
+            if (spell) {
+                const chips = buildEffectChips(spell.effects, isSupport);
+                if (isSupport && chips.length === 0) {
+                    this.els.chipsContainer.appendChild(
+                        el('span', { className: ['mc-effect-chip', 'no-harm'] }, `💚 ${this.t('mc_effect_no_harm') || 'No harmful effects'}`)
+                    );
+                } else if (chips.length > 0) {
+                    chips.forEach(c => {
+                        const isPercent = c.labelKey !== 'mc_effect_poison';
+                        const suffix = isPercent ? '%' : '';
+                        this.els.chipsContainer.appendChild(
+                            el('span', { className: 'mc-effect-chip' }, `${c.icon} ${this.t(c.labelKey) || ''} ${c.value}${suffix}`)
+                        );
+                    });
+                } else {
+                    this.els.chipsContainer.appendChild(
+                        el('span', { className: 'mc-effect-chip' }, this.t('mc_effect_none') || 'No effects')
+                    );
+                }
+            } else {
+                this.els.chipsContainer.appendChild(
+                    el('span', { className: 'mc-effect-chip' }, this.t('mc_effect_none') || 'No effects')
+                );
+            }
 
-            this.overlay.querySelector('#btn-magic-close').addEventListener('click', close);
-            this.overlay.querySelector('#btn-magic-header-close').addEventListener('click', close);
+            // Inscribe Button text & state
+            const isCoreSlotted = this.composition.some(c => c.slotIndex === 0);
+            const canInscribe = spell && isCoreSlotted && !budget.isOverBudget;
+            this.els.inscribeBtn.disabled = !canInscribe;
+
+            if (this.isSimulator) {
+                this.els.inscribeBtn.textContent = this.t('mc_inscribe_disabled') || 'Simulator';
+            } else {
+                this.els.inscribeBtn.textContent = this.t('mc_inscribe') || 'Inscribe Spell';
+            }
+
+            this.els.clearBtn.textContent = this.t('ui_clear') || 'Clear';
+            this.els.closeBtn.textContent = this.t('ui_btn_close') || 'Close';
+
+            // 8. Drawer Configuration Update
+            if (this.focusedSlotIndex !== null) {
+                this.els.drawer.classList.add('open');
+                this.els.centerContainer.classList.add('drawer-open');
+
+                this.els.drawerTitle.textContent = this.focusedSlotIndex === 0
+                    ? (this.t('mc_drawer_title_core') || 'CORE (Center) Configuration')
+                    : (this.t('mc_drawer_title', { slot: this.focusedSlotIndex }) || `Slot ${this.focusedSlotIndex} Configuration`);
+
+                const isCoreSlot = this.focusedSlotIndex === 0;
+                const filteredKnown = this.knownGlyphs.filter(gid => {
+                    const g = GLYPH_DATA[gid];
+                    return g && (isCoreSlot ? g.type === 'core' : g.type !== 'core');
+                });
+
+                const activeSlotComp = this.composition.find(c => c.slotIndex === this.focusedSlotIndex);
+                const activeGlyphId = activeSlotComp ? activeSlotComp.glyphId : null;
+                this.activeDrawerGlyphId = activeGlyphId;
+
+                this.els.paletteTitle.textContent = this.t('mc_slot_select_prompt') || 'Select Glyph';
+
+                // Build palette cards and reconcile with diffList
+                const paletteCards = filteredKnown.map(gid => {
+                    const g = GLYPH_DATA[gid];
+                    const isSelected = activeGlyphId === gid;
+                    const isPlacedElsewhere = this.composition.some(c => c.glyphId === gid && c.slotIndex !== this.focusedSlotIndex);
+                    const abbreviation = getGlyphAbbreviation(g);
+                    const emoji = getGlyphIcon(g);
+
+                    return el('div', {
+                        className: [
+                            'mc-palette-card',
+                            isSelected && 'selected',
+                            isPlacedElsewhere && 'already-used'
+                        ],
+                        dataGlyph: gid,
+                        title: this.t(g.id) || g.id
+                    }, [
+                        el('span', { className: 'mc-palette-icon' }, emoji),
+                        el('span', { className: 'mc-palette-abb' }, abbreviation || g.id.replace('glyph_', '').slice(0, 3).toUpperCase())
+                    ]);
+                });
+
+                diffList(this.els.paletteGrid, paletteCards, 'data-glyph');
+
+                if (activeGlyphId) {
+                    const activeGlyph = GLYPH_DATA[activeGlyphId];
+                    const currentTier = this.selectedTiers[activeGlyphId] || this.glyphMastery[activeGlyphId]?.tier || 1;
+                    const desc = this.getGlyphDescription(activeGlyph, currentTier);
+                    const symbol = MagicCircleService.getGlyphSymbol(currentTier);
+                    const maxSelectable = getMaxSelectableTier(activeGlyph, this.glyphMastery[activeGlyphId]?.tier || 1);
+                    const isStatic = isStaticGlyph(activeGlyph);
+
+                    this.els.infoTitle.textContent = `${this.t(activeGlyph.id) || activeGlyph.id} ${symbol}`;
+                    this.els.infoType.className = `mc-info-type ${activeGlyph.type}`;
+                    this.els.infoType.textContent = activeGlyph.type;
+                    this.els.infoDescription.textContent = desc;
+
+                    this.els.tuningValue.textContent = `T${currentTier} (${symbol}) `;
+                    if (isStatic) {
+                        this.els.tuningValue.appendChild(
+                            el('span', {
+                                className: 'static-lock',
+                                title: this.t('mc_glyph_static_tooltip') || 'This glyph has no growth potential'
+                            }, '🔒')
+                        );
+                    }
+
+                    // Update dial ticks surgically
+                    this.dialTickEls.forEach((tick, idx) => {
+                        const t = idx + 1;
+                        const isUnlocked = t <= maxSelectable;
+                        const isActive = t === currentTier;
+                        tick.className = [
+                            'mc-dial-tick',
+                            isActive && 'active',
+                            !isUnlocked && 'locked'
+                        ];
+                        tick.disabled = !isUnlocked;
+                        if (!isUnlocked) {
+                            tick.title = 'Requires higher mastery';
+                        } else {
+                            tick.removeAttribute('title');
+                        }
+                        tick.textContent = MagicCircleService.getGlyphSymbol(t);
+                    });
+
+                    this.els.selectedGlyphInfo.style.display = '';
+                    this.els.emptyState.style.display = 'none';
+                    this.els.removeBtn.style.display = '';
+                    this.els.removeBtn.textContent = this.t('mc_slot_remove_prompt') || 'Remove Glyph';
+                } else {
+                    this.els.selectedGlyphInfo.style.display = 'none';
+                    this.els.emptyState.style.display = '';
+                    this.els.removeBtn.style.display = 'none';
+                }
+            } else {
+                this.els.drawer.classList.remove('open');
+                this.els.centerContainer.classList.remove('drawer-open');
+                this.activeDrawerGlyphId = null;
+            }
         };
 
+        // Inject overlay and perform initial render
         document.body.appendChild(this.overlay);
         render();
     }

@@ -1,6 +1,8 @@
 import { BaseView } from '../BaseView.js';
-import { getEquipmentName, getEquipmentStats, getFormattedStats } from '../shared/EquipmentHelper.js';
+import { getEquipmentName } from '../shared/EquipmentHelper.js';
 import { MEAL_RECIPES } from '../../../engine/shared/data/GameConstants.js';
+import { createInventoryGrid } from './components/InventoryGrid.js';
+import { createInventoryDetailPane } from './components/InventoryDetailPane.js';
 
 export class InventoryView extends BaseView {
     constructor() {
@@ -44,34 +46,39 @@ export class InventoryView extends BaseView {
             });
         }
 
-        // Bind item click selection events
-        if (this.elements.itemsContainer) {
-            this.elements.itemsContainer.addEventListener('click', (e) => {
-                const card = e.target.closest('.inventory-item-card');
-                if (card) {
-                    const itemId = card.getAttribute('data-id');
-                    this.selectedItemId = itemId;
-                    if (this.lastState) {
-                        this.onUpdate(this.lastState);
-                    }
+        // Initialize Grid Component
+        this.inventoryGrid = createInventoryGrid({
+            onSelect: (itemId) => {
+                this.selectedItemId = itemId;
+                if (this.lastState) {
+                    this.onUpdate(this.lastState);
                 }
-            });
+            },
+            t: this.t.bind(this)
+        });
+
+        if (this.elements.itemsContainer) {
+            this.elements.itemsContainer.innerHTML = '';
+            this.elements.itemsContainer.appendChild(this.inventoryGrid.root);
         }
 
-        // Bind cook/consume buttons in detail pane
+        // Initialize Detail Pane Component
+        this.inventoryDetail = createInventoryDetailPane({
+            onCook: (recipeId) => {
+                this.emit('cookMeal', { recipeId });
+            },
+            onConsume: (mealId) => {
+                this.emit('consumeMeal', { mealId });
+            },
+            onEquip: () => {},
+            onUnequip: () => {},
+            onDrop: () => {},
+            t: this.t.bind(this)
+        });
+
         if (this.elements.detail) {
-            this.elements.detail.addEventListener('click', (e) => {
-                const cookBtn = e.target.closest('.btn-cook-meal');
-                if (cookBtn) {
-                    this.emit('cookMeal', { recipeId: cookBtn.dataset.recipe });
-                    return;
-                }
-                const feedBtn = e.target.closest('.btn-consume-meal');
-                if (feedBtn) {
-                    this.emit('consumeMeal', { mealId: feedBtn.dataset.meal });
-                    return;
-                }
-            });
+            this.elements.detail.innerHTML = '';
+            this.elements.detail.appendChild(this.inventoryDetail.root);
         }
     }
 
@@ -183,181 +190,20 @@ export class InventoryView extends BaseView {
             return item.type === this.activeFilter;
         });
 
+        // Validate selection
+        let selectedItem = this.cachedItems.find(i => i.id === this.selectedItemId) || null;
+        if (!selectedItem) {
+            this.selectedItemId = null;
+        }
+
         // Render List
-        if (this.elements.itemsContainer) {
-            if (filtered.length === 0) {
-                this.elements.itemsContainer.innerHTML = `<div class="empty-state" style="grid-column: 1/-1;">No items found</div>`;
-            } else {
-                this.elements.itemsContainer.innerHTML = filtered.map(item => {
-                    const isActive = this.selectedItemId === item.id;
-                    return `
-                        <div class="inventory-item-card ${isActive ? 'active' : ''}" data-id="${item.id}">
-                            ${item.qty > 1 ? `<span class="item-badge">${item.qty}</span>` : ''}
-                            <div class="item-icon">${item.icon}</div>
-                            <div class="item-name">${item.name}</div>
-                        </div>
-                    `;
-                }).join('');
-            }
+        if (this.inventoryGrid) {
+            this.inventoryGrid.update({ items: filtered, selectedItemId: this.selectedItemId });
         }
 
         // Render Detail
-        this.renderDetail();
-    }
-
-    renderDetail() {
-        if (!this.elements.detail) return;
-
-        if (!this.selectedItemId) {
-            this.elements.detail.innerHTML = `
-                <div class="empty-detail">
-                    <div class="detail-icon-bg">🎒</div>
-                    <p data-i18n="ui_select_item">${this.t('ui_select_item')}</p>
-                </div>
-            `;
-            return;
+        if (this.inventoryDetail) {
+            this.inventoryDetail.update({ item: selectedItem, state });
         }
-
-        const item = this.cachedItems.find(i => i.id === this.selectedItemId);
-        if (!item) {
-            this.selectedItemId = null;
-            this.elements.detail.innerHTML = `
-                <div class="empty-detail">
-                    <div class="detail-icon-bg">🎒</div>
-                    <p data-i18n="ui_select_item">${this.t('ui_select_item')}</p>
-                </div>
-            `;
-            return;
-        }
-
-        // Determine category label and description
-        let categoryLabel = this.t('ui_' + item.type);
-        let description = '';
-
-        if (item.type === 'materials') {
-            description = this.t('desc_' + item.id) || '';
-        } else if (item.type === 'food') {
-            description = this.t('desc_' + item.id) || '';
-        } else if (item.type === 'consumables') {
-            description = this.t(item.id + '_desc') || '';
-        }
-
-        let detailsHtml = '';
-        let actionHtml = '';
-
-        // Show cook recipes when raw grain is selected
-        if (item.id === 'food_raw_grain') {
-            const recipes = Object.values(MEAL_RECIPES);
-            const inventory = this.lastState?.inventory || {};
-            const recipesHtml = recipes.map(recipe => {
-                const canCook = Object.entries(recipe.ingredients).every(([ingId, qty]) => {
-                    const count = inventory.materials?.[ingId] || inventory.food?.[ingId] || inventory.consumables?.[ingId] || 0;
-                    return count >= qty;
-                });
-                const ingredientsList = Object.entries(recipe.ingredients).map(([ingId, qty]) => {
-                    const have = inventory.materials?.[ingId] || inventory.food?.[ingId] || inventory.consumables?.[ingId] || 0;
-                    const color = have >= qty ? 'var(--success)' : 'var(--danger)';
-                    return `<span style="color:${color}">${qty} ${this.t(ingId) || ingId}</span>`;
-                }).join(', ');
-                const buffDesc = Object.entries(recipe.buff).map(([stat, val]) => {
-                    const label = stat === 'maxHp' ? '+${Math.round(val*100)}% HP' : `+${val} ${this.t('ui_stats_' + stat) || stat.toUpperCase()}`;
-                    return label.replace('${Math.round(val*100)}', Math.round(val * 100)).replace('${val}', val);
-                }).join(', ');
-
-                return `
-                    <div class="recipe-row" style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px dashed rgba(255,255,255,0.05);">
-                        <div style="text-align:left;">
-                            <div style="font-weight:600; font-size:0.9rem;">${recipe.icon} ${this.t(recipe.name) || recipe.name}</div>
-                            <div style="font-size:0.75rem; color:var(--text-muted);">${ingredientsList}</div>
-                            <div style="font-size:0.75rem; color:var(--accent-color);">${buffDesc} · ${recipe.battles} ${this.t('ui_battles') || 'battle(s)'}</div>
-                        </div>
-                        <button class="btn btn-primary btn-sm btn-cook-meal" data-recipe="${recipe.id}" ${canCook ? '' : 'disabled'} style="min-width:60px;">
-                            ${this.t('ui_cook') || 'Cook'}
-                        </button>
-                    </div>
-                `;
-            }).join('');
-
-            actionHtml = `
-                <div class="item-inspector-stats" style="margin-top:15px;">
-                    <h4>${this.t('ui_recipes') || 'Recipes'}</h4>
-                    ${recipesHtml}
-                </div>
-            `;
-        }
-
-        // Show feed button when a meal is selected
-        if (item.id && item.id.startsWith('meal_')) {
-            const recipe = MEAL_RECIPES[item.id];
-            if (recipe) {
-                const buffDesc = Object.entries(recipe.buff).map(([stat, val]) => {
-                    if (stat === 'maxHp') return `+${Math.round(val * 100)}% HP`;
-                    return `+${val} ${this.t('ui_stats_' + stat) || stat.toUpperCase()}`;
-                }).join(', ');
-                actionHtml = `
-                    <div class="item-inspector-stats" style="margin-top:15px;">
-                        <h4>${this.t('ui_effect') || 'Effect'}</h4>
-                        <div style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:10px;">${buffDesc} · ${recipe.battles} ${this.t('ui_battles') || 'battle(s)'}</div>
-                        <button class="btn btn-primary btn-consume-meal" data-meal="${item.id}" style="width:100%;">
-                            ${this.t('ui_feed_heroes') || 'Feed Heroes'}
-                        </button>
-                    </div>
-                `;
-            }
-        }
-
-        if (item.type === 'equipment' && item.rawEquipment) {
-            const eq = item.rawEquipment;
-            categoryLabel = this.t('ui_equipment');
-            const descKey = 'desc_' + eq.type + '_' + eq.material;
-            const descVal = this.t(descKey);
-            description = descVal !== descKey ? descVal : `${this.t('tier_' + eq.material)} ${this.t('eq_' + eq.type)}.`;
-            
-            // Format stats block
-            const formattedStats = getFormattedStats(eq, this.t.bind(this));
-            
-            detailsHtml = `
-                <div class="item-inspector-stats">
-                    <h4>Equipment Stats</h4>
-                    <div class="inspector-stat-row">
-                        <span class="inspector-stat-label">Slot</span>
-                        <span class="inspector-stat-value" style="text-transform: capitalize;">${eq.type} (${eq.slot})</span>
-                    </div>
-                    <div class="inspector-stat-row">
-                        <span class="inspector-stat-label">Tier</span>
-                        <span class="inspector-stat-value">${eq.tier || 1}</span>
-                    </div>
-                    <div class="inspector-stat-row">
-                        <span class="inspector-stat-label">Level</span>
-                        <span class="inspector-stat-value">+${eq.level || 0}</span>
-                    </div>
-                    <div class="inspector-stat-row">
-                        <span class="inspector-stat-label">Properties</span>
-                        <span class="inspector-stat-value" style="color: var(--success);">${formattedStats}</span>
-                    </div>
-                </div>
-            `;
-        }
-
-        this.elements.detail.innerHTML = `
-            <div class="item-inspector">
-                <div class="item-inspector-header">
-                    <div class="item-inspector-visual">
-                        <span class="item-inspector-icon">${item.icon}</span>
-                    </div>
-                    <div class="item-inspector-title-group">
-                        <span class="item-inspector-badge">${categoryLabel}</span>
-                        <h2>${item.name}</h2>
-                        <div class="item-inspector-qty">${this.t('ui_owned') || 'Owned'}: <strong>${item.qty}</strong></div>
-                    </div>
-                </div>
-                
-                <div class="item-inspector-body">
-                    <p class="item-inspector-description">${description}</p>
-                    ${detailsHtml}
-                    ${actionHtml}
-                </div>
-            </div>
-        `;
     }
 }

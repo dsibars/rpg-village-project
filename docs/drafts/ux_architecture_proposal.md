@@ -112,15 +112,15 @@ We cannot safely refactor views without testing DOM outputs. We will configure `
 We do not halt feature development. We establish the tools in Phase 0, prove them in Phase 1, then systematically slay the monoliths and their supporting cast.
 
 ### Phase 0: Infrastructure & Tooling (BLOCKER)
-- [ ] **Configure `jsdom` Test Harness**: Set up `tests/dom/setup.js`.
-- [ ] **Create `DOMUtils.js`**: Implement the complete `el()` spec (data attrs, ARIA, styles, refs).
-- [ ] **Implement Keyed List Diffing**: Build and test `diffList(container, newElements, keyAttr)`.
-- [ ] **Formalize BaseView & BaseModal Contract**: Ensure both support the new component mounting paradigm alongside legacy support.
-- [ ] **Audit Remaining Helpers**: Map how `MagicCircleHelper.js` transitions into pure component factories.
+- [x] **Configure `jsdom` Test Harness**: Set up `tests/dom/setup.js`.
+- [x] **Create `DOMUtils.js`**: Implement the complete `el()` spec (data attrs, ARIA, styles, refs).
+- [x] **Implement Keyed List Diffing**: Build and test `diffList(container, newElements, keyAttr)`.
+- [x] **Formalize BaseView & BaseModal Contract**: Ensure both support the new component mounting paradigm alongside legacy support.
+- [x] **Audit Remaining Helpers**: Map how `MagicCircleHelper.js` transitions into pure component factories.
 
 ### Phase 1: The Proving Ground
-- [ ] **Refactor `GambitView.js` (424 lines)**: Use the new `el()` and `diffList()` tools.
-- [ ] **Extract Shared Components**: Build the first shared components (e.g., HeroMiniCard, ResourceBar) as they are needed.
+- [x] **Refactor `GambitView.js` (424 lines)**: Use the new `el()` and `diffList()` tools.
+- [x] **Extract Shared Components**: Build the first shared components (e.g., HeroMiniCard, ResourceBar) as they are needed.
 
 ### Phase 2: Slaying the Monoliths & Their Modals
 These are the most unwieldy views where focus loss causes the most bugs.

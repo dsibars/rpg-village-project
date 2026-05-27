@@ -1,0 +1,298 @@
+import { el } from '../../shared/utils/DOMUtils.js';
+import { SKILLS_DATA } from '../../../../engine/shared/data/GameConstants.js';
+import { CombatResolutionPane } from './CombatResolutionPane.js';
+
+/**
+ * CombatActionPanel - Coordinates turn display, action menus, and the end-of-battle resolution pane.
+ */
+export class CombatActionPanel {
+    constructor({ t, onMenuChange, onActionSelect, onResolve }) {
+        this.t = t;
+        this.onMenuChange = onMenuChange;
+        this.onActionSelect = onActionSelect;
+        
+        this.resolutionPane = new CombatResolutionPane({
+            t: this.t,
+            onResolve
+        });
+
+        this.turnBanner = el('div', { class: 'combat-current-turn-banner' }, ['...']);
+        this.controlPanel = el('div', { class: 'combat-control-panel', id: 'combat-control-panel' });
+        this.root = el('div', { class: 'combat-action-column' }, [
+            this.turnBanner,
+            this.controlPanel
+        ]);
+    }
+
+    update({ battle, engine, state, menuState, selectedAction, selectedFamily }) {
+        const activeActor = battle.turnOrder[battle.currentTurnIndex];
+        const activeActorName = activeActor ? (this.t(activeActor.name) || activeActor.name) : '...';
+        const expectedBannerText = activeActor ? this.t('ui_turn').replace('{name}', activeActorName) : '...';
+
+        if (this.turnBanner.textContent !== expectedBannerText) {
+            this.turnBanner.textContent = expectedBannerText;
+        }
+
+        this.controlPanel.innerHTML = '';
+
+        if (battle.isOver) {
+            this.resolutionPane.update(battle, engine);
+            this.controlPanel.appendChild(this.resolutionPane.root);
+            return;
+        }
+
+        const isHeroTurn = activeActor && activeActor.type === 'Hero';
+        if (!isHeroTurn || battle.autoBattle) {
+            const msg = battle.autoBattle 
+                ? this.t('ui_auto_combat_running') || 'Running Auto-Combat...' 
+                : this.t('ui_enemy_planning') || 'Enemy is planning action...';
+            this.controlPanel.replaceChildren(el('div', { class: 'combat-control-message' }, [msg]));
+            return;
+        }
+
+        const currentHero = battle.heroes.find(h => h.id === activeActor.id);
+        if (!currentHero) return;
+
+        if (menuState === 'main') {
+            const knownFamilies = currentHero.knownFamilies || ['single_strike'];
+            const hasSkills = knownFamilies.length > 1;
+            const codex = currentHero.spellCodex || [];
+            const canCastSpells = codex.some((s, idx) => this._canCastSpell(currentHero, s));
+
+            const attackBtn = el('button', {
+                id: 'btn-action-attack',
+                class: 'btn btn-secondary',
+                style: 'flex:1 1 120px;',
+                onClick: () => {
+                    this.onMenuChange('targeting', {
+                        type: 'attack',
+                        id: 'single_strike',
+                        name: this.t('family_single_strike')
+                    });
+                }
+            }, [`⚔️ ${this.t('family_single_strike')}`]);
+
+            const skillsBtn = el('button', {
+                id: 'btn-action-skills',
+                class: 'btn btn-secondary',
+                style: 'flex:1 1 120px;',
+                disabled: !hasSkills,
+                onClick: () => this.onMenuChange('skills')
+            }, [`✨ ${this.t('ui_skills')}`]);
+
+            const magicBtn = el('button', {
+                id: 'btn-action-magic',
+                class: 'btn btn-secondary',
+                style: 'flex:1 1 120px;',
+                disabled: !canCastSpells,
+                onClick: () => this.onMenuChange('magic')
+            }, [`🔮 ${this.t('ui_magic') || 'Magic'}`]);
+
+            const itemsBtn = el('button', {
+                id: 'btn-action-items',
+                class: 'btn btn-secondary',
+                style: 'flex:1 1 120px;',
+                disabled: battle.itemUsedThisTurn,
+                onClick: () => this.onMenuChange('items')
+            }, [
+                `🎒 ${this.t('combat_items')} `,
+                battle.itemUsedThisTurn ? `(${this.t('ui_once_per_turn') || '1/Turn'})` : ''
+            ]);
+
+            this.controlPanel.appendChild(
+                el('div', { class: 'combat-control-buttons' }, [
+                    attackBtn,
+                    skillsBtn,
+                    magicBtn,
+                    itemsBtn
+                ])
+            );
+        } else if (menuState === 'skills') {
+            const knownFamilies = (currentHero.knownFamilies || []).filter(f => f !== 'single_strike');
+            const hybridMpCost = currentHero.getHybridMpCost ? currentHero.getHybridMpCost() : 0;
+
+            const familyButtons = knownFamilies.map(familyId => {
+                const skillData = SKILLS_DATA[familyId];
+                if (!skillData) return null;
+                const tier = currentHero.techniqueTiers && currentHero.techniqueTiers[familyId] || 1;
+                const staCost = skillData.staminaCostBase + skillData.staminaCostPerTier * (tier - 1);
+                const mpCost = hybridMpCost;
+                const canAfford = (currentHero.stamina || 0) >= staCost && (mpCost <= 0 || (currentHero.mp || 0) >= mpCost);
+                const familyName = this.t('family_' + familyId) || familyId;
+                const mpLabel = mpCost > 0 ? ` + ${mpCost} MP` : '';
+
+                return el('button', {
+                    class: 'btn btn-secondary',
+                    style: 'flex:1 1 140px;',
+                    disabled: !canAfford,
+                    onClick: () => {
+                        this.onMenuChange('family_tiers', null, familyId);
+                    }
+                }, [`${familyName} `, el('span', { style: 'font-size:0.8rem;opacity:0.8;' }, [`(Tier ${tier} · ${staCost} STA${mpLabel})`])]);
+            }).filter(Boolean);
+
+            const backBtn = el('button', {
+                id: 'btn-skill-back',
+                class: 'btn btn-secondary btn-sm',
+                onClick: () => this.onMenuChange('main')
+            }, [`◀ ${this.t('btn_back')}`]);
+
+            this.controlPanel.appendChild(
+                el('div', {}, [
+                    el('div', { class: 'combat-control-back' }, [backBtn]),
+                    el('div', { class: 'combat-control-buttons' }, familyButtons.length > 0 ? familyButtons : [
+                        el('div', { style: 'color:var(--text-muted);' }, [this.t('ui_no_techniques')])
+                    ])
+                ])
+            );
+        } else if (menuState === 'family_tiers') {
+            const familyId = selectedFamily;
+            const skillData = SKILLS_DATA[familyId];
+            const maxTier = currentHero.techniqueTiers && currentHero.techniqueTiers[familyId] || 1;
+            const familyName = this.t('family_' + familyId) || familyId;
+            const hybridMpCost = currentHero.getHybridMpCost ? currentHero.getHybridMpCost() : 0;
+
+            const tierButtons = [];
+            for (let t = maxTier; t >= 1; t--) {
+                const staCost = skillData.staminaCostBase + skillData.staminaCostPerTier * (t - 1);
+                const canAfford = (currentHero.stamina || 0) >= staCost && (hybridMpCost <= 0 || (currentHero.mp || 0) >= hybridMpCost);
+                const label = t === maxTier ? '⚡ ' : t === 1 ? '💧 ' : '';
+                const mpLabel = hybridMpCost > 0 ? ` + ${hybridMpCost} MP` : '';
+
+                tierButtons.push(
+                    el('button', {
+                        class: 'btn btn-secondary',
+                        style: 'flex:1 1 100px;',
+                        disabled: !canAfford,
+                        onClick: () => {
+                            this.onMenuChange('targeting', {
+                                type: 'skill',
+                                id: familyId,
+                                name: this.t('family_' + familyId),
+                                tier: t
+                            });
+                        }
+                    }, [`${label}Tier ${t} `, el('span', { style: 'font-size:0.8rem;opacity:0.8;' }, [`(${staCost} STA${mpLabel})`])])
+                );
+            }
+
+            const backBtn = el('button', {
+                id: 'btn-tier-back',
+                class: 'btn btn-secondary btn-sm',
+                onClick: () => this.onMenuChange('skills')
+            }, [`◀ ${this.t('btn_back')}`]);
+
+            this.controlPanel.appendChild(
+                el('div', {}, [
+                    el('div', { class: 'combat-control-back' }, [backBtn]),
+                    el('div', { class: 'combat-control-message', style: 'font-weight:700;' }, [familyName]),
+                    el('div', { class: 'combat-control-buttons' }, tierButtons)
+                ])
+            );
+        } else if (menuState === 'magic') {
+            const codex = currentHero.spellCodex || [];
+            const spellButtons = codex.map((spell, idx) => {
+                const canCast = this._canCastSpell(currentHero, spell);
+                const elementIcon = { fire: '🔥', water: '💧', wind: '🌪️', storm: '⚡', light: '✨', dark: '🌑', earth: '🪨' }[spell.element] || '🔮';
+
+                return el('button', {
+                    class: 'btn btn-secondary',
+                    style: 'flex:1 1 140px;',
+                    disabled: !canCast,
+                    onClick: () => {
+                        this.onMenuChange('targeting', {
+                            type: 'spell',
+                            index: idx,
+                            name: spell.name
+                        });
+                    }
+                }, [`${elementIcon} ${spell.name} `, el('span', { style: 'font-size:0.8rem;opacity:0.8;' }, [`(${spell.mpCost} MP)`])]);
+            });
+
+            const backBtn = el('button', {
+                id: 'btn-magic-back',
+                class: 'btn btn-secondary btn-sm',
+                onClick: () => this.onMenuChange('main')
+            }, [`◀ ${this.t('btn_back')}`]);
+
+            this.controlPanel.appendChild(
+                el('div', {}, [
+                    el('div', { class: 'combat-control-back' }, [backBtn]),
+                    el('div', { class: 'combat-control-buttons' }, spellButtons.length > 0 ? spellButtons : [
+                        el('div', { style: 'color:var(--text-muted);' }, [this.t('ui_no_spells')])
+                    ])
+                ])
+            );
+        } else if (menuState === 'items') {
+            const inventory = state.inventory || {};
+            const consumables = inventory.consumables || {};
+
+            const itemsButtons = Object.keys(consumables)
+                .filter(itemId => consumables[itemId] > 0)
+                .map(itemId => {
+                    const itemName = this.t(itemId) || itemId;
+                    return el('button', {
+                        class: 'btn btn-secondary',
+                        style: 'flex:1 1 140px;',
+                        onClick: () => {
+                            this.onMenuChange('targeting', {
+                                type: 'item',
+                                id: itemId,
+                                name: itemName
+                            });
+                        }
+                    }, [`${itemName} x${consumables[itemId]}`]);
+                });
+
+            const backBtn = el('button', {
+                id: 'btn-item-back',
+                class: 'btn btn-secondary btn-sm',
+                onClick: () => this.onMenuChange('main')
+            }, [`◀ ${this.t('btn_back')}`]);
+
+            this.controlPanel.appendChild(
+                el('div', {}, [
+                    el('div', { class: 'combat-control-back' }, [backBtn]),
+                    el('div', { class: 'combat-control-buttons' }, itemsButtons.length > 0 ? itemsButtons : [
+                        el('div', { style: 'color:var(--text-muted);' }, [this.t('ui_no_consumables')])
+                    ])
+                ])
+            );
+        } else if (menuState === 'targeting') {
+            const backBtn = el('button', {
+                id: 'btn-target-back',
+                class: 'btn btn-secondary btn-sm',
+                onClick: () => {
+                    if (selectedAction && selectedAction.type === 'skill') {
+                        this.onMenuChange(selectedAction.tier !== undefined ? 'family_tiers' : 'skills', null, selectedAction.id);
+                    } else if (selectedAction && selectedAction.type === 'spell') {
+                        this.onMenuChange('magic');
+                    } else if (selectedAction && selectedAction.type === 'item') {
+                        this.onMenuChange('items');
+                    } else {
+                        this.onMenuChange('main');
+                    }
+                }
+            }, [`◀ ${this.t('btn_back')}`]);
+
+            this.controlPanel.appendChild(
+                el('div', {}, [
+                    el('div', { class: 'combat-control-back' }, [backBtn]),
+                    el('div', {
+                        class: 'combat-control-message',
+                        style: 'color:var(--success);font-weight:700;'
+                    }, [`${this.t('ui_choose_target')} — ${selectedAction ? selectedAction.name : ''}`])
+                ])
+            );
+        }
+    }
+
+    _canCastSpell(hero, spell) {
+        if (!spell || !hero) return false;
+        if ((hero.mp || 0) < spell.mpCost) return false;
+        const magicTier = hero.magicTier || 1;
+        const maxSlots = Math.max(1, Math.min(25, magicTier));
+        if ((spell.glyphIds || []).length > maxSlots) return false;
+        return true;
+    }
+}

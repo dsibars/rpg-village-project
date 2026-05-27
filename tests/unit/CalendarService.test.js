@@ -170,71 +170,84 @@ test('CalendarService: unassignDefense', () => {
 // --- Raid Resolution Tests ---
 
 test('CalendarService: resolveRaid victory path', () => {
-    const village = mockVillageService({
-        infrastructure: { housing: 5 },
-        gold: 100
-    });
-    const heroes = mockHeroService([
-        { id: 'h1', name: 'Arthur', strength: 50, defense: 50, maxHp: 200, hp: 200 }
-    ]);
-    const cal = new CalendarService(village, heroes);
+    const origRandom = Math.random;
+    Math.random = () => 0.1; // Force victory since winChance is 0.95 and 0.1 < 0.95
+    try {
+        const village = mockVillageService({
+            infrastructure: { housing: 5 },
+            gold: 100
+        });
+        const heroes = mockHeroService([
+            { id: 'h1', name: 'Arthur', strength: 50, defense: 50, maxHp: 200, hp: 200 }
+        ]);
+        const cal = new CalendarService(village, heroes);
 
-    // Create a low-level raid on day 10
-    cal.state.events.push({
-        day: 10,
-        type: 'raid',
-        resolved: false,
-        data: { level: 1, enemies: ['slime_green'], enemyCount: 1 }
-    });
-    cal.assignDefense('h1');
+        // Create a low-level raid on day 10
+        cal.state.events.push({
+            day: 10,
+            type: 'raid',
+            resolved: false,
+            data: { level: 1, enemies: ['slime_green'], enemyCount: 1 }
+        });
+        cal.assignDefense('h1');
 
-    const result = cal.resolveRaid(10);
-    assert.ok(result);
-    assert.strictEqual(result.isVictory, true);
-    assert.ok(result.goldReward > 0);
-    assert.ok(village.state.gold > 100);
+        const result = cal.resolveRaid(10);
+        assert.ok(result);
+        assert.strictEqual(result.isVictory, true);
+        assert.ok(result.goldReward > 0);
+        assert.ok(village.state.gold > 100);
 
-    // Defenders should take ~15% damage
-    const hero = heroes.list()[0];
-    assert.ok(hero.hp < 200);
-    assert.ok(hero.hp >= 170); // at least 200 - 30
+        // Defenders should take ~15% damage
+        const hero = heroes.list()[0];
+        assert.ok(hero.hp < 200);
+        assert.ok(hero.hp >= 170); // at least 200 - 30
 
-    // Defense assignments cleared
-    assert.deepStrictEqual(cal.getDefenseAssigned(), []);
+        // Defense assignments cleared
+        assert.deepStrictEqual(cal.getDefenseAssigned(), []);
+    } finally {
+        Math.random = origRandom;
+    }
 });
 
 test('CalendarService: resolveRaid defeat path', () => {
-    const village = mockVillageService({
-        infrastructure: { housing: 0, farm: 1 },
-        gold: 100,
-        inventoryService: {
-            getItemCount(id) { return id === 'material_wood' ? 10 : id === 'material_stone' ? 10 : 0; },
-            useItem(id, qty) {}
-        }
-    });
-    const heroes = mockHeroService([
-        { id: 'h1', name: 'Arthur', strength: 1, defense: 1, maxHp: 10, hp: 10 }
-    ]);
-    const cal = new CalendarService(village, heroes);
+    const origRandom = Math.random;
+    Math.random = () => 0.5; // Force defeat since winChance is 0.15 and 0.5 >= 0.15
+    try {
+        const village = mockVillageService({
+            infrastructure: { housing: 0, farm: 1 },
+            gold: 100,
+            inventoryService: {
+                getItemCount(id) { return id === 'material_wood' ? 10 : id === 'material_stone' ? 10 : 0; },
+                useItem(id, qty) {}
+            }
+        });
+        const heroes = mockHeroService([
+            { id: 'h1', name: 'Arthur', strength: 1, defense: 1, maxHp: 10, hp: 10 }
+        ]);
+        const cal = new CalendarService(village, heroes);
 
-    // Create a high-level raid
-    cal.state.events.push({
-        day: 100,
-        type: 'raid',
-        resolved: false,
-        data: { level: 10, enemies: ['goblin_king', 'goblin_king'], enemyCount: 2 }
-    });
-    cal.assignDefense('h1');
+        // Create a high-level raid
+        cal.state.events.push({
+            day: 100,
+            type: 'raid',
+            resolved: false,
+            data: { level: 10, enemies: ['goblin_king', 'goblin_king'], enemyCount: 2 }
+        });
+        cal.assignDefense('h1');
 
-    const result = cal.resolveRaid(100);
-    assert.ok(result);
-    assert.strictEqual(result.isVictory, false);
+        const result = cal.resolveRaid(100);
+        assert.ok(result);
+        assert.strictEqual(result.isVictory, false);
 
-    // Defenders should take ~40% damage
-    const hero = heroes.list()[0];
-    assert.ok(hero.hp < 10);
-    assert.ok(hero.hp >= 6); // at least 10 - 4
+        // Defenders should take ~40% damage
+        const hero = heroes.list()[0];
+        assert.ok(hero.hp < 10);
+        assert.ok(hero.hp >= 6); // at least 10 - 4
+    } finally {
+        Math.random = origRandom;
+    }
 });
+
 
 test('CalendarService: win chance clamping', () => {
     const village = mockVillageService();
