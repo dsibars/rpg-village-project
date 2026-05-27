@@ -972,5 +972,95 @@ export const en = {
     gambit_target_random_ally: "Random Ally",
     gambit_target_all_enemies: "All Enemies",
     gambit_target_all_allies: "All Allies",
-    gambit_target_self: "Self"
+    gambit_target_self: "Self",
+
+    ui_win_rate: "Win Rate",
+    ui_avg_hp: "Avg HP",
+    ui_avg_mp: "Avg MP",
+    ui_combat_log: "Combat Log",
+    ui_tier_progress: "Tier Progress",
+
+    // Missing Materials & Items (Phase 2)
+    material_iron: "Iron",
+    desc_material_iron_ore: "Raw iron ore. Can be refined into steel at the Blacksmith.",
+    desc_material_steel_ingot: "High-grade steel ingot. Used to craft elite weapons and armor.",
+    desc_material_mythril: "Rare and magical metal. Light, strong, and highly receptive to arcane properties.",
+
+    // Missing Consumables and descriptions
+    tiny_hp_potion: "Tiny HP Potion",
+    tiny_hp_potion_desc: "Restores 20 HP.",
+    tiny_mp_potion: "Tiny MP Potion",
+    tiny_mp_potion_desc: "Restores 10 MP.",
+    teleport_scroll: "Teleport Scroll",
+    teleport_scroll_desc: "Allows instant return from expedition.",
+
+    // Missing Food descriptions
+    desc_meal_bread: "Fluffy, freshly baked bread. Provides temporary HP buffs.",
+    desc_meal_stew: "A warm stew filled with meat and potatoes. Restores strength and stamina.",
+    desc_meal_pie: "A meat pie with a flaky crust. Boosts physical capabilities in battle.",
+    desc_meal_feast: "A lavish feast worthy of heroes. Grants powerful multi-stat combat buffs.",
+
+    // Missing Equipment Tiers Descriptions
+    desc_weapon_wooden: "A simple weapon crafted from sturdy timber.",
+    desc_weapon_iron: "A solid weapon forged from raw iron ore.",
+    desc_weapon_steel: "A reliable steel weapon, well-balanced and sharp.",
+    desc_weapon_gold: "An ornate golden weapon, heavy but highly conductive of magic.",
+    desc_weapon_mythril: "A legendary mythril weapon, incredibly light and sharp.",
+    desc_armor_wooden: "Basic protection fashioned from bark and wooden plates.",
+    desc_armor_iron: "Heavy iron armor offering reliable physical defense.",
+    desc_armor_steel: "Polished steel plates providing excellent protection.",
+    desc_armor_gold: "Ornate golden armor, offering moderate defense and magic recovery.",
+    desc_armor_mythril: "Mythril chainmail, offering ultimate lightweight defense.",
+
+    // Set names
+    set_wooden: "Wooden Set",
+    set_iron: "Iron Set",
+    set_steel: "Steel Set",
+    set_gold: "Gold Set",
+    set_mythril: "Mythril Set",
+
+    // Missing Technique Families
+    family_basic_attack: "Basic Attack",
+
+    // Missing Stats (for set bonuses / buffs)
+    ui_stats_strength: "Strength",
+    ui_stats_magicPower: "Magic Power",
+    ui_stats_maxHp: "Max HP",
+    ui_stats_maxMp: "Max MP",
+    ui_stats_mpCostReduction: "MP Cost Reduction",
+
+    // Missing Engine Errors & Failures
+    error_hero_inscribing: "Hero is currently busy with body inscription.",
+    error_hero_already_inscribing: "Hero is already busy with body inscription.",
+    error_no_enemies_for_scenario: "No enemies found for this battle scenario.",
+    error_no_preset_matches: "No preset matches for this hero's class.",
+    error_recipe_not_found: "Recipe not found.",
+    error_meal_not_found: "Meal not found.",
+    error_spell_not_found: "Spell not found.",
+    error_academy_not_built: "Glyph Academy is not built yet.",
+    error_academy_no_slots: "No available slots in the Academy.",
+    error_academy_too_many_students: "Too many students assigned to this session.",
+    error_invalid_glyph: "Invalid Glyph selection.",
+    error_session_not_found: "Training session not found.",
+    error_design_library_full: "Spell design library is full.",
+    error_invalid_selection_count: "Invalid daily objective selection count.",
+    error_no_pending_choices: "No pending daily choices.",
+    error_invalid_objective_selection: "Invalid objective selection.",
+    error_reward_not_available: "Reward is not available yet.",
+    error_invalid_gambit_target: "Invalid gambit target.",
+    error_invalid_preset: "Invalid preset.",
+    error_preset_requirements_not_met: "Preset requirements (skills/glyphs) not met.",
+    error_glyph_already_known: "Glyph is already known by this hero.",
+    error_invalid_codex_index: "Invalid spell codex index.",
+    error_magic_tier_too_low: "Magic tier is too low to perform this action.",
+    error_no_stat_points: "No stat points available to assign.",
+    error_invalid_stat: "Invalid stat identifier.",
+    error_no_glyphs: "No glyphs found in composition.",
+    error_glyph_not_known: "Glyph is not known by this hero.",
+    error_invalid_action: "Invalid action selected.",
+    error_multiple_cores: "A spell can only contain a single core glyph.",
+    error_too_many_glyphs: "Too many glyphs in composition (limit reached).",
+    error_codex_full: "Spell codex is full (max 6 spells).",
+    error_not_enough_villagers: "Not enough idle villagers.",
+    error_invalid_glyphs: "Invalid Glyphs in composition."
 };

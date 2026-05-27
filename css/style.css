@@ -1,3 +1,13 @@
+@import "views/bestiary.css";
+@import "views/buildings.css";
+@import "views/codex.css";
+@import "views/explore.css";
+@import "views/forge.css";
+@import "views/heroes.css";
+@import "views/inventory.css";
+@import "views/shop.css";
+@import "views/village.css";
+
 /* Local Offline Fonts */
 @font-face {
   font-family: 'Inter';
