@@ -1,12 +1,29 @@
 const DEBUG = false;
 
 export class Persistence {
-    constructor(prefix = 'rpg_village_v1_') {
-        this.prefix = prefix;
+    constructor(basePrefix = 'rpg_village_v1_') {
+        this.basePrefix = basePrefix;
+        this.slotIndex = null;        // null = global mode (no slot prefix)
+    }
+
+    setSlot(index) {
+        if (index !== null && (index < 0 || index > 9)) {
+            throw new Error(`Invalid slot index: ${index}. Must be 0..9.`);
+        }
+        this.slotIndex = index;
+    }
+
+    clearSlot() {
+        this.slotIndex = null;
+    }
+
+    _prefix() {
+        if (this.slotIndex === null) return this.basePrefix;
+        return `${this.basePrefix}slot${this.slotIndex}_`;
     }
 
     _key(key) {
-        return `${this.prefix}${key}`;
+        return `${this._prefix()}${key}`;
     }
 
     save(key, data) {
@@ -38,9 +55,20 @@ export class Persistence {
     }
 
     clear() {
-        if (DEBUG) console.warn(`Persistence: CLEARING ALL DATA with prefix ${this.prefix}`);
+        const prefix = this._prefix();
+        if (DEBUG) console.warn(`Persistence: CLEARING ALL DATA with prefix ${prefix}`);
         Object.keys(localStorage).forEach(key => {
-            if (key.startsWith(this.prefix)) {
+            if (key.startsWith(prefix)) {
+                if (DEBUG) console.log(`Persistence: Removing ${key}`);
+                localStorage.removeItem(key);
+            }
+        });
+    }
+
+    clearAll() {
+        if (DEBUG) console.warn(`Persistence: CLEARING ALL DATA with base prefix ${this.basePrefix}`);
+        Object.keys(localStorage).forEach(key => {
+            if (key.startsWith(this.basePrefix)) {
                 if (DEBUG) console.log(`Persistence: Removing ${key}`);
                 localStorage.removeItem(key);
             }
@@ -50,4 +78,5 @@ export class Persistence {
     }
 }
 
-export const persistence = new Persistence();
+export const persistence = new Persistence();          // slot-aware (gameplay state)
+export const globalPersistence = new Persistence();    // always global (settings, registry)

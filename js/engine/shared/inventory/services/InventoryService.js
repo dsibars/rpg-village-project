@@ -8,13 +8,20 @@ import { persistence } from '../../core/Persistence.js';
  * It enforces storage limits based on village infrastructure.
  */
 export class InventoryService {
-    constructor() {
+    constructor(options = {}) {
         this.STORAGE_KEY = 'inventory_data';
+        this.data = this._getDefaultData();
+        if (!options.deferLoad) {
+            this.load();
+        }
+    }
+
+    load() {
         this.data = this._load();
     }
 
-    _load() {
-        const defaultData = {
+    _getDefaultData() {
+        return {
             materials: {
                 material_wood: 20,
                 material_stone: 10
@@ -25,6 +32,10 @@ export class InventoryService {
             consumables: {},
             equipment: []
         };
+    }
+
+    _load() {
+        const defaultData = this._getDefaultData();
         const loaded = persistence.load(this.STORAGE_KEY, defaultData);
 
         // Fallback for fields missing in old saves

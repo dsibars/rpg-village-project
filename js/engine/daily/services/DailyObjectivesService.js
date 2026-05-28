@@ -11,19 +11,30 @@ const OBJECTIVE_TYPES = [
 ];
 
 export class DailyObjectivesService {
-    constructor(inventoryService) {
+    constructor(inventoryService, options = {}) {
         this.inventoryService = inventoryService;
         this.STORAGE_KEY = 'daily_objectives_state';
+        this.state = this._getDefaultState();
+        if (!options.deferLoad) {
+            this.load();
+        }
+    }
+
+    load() {
         this.state = this._load();
     }
 
-    _load() {
-        const defaultState = {
+    _getDefaultState() {
+        return {
             day: 1,
             objectives: [],
             pendingChoices: [],
             allCompletedDay: null
         };
+    }
+
+    _load() {
+        const defaultState = this._getDefaultState();
         const loaded = persistence.load(this.STORAGE_KEY, defaultState);
         if (!loaded.pendingChoices) loaded.pendingChoices = [];
         return loaded;

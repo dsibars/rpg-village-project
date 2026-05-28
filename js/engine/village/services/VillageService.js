@@ -6,14 +6,21 @@ import { Result } from '../../shared/core/Result.js';
  * population growth, and infrastructure effects.
  */
 export class VillageService {
-    constructor(inventoryService) {
+    constructor(inventoryService, options = {}) {
         this.inventoryService = inventoryService;
         this.STORAGE_KEY = 'village_state';
+        this.state = this._getDefaultState();
+        if (!options.deferLoad) {
+            this.load();
+        }
+    }
+
+    load() {
         this.state = this._load();
     }
 
-    _load() {
-        const defaultState = {
+    _getDefaultState() {
+        return {
             gold: 100,
             population: {
                 total: 2,
@@ -23,7 +30,7 @@ export class VillageService {
             },
             infrastructure: {
                 housing: 1,
-                farm: 0, // No farm initially
+                farm: 0,
                 warehouse: 1,
                 blacksmith: 0,
                 training_grounds: 0,
@@ -38,6 +45,10 @@ export class VillageService {
             lastUpdate: Date.now(),
             daysSinceLastRecruit: 0
         };
+    }
+
+    _load() {
+        const defaultState = this._getDefaultState();
         const loaded = persistence.load(this.STORAGE_KEY, defaultState);
 
         // Fallback for fields missing in old saves

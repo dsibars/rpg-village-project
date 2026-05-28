@@ -1,0 +1,200 @@
+/* Save Slots Screen */
+#app-container.slot-screen-mode .game-header,
+#app-container.slot-screen-mode .main-nav {
+    display: none;
+}
+
+#app-container.slot-screen-mode {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.save-slots-screen {
+    width: 100%;
+    max-width: 900px;
+    animation: slotScreenFadeIn 0.4s ease;
+}
+
+@keyframes slotScreenFadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.save-slots-header {
+    text-align: center;
+    margin-bottom: 28px;
+}
+
+.save-slots-header h1 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 6px 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.save-slots-header p {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin: 0;
+}
+
+.save-slots-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.save-slot-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    position: relative;
+    min-height: 110px;
+}
+
+.save-slot-card:hover {
+    border-color: rgba(99, 102, 241, 0.4);
+    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.12);
+    transform: translateY(-2px);
+}
+
+.save-slot-card.empty {
+    background: rgba(255, 255, 255, 0.02);
+    border-style: dashed;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.save-slot-card.empty:hover {
+    background: rgba(99, 102, 241, 0.04);
+    border-color: rgba(99, 102, 241, 0.5);
+}
+
+.save-slot-card.empty .slot-number {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.save-slot-card.empty .slot-action {
+    color: var(--accent-color);
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-top: 4px;
+}
+
+.save-slot-card.occupied .slot-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.save-slot-card.occupied .slot-number {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--accent-color);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.save-slot-card.occupied .slot-last-played {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+}
+
+.save-slot-card.occupied .slot-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.save-slot-card.occupied .slot-primary {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.save-slot-card.occupied .slot-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.save-slot-card.occupied .slot-detail {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.save-slot-card.occupied .slot-detail .detail-icon {
+    font-size: 0.85rem;
+}
+
+.save-slot-card .slot-delete-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    color: var(--danger);
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: all 0.2s ease;
+    z-index: 2;
+}
+
+.save-slot-card:hover .slot-delete-btn {
+    opacity: 1;
+}
+
+.save-slot-card .slot-delete-btn:hover {
+    background: rgba(239, 68, 68, 0.25);
+    border-color: rgba(239, 68, 68, 0.5);
+    transform: scale(1.1);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .save-slots-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .save-slots-header h1 {
+        font-size: 1.3rem;
+    }
+
+    .save-slot-card {
+        min-height: 90px;
+        padding: 12px 14px;
+    }
+
+    .save-slot-card .slot-delete-btn {
+        opacity: 1;
+    }
+}

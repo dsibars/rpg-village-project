@@ -53,6 +53,7 @@
 - ❌ Villager personalities
 - ❌ Achievement / Milestone system (beyond Hall of Fame titles)
 - ❌ Some Hall of Fame titles require tracking not yet implemented
+- ✅ **Save Slots** — 10-slot system with per-slot persistence and summary metadata (spec complete, see [save_slots.md](./shared/core/save_slots.md))
 
 ---
 

@@ -26,6 +26,18 @@
                 </div>
             </div>
 
+            <!-- Current Save Info -->
+            <div class="card settings-group">
+                <h3 data-i18n="ui_save_slot_title">Save Slot</h3>
+                <div class="settings-body">
+                    <p class="settings-label" id="settings-current-slot-label">Current Save: Slot 0</p>
+                    <button id="btn-return-slots" class="btn btn-secondary btn-lg" style="margin-bottom: 10px;">
+                        <span class="icon">💾</span>
+                        <span data-i18n="ui_settings_return_slots">Return to Save Slots</span>
+                    </button>
+                </div>
+            </div>
+
             <!-- Developer Options -->
             <div class="card settings-group">
                 <h3 data-i18n="ui_settings_dev_options">Developer Options</h3>
@@ -48,10 +60,16 @@
             <div class="card danger-zone settings-group">
                 <h3 data-i18n="ui_settings_danger_zone">Danger Zone</h3>
                 <div class="settings-body">
-                    <p class="settings-label" data-i18n="ui_settings_wipe_description">Permanently delete all your progress and start over.</p>
-                    <button id="btn-wipe-data" class="btn btn-danger btn-lg">
+                    <p class="settings-label" data-i18n="ui_settings_wipe_slot_confirm">Delete this save and return to the slot screen?</p>
+                    <button id="btn-wipe-slot" class="btn btn-danger btn-lg" style="margin-bottom: 12px;">
                         <span class="icon">🗑️</span>
-                        <span data-i18n="ui_settings_wipe_data">Wipe All Data</span>
+                        <span data-i18n="ui_settings_wipe_slot">Wipe Current Save</span>
+                    </button>
+
+                    <p class="settings-label" data-i18n="ui_settings_wipe_all_confirm">Delete ALL saves across all slots? This will erase everything permanently.</p>
+                    <button id="btn-wipe-all" class="btn btn-danger btn-lg">
+                        <span class="icon">☠️</span>
+                        <span data-i18n="ui_settings_wipe_all">Wipe ALL Saves</span>
                     </button>
                 </div>
             </div>

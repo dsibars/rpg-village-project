@@ -6,12 +6,21 @@ import { persistence } from '../shared/core/Persistence.js';
  * AcademyService manages glyph teaching, active sessions, and the Design Library.
  */
 export class AcademyService {
-    constructor(heroService, villageService) {
+    constructor(heroService, villageService, options = {}) {
         this.heroService = heroService;
         this.villageService = villageService;
         this.DESIGNS_KEY = 'academy_designs';
         this.SESSIONS_KEY = 'academy_sessions';
         this.COPY_SESSIONS_KEY = 'academy_copy_sessions';
+        this.designLibrary = [];
+        this.sessions = [];
+        this.copySessions = [];
+        if (!options.deferLoad) {
+            this.load();
+        }
+    }
+
+    load() {
         this.designLibrary = this._loadDesigns();
         this.sessions = this._loadSessions();
         this.copySessions = this._loadCopySessions();

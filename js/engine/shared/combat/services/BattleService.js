@@ -6,8 +6,13 @@ import { SKILLS_DATA, CONSUMABLES_DATA, CORE_ALLY_EFFECTS } from '../../data/Gam
 import { MagicCircleService } from '../../../magic_circle/MagicCircleService.js';
 
 export class BattleService {
-    constructor(inventoryService) {
+    constructor(inventoryService, options = {}) {
         this.inventory = inventoryService;
+        this.reset();
+    }
+
+    load() {
+        // BattleService has no persistent state; reset is sufficient
         this.reset();
     }
 

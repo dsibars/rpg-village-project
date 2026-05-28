@@ -3,15 +3,18 @@ import { Hero } from '../models/Hero.js';
 import { persistence } from '../../shared/core/Persistence.js';
 
 export class HeroService {
-    constructor(inventoryService) {
+    constructor(inventoryService, options = {}) {
         this.STORAGE_KEY = 'heroes_data';
         this.inventory = inventoryService;
-        this.heroes = this._load();
+        this.heroes = [];
+        if (!options.deferLoad) {
+            this.load();
+        }
     }
 
-    _load() {
+    load() {
         const data = persistence.load(this.STORAGE_KEY, []);
-        return data.map(h => {
+        this.heroes = data.map(h => {
             const hero = new Hero(h);
             hero.recalculateStats({});
             return hero;

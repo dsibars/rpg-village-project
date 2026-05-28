@@ -11,6 +11,7 @@ import { GameEngine } from '../../js/engine/GameEngine.js';
 
 test('Combat Flow: End-To-End Combat and Item Rules', () => {
     const engine = new GameEngine();
+    engine.initialize();
     let state = engine.update();
 
     // 1. Setup Hero and Expedition

@@ -9,7 +9,7 @@ import { LootService } from './LootService.js';
  * Supports concurrent expeditions (round-robin resolution).
  */
 export class ExpeditionService {
-    constructor(battleService, heroService, villageService, inventoryService) {
+    constructor(battleService, heroService, villageService, inventoryService, options = {}) {
         this.battleService = battleService;
         this.heroService = heroService;
         this.villageService = villageService;
@@ -17,11 +17,18 @@ export class ExpeditionService {
         this.lootService = new LootService(this._getRegionData.bind(this));
         
         this.STORAGE_KEY = 'expedition_state';
+        this.state = this._getDefaultState();
+        if (!options.deferLoad) {
+            this.load();
+        }
+    }
+
+    load() {
         this.state = this._load();
     }
 
-    _load() {
-        const defaultState = {
+    _getDefaultState() {
+        return {
             completedIds: [],
             activeExpeditions: [],
             expeditionTurnIndex: 0,
@@ -47,6 +54,10 @@ export class ExpeditionService {
                 }
             }
         };
+    }
+
+    _load() {
+        const defaultState = this._getDefaultState();
         const loaded = persistence.load(this.STORAGE_KEY, defaultState);
 
         // Fallback for fields missing in old saves

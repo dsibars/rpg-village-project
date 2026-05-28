@@ -4,18 +4,18 @@ import { ca } from './translations/ca.js';
 import { eu } from './translations/eu.js';
 import { gl } from './translations/gl.js';
 
-import { persistence } from '../Persistence.js';
+import { globalPersistence } from '../Persistence.js';
 
 export class I18nService {
     constructor() {
         this.translations = { en, es, ca, eu, gl };
-        this.currentLang = persistence.load('settings_lang', 'en');
+        this.currentLang = globalPersistence.load('settings_lang', 'en');
     }
 
     setLanguage(lang) {
         if (this.translations[lang]) {
             this.currentLang = lang;
-            persistence.save('settings_lang', lang);
+            globalPersistence.save('settings_lang', lang);
             return true;
         }
         return false;

@@ -14,7 +14,7 @@ import { TitleService } from './hall_of_fame/TitleService.js';
 import { UnlockService } from './shared/services/UnlockService.js';
 import { SimulationRunner } from './gambit/SimulationRunner.js';
 import { GambitHealthService } from './gambit/GambitHealthService.js';
-import { persistence } from './shared/core/Persistence.js';
+import { persistence, globalPersistence } from './shared/core/Persistence.js';
 const DEBUG = false;
 
 import { i18n } from './shared/core/i18n/I18nService.js';
@@ -25,26 +25,40 @@ export class GameEngine {
     constructor() {
         this.STORAGE_KEY = 'village_state';
 
-        // Initialize Services
-        this.inventoryService = new InventoryService();
-        this.villageService = new VillageService(this.inventoryService);
-        this.heroService = new HeroService(this.inventoryService);
-        this.battleService = new BattleService(this.inventoryService);
+        // Initialize Services (wire only, no data loading)
+        this.inventoryService = new InventoryService({ deferLoad: true });
+        this.villageService = new VillageService(this.inventoryService, { deferLoad: true });
+        this.heroService = new HeroService(this.inventoryService, { deferLoad: true });
+        this.battleService = new BattleService(this.inventoryService, { deferLoad: true });
         this.expeditionService = new ExpeditionService(
             this.battleService, 
             this.heroService, 
             this.villageService, 
-            this.inventoryService
+            this.inventoryService,
+            { deferLoad: true }
         );
-        this.dailyObjectivesService = new DailyObjectivesService(this.inventoryService);
-        this.calendarService = new CalendarService(this.villageService, this.heroService);
-        this.academyService = new AcademyService(this.heroService, this.villageService);
-        this.unlockService = new UnlockService();
+        this.dailyObjectivesService = new DailyObjectivesService(this.inventoryService, { deferLoad: true });
+        this.calendarService = new CalendarService(this.villageService, this.heroService, { deferLoad: true });
+        this.academyService = new AcademyService(this.heroService, this.villageService, { deferLoad: true });
+        this.unlockService = new UnlockService({ deferLoad: true });
         this.i18n = i18n;
-        
-        // New Game Experience
-        const hasHeroes = persistence.load('heroes_data', null) !== null;
-        const hasVillage = persistence.load('village_state', null) !== null;
+        this.isNewGame = true;
+    }
+
+    initialize() {
+        // Hydrate all services from persistence (active slot prefix applies here)
+        this.inventoryService.load();
+        this.villageService.load();
+        this.heroService.load();
+        this.battleService.load();
+        this.expeditionService.load();
+        this.dailyObjectivesService.load();
+        this.calendarService.load();
+        this.academyService.load();
+        this.unlockService.load();
+
+        const hasHeroes = this.heroService.list().length > 0;
+        const hasVillage = this.villageService.getState().day !== undefined;
         
         this.isNewGame = !hasHeroes || !hasVillage;
         if (DEBUG) console.log('Engine: checkNewGame?', this.isNewGame, { hasHeroes, hasVillage });
@@ -53,9 +67,8 @@ export class GameEngine {
             this.initNewGame();
         }
 
-        this.i18n.setLanguage(persistence.load('settings_lang', 'en'));
+        this.i18n.setLanguage(globalPersistence.load('settings_lang', 'en'));
 
-        // Resume combat if active
         if (this.expeditionService.state.activeCombatExpeditionId) {
             if (DEBUG) console.log('Engine: Resuming active combat...');
             this.expeditionService.resumeActiveBattle();

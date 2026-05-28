@@ -12,19 +12,30 @@ const SEASON_EFFECTS = {
 };
 
 export class CalendarService {
-    constructor(villageService, heroService) {
+    constructor(villageService, heroService, options = {}) {
         this.villageService = villageService;
         this.heroService = heroService;
         this.STORAGE_KEY = 'calendar_state';
+        this.state = this._getDefaultState();
+        if (!options.deferLoad) {
+            this.load();
+        }
+    }
+
+    load() {
         this.state = this._load();
     }
 
-    _load() {
-        const defaultState = {
+    _getDefaultState() {
+        return {
             events: [],         // Array of { day, type, resolved, data }
             defenseAssigned: [], // Array of hero IDs assigned to defense
             resolvedRaids: 0    // Total number of resolved raid events
         };
+    }
+
+    _load() {
+        const defaultState = this._getDefaultState();
         const loaded = persistence.load(this.STORAGE_KEY, defaultState);
         // Fallback for fields missing in old saves
         if (!loaded.events) loaded.events = [];

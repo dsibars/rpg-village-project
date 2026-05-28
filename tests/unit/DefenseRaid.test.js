@@ -14,6 +14,7 @@ describe('Defense/Raid Mutual Exclusion', () => {
     it('cannot assign hero to defense while on expedition', () => {
         
         const engine = new GameEngine();
+        engine.initialize();
         
         // Arthur starts at level 1
         const heroes = engine.heroService.list();
@@ -34,6 +35,7 @@ describe('Defense/Raid Mutual Exclusion', () => {
     it('assigning expedition auto-removes hero from defense', () => {
         
         const engine = new GameEngine();
+        engine.initialize();
         
         // Need 2 heroes for this test - add a second hero manually
         engine.heroService.add({ name: 'TestHero', origin: 'origin_warrior', level: 1 });
@@ -60,6 +62,7 @@ describe('Defense/Raid Mutual Exclusion', () => {
     it('first raid is delayed until 2+ heroes exist', () => {
         
         const engine = new GameEngine();
+        engine.initialize();
         
         // Only 1 hero at start
         assert.strictEqual(engine.heroService.list().length, 1);
@@ -91,6 +94,7 @@ describe('Defense/Raid Mutual Exclusion', () => {
     it('0-defender raid causes severe penalty', () => {
         
         const engine = new GameEngine();
+        engine.initialize();
         
         // Add gold and materials
         engine.villageService.state.gold = 500;
@@ -128,6 +132,7 @@ describe('Defense/Raid Mutual Exclusion', () => {
     it('advisory API warns when last heroes would leave village undefended', () => {
         
         const engine = new GameEngine();
+        engine.initialize();
         
         // Add a second hero
         engine.heroService.add({ name: 'TestHero', origin: 'origin_warrior', level: 1 });
@@ -162,6 +167,7 @@ describe('Defense/Raid Mutual Exclusion', () => {
     it('advisory API does not warn when heroes return before raid', () => {
         
         const engine = new GameEngine();
+        engine.initialize();
         
         // Add a second hero
         engine.heroService.add({ name: 'TestHero', origin: 'origin_warrior', level: 1 });

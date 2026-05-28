@@ -11,16 +11,26 @@ import { persistence } from '../core/Persistence.js';
 const STORAGE_KEY = 'unlock_state';
 
 export class UnlockService {
-    constructor() {
+    constructor(options = {}) {
+        this.state = this._getDefaultState();
+        if (!options.deferLoad) {
+            this.load();
+        }
+    }
+
+    load() {
         this.state = this._load();
     }
 
-    _load() {
-        const defaultState = {
+    _getDefaultState() {
+        return {
             unlockedNarratives: [],
             unlockedCodexFeatures: []
         };
-        return persistence.load(STORAGE_KEY, defaultState);
+    }
+
+    _load() {
+        return persistence.load(STORAGE_KEY, this._getDefaultState());
     }
 
     save() {

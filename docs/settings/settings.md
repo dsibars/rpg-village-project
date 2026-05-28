@@ -13,14 +13,16 @@ The Settings section allows the user to configure global application preferences
   - Changing the language should update all UI text immediately and persist the choice in `localStorage`.
 - **References**: See [i18n.md](../shared/core/i18n.md).
 
-### 2. Data Management (Wipe Data)
-- **Description**: Provides a way to reset all game progress and start from scratch.
-- **Action**: "Wipe Data".
+### 2. Data Management (Wipe Save)
+- **Description**: Provides ways to reset game progress. Since the introduction of Save Slots, data management operates at two scopes.
+- **Actions**:
+  1. **"Wipe Current Save"** — Deletes only the active save slot. Returns the player to the Save Slot selection screen.
+  2. **"Wipe ALL Saves"** — Deletes all 10 slots plus global settings. Requires an additional confirmation step due to its destructive nature.
 - **Implementation**:
-  - Must call `persistence.clear()` from `Persistence.js`.
-  - **Confirmation Dialog**: A mandatory modal or native confirm dialog must be shown to the user before executing the wipe.
-  - **Post-Action**: After wiping, the application should reload (`window.location.reload()`) to ensure all state is reset to defaults.
-- **References**: See [Persistence.js](../../js/engine/shared/core/Persistence.js).
+  - Uses `persistence.clear()` scoped to the active slot prefix.
+  - **Confirmation Dialog**: Mandatory modal for both actions. "Wipe ALL Saves" should display a second confirmation or a strongly emphasized warning.
+  - **Post-Action**: Reload the application (`window.location.reload()`) or return to the Save Slot selection screen.
+- **References**: See [Persistence.js](../../js/engine/shared/core/Persistence.js) and [Save Slots](../shared/core/save_slots.md).
 
 ## UI Requirements
 - **Page**: `pages/settings.html`
@@ -31,4 +33,6 @@ The Settings section allows the user to configure global application preferences
 
 ## Data Model Impact
 - **Settings Persistence**: The current language preference and any other settings should be saved using the `Persistence` service under a specific key (e.g., `app_settings`).
-- **Global Reset**: Wiping data removes all keys prefixed with the application's versioned prefix (e.g., `rpg_village_v1_`), returning the village, heroes, and all other systems to their initial state.
+- **Settings Persistence**: Language and other app-level preferences are saved globally (prefix `rpg_village_v1_`) and persist across all save slots.
+- **Slot Reset**: Wiping the current save only removes keys under the active slot prefix (e.g., `rpg_village_v1_slot3_`).
+- **Global Reset**: "Wipe ALL Saves" removes all slot prefixes and the global settings registry, returning the application to a completely fresh state.

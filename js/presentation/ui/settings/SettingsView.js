@@ -14,9 +14,12 @@ export class SettingsView extends BaseView {
     onMount() {
         this.elements = {
             langSelect: this.$('#lang-select'),
-            btnWipe: this.$('#btn-wipe-data'),
+            btnWipeSlot: this.$('#btn-wipe-slot'),
+            btnWipeAll: this.$('#btn-wipe-all'),
+            btnReturnSlots: this.$('#btn-return-slots'),
             btnDevCheat: this.$('#btn-dev-cheat'),
-            btnMagicSimulator: this.$('#btn-magic-simulator')
+            btnMagicSimulator: this.$('#btn-magic-simulator'),
+            currentSlotLabel: this.$('#settings-current-slot-label')
         };
 
         this.root.addEventListener('click', (e) => {
@@ -38,20 +41,54 @@ export class SettingsView extends BaseView {
             });
         }
 
-        // Wipe Data logic
-        if (this.elements.btnWipe) {
-            this.elements.btnWipe.addEventListener('click', () => {
-                if (DEBUG) console.log('SettingsView: Wipe button clicked');
+        // Current Slot Label
+        if (this.elements.currentSlotLabel) {
+            const slotIndex = persistence.slotIndex !== null ? persistence.slotIndex : 0;
+            this.elements.currentSlotLabel.textContent = this.t('ui_settings_current_slot', { index: slotIndex + 1 });
+        }
+
+        // Return to Save Slots
+        if (this.elements.btnReturnSlots) {
+            this.elements.btnReturnSlots.addEventListener('click', () => {
+                if (DEBUG) console.log('SettingsView: Return to slots clicked');
+                window.location.reload();
+            });
+        }
+
+        // Wipe Current Save
+        if (this.elements.btnWipeSlot) {
+            this.elements.btnWipeSlot.addEventListener('click', () => {
+                if (DEBUG) console.log('SettingsView: Wipe slot button clicked');
                 
                 this.ui.showConfirmDialog({
-                    title: 'ui_settings_wipe_data',
-                    message: 'ui_settings_wipe_confirm',
+                    title: 'ui_settings_wipe_slot',
+                    message: 'ui_settings_wipe_slot_confirm',
                     onConfirm: () => {
-                        if (DEBUG) console.warn('SettingsView: USER CONFIRMED WIPE. Executing persistence.clear()...');
+                        if (DEBUG) console.warn('SettingsView: USER CONFIRMED WIPE SLOT. Executing persistence.clear()...');
                         persistence.clear();
                         
                         if (DEBUG) console.log('SettingsView: Wipe complete. Reloading page...');
-                        // Small delay to ensure logs are processed
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 100);
+                    }
+                });
+            });
+        }
+
+        // Wipe ALL Saves
+        if (this.elements.btnWipeAll) {
+            this.elements.btnWipeAll.addEventListener('click', () => {
+                if (DEBUG) console.log('SettingsView: Wipe all button clicked');
+                
+                this.ui.showConfirmDialog({
+                    title: 'ui_settings_wipe_all',
+                    message: 'ui_settings_wipe_all_confirm',
+                    onConfirm: () => {
+                        if (DEBUG) console.warn('SettingsView: USER CONFIRMED WIPE ALL. Executing persistence.clearAll()...');
+                        persistence.clearAll();
+                        
+                        if (DEBUG) console.log('SettingsView: Wipe all complete. Reloading page...');
                         setTimeout(() => {
                             window.location.reload();
                         }, 100);
