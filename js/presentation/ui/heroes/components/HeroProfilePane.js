@@ -83,13 +83,13 @@ export function createHeroProfilePane({
                 el('span', {}, [el('strong', {}, [`${t('ui_activity') || 'Activity'}:`]), statusBadgeRef]),
                 el('span', {}, [el('strong', {}, [`${t('ui_experience') || 'Experience'}:`]), expTextRef])
             ]),
-            statAlertRef,
             skillAlertRef,
             buttonsContainer
         ])
     ]);
 
     const rightColumn = el('div', { class: 'hero-profile-right' }, [
+        statAlertRef,
         statsGridRef
     ]);
 
@@ -219,10 +219,14 @@ export function createHeroProfilePane({
             const assignBtn = (canAllocate && stat.key)
                 ? el('button', { class: 'btn-assign-stat', onClick: () => onAllocateStat(stat.key) }, ['+'])
                 : null;
+            const descKey = `${STAT_LABELS[stat.id]}_desc`;
             const row = el('div', { class: `stat-row ${stat.id === 'stamina' ? 'stamina-row' : ''}` }, [
-                el('span', {}, [t(STAT_LABELS[stat.id]) || stat.id.toUpperCase()]),
-                el('div', { class: 'stat-value-group' }, [
-                    el('span', {}, [String(stat.val)]),
+                el('div', { class: 'stat-info' }, [
+                    el('strong', { class: 'stat-name' }, [t(STAT_LABELS[stat.id]) || stat.id.toUpperCase()]),
+                    el('span', { class: 'stat-desc', style: { fontStyle: 'italic', fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', marginTop: '2px' } }, [t(descKey) || ''])
+                ]),
+                el('div', { class: 'stat-value-group', style: { display: 'flex', alignItems: 'center', gap: '10px' } }, [
+                    el('span', { class: 'stat-val', style: { fontWeight: '600' } }, [String(stat.val)]),
                     assignBtn
                 ].filter(Boolean))
             ]);
