@@ -127,6 +127,7 @@ export const en = {
 
     // UI Skeleton & Navigation
     nav_village: "Village",
+    nav_main: "Main",
     nav_buildings: "Buildings",
     nav_heroes: "Heroes",
     nav_adventure: "Adventure",

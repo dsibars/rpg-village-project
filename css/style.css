@@ -1488,6 +1488,15 @@ body {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
+.sub-nav-tab.locked {
+    opacity: 0.5;
+}
+
+.sub-nav-tab.locked::after {
+    content: " 🔒";
+    font-size: 0.75rem;
+}
+
 /* Back button for sub-pages */
 .btn-back {
     display: inline-flex;

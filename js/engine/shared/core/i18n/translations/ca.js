@@ -119,6 +119,7 @@ export const ca = {
 
     // UI Skeleton & Navigation
     nav_village: "Aldea",
+    nav_main: "Principal",
     nav_buildings: "Edificis",
     nav_heroes: "Herois",
     nav_adventure: "Aventura",

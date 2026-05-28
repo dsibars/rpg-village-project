@@ -119,6 +119,7 @@ export const eu = {
 
     // UI Skeleton & Navigation
     nav_village: "Herria",
+    nav_main: "Nagusia",
     nav_buildings: "Eraikinak",
     nav_heroes: "Heroiak",
     nav_adventure: "Abentura",
