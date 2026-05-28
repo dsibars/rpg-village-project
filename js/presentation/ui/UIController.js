@@ -6,6 +6,7 @@ import { CombatView } from './combat/CombatView.js';
 import { UnlockNarrativeView } from './unlocks/UnlockNarrativeView.js';
 import { MagicCircleView } from './magic_circle/MagicCircleView.js';
 import { GambitView } from './gambit/GambitView.js';
+import { EquipmentView } from './heroes/components/EquipmentView.js';
 const DEBUG = false;
 
 export class UIController {
@@ -23,7 +24,7 @@ export class UIController {
 
         this.VIEW_CATEGORIES = {
             village: 'village',
-            buildings: 'village',
+            buildings: 'town',
             heroes: 'heroes',
             explore: 'adventure',
             bestiary: 'adventure',
@@ -38,7 +39,7 @@ export class UIController {
             village: 'village',
             heroes: 'heroes',
             adventure: 'explore',
-            town: 'shop'
+            town: 'buildings'
         };
         
         this.isShopUnlocked = false;
@@ -48,12 +49,13 @@ export class UIController {
             village: 'village',
             heroes: 'heroes',
             adventure: 'explore',
-            town: 'shop'
+            town: 'buildings'
         };
         this.combatView = new CombatView({ i18n: this.i18n });
         this.unlockNarrativeView = new UnlockNarrativeView(this.i18n);
         this.magicCircleView = new MagicCircleView({ i18n: this.i18n, ui: this });
         this.gambitView = new GambitView({ i18n: this.i18n, ui: this });
+        this.equipmentView = new EquipmentView({ i18n: this.i18n, ui: this });
         
         this.views = new Map(); // domainName -> BaseView instance
         this.activeView = null;
@@ -424,6 +426,10 @@ export class UIController {
 
     openGambitOverlay(options) {
         return this.gambitView.open(options);
+    }
+
+    openEquipmentOverlay(options) {
+        return this.equipmentView.open(options);
     }
 
     forceUpdate() {

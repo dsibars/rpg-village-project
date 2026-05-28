@@ -8,6 +8,7 @@ import { HeroesView } from '../../js/presentation/ui/heroes/HeroesView.js';
 import { HeroInscriptionModal } from '../../js/presentation/ui/heroes/components/HeroInscriptionModal.js';
 import { HeroSkillsModal } from '../../js/presentation/ui/heroes/components/HeroSkillsModal.js';
 import { TrainerModal, WitchModal, AcademyModal, HallOfFameModal } from '../../js/presentation/ui/heroes/components/HeroTrainingModals.js';
+import { EquipmentView } from '../../js/presentation/ui/heroes/components/EquipmentView.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const heroesHtmlPath = path.resolve(__dirname, '../../pages/heroes.html');
@@ -19,7 +20,12 @@ test('HeroesView DOM Refactor', async (t) => {
         t: (k) => k,
         switchView: () => {},
         forceUpdate: () => {},
-        update: () => {}
+        update: () => {},
+        openEquipmentOverlay: (options) => {
+            const eqView = new EquipmentView({ ui: mockUi });
+            mockUi.equipmentView = eqView;
+            eqView.open(options);
+        }
     };
 
     // Helper to create mock state
@@ -152,7 +158,7 @@ test('HeroesView DOM Refactor', async (t) => {
         document.body.innerHTML = '';
     });
 
-    await t.test('clicking equipment button opens HeroEquipmentModal summary', () => {
+    await t.test('clicking equipment button opens EquipmentView overlay', () => {
         document.body.innerHTML = heroesHtml;
         const rootNode = document.body.querySelector('#heroes-view');
         
@@ -167,25 +173,27 @@ test('HeroesView DOM Refactor', async (t) => {
         view.update(state);
 
         // Click Equipment button in quick-links
-        const equipBtn = document.body.querySelector('.hero-quick-links').querySelector('button');
-        // The buttons are rendered in order; Equipment is last (9th). Find by text.
         const buttons = Array.from(document.body.querySelectorAll('.hero-quick-links button'));
         const equipmentButton = buttons.find(b => b.textContent.includes('ui_equipment'));
         assert.ok(equipmentButton, 'Equipment button should exist in quick-links');
         equipmentButton.dispatchEvent(new Event('click'));
 
-        // Verify modal overlay is in body (summary view)
-        const overlay = document.body.querySelector('.modal-overlay');
+        // Verify overlay is in body
+        const overlay = document.body.querySelector('.equipment-page-overlay');
         assert.ok(overlay);
-        assert.ok(overlay.textContent.includes('ui_hero_equipment_title'));
+        assert.ok(overlay.textContent.includes('Arthur'));
 
-        // Close modal
-        const closeBtn = overlay.querySelector('.btn-close-modal');
+        // Close page
+        const closeBtn = overlay.querySelector('#btn-equip-close');
         assert.ok(closeBtn);
         closeBtn.dispatchEvent(new Event('click'));
 
         // Cleanup
         document.body.innerHTML = '';
+        if (mockUi.equipmentView) {
+            mockUi.equipmentView.close();
+            mockUi.equipmentView = null;
+        }
     });
 
     await t.test('clicking skills button opens HeroSkillsModal', () => {

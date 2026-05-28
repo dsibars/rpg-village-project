@@ -1,6 +1,6 @@
 import { BaseView } from '../BaseView.js';
 import { TECHNIQUE_FAMILIES } from '../../../engine/shared/data/GameConstants.js';
-import { HeroEquipmentModal } from './components/HeroEquipmentModal.js';
+
 import { HeroSkillsModal } from './components/HeroSkillsModal.js';
 import { TrainerModal, WitchModal, AcademyModal, HallOfFameModal } from './components/HeroTrainingModals.js';
 import { HeroInscriptionModal } from './components/HeroInscriptionModal.js';
@@ -88,6 +88,12 @@ export class HeroesView extends BaseView {
         this.inventoryEquipment = state.inventory.equipment || [];
 
         const activeHero = heroes.find(h => h.id === this.selectedHeroId);
+        if (this.ui?.equipmentView?.isOpen && activeHero) {
+            this.ui.equipmentView.update({
+                hero: activeHero,
+                inventoryEquipment: this.inventoryEquipment
+            });
+        }
         const infra = state.village?.infrastructure || {};
         const anyHeroLevel5 = heroes.some(h => h.level >= 5);
         const stateString = JSON.stringify({
@@ -189,12 +195,25 @@ export class HeroesView extends BaseView {
 
     _openEquipModal(slot) {
         const hero = this.lastRawState.heroes.find(h => h.id === this.selectedHeroId);
-        HeroEquipmentModal.show(hero, slot, this.inventoryEquipment, this.t.bind(this), this.emit.bind(this));
+        if (!hero) return;
+        this.ui.openEquipmentOverlay({
+            hero,
+            inventoryEquipment: this.inventoryEquipment,
+            t: this.t.bind(this),
+            emit: this.emit.bind(this),
+            initialSlot: slot
+        });
     }
 
     _openEquipmentModal() {
         const hero = this.lastRawState?.heroes?.find(h => h.id === this.selectedHeroId);
-        HeroEquipmentModal.show(hero, null, this.inventoryEquipment, this.t.bind(this), this.emit.bind(this));
+        if (!hero) return;
+        this.ui.openEquipmentOverlay({
+            hero,
+            inventoryEquipment: this.inventoryEquipment,
+            t: this.t.bind(this),
+            emit: this.emit.bind(this)
+        });
     }
 
     _openSkillsModal() {
