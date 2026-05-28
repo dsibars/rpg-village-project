@@ -6,6 +6,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { HeroesView } from '../../js/presentation/ui/heroes/HeroesView.js';
 import { HeroInscriptionModal } from '../../js/presentation/ui/heroes/components/HeroInscriptionModal.js';
+import { HeroSkillsModal } from '../../js/presentation/ui/heroes/components/HeroSkillsModal.js';
 import { TrainerModal, WitchModal, AcademyModal, HallOfFameModal } from '../../js/presentation/ui/heroes/components/HeroTrainingModals.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -115,9 +116,9 @@ test('HeroesView DOM Refactor', async (t) => {
 
         assert.strictEqual(emptyMsg.style.display, 'none');
         
-        const profileHeader = document.body.querySelector('.hero-detail-header-card');
-        assert.ok(profileHeader);
-        assert.ok(profileHeader.querySelector('h2').textContent.includes('Arthur'));
+        const profileLeft = document.body.querySelector('.hero-profile-left');
+        assert.ok(profileLeft);
+        assert.ok(profileLeft.querySelector('h2').textContent.includes('Arthur'));
 
         // Cleanup
         document.body.innerHTML = '';
@@ -151,7 +152,7 @@ test('HeroesView DOM Refactor', async (t) => {
         document.body.innerHTML = '';
     });
 
-    await t.test('clicking equipment slot opens HeroEquipmentModal', () => {
+    await t.test('clicking equipment button opens HeroEquipmentModal summary', () => {
         document.body.innerHTML = heroesHtml;
         const rootNode = document.body.querySelector('#heroes-view');
         
@@ -165,16 +166,18 @@ test('HeroesView DOM Refactor', async (t) => {
         view.selectedHeroId = 'hero_1';
         view.update(state);
 
-        // Click head slot
-        const headSlot = document.body.querySelector('.eq-slot-head');
-        assert.ok(headSlot);
-        headSlot.dispatchEvent(new Event('click'));
+        // Click Equipment button in quick-links
+        const equipBtn = document.body.querySelector('.hero-quick-links').querySelector('button');
+        // The buttons are rendered in order; Equipment is last (9th). Find by text.
+        const buttons = Array.from(document.body.querySelectorAll('.hero-quick-links button'));
+        const equipmentButton = buttons.find(b => b.textContent.includes('ui_equipment'));
+        assert.ok(equipmentButton, 'Equipment button should exist in quick-links');
+        equipmentButton.dispatchEvent(new Event('click'));
 
-        // Verify modal overlay is in body
+        // Verify modal overlay is in body (summary view)
         const overlay = document.body.querySelector('.modal-overlay');
         assert.ok(overlay);
-        assert.ok(overlay.textContent.includes('ui_available_gear'));
-        assert.ok(overlay.textContent.includes('tier_iron'));
+        assert.ok(overlay.textContent.includes('ui_hero_equipment_title'));
 
         // Close modal
         const closeBtn = overlay.querySelector('.btn-close-modal');
@@ -183,6 +186,74 @@ test('HeroesView DOM Refactor', async (t) => {
 
         // Cleanup
         document.body.innerHTML = '';
+    });
+
+    await t.test('clicking skills button opens HeroSkillsModal', () => {
+        document.body.innerHTML = heroesHtml;
+        const rootNode = document.body.querySelector('#heroes-view');
+        
+        const view = new HeroesView();
+        view.mount(rootNode, mockUi);
+
+        const state = createMockState();
+        view.selectedHeroId = 'hero_1';
+        view.update(state);
+
+        // Click Skills button in quick-links
+        const buttons = Array.from(document.body.querySelectorAll('.hero-quick-links button'));
+        const skillsButton = buttons.find(b => b.textContent.includes('ui_skills'));
+        assert.ok(skillsButton, 'Skills button should exist in quick-links');
+        skillsButton.dispatchEvent(new Event('click'));
+
+        // Verify modal overlay is in body
+        const overlay = document.body.querySelector('.modal-overlay');
+        assert.ok(overlay);
+        assert.ok(overlay.textContent.includes('ui_hero_skills_title'));
+
+        // Close modal
+        const closeBtn = overlay.querySelector('.btn-close-modal');
+        assert.ok(closeBtn);
+        closeBtn.dispatchEvent(new Event('click'));
+
+        // Cleanup
+        document.body.innerHTML = '';
+    });
+
+    await t.test('HeroSkillsModal renders known and locked families', () => {
+        const hero = {
+            id: 'hero_1',
+            name: 'Arthur',
+            level: 3,
+            activity: 'idle',
+            skillPoints: 1,
+            knownFamilies: ['single_strike', 'multiple_attack'],
+            techniqueTiers: { single_strike: 2, multiple_attack: 1 },
+            techniqueUses: { single_strike: 120, multiple_attack: 15 },
+            bodyInscription: null
+        };
+        const tFunc = (k) => k;
+        const emitted = [];
+        const onLearn = (familyId) => emitted.push(familyId);
+
+        try {
+            HeroSkillsModal.show(hero, tFunc, onLearn);
+
+            const overlay = document.body.querySelector('.modal-overlay');
+            assert.ok(overlay);
+            // Should show known families
+            assert.ok(overlay.textContent.includes('family_single_strike'));
+            assert.ok(overlay.textContent.includes('family_multiple_attack'));
+            // Should show locked families
+            assert.ok(overlay.textContent.includes('ui_locked_families'));
+            // Should show learn button for locked families
+            const learnBtn = overlay.querySelector('.btn-learn-family');
+            assert.ok(learnBtn);
+            learnBtn.dispatchEvent(new Event('click'));
+            assert.strictEqual(emitted.length, 1);
+        } finally {
+            const overlay = document.body.querySelector('.modal-overlay');
+            if (overlay) overlay.remove();
+        }
     });
 
     await t.test('HeroInscriptionModal renders and updates circle', () => {

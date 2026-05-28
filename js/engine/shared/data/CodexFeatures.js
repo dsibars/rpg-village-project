@@ -39,6 +39,15 @@ export const CODEX_FEATURES = [
         unlockHintKey: 'codex_feature_hero_attributes_unlock',
         isUnlocked: (state) => true
     },
+    {
+        id: 'feature_equipment',
+        categoryId: 'basics',
+        icon: '🛡️',
+        nameKey: 'codex_feature_equipment',
+        descKey: 'codex_feature_equipment_desc',
+        unlockHintKey: 'codex_feature_equipment_unlock',
+        isUnlocked: (state) => true
+    },
 
     // ─── COMBAT ───
     {
@@ -58,6 +67,15 @@ export const CODEX_FEATURES = [
         descKey: 'codex_feature_stamina_skills_desc',
         unlockHintKey: 'codex_feature_stamina_skills_unlock',
         isUnlocked: (state) => (state.heroes || []).some(h => h.level >= 5)
+    },
+    {
+        id: 'feature_skills',
+        categoryId: 'combat',
+        icon: '🗡️',
+        nameKey: 'codex_feature_skills',
+        descKey: 'codex_feature_skills_desc',
+        unlockHintKey: 'codex_feature_skills_unlock',
+        isUnlocked: (state) => true
     },
     {
         id: 'feature_threats_defense',

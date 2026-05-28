@@ -652,6 +652,7 @@ export class CombatView {
         return el('button', {
           class: 'btn btn-secondary',
           dataId: `skill-${familyId}`,
+          dataFamilyId: familyId,
           disabled: !canAfford,
           style: { flex: '1 1 140px' }
         }, [
@@ -686,6 +687,7 @@ export class CombatView {
         tierButtons.push(el('button', {
           class: 'btn btn-secondary',
           dataId: `tier-${t}`,
+          dataTier: t,
           disabled: !canAfford,
           style: { flex: '1 1 100px' }
         }, [
@@ -708,6 +710,7 @@ export class CombatView {
         return el('button', {
           class: 'btn btn-secondary',
           dataId: `spell-${idx}`,
+          dataSpellIdx: idx,
           disabled: !canCast,
           style: { flex: '1 1 140px' }
         }, [
@@ -734,6 +737,7 @@ export class CombatView {
           return el('button', {
             class: 'btn btn-secondary',
             dataId: `item-${itemId}`,
+            dataItemId: itemId,
             style: { flex: '1 1 140px' }
           }, `${itemName} x${consumables[itemId]}`);
         });

@@ -56,8 +56,13 @@ Heroes can be obtained through two methods:
 ## Equipment
 Heroes have 6 equipment slots: `head`, `body`, `legs`, `leftHand`, `rightHand`, and `accessory`. 
 - See [../shared/inventory/equipment.md](../shared/inventory/equipment.md) for details on gear and [../shared/inventory/equipment_data.md](../shared/inventory/equipment_data.md) for values.
-- Equipment can be swapped or unequipped from the Hero Details panel in the Heroes screen. Clicking any equipment slot opens a modal displaying compatible items in the inventory.
+- Equipment is managed through a dedicated **Equipment modal** opened from the hero's quick-access button bar. Each slot can be clicked to swap or unequip items via a filtered inventory list.
 - Equipping multiple items of the same material **set** grants set bonuses. See Equipment Specification for the full bonus table.
+
+## Hero Detail Panel Layout
+The hero detail view uses a split-pane layout designed to fit without scrolling:
+- **Left column:** Hero portrait, name, origin badge, origin description, activity/XP status, and a horizontal row of quick-access buttons (Training Grounds, Hall of Fame, Magic Circle, Witch's Hut, Glyph Academy, Body Inscription, Gambits, Equipment, Skills).
+- **Right column:** Attribute points summary with assignable stat rows (HP, MP, Stamina, Strength, Speed, Defense, Magic Power).
 
 ## Expedition State Lock
 While a hero is deployed on an active expedition (their status or activity is not idle), their progression and equipment are locked. They cannot assign unassigned stat points, learn/upgrade skills, or swap/unequip equipment until they return to the village (either by completing the expedition or by retreating).

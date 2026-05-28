@@ -138,6 +138,73 @@ test('CombatView DOM Integration Tests', async (t) => {
         overlay.remove();
     });
 
+    await t.test('skill selection, tier selection, and targeting works through delegated click events', () => {
+        let executedAction = null;
+        let executedIndex = null;
+        let executedTier = null;
+
+        const view = new CombatView({ i18n: mockI18n });
+        view.adapter = mockAdapter;
+        view.engine = {
+            executeBattleAction: (actionId, targetIndex, tier) => {
+                executedAction = actionId;
+                executedIndex = targetIndex;
+                executedTier = tier;
+                return { success: true };
+            }
+        };
+
+        const battle = createMockBattle();
+        battle.heroes[0].knownFamilies = ['single_strike', 'power_strike'];
+        battle.heroes[0].techniqueTiers = { power_strike: 2 };
+        battle.heroes[0].stamina = 20;
+
+        const state = { activeBattle: battle };
+
+        view.update(state);
+
+        const overlay = document.body.querySelector('#combat-overlay');
+        try {
+            // Go to skills menu
+            const skillsBtn = overlay.querySelector('#btn-action-skills');
+            assert.ok(skillsBtn);
+            skillsBtn.dispatchEvent(new Event('click', { bubbles: true }));
+
+            // Refresh UI
+            view.update(state);
+
+            // Click on the skill button in the skills list
+            const skillBtn = overlay.querySelector('[data-family-id="power_strike"]');
+            assert.ok(skillBtn, 'Skill button with data-family-id="power_strike" should exist');
+            skillBtn.dispatchEvent(new Event('click', { bubbles: true }));
+
+            // Refresh UI
+            view.update(state);
+
+            // Click on the tier button in the tiers list
+            const tierBtn = overlay.querySelector('[data-tier="2"]');
+            assert.ok(tierBtn, 'Tier button with data-tier="2" should exist');
+            tierBtn.dispatchEvent(new Event('click', { bubbles: true }));
+
+            // Refresh UI
+            view.update(state);
+
+            // Verify Enemy Card gets "targetable" class
+            const enemyCard = overlay.querySelector('[data-enemy-index="0"]');
+            assert.ok(enemyCard.classList.contains('targetable'));
+
+            // Click on the targetable enemy card
+            enemyCard.dispatchEvent(new Event('click', { bubbles: true }));
+
+            assert.strictEqual(executedAction, 'power_strike');
+            assert.strictEqual(executedIndex, 0);
+            assert.strictEqual(executedTier, 2);
+        } finally {
+            // Clean up
+            overlay.remove();
+        }
+    });
+
     await t.test('victory/defeat resolution shows summary and handles closing', (t, done) => {
         let resolved = false;
 

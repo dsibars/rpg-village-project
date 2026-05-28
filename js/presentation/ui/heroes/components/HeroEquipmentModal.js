@@ -2,13 +2,97 @@ import { BaseModal } from '../../components/modal/BaseModal.js';
 import { getEquipmentName, getEquipmentStats } from '../../shared/EquipmentHelper.js';
 import { el } from '../../shared/utils/DOMUtils.js';
 
+const equipSlots = ['head', 'body', 'legs', 'leftHand', 'rightHand', 'accessory'];
+const slotIcons = {
+    head: '🪖',
+    body: '🦺',
+    legs: '👢',
+    leftHand: '⚔️',
+    rightHand: '🛡️',
+    accessory: '💍'
+};
+
 export class HeroEquipmentModal {
     static show(hero, slot, inventoryEquipment, t, emit) {
         if (!hero || hero.activity !== 'idle') return;
 
+        if (!slot) {
+            HeroEquipmentModal._showSummary(hero, inventoryEquipment, t, emit);
+            return;
+        }
+
+        HeroEquipmentModal._showSlotPicker(hero, slot, inventoryEquipment, t, emit);
+    }
+
+    static _showSummary(hero, inventoryEquipment, t, emit) {
+        const isIdle = hero.activity === 'idle';
+
+        const diagramSlots = equipSlots.map(s => {
+            const hasItem = !!hero.equipment[s];
+            const itemName = hasItem ? getEquipmentName(hero.equipment[s], t) : t('ui_empty_slot') || 'Empty';
+            const clickableClass = isIdle ? 'clickable' : 'locked';
+
+            return el('div', {
+                class: `equip-slot eq-slot-${s} ${clickableClass} ${hasItem ? 'has-item' : ''}`,
+                'data-slot': s,
+                onClick: () => {
+                    if (!isIdle) return;
+                    modal.close();
+                    HeroEquipmentModal._showSlotPicker(hero, s, inventoryEquipment, t, emit);
+                }
+            }, [
+                el('div', { class: 'eq-slot-icon' }, [slotIcons[s]]),
+                el('div', { class: 'eq-slot-label' }, [t('slot_' + s) || s]),
+                el('div', { class: 'eq-slot-item' }, [itemName])
+            ]);
+        });
+
+        const equipmentDiagramRef = el('div', { class: 'equipment-diagram' }, [
+            el('div', { class: 'eq-body-silhouette' }, [
+                el('div', { class: 'silhouette-head' }),
+                el('div', { class: 'silhouette-torso' }),
+                el('div', { class: 'silhouette-legs' })
+            ]),
+            ...diagramSlots
+        ]);
+
+        const setBonusesContainerRef = el('div', { class: 'set-bonuses-list' });
+        if (hero.activeSetBonuses && hero.activeSetBonuses.length > 0) {
+            hero.activeSetBonuses.forEach(sb => {
+                const setName = t(sb.setName) || sb.setName;
+                const bonusLines = Object.entries(sb.bonus).map(([stat, val]) => {
+                    const sign = val > 0 ? '+' : '';
+                    const label = t('ui_stats_' + stat) || stat.toUpperCase();
+                    return `${sign}${val} ${label}`;
+                }).join(', ');
+
+                const setBlock = el('div', { class: 'set-bonus-block' }, [
+                    el('div', { class: 'set-bonus-header' }, [
+                        el('span', { class: 'set-bonus-name' }, [setName]),
+                        el('span', { class: 'set-bonus-pieces' }, [`(${sb.pieces}/${sb.threshold})`])
+                    ]),
+                    el('div', { class: 'set-bonus-stats' }, [bonusLines])
+                ]);
+                setBonusesContainerRef.appendChild(setBlock);
+            });
+        }
+
+        const contentElement = el('div', { style: { display: 'flex', flexDirection: 'column', height: '100%' } }, [
+            el('div', { class: 'equipment-list' }, [equipmentDiagramRef]),
+            setBonusesContainerRef
+        ]);
+
+        const modal = BaseModal.show({
+            title: t('ui_hero_equipment_title').replace('{name}', hero.name) || `${hero.name}'s Equipment`,
+            contentElement,
+            icon: '🛡️',
+            maxWidth: '480px'
+        });
+    }
+
+    static _showSlotPicker(hero, slot, inventoryEquipment, t, emit) {
         const currentItem = hero.equipment[slot];
 
-        // Filter eligible items in inventory
         const eligibleItems = inventoryEquipment.filter(item => {
             if (slot === 'leftHand' || slot === 'rightHand') {
                 return item.type === 'weapon' || (item.type === 'armor' && item.slot === slot);
@@ -24,10 +108,6 @@ export class HeroEquipmentModal {
             const color = val > 0 ? 'var(--success)' : 'var(--danger)';
             const sign = val > 0 ? '+' : '';
             return el('span', { style: { color, fontWeight: '700' } }, [`${sign}${val} ${label}`]);
-        };
-
-        const modal = {
-            close: () => {}
         };
 
         let currentItemEl = null;
@@ -158,13 +238,11 @@ export class HeroEquipmentModal {
         ].filter(Boolean));
 
         const title = `${t('ui_equip')} - ${t('slot_' + slot)}`;
-        
-        const res = BaseModal.show({
+
+        const modal = BaseModal.show({
             title: title,
             contentElement: contentElement,
             maxWidth: '480px'
         });
-
-        modal.close = res.close;
     }
 }

@@ -41,6 +41,13 @@ Tapping **Skills** shows known families. Tapping a family shows tiers:
 
 Each tier displays its Stamina cost. Grayed out if insufficient stamina.
 
+### Hero Profile Integration
+
+Outside of combat, physical skills are viewed and managed through a dedicated **Skills modal** opened from the hero's quick-access button bar. The modal displays:
+- Known families sorted by tier (highest first), with effect labels, stamina costs, and tier progress bars.
+- Locked families with preview effects and a **Learn** button (when the hero has skill points and is idle).
+- Body Inscription indicator (✦) when a skill has been enhanced via hybrid inscription.
+
 ---
 
 ## Magic Spells

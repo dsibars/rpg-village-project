@@ -35,5 +35,9 @@ Wearing multiple pieces of the same material set grants cumulative bonuses. Thre
 | **Gold** | +20 HP, +3 STR, +2 DEF | +40 HP, +5 STR, +3 DEF, +2 SPD | +60 HP, +7 STR, +5 DEF, +3 SPD, +3 MAG |
 | **Mythril** | +30 HP, +5 STR, +3 DEF, +2 SPD | +60 HP, +8 STR, +5 DEF, +4 SPD, +3 MAG | +100 HP, +12 STR, +8 DEF, +6 SPD, +5 MAG |
 
+## Hero Profile Integration
+
+Equipment is managed through a dedicated **Equipment modal** opened from the hero's quick-access button bar. The modal displays all six slots in a visual diagram; clicking any slot opens a filtered inventory picker to swap or unequip the item. Active set bonuses are listed below the diagram.
+
 ## Data Registry
 See [equipment_data.md](equipment_data.md) for the full list of materials, weapons, and armor archetypes.

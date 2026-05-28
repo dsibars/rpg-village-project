@@ -1,6 +1,7 @@
 import { BaseView } from '../BaseView.js';
 import { TECHNIQUE_FAMILIES } from '../../../engine/shared/data/GameConstants.js';
 import { HeroEquipmentModal } from './components/HeroEquipmentModal.js';
+import { HeroSkillsModal } from './components/HeroSkillsModal.js';
 import { TrainerModal, WitchModal, AcademyModal, HallOfFameModal } from './components/HeroTrainingModals.js';
 import { HeroInscriptionModal } from './components/HeroInscriptionModal.js';
 import { GambitView } from '../gambit/GambitView.js';
@@ -59,6 +60,12 @@ export class HeroesView extends BaseView {
             },
             onOpenGambits: () => {
                 this._openGambitModal();
+            },
+            onOpenEquipment: () => {
+                this._openEquipmentModal();
+            },
+            onOpenSkills: () => {
+                this._openSkillsModal();
             },
             onBack: () => {
                 this.selectedHeroId = null;
@@ -183,6 +190,18 @@ export class HeroesView extends BaseView {
     _openEquipModal(slot) {
         const hero = this.lastRawState.heroes.find(h => h.id === this.selectedHeroId);
         HeroEquipmentModal.show(hero, slot, this.inventoryEquipment, this.t.bind(this), this.emit.bind(this));
+    }
+
+    _openEquipmentModal() {
+        const hero = this.lastRawState?.heroes?.find(h => h.id === this.selectedHeroId);
+        HeroEquipmentModal.show(hero, null, this.inventoryEquipment, this.t.bind(this), this.emit.bind(this));
+    }
+
+    _openSkillsModal() {
+        const hero = this.lastRawState?.heroes?.find(h => h.id === this.selectedHeroId);
+        HeroSkillsModal.show(hero, this.t.bind(this), (familyId) => {
+            this.emit('learnFamily', { heroId: this.selectedHeroId, familyId });
+        });
     }
 
     _openTrainerModal() {
