@@ -392,8 +392,8 @@ export class GambitService {
             };
             // Auto-fill null payload with first available skill/spell
             if (newRule.action.type === 'skill' && !newRule.action.payload) {
-                const availableSkill = (hero.knownFamilies || []).find(f => f && SKILLS_DATA[f]);
-                newRule.action.payload = availableSkill || null;
+                const availableSkill = (hero.knownFamilies || []).find(f => f && f !== 'single_strike' && SKILLS_DATA[f]);
+                newRule.action.payload = availableSkill || 'single_strike';
             }
             if (newRule.action.type === 'spell' && !newRule.action.payload) {
                 const availableSpell = (hero.spellCodex || []).find(s => s && s.name);

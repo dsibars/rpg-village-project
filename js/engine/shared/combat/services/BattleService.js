@@ -97,6 +97,7 @@ export class BattleService {
                 this.log.push({
                     type: 'STAMINA_REGEN',
                     actorId: currentEntity.id,
+                    actorName: currentEntity.name,
                     amount: actualRegen,
                     message: `${currentEntity.name} recovered stamina.`
                 });
@@ -683,7 +684,9 @@ export class BattleService {
                 isMiss: false,
                 isCrit: false,
                 elementMult,
-                targetDefeated: target.hp <= 0
+                targetDefeated: target.hp <= 0,
+                targetHp: target.hp,
+                targetMaxHp: target.maxHp
             };
 
             // Apply status effects
@@ -794,6 +797,8 @@ export class BattleService {
                 }
             }
 
+            event.targetHp = target.hp;
+            event.targetMaxHp = target.maxHp;
             actionEvents.push(event);
             this.log.push(event);
         }

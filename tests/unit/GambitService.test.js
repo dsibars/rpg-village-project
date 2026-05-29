@@ -227,3 +227,17 @@ test('GambitService: getPresetForHero returns Spellblade for hybrid', () => {
     const preset = GambitService.getPresetForHero(hero);
     assert.strictEqual(preset.id, 'preset_spellblades_code');
 });
+
+test('GambitService: applyPreset fills with non-basic physical skills if available', () => {
+    const hero = makeHero({
+        knownGlyphs: [],
+        knownFamilies: ['single_strike', 'power_strike'],
+        gambits: []
+    });
+
+    const res = GambitService.applyPreset(hero, 'preset_vanguards_code');
+    assert.strictEqual(res.success, true);
+    
+    const powerStrikeRules = hero.gambits.filter(g => g.action.payload === 'power_strike');
+    assert.strictEqual(powerStrikeRules.length, 2, 'Both preset physical rules should select power_strike');
+});

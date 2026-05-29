@@ -2,6 +2,7 @@ import { BattleService } from '../shared/combat/services/BattleService.js';
 import { Result } from '../shared/core/Result.js';
 import { Hero } from '../heroes/models/Hero.js';
 import { Enemy } from '../shared/combat/models/Enemy.js';
+import { SKILLS_DATA } from '../shared/data/GameConstants.js';
 
 export class SimulationRunner {
     /**
@@ -62,8 +63,96 @@ export class SimulationRunner {
             // Append run logs
             combinedLog.push(`--- RUN ${i + 1} ---`);
             battleService.log.forEach(entry => {
-                const rulePrefix = entry.ruleIndex !== undefined ? `[Rule ${entry.ruleIndex}] ` : '';
-                combinedLog.push(`${rulePrefix}${entry.type}: ${entry.actorName} acted.`);
+                const rulePrefix = entry.ruleIndex !== undefined ? `[Rule ${entry.ruleIndex + 1}] ` : '';
+                let msg = '';
+                switch (entry.type) {
+                    case 'DAMAGE': {
+                        const skillName = SKILLS_DATA[entry.skillId]?.name || entry.skillId || 'attack';
+                        const tierStr = entry.effectiveTier ? ` (Tier ${entry.effectiveTier})` : '';
+                        const critStr = entry.isCrit ? ' 💥CRIT!' : '';
+                        const missStr = entry.isMiss ? ' (Missed)' : '';
+                        const outcome = entry.isMiss ? '' : ` dealt ${entry.amount} damage to ${entry.targetName} [${entry.targetHp}/${entry.targetMaxHp} HP]${critStr}`;
+                        msg = `${rulePrefix}${entry.actorName} used ${skillName}${tierStr}${missStr}${outcome}.`;
+                        break;
+                    }
+                    case 'HEAL': {
+                        const sourceStr = entry.source ? ` via ${entry.source}` : '';
+                        const targetHpStr = (entry.targetHp !== undefined && entry.targetMaxHp !== undefined) ? ` [${entry.targetHp}/${entry.targetMaxHp} HP]` : '';
+                        msg = `${rulePrefix}${entry.actorName} healed ${entry.targetName} for ${entry.amount} HP${sourceStr}${targetHpStr}.`;
+                        break;
+                    }
+                    case 'SPELL_DAMAGE': {
+                        const elementStr = entry.element ? ` [${entry.element.toUpperCase()}]` : '';
+                        const critStr = entry.isCrit ? ' 💥CRIT!' : '';
+                        const targetHpStr = (entry.targetHp !== undefined && entry.targetMaxHp !== undefined) ? ` [${entry.targetHp}/${entry.targetMaxHp} HP]` : '';
+                        msg = `${rulePrefix}${entry.actorName} cast ${entry.spellName}${elementStr} on ${entry.targetName} dealing ${entry.amount} damage${critStr}${targetHpStr}.`;
+                        break;
+                    }
+                    case 'MP_RESTORE': {
+                        const targetHpStr = (entry.targetHp !== undefined && entry.targetMaxHp !== undefined) ? ` [${entry.targetHp}/${entry.targetMaxHp} HP]` : '';
+                        msg = `${rulePrefix}${entry.actorName} restored ${entry.amount} MP to ${entry.targetName}${targetHpStr}.`;
+                        break;
+                    }
+                    case 'STAMINA_RESTORE': {
+                        msg = `${rulePrefix}${entry.actorName} restored ${entry.amount} Stamina to ${entry.targetName}.`;
+                        break;
+                    }
+                    case 'STAMINA_REGEN': {
+                        msg = `${entry.actorName || 'Actor'} recovered ${entry.amount} stamina.`;
+                        break;
+                    }
+                    case 'TRAIT_REGEN': {
+                        const targetHpStr = (entry.targetHp !== undefined && entry.targetMaxHp !== undefined) ? ` [${entry.targetHp}/${entry.targetMaxHp} HP]` : '';
+                        msg = `${entry.targetName} recovered ${entry.amount} HP from party regen${targetHpStr}.`;
+                        break;
+                    }
+                    case 'STATUS_TICK': {
+                        const targetHpStr = (entry.targetHp !== undefined && entry.targetMaxHp !== undefined) ? ` [${entry.targetHp}/${entry.targetMaxHp} HP]` : '';
+                        msg = `${entry.targetName} took ${entry.damage} ${entry.effectType} damage${targetHpStr}.`;
+                        break;
+                    }
+                    case 'STATUS_EXPIRED': {
+                        msg = `${entry.targetName}'s ${entry.effectType} expired.`;
+                        break;
+                    }
+                    case 'USE_CONSUMABLE': {
+                        const itemStr = entry.consumableId || 'item';
+                        const targetHpStr = (entry.targetHp !== undefined && entry.targetMaxHp !== undefined) ? ` [${entry.targetHp}/${entry.targetMaxHp} HP]` : '';
+                        msg = `${rulePrefix}${entry.actorName} used ${itemStr} on ${entry.targetName} healing ${entry.amount} HP${targetHpStr}.`;
+                        break;
+                    }
+                    case 'STUN_SKIP': {
+                        msg = `${entry.actorName} is stunned! Skipping turn.`;
+                        break;
+                    }
+                    case 'SLEEP_SKIP': {
+                        msg = `${entry.actorName} is asleep! Skipping turn.`;
+                        break;
+                    }
+                    case 'defend': {
+                        msg = `${rulePrefix}${entry.actorName} defended.`;
+                        break;
+                    }
+                    case 'flee': {
+                        msg = `${rulePrefix}${entry.actorName} attempted to flee (${entry.success ? 'Success' : 'Failed'}).`;
+                        break;
+                    }
+                    case 'VAMP': {
+                        const targetHpStr = (entry.targetHp !== undefined && entry.targetMaxHp !== undefined) ? ` [${entry.targetHp}/${entry.targetMaxHp} HP]` : '';
+                        msg = `${entry.actorName} recovered ${entry.amount} HP from vampirism${targetHpStr}.`;
+                        break;
+                    }
+                    case 'TECHNIQUE_EVOLVED': {
+                        msg = `${entry.actorName}'s ${entry.family} evolved to Tier ${entry.tier}!`;
+                        break;
+                    }
+                    default: {
+                        const actorStr = entry.actorName || entry.targetName || 'Someone';
+                        msg = `${rulePrefix}${entry.type}: ${actorStr} acted.`;
+                        break;
+                    }
+                }
+                combinedLog.push(msg);
             });
         }
 

@@ -193,7 +193,16 @@ export class GambitView {
         const learnedFamilies = Object.values(TECHNIQUE_FAMILIES).filter(f => knownFamilyIds.has(f.id));
         const spellCodex = hero.spellCodex || [];
 
+        this.currentHeroId = hero.id;
+        this.refresh = (updatedHero) => {
+            gambits = [...(updatedHero.gambits || [])];
+            fallbackAction = updatedHero.fallbackAction || 'single_strike';
+            updateUI();
+        };
+
         const close = () => {
+            this.currentHeroId = null;
+            this.refresh = null;
             if (this.overlay) {
                 this.overlay.style.opacity = '0';
                 setTimeout(() => {
@@ -211,6 +220,18 @@ export class GambitView {
         const countIndicator = el('span', {}, `${gambits.length} / 12`);
 
         // Header actions
+        const presetBtn = el('button', {
+            class: 'btn btn-secondary btn-sm',
+            id: 'btn-gambit-preset',
+            style: { marginRight: '8px' },
+            onClick: () => {
+                emit('suggestPreset', { heroId: hero.id });
+            }
+        }, [
+            `💡 `,
+            t('gambit_preset_btn') || 'Suggest Preset'
+        ]);
+
         const testBtn = el('button', {
             class: 'btn btn-primary btn-sm',
             id: 'btn-gambit-test',
@@ -542,7 +563,8 @@ export class GambitView {
                             )
                         ])
                     ]),
-                    el('div', { style: { display: 'flex', gap: '8px' } }, [
+                    el('div', { style: { display: 'flex', gap: '8px', alignItems: 'center' } }, [
+                        presetBtn,
                         testBtn,
                         closeBtn
                     ])
@@ -646,6 +668,12 @@ export class GambitView {
         filterTargets();
         updateTierDropdown();
         updateUI();
+    }
+
+    update(hero) {
+        if (this.refresh && this.currentHeroId === hero.id) {
+            this.refresh(hero);
+        }
     }
 
     static showTestResults(result, healthScore, rating, t) {
