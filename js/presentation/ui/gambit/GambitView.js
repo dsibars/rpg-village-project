@@ -38,7 +38,10 @@ export class GambitView {
         const targetText = gambit.target || 'Auto';
         
         const translatedCond = t(condText) || condText;
-        const translatedAction = t('family_' + actionText) || t(actionText) || actionText;
+        let translatedAction = t('family_' + actionText) || t(actionText) || actionText;
+        if (gambit.action && gambit.action.type === 'skill' && gambit.action.tier) {
+            translatedAction += ` (Tier ${gambit.action.tier})`;
+        }
         const translatedTarget = t('gambit_target_' + targetText) || targetText;
 
         return el('span', {}, [
@@ -213,7 +216,11 @@ export class GambitView {
             id: 'btn-gambit-test',
             style: { backgroundColor: 'var(--accent-color)' },
             onClick: () => {
-                emit('testGambits', { heroId: hero.id });
+                const bestiary = this.ui?.lastState?.bestiary || [];
+                const enemyTemplates = this.ui?.lastState?.enemyTemplates || {};
+                GambitView.showTestSetup(hero, bestiary, enemyTemplates, t, (configuredEnemies) => {
+                    emit('testGambits', { heroId: hero.id, enemies: configuredEnemies });
+                });
             }
         }, [
             `🧪 `,
@@ -235,18 +242,6 @@ export class GambitView {
             },
             onClick: close
         }, '✕');
-
-        const presetBtn = el('button', {
-            class: 'btn btn-secondary btn-sm',
-            id: 'btn-gambit-preset',
-            onClick: () => {
-                emit('suggestPreset', { heroId: hero.id });
-                close();
-            }
-        }, [
-            `📋 `,
-            t('gambit_preset_btn') || 'Suggest Preset'
-        ]);
 
         // Right panel form elements
         const conditionSelect = el('select', {
@@ -294,6 +289,55 @@ export class GambitView {
                 spellCodex.map((s, i) => el('option', { value: `spell:${i}`, 'data-target-type': s.targetType || 'single_enemy' }, s.name))
             )
         ]);
+
+        const tierSelect = el('select', {
+            id: 'new-gambit-tier',
+            class: 'gambit-select dark-select',
+            style: {
+                width: '100%',
+                padding: '10px',
+                borderRadius: '6px',
+                background: 'rgba(0,0,0,0.5)',
+                border: '1px solid var(--glass-border)',
+                color: 'var(--text-primary)',
+                outline: 'none'
+            }
+        });
+
+        const tierContainer = el('div', {
+            style: {
+                display: 'none'
+            }
+        }, [
+            el('label', {
+                style: {
+                    display: 'block',
+                    fontSize: '0.75rem',
+                    color: 'var(--text-muted)',
+                    textTransform: 'uppercase',
+                    marginBottom: '6px',
+                    fontWeight: '600',
+                    letterSpacing: '0.05em'
+                }
+            }, 'Skill Tier'),
+            tierSelect
+        ]);
+
+        const updateTierDropdown = () => {
+            const actionRaw = actionSelect.value;
+            const [actionType, actionId] = actionRaw.split(':');
+            if (actionType === 'tech') {
+                const maxTier = hero.techniqueTiers && hero.techniqueTiers[actionId] || 1;
+                tierSelect.innerHTML = '';
+                for (let tNum = 1; tNum <= maxTier; tNum++) {
+                    const opt = el('option', { value: String(tNum) }, `Tier ${tNum}`);
+                    tierSelect.appendChild(opt);
+                }
+                tierContainer.style.display = 'block';
+            } else {
+                tierContainer.style.display = 'none';
+            }
+        };
 
         const targetSelect = el('select', {
             id: 'new-gambit-target',
@@ -383,7 +427,10 @@ export class GambitView {
             const condition = conditionMap[conditionRaw] || { type: 'always', value: true };
 
             let payload = actionId;
-            if (actionType === 'spell') {
+            let tier = undefined;
+            if (actionType === 'tech') {
+                tier = parseInt(tierSelect.value, 10) || 1;
+            } else if (actionType === 'spell') {
                 const spellIdx = parseInt(actionId, 10);
                 const spell = spellCodex[spellIdx];
                 payload = spell ? spell.name : actionId;
@@ -392,7 +439,11 @@ export class GambitView {
             const gambit = {
                 id: 'gambit_v1_' + Date.now(),
                 conditions: [{ op: 'SINGLE', left: condition, right: null }],
-                action: { type: actionType === 'tech' ? 'skill' : actionType, payload: payload },
+                action: { 
+                    type: actionType === 'tech' ? 'skill' : actionType, 
+                    payload: payload,
+                    ...(tier !== undefined ? { tier } : {})
+                },
                 target: target,
                 enabled: true
             };
@@ -440,7 +491,10 @@ export class GambitView {
             }
         };
 
-        actionSelect.addEventListener('change', filterTargets);
+        actionSelect.addEventListener('change', () => {
+            filterTargets();
+            updateTierDropdown();
+        });
 
         // Dynamic update routines
         const updateRows = () => {
@@ -510,8 +564,7 @@ export class GambitView {
                             el('span', {}, [
                                 el('strong', {}, (t('ui_gambit_count') || 'Gambits') + ': '),
                                 countIndicator
-                            ]),
-                            presetBtn
+                            ])
                         ]),
                         listContainer,
                         fallbackContainer
@@ -565,6 +618,7 @@ export class GambitView {
                                 }, 'Action'),
                                 actionSelect
                             ]),
+                            tierContainer,
                             el('div', {}, [
                                 el('label', {
                                     style: {
@@ -590,6 +644,7 @@ export class GambitView {
         
         // Initial setup and filter
         filterTargets();
+        updateTierDropdown();
         updateUI();
     }
 
@@ -654,5 +709,266 @@ export class GambitView {
         });
 
         contentElement.querySelector('#btn-close-test').addEventListener('click', modal.close);
+    }
+
+    static showTestSetup(hero, bestiary, enemyTemplates, t, onStartSimulation) {
+        const configuredEnemies = [];
+        const maxEnemies = 6;
+        const maxLevel = hero.level + 10;
+
+        const contentElement = el('div', {
+            style: {
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '16px',
+                height: '100%',
+                maxHeight: '80vh',
+                color: 'var(--text-primary)'
+            }
+        });
+
+        const listContainer = el('div', {
+            style: {
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px',
+                maxHeight: '220px',
+                overflowY: 'auto',
+                paddingRight: '4px'
+            }
+        });
+
+        const bestiaryContainer = el('div', {
+            style: {
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))',
+                gap: '8px',
+                maxHeight: '180px',
+                overflowY: 'auto',
+                padding: '8px',
+                background: 'rgba(0,0,0,0.3)',
+                borderRadius: '8px',
+                border: '1px solid var(--glass-border)'
+            }
+        });
+
+        const startBtn = el('button', {
+            class: 'btn btn-primary',
+            style: {
+                width: '100%',
+                padding: '12px',
+                fontWeight: 'bold',
+                background: 'var(--accent-gradient)',
+                border: 'none',
+                marginTop: '8px'
+            },
+            disabled: true,
+            onClick: () => {
+                modal.close();
+                onStartSimulation(configuredEnemies.map(e => ({ templateId: e.templateId, level: e.level })));
+            }
+        }, [t('ui_start_simulation') || 'Start Simulation ⚔️']);
+
+        const updateSelectedUI = () => {
+            listContainer.innerHTML = '';
+            startBtn.disabled = configuredEnemies.length === 0;
+
+            if (configuredEnemies.length === 0) {
+                listContainer.appendChild(el('div', {
+                    style: {
+                        textAlign: 'center',
+                        color: 'var(--text-muted)',
+                        padding: '24px 0',
+                        fontSize: '0.9rem',
+                        border: '1px dashed var(--glass-border)',
+                        borderRadius: '8px'
+                    }
+                }, [t('ui_no_enemies_selected') || 'No enemies selected. Add some from the catalog!']));
+                return;
+            }
+
+            configuredEnemies.forEach((item, idx) => {
+                const name = t(item.templateId) || enemyTemplates[item.templateId]?.name || item.templateId;
+
+                const minusBtn = el('button', {
+                    style: {
+                        width: '24px',
+                        height: '24px',
+                        borderRadius: '50%',
+                        border: '1px solid var(--glass-border)',
+                        background: 'rgba(255,255,255,0.06)',
+                        color: 'var(--text-primary)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer',
+                        fontSize: '0.8rem',
+                        transition: 'all 0.2s',
+                        userSelect: 'none'
+                    },
+                    onMouseEnter: (e) => {
+                        e.target.style.background = 'var(--accent-color)';
+                        e.target.style.borderColor = 'var(--accent-color)';
+                    },
+                    onMouseLeave: (e) => {
+                        e.target.style.background = 'rgba(255,255,255,0.06)';
+                        e.target.style.borderColor = 'var(--glass-border)';
+                    },
+                    onClick: () => {
+                        if (item.level > 1) {
+                            item.level--;
+                            lvlVal.textContent = item.level;
+                        }
+                    }
+                }, '-');
+
+                const plusBtn = el('button', {
+                    style: {
+                        width: '24px',
+                        height: '24px',
+                        borderRadius: '50%',
+                        border: '1px solid var(--glass-border)',
+                        background: 'rgba(255,255,255,0.06)',
+                        color: 'var(--text-primary)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer',
+                        fontSize: '0.8rem',
+                        transition: 'all 0.2s',
+                        userSelect: 'none'
+                    },
+                    onMouseEnter: (e) => {
+                        e.target.style.background = 'var(--accent-color)';
+                        e.target.style.borderColor = 'var(--accent-color)';
+                    },
+                    onMouseLeave: (e) => {
+                        e.target.style.background = 'rgba(255,255,255,0.06)';
+                        e.target.style.borderColor = 'var(--glass-border)';
+                    },
+                    onClick: () => {
+                        if (item.level < maxLevel) {
+                            item.level++;
+                            lvlVal.textContent = item.level;
+                        }
+                    }
+                }, '+');
+
+                const lvlVal = el('span', {
+                    style: {
+                        minWidth: '24px',
+                        textAlign: 'center',
+                        fontWeight: 'bold',
+                        fontSize: '0.9rem',
+                        color: 'var(--accent-color)'
+                    }
+                }, String(item.level));
+
+                const lvlInput = el('div', {
+                    style: {
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        background: 'rgba(0,0,0,0.2)',
+                        padding: '2px 6px',
+                        borderRadius: '16px',
+                        border: '1px solid rgba(255,255,255,0.05)'
+                    }
+                }, [minusBtn, lvlVal, plusBtn]);
+
+                const row = el('div', {
+                    style: {
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '8px 12px',
+                        background: 'rgba(255,255,255,0.04)',
+                        border: '1px solid rgba(255,255,255,0.08)',
+                        borderRadius: '6px'
+                    }
+                }, [
+                    el('div', { style: { display: 'flex', flexDirection: 'column' } }, [
+                        el('span', { style: { fontWeight: '500', fontSize: '0.9rem' } }, name),
+                        el('span', { style: { fontSize: '0.75rem', color: 'var(--text-muted)' } }, `Position ${idx + 1}`)
+                    ]),
+                    el('div', { style: { display: 'flex', alignItems: 'center', gap: '8px' } }, [
+                        el('span', { style: { fontSize: '0.8rem', color: 'var(--text-muted)' } }, 'Lvl:'),
+                        lvlInput,
+                        el('button', {
+                            class: 'btn btn-danger btn-sm',
+                            style: { padding: '4px 8px', fontSize: '0.8rem' },
+                            onClick: () => {
+                                configuredEnemies.splice(idx, 1);
+                                updateSelectedUI();
+                            }
+                        }, '✕')
+                    ])
+                ]);
+                listContainer.appendChild(row);
+            });
+        };
+
+        // Populate available bestiary
+        const availableEnemyIds = bestiary.length > 0 ? bestiary : ['slime_green'];
+        availableEnemyIds.forEach(eid => {
+            const name = t(eid) || enemyTemplates[eid]?.name || eid;
+            const template = enemyTemplates[eid] || { element: 'neutral' };
+            const elemIcon = template.element === 'fire' ? '🔥' : template.element === 'water' ? '💧' : template.element === 'storm' ? '⚡' : '🍃';
+
+            const card = el('div', {
+                style: {
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    padding: '8px',
+                    background: 'rgba(255,255,255,0.03)',
+                    border: '1px solid rgba(255,255,255,0.06)',
+                    borderRadius: '6px',
+                    textAlign: 'center',
+                    cursor: 'pointer'
+                },
+                onClick: () => {
+                    if (configuredEnemies.length >= maxEnemies) {
+                        return;
+                    }
+                    configuredEnemies.push({
+                        id: 'enemy_' + Date.now() + '_' + Math.random(),
+                        templateId: eid,
+                        level: hero.level
+                    });
+                    updateSelectedUI();
+                }
+            }, [
+                el('span', { style: { fontSize: '1.2rem', marginBottom: '4px' } }, elemIcon),
+                el('span', { style: { fontSize: '0.8rem', fontWeight: '500', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' } }, name),
+                el('span', { style: { fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '4px' } }, `+ Add`)
+            ]);
+
+            bestiaryContainer.appendChild(card);
+        });
+
+        contentElement.appendChild(el('div', {}, [
+            el('h4', { style: { fontSize: '0.9rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px' } }, [
+                t('ui_selected_enemies') || 'Encounter Party',
+                el('span', { style: { float: 'right', fontSize: '0.8rem', color: 'var(--accent-color)' } }, `Limit: ${maxEnemies}`)
+            ]),
+            listContainer
+        ]));
+
+        contentElement.appendChild(el('div', {}, [
+            el('h4', { style: { fontSize: '0.9rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px' } }, t('ui_discovered_bestiary') || 'Bestiary Catalog'),
+            bestiaryContainer
+        ]));
+
+        contentElement.appendChild(startBtn);
+
+        updateSelectedUI();
+
+        const modal = BaseModal.show({
+            title: t('ui_gambit_test_setup_title') || 'Gambit Simulation Setup',
+            contentElement,
+            icon: '⚔️',
+            maxWidth: '480px'
+        });
     }
 }

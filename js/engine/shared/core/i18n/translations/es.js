@@ -1080,6 +1080,13 @@ export const es = {
     error_multiple_cores: "Un hechizo solo puede contener un único glifo de núcleo.",
     error_too_many_glyphs: "Demasiados glifos en la composición (límite alcanzado).",
     error_codex_full: "El códice de hechizos está lleno (máximo 6 hechizos).",
-    error_not_enough_villagers: "No hay suficientes aldeanos inactivos.",
-    error_invalid_glyphs: "Glifos no válidos en la composición."
+    error_not_enough_villagers: "El héroe no está disponible o no hay suficientes aldeanos.",
+    error_invalid_glyphs: "Glifos no válidos en la composición.",
+
+    // Gambit Simulation Setup
+    ui_gambit_test_setup_title: "Configuración de Simulación de Encuentro",
+    ui_discovered_bestiary: "Bestiario Descubierto",
+    ui_selected_enemies: "Enemigos Seleccionados",
+    ui_no_enemies_selected: "No se han seleccionado enemigos. ¡Añade algunos del catálogo!",
+    ui_start_simulation: "Iniciar Simulación"
 };

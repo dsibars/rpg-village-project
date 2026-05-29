@@ -1100,5 +1100,12 @@ export const en = {
     error_too_many_glyphs: "Too many glyphs in composition (limit reached).",
     error_codex_full: "Spell codex is full (max 6 spells).",
     error_not_enough_villagers: "Not enough idle villagers.",
-    error_invalid_glyphs: "Invalid Glyphs in composition."
+    error_invalid_glyphs: "Invalid Glyphs in composition.",
+
+    // Gambit Simulation Setup
+    ui_gambit_test_setup_title: "Encounter Simulation Setup",
+    ui_discovered_bestiary: "Discovered Bestiary",
+    ui_selected_enemies: "Selected Enemies",
+    ui_no_enemies_selected: "No enemies selected. Add some from the catalog!",
+    ui_start_simulation: "Start Simulation"
 };

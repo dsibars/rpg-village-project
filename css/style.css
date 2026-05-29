@@ -1306,6 +1306,10 @@ body {
     background: linear-gradient(90deg, #3b82f6, #60a5fa);
 }
 
+.combat-bar-stamina {
+    background: linear-gradient(90deg, #f59e0b, #fbbf24);
+}
+
 .combat-bar-hp-high {
     background: linear-gradient(90deg, #4caf50, #81c784);
 }

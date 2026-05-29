@@ -290,22 +290,43 @@ export class GameEngine {
         }
     }
 
-    testHeroGambits(heroId, scenarioId = 'reg_greenfields') {
+    testHeroGambits(heroId, enemiesOverride = null) {
         const hero = this.heroService.get(heroId);
         if (!hero) return Result.fail('error_hero_not_found');
         
-        // Get enemy pool for the scenario region
-        const enemyPool = this.expeditionService?.getEnemyPoolForRegion?.(scenarioId) || [];
-        if (enemyPool.length === 0) {
-            return Result.fail('error_no_enemies_for_scenario');
-        }
+        let enemies = [];
+        const scenarioId = 'reg_greenfields';
         
-        // Build encounter: 1-3 enemies based on region difficulty
-        const encounterCount = Math.min(3, Math.max(1, Math.floor(Math.random() * 3) + 1));
-        const enemies = [];
-        for (let i = 0; i < encounterCount; i++) {
-            const template = enemyPool[Math.floor(Math.random() * enemyPool.length)];
-            enemies.push({ ...template, id: template.id + '_' + i });
+        if (Array.isArray(enemiesOverride) && enemiesOverride.length > 0) {
+            const enemyCounts = {};
+            enemiesOverride.forEach(e => {
+                enemyCounts[e.templateId] = (enemyCounts[e.templateId] || 0) + 1;
+            });
+            const enemyIndices = {};
+            enemies = enemiesOverride.map((e, idx) => {
+                const enemy = this.expeditionService._createEnemy(e.templateId, false, e.level);
+                if (enemyCounts[e.templateId] > 1) {
+                    enemyIndices[e.templateId] = (enemyIndices[e.templateId] || 0) + 1;
+                    const suffix = String.fromCharCode(64 + enemyIndices[e.templateId]);
+                    enemy.name = `${enemy.name} ${suffix}`;
+                }
+                enemy.id = `${e.templateId}_${idx}_${Date.now()}`;
+                return enemy;
+            });
+        } else {
+            // Get enemy pool for the scenario region
+            const enemyPool = this.expeditionService?.getEnemyPoolForRegion?.(scenarioId) || [];
+            if (enemyPool.length === 0) {
+                // Fall back if pool is empty
+                enemies = [this.expeditionService._createEnemy('slime_green', false, hero.level)];
+            } else {
+                // Build encounter: 1-3 enemies based on region difficulty
+                const encounterCount = Math.min(3, Math.max(1, Math.floor(Math.random() * 3) + 1));
+                for (let i = 0; i < encounterCount; i++) {
+                    const template = enemyPool[Math.floor(Math.random() * enemyPool.length)];
+                    enemies.push({ ...template, id: template.id + '_' + i });
+                }
+            }
         }
         
         const result = SimulationRunner.runHeadless(hero, enemies, this.inventoryService, scenarioId, 10);

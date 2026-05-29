@@ -30,39 +30,22 @@ function getFamilyEffectLabel(family, tier = 1, t) {
 }
 
 export class HeroSkillsModal {
+    static activeInstance = null;
+
+    static isOpen() {
+        return !!this.activeInstance && document.body.contains(this.activeInstance.overlay);
+    }
+
+    static update(hero) {
+        if (this.isOpen()) {
+            this.activeInstance.render(hero);
+        }
+    }
+
     static show(hero, t, onLearnFamily) {
         if (!hero) return;
 
-        const knownFamilies = hero.knownFamilies || ['single_strike'];
-        const canManageSkills = hero.activity === 'idle';
-        const allFamilies = Object.values(TECHNIQUE_FAMILIES);
-        const knownFamilyIds = new Set(knownFamilies);
-        const knownList = allFamilies.filter(f => knownFamilyIds.has(f.id));
-        const lockedList = allFamilies.filter(f => !knownFamilyIds.has(f.id) && f.id !== 'single_strike');
-
-        knownList.sort((a, b) => {
-            const tierA = hero.techniqueTiers && hero.techniqueTiers[a.id] || 1;
-            const tierB = hero.techniqueTiers && hero.techniqueTiers[b.id] || 1;
-            return tierB - tierA;
-        });
-
         const skillsContainer = el('div', { class: 'skills-list' });
-
-        // Skill points alert inside modal
-        const milestones = Hero.SKILL_POINT_MILESTONES || [1, 5, 10, 15, 20, 25];
-        const nextMilestone = milestones.find(m => m > hero.level);
-        let alertText = '';
-        if (hero.skillPoints > 0 && canManageSkills) {
-            alertText = t('ui_skill_points').replace('{amount}', hero.skillPoints) + ' · ' + (t('ui_spend_to_unlock') || 'Spend to unlock a new technique');
-        } else if (nextMilestone) {
-            alertText = t('ui_next_skill_point').replace('{level}', nextMilestone);
-        } else {
-            alertText = t('ui_max_families') || 'All techniques unlocked';
-        }
-        if (!canManageSkills) {
-            alertText += ' (' + (t('ui_busy') || 'Busy') + ')';
-        }
-
         const alertEl = el('div', {
             class: 'skill-points-alert',
             style: {
@@ -73,92 +56,135 @@ export class HeroSkillsModal {
                 borderRadius: 'var(--radius-md)',
                 fontSize: '0.9rem'
             }
-        }, [el('strong', {}, [alertText])]);
-
-        const newSkillRows = [];
-
-        knownList.forEach(family => {
-            const familyId = family.id;
-            const tier = hero.techniqueTiers && hero.techniqueTiers[familyId] || 1;
-            const staCost = family.staminaCostBase + family.staminaCostPerTier * (tier - 1);
-            const uses = hero.techniqueUses && hero.techniqueUses[familyId] || 0;
-            const isBodyInscribed = hero.bodyInscription && hero.bodyInscription.glyphIds && hero.bodyInscription.glyphIds.length > 0;
-
-            const cumulativeToCurrent = tier <= 1 ? 0 : 50 * (Math.pow(3, tier - 1) - 1);
-            const tierThreshold = Math.floor(100 * Math.pow(3, tier - 1));
-            const usesInTier = Math.max(0, uses - cumulativeToCurrent);
-            const tierProgress = Math.min(100, Math.floor((usesInTier / tierThreshold) * 100));
-
-            const isJustLeveled = (usesInTier === 0 && tier > 1);
-            const flashClass = isJustLeveled ? 'tier-up-flash' : '';
-            const effectLabel = getFamilyEffectLabel(family, tier, t);
-
-            const row = el('div', {
-                class: `skill-item skill-learned ${isBodyInscribed ? 'skill-inscribed' : ''}`,
-                'data-id': familyId
-            }, [
-                el('div', { class: 'skill-info', style: { flex: '1', paddingRight: '15px' } }, [
-                    el('span', { class: 'skill-name' }, [`${t('family_' + familyId)}${isBodyInscribed ? ' · ✦' : ''}`]),
-                    el('span', { class: 'skill-meta' }, [`${effectLabel ? effectLabel + ' · ' : ''}${staCost} STA`]),
-                    el('div', { class: 'skill-tier-progress-container', style: { marginTop: '6px', fontSize: '0.75rem', color: 'var(--text-secondary)' } }, [
-                        el('div', { style: { display: 'flex', justifyContent: 'space-between', marginBottom: '2px' } }, [
-                            el('span', {}, [t('ui_tier_progress') || 'Tier Progress'])
-                        ]),
-                        el('div', { class: `skill-tier-bar ${flashClass}`, style: { height: '6px', background: 'rgba(255,255,255,0.1)', borderRadius: '3px', overflow: 'hidden', position: 'relative' } }, [
-                            el('div', { style: { width: `${tierProgress}%`, height: '100%', background: 'var(--accent-color)', borderRadius: '3px', transition: 'width 0.3s ease' } })
-                        ])
-                    ])
-                ]),
-                el('div', { class: 'skill-actions', style: { display: 'flex', alignItems: 'center' } }, [
-                    el('span', { class: `skill-tier-badge ${flashClass}` }, [`Tier ${tier}`])
-                ])
-            ]);
-            newSkillRows.push(row);
         });
 
-        if (lockedList.length > 0) {
-            newSkillRows.push(el('div', {
-                class: 'skill-section-divider',
-                'data-id': 'divider_locked',
-                style: { margin: '12px 0', paddingTop: '8px', borderTop: '1px dashed var(--glass-border)' }
-            }, [
-                el('span', { style: { fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' } }, [t('ui_locked_families') || 'Locked'])
-            ]));
+        const render = (currentHero) => {
+            const knownFamilies = currentHero.knownFamilies || ['single_strike'];
+            const canManageSkills = currentHero.activity === 'idle';
+            const allFamilies = Object.values(TECHNIQUE_FAMILIES);
+            const knownFamilyIds = new Set(knownFamilies);
+            const knownList = allFamilies.filter(f => knownFamilyIds.has(f.id));
+            const lockedList = allFamilies.filter(f => !knownFamilyIds.has(f.id) && f.id !== 'single_strike');
 
-            lockedList.forEach(family => {
+            knownList.sort((a, b) => {
+                const tierA = currentHero.techniqueTiers && currentHero.techniqueTiers[a.id] || 1;
+                const tierB = currentHero.techniqueTiers && currentHero.techniqueTiers[b.id] || 1;
+                return tierB - tierA;
+            });
+
+            // Skill points alert inside modal
+            const milestones = Hero.SKILL_POINT_MILESTONES || [1, 5, 10, 15, 20, 25];
+            const nextMilestone = milestones.find(m => m > currentHero.level);
+            let alertText = '';
+            if (currentHero.skillPoints > 0 && canManageSkills) {
+                alertText = t('ui_skill_points').replace('{amount}', currentHero.skillPoints) + ' · ' + (t('ui_spend_to_unlock') || 'Spend to unlock a new technique');
+            } else if (nextMilestone) {
+                alertText = t('ui_next_skill_point').replace('{level}', nextMilestone);
+            } else {
+                alertText = t('ui_max_families') || 'All techniques unlocked';
+            }
+            if (!canManageSkills) {
+                alertText += ' (' + (t('ui_busy') || 'Busy') + ')';
+            }
+
+            alertEl.innerHTML = '';
+            alertEl.appendChild(el('strong', {}, [alertText]));
+
+            const newSkillRows = [];
+
+            knownList.forEach(family => {
                 const familyId = family.id;
-                const canLearn = canManageSkills && hero.skillPoints > 0 && knownFamilies.length < 6;
-                const actionNode = canLearn
-                    ? el('button', { class: 'btn btn-primary btn-sm btn-learn-family', onClick: () => onLearnFamily(familyId) }, [t('ui_learn') || 'Learn'])
-                    : el('span', { class: 'skill-locked-label' }, [t('ui_locked') || 'Locked']);
+                const tier = currentHero.techniqueTiers && currentHero.techniqueTiers[familyId] || 1;
+                const staCost = family.staminaCostBase + family.staminaCostPerTier * (tier - 1);
+                const uses = currentHero.techniqueUses && currentHero.techniqueUses[familyId] || 0;
+                const isBodyInscribed = currentHero.bodyInscription && currentHero.bodyInscription.glyphIds && currentHero.bodyInscription.glyphIds.length > 0;
 
-                const lockedEffect = getFamilyEffectLabel(family, 1, t);
+                const cumulativeToCurrent = tier <= 1 ? 0 : 50 * (Math.pow(3, tier - 1) - 1);
+                const tierThreshold = Math.floor(100 * Math.pow(3, tier - 1));
+                const usesInTier = Math.max(0, uses - cumulativeToCurrent);
+                const tierProgress = Math.min(100, Math.floor((usesInTier / tierThreshold) * 100));
+
+                const isJustLeveled = (usesInTier === 0 && tier > 1);
+                const flashClass = isJustLeveled ? 'tier-up-flash' : '';
+                const effectLabel = getFamilyEffectLabel(family, tier, t);
+
                 const row = el('div', {
-                    class: 'skill-item skill-locked',
+                    class: `skill-item skill-learned ${isBodyInscribed ? 'skill-inscribed' : ''}`,
                     'data-id': familyId
                 }, [
-                    el('div', { class: 'skill-info' }, [
-                        el('span', { class: 'skill-name' }, [`🔒 ${t('family_' + familyId)}`]),
-                        el('span', { class: 'skill-meta' }, [`${lockedEffect ? lockedEffect + ' · ' : ''}${family.staminaCostBase} STA`])
+                    el('div', { class: 'skill-info', style: { flex: '1', paddingRight: '15px' } }, [
+                        el('span', { class: 'skill-name' }, [`${t('family_' + familyId)}${isBodyInscribed ? ' · ✦' : ''}`]),
+                        el('span', { class: 'skill-meta' }, [`${effectLabel ? effectLabel + ' · ' : ''}${staCost} STA`]),
+                        el('div', { class: 'skill-tier-progress-container', style: { marginTop: '6px', fontSize: '0.75rem', color: 'var(--text-secondary)' } }, [
+                            el('div', { style: { display: 'flex', justifyContent: 'space-between', marginBottom: '2px' } }, [
+                                el('span', {}, [t('ui_tier_progress') || 'Tier Progress'])
+                            ]),
+                            el('div', { class: `skill-tier-bar ${flashClass}`, style: { height: '6px', background: 'rgba(255,255,255,0.1)', borderRadius: '3px', overflow: 'hidden', position: 'relative' } }, [
+                                el('div', { style: { width: `${tierProgress}%`, height: '100%', background: 'var(--accent-color)', borderRadius: '3px', transition: 'width 0.3s ease' } })
+                            ])
+                        ])
                     ]),
-                    el('div', { class: 'skill-actions' }, [actionNode])
+                    el('div', { class: 'skill-actions', style: { display: 'flex', alignItems: 'center' } }, [
+                        el('span', { class: `skill-tier-badge ${flashClass}` }, [`Tier ${tier}`])
+                    ])
                 ]);
                 newSkillRows.push(row);
             });
-        }
 
-        diffList(skillsContainer, newSkillRows, 'data-id');
+            if (lockedList.length > 0) {
+                newSkillRows.push(el('div', {
+                    class: 'skill-section-divider',
+                    'data-id': 'divider_locked',
+                    style: { margin: '12px 0', paddingTop: '8px', borderTop: '1px dashed var(--glass-border)' }
+                }, [
+                    el('span', { style: { fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' } }, [t('ui_locked_families') || 'Locked'])
+                ]));
+
+                lockedList.forEach(family => {
+                    const familyId = family.id;
+                    const canLearn = canManageSkills && currentHero.skillPoints > 0 && knownFamilies.length < 6;
+                    const actionNode = canLearn
+                        ? el('button', { class: 'btn btn-primary btn-sm btn-learn-family', onClick: () => onLearnFamily(familyId) }, [t('ui_learn') || 'Learn'])
+                        : el('span', { class: 'skill-locked-label' }, [t('ui_locked') || 'Locked']);
+
+                    const lockedEffect = getFamilyEffectLabel(family, 1, t);
+                    const row = el('div', {
+                        class: 'skill-item skill-locked',
+                        'data-id': familyId
+                    }, [
+                        el('div', { class: 'skill-info' }, [
+                            el('span', { class: 'skill-name' }, [`🔒 ${t('family_' + familyId)}`]),
+                            el('span', { class: 'skill-meta' }, [`${lockedEffect ? lockedEffect + ' · ' : ''}${family.staminaCostBase} STA`])
+                        ]),
+                        el('div', { class: 'skill-actions' }, [actionNode])
+                    ]);
+                    newSkillRows.push(row);
+                });
+            }
+
+            diffList(skillsContainer, newSkillRows, 'data-id');
+        };
 
         const contentElement = el('div', { style: { display: 'flex', flexDirection: 'column', height: '100%' } }, [
             alertEl,
             skillsContainer
         ]);
 
-        BaseModal.show({
+        render(hero);
+
+        const modal = BaseModal.show({
             title: t('ui_hero_skills_title').replace('{name}', hero.name) || `${hero.name}'s Skills`,
             contentElement,
             icon: '⚔️',
-            maxWidth: '520px'
+            maxWidth: '520px',
+            onClose: () => {
+                HeroSkillsModal.activeInstance = null;
+            }
         });
+
+        HeroSkillsModal.activeInstance = {
+            overlay: modal.overlay,
+            render
+        };
     }
 }

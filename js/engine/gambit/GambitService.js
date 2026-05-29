@@ -140,7 +140,7 @@ export class GambitService {
 
         switch (action.type) {
             case 'skill':
-                return this._resolveSkillAction(action.payload, hero, allies, enemies, gambit.target);
+                return this._resolveSkillAction(action.payload, hero, allies, enemies, gambit.target, action.tier);
             case 'spell':
                 return this._resolveSpellAction(action.payload, hero, allies, enemies, gambit.target);
             case 'item':
@@ -154,7 +154,7 @@ export class GambitService {
         }
     }
 
-    static _resolveSkillAction(skillId, hero, allies, enemies, target) {
+    static _resolveSkillAction(skillId, hero, allies, enemies, target, forcedTier = undefined) {
         const skillData = SKILLS_DATA[skillId];
         if (!skillData) return null;
 
@@ -163,7 +163,7 @@ export class GambitService {
 
         // Resource check
         if (skillData.category === 'physical') {
-            const tier = hero.techniqueTiers && hero.techniqueTiers[skillId] || 1;
+            const tier = forcedTier !== undefined ? forcedTier : (hero.techniqueTiers && hero.techniqueTiers[skillId] || 1);
             const staCost = skillData.staminaCostBase + skillData.staminaCostPerTier * (tier - 1);
             if ((hero.stamina || 0) < staCost) return null;
         } else {
@@ -174,7 +174,7 @@ export class GambitService {
         if (targetIndex === null && skillData.targetType !== 'all_enemies' && skillData.targetType !== 'all_allies') {
             return null; // No valid target
         }
-        return { skillId, targetIndex };
+        return { skillId, targetIndex, tier: forcedTier };
     }
 
     static _resolveSpellAction(spellName, hero, allies, enemies, target) {

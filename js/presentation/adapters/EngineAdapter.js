@@ -225,7 +225,7 @@ export class EngineAdapter {
                     this.forceUpdate();
                 });
                 view.on('testGambits', (data) => {
-                    const result = this.engine.testHeroGambits(data.heroId);
+                    const result = this.engine.testHeroGambits(data.heroId, data.enemies);
                     if (!result.success) {
                         this.ui.showToast(this.engine.i18n.t(result.error) || result.error);
                     } else {

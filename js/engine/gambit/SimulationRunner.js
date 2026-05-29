@@ -1,5 +1,7 @@
 import { BattleService } from '../shared/combat/services/BattleService.js';
 import { Result } from '../shared/core/Result.js';
+import { Hero } from '../heroes/models/Hero.js';
+import { Enemy } from '../shared/combat/models/Enemy.js';
 
 export class SimulationRunner {
     /**
@@ -25,7 +27,7 @@ export class SimulationRunner {
         for (let i = 0; i < runs; i++) {
             // Deep clone hero and enemies to avoid mutating real game state
             const clonedHero = this._cloneHero(hero);
-            const clonedEnemies = enemies.map(e => JSON.parse(JSON.stringify(e)));
+            const clonedEnemies = enemies.map(e => new Enemy(JSON.parse(JSON.stringify(e))));
 
             // Mock inventory to track usage without real consumption
             const runItems = {};
@@ -85,14 +87,8 @@ export class SimulationRunner {
     }
 
     static _cloneHero(hero) {
-        const cloned = JSON.parse(JSON.stringify(hero));
-        
-        // Re-attach methods that BattleService may call during simulation
-        cloned.getHybridMpCost = hero.getHybridMpCost ? hero.getHybridMpCost.bind(cloned) : () => 0;
-        cloned.recordTechniqueUse = hero.recordTechniqueUse ? hero.recordTechniqueUse.bind(cloned) : () => ({ evolved: false });
-        cloned.recordGlyphUse = hero.recordGlyphUse ? hero.recordGlyphUse.bind(cloned) : () => {};
-        cloned.recalculateStats = hero.recalculateStats ? hero.recalculateStats.bind(cloned) : () => {};
-        
+        const cloned = new Hero(JSON.parse(JSON.stringify(hero)));
+        cloned.recalculateStats({});
         return cloned;
     }
 

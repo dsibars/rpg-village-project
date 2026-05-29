@@ -1081,5 +1081,12 @@ export const ca = {
     error_too_many_glyphs: "Masses glifs en la composició (límit assolit).",
     error_codex_full: "El códice d'hechizos està ple (màxim 6 hechizos).",
     error_not_enough_villagers: "No hi ha prou aldeans inactius.",
-    error_invalid_glyphs: "Glifs no vàlids en la composició."
+    error_invalid_glyphs: "Glifs no vàlids en la composició.",
+
+    // Gambit Simulation Setup
+    ui_gambit_test_setup_title: "Configuració de Simulació de Combat",
+    ui_discovered_bestiary: "Bestiari Descobert",
+    ui_selected_enemies: "Enemics Seleccionats",
+    ui_no_enemies_selected: "No s'han seleccionat enemics. Afegeix-ne alguns del catàleg!",
+    ui_start_simulation: "Iniciar Simulació"
 };

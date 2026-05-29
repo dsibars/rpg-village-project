@@ -231,7 +231,7 @@ export class BattleService {
             const gambitDecision = GambitService.evaluate(entity, allies, enemies);
             if (gambitDecision) {
                 if (gambitDecision.skillId) {
-                    return this.executeAction(entity, gambitDecision.skillId, gambitDecision.targetIndex, statusResults);
+                    return this.executeAction(entity, gambitDecision.skillId, gambitDecision.targetIndex, statusResults, gambitDecision.tier);
                 }
                 if (gambitDecision.spellIndex !== undefined) {
                     const spell = entity.spellCodex?.[gambitDecision.spellIndex];
@@ -325,7 +325,7 @@ export class BattleService {
 
         // Determine effective tier for physical skills
         const heroTier = (skillData.family && actor.techniqueTiers && actor.techniqueTiers[skillData.family]) || 1;
-        const effectiveTier = forcedTier !== null ? Math.min(forcedTier, heroTier) : heroTier;
+        const effectiveTier = (forcedTier !== null && forcedTier !== undefined) ? Math.min(forcedTier, heroTier) : heroTier;
 
         // Compute resource costs dynamically
         const staCost = skillData.staminaCostBase + skillData.staminaCostPerTier * (effectiveTier - 1);

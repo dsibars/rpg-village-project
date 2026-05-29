@@ -94,6 +94,9 @@ export class HeroesView extends BaseView {
                 inventoryEquipment: this.inventoryEquipment
             });
         }
+        if (HeroSkillsModal.isOpen() && activeHero) {
+            HeroSkillsModal.update(activeHero);
+        }
         const infra = state.village?.infrastructure || {};
         const anyHeroLevel5 = heroes.some(h => h.level >= 5);
         const stateString = JSON.stringify({
