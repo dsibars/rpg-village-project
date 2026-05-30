@@ -495,8 +495,6 @@
     color: var(--text-secondary);
 }
 
-}
-
 /* Stat Assignment & Allocation UI */
 .stat-value-group {
     display: flex;
@@ -554,6 +552,8 @@
     border: 1px dashed var(--warning, #f59e0b);
     color: var(--warning, #f59e0b);
     animation: none;
+}
+
 /* Skill Slot System Styles */
 
 .skill-slots-alert {
@@ -959,3 +959,5 @@
     color: var(--text-secondary);
     margin-bottom: 10px;
     border-bottom: 1px solid rgba(255,255,255,0.06);
+    padding-bottom: 6px;
+}

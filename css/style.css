@@ -619,9 +619,6 @@ body {
     to   { opacity: 1; transform: translateX(0); }
 }
 
-    background: rgba(0, 0, 0, 0.2) !important;
-}
-
 /* Master-Detail Layout Styles */
 .master-detail-layout {
     display: flex;
@@ -991,7 +988,4 @@ body {
 .skill-tier-bar.tier-up-flash > div {
     background: var(--accent-color);
     box-shadow: 0 0 10px var(--accent-color);
-}
-
-    padding-bottom: 6px;
 }

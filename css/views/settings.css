@@ -1,6 +1,4 @@
 
-}
-
 /* Settings view retains the classic 2-column grid layout */
 .settings-view .dashboard-grid {
     display: grid;
@@ -70,3 +68,5 @@
 }
 
 .select-control:focus {
+    border-color: var(--accent-color);
+}
