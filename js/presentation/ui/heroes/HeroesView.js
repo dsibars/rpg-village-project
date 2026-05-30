@@ -162,9 +162,7 @@ export class HeroesView extends BaseView {
         }
 
         btn.style.display = '';
-        const heroCount = state.heroes?.length || 0;
-        const baseCost = 100;
-        const cost = Math.floor(baseCost * Math.pow(1.2, heroCount));
+        const cost = this.ui.engine.getRecruitCost();
         const canAfford = (state.village?.gold || 0) >= cost;
 
         btn.disabled = !canAfford;
@@ -282,7 +280,7 @@ export class HeroesView extends BaseView {
 
     _openBodyInscriptionModal() {
         const hero = this.lastRawState?.heroes?.find(h => h.id === this.selectedHeroId);
-        HeroInscriptionModal.show(hero, this.t.bind(this), this.emit.bind(this));
+        HeroInscriptionModal.show(hero, this.t.bind(this), this.emit.bind(this), this.ui.engine.calculateHybridMpCost.bind(this.ui.engine));
     }
 
     _openGambitModal() {

@@ -1,5 +1,5 @@
 import { BaseView } from '../BaseView.js';
-import { getWeaponBaseCost, getArmorBaseCost, CONSUMABLES_CATALOG, WEAPONS_CATALOG, ARMOR_CATALOG } from '../../../engine/shared/data/ShopCatalog.js';
+import { CONSUMABLES_CATALOG, WEAPONS_CATALOG, ARMOR_CATALOG } from '../../../engine/shared/data/ShopCatalog.js';
 import { initShopTabs } from './components/ShopTabs.js';
 import { createShopCatalogList } from './components/ShopCatalogList.js';
 import { createShopDetailPane } from './components/ShopDetailPane.js';
@@ -308,7 +308,7 @@ export class ShopView extends BaseView {
                     count,
                     i18n_name: shopItem ? shopItem.i18n_name : id,
                     i18n_desc: shopItem ? shopItem.i18n_desc : id,
-                    sellPrice: Math.floor(basePrice * 0.3)
+                    sellPrice: this.ui.engine.getSellPrice({ type: 'consumable', basePrice })
                 };
             });
 
@@ -332,7 +332,7 @@ export class ShopView extends BaseView {
             const items = equipment.filter(g.filter).map(eq => ({
                 ...eq,
                 type: 'equipment',
-                sellPrice: this._calculateEquipmentSellPrice(eq)
+                sellPrice: this.ui.engine.getSellPrice(eq)
             }));
             if (items.length > 0) {
                 groups.push({ id: g.id, items });
@@ -443,16 +443,7 @@ export class ShopView extends BaseView {
         });
     }
 
-    _calculateEquipmentSellPrice(eq) {
-        let baseCost = 0;
-        if (eq.type === 'weapon') {
-            baseCost = getWeaponBaseCost(eq.material, eq.family);
-        } else if (eq.type === 'armor') {
-            baseCost = getArmorBaseCost(eq.material, eq.archetype, eq.slot);
-        }
-        const level = eq.level || 0;
-        return Math.floor(baseCost * 0.3 * Math.pow(1.1, level));
-    }
+
 
 
 }

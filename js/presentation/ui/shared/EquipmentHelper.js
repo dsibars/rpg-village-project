@@ -1,4 +1,4 @@
-import { WEAPON_FAMILIES, ARMOR_ARCHETYPES, MATERIAL_TIERS } from '../../../engine/shared/data/GameConstants.js';
+import { getEquipmentStats as engineGetEquipmentStats } from '../../../engine/shared/inventory/EquipmentService.js';
 
 /**
  * Generates the localized display name for a piece of equipment.
@@ -27,37 +27,7 @@ export function getEquipmentName(item, t) {
  * @returns {Object} Calculated stats bonuses.
  */
 export function getEquipmentStats(item) {
-    const stats = {};
-    if (!item) return stats;
-
-    const tier = MATERIAL_TIERS[item.material];
-    const upgradeMult = Math.pow(1.1, item.level || 0);
-
-    if (item.type === 'weapon') {
-        const family = WEAPON_FAMILIES[item.family];
-        if (family && tier) {
-            const itemPower = 2 * tier.mult * upgradeMult;
-            stats.strength = Math.floor(itemPower * family.dmgMult);
-            if (family.spdBonus) stats.speed = family.spdBonus;
-            if (family.evaBonus) stats.evasion = family.evaBonus;
-            if (family.magBonus) stats.magicPower = Math.floor(family.magBonus * tier.mult * upgradeMult);
-            if (family.mpCostReduction) stats.mpCostReduction = family.mpCostReduction;
-        }
-    } else if (item.type === 'armor') {
-        const arch = ARMOR_ARCHETYPES[item.archetype];
-        if (arch && tier) {
-            const itemPower = 5 * tier.mult * upgradeMult;
-            stats.defense = Math.floor(itemPower * arch.defMult);
-            if (arch.hpMult) stats.maxHp = Math.floor(itemPower * arch.hpMult);
-            if (arch.mpMult) stats.maxMp = Math.floor(itemPower * arch.mpMult);
-            if (arch.magMult) stats.magicPower = Math.floor(itemPower * arch.magMult);
-            if (arch.spdPenalty) stats.speed = arch.spdPenalty;
-            const eva = arch.evaBonus || arch.evaPenalty || 0;
-            if (eva) stats.evasion = eva;
-        }
-    }
-
-    return stats;
+    return engineGetEquipmentStats(item);
 }
 
 /**

@@ -754,7 +754,11 @@ export class Hero {
             equipment: JSON.parse(JSON.stringify(this.equipment)),
             activeSetBonuses: this.activeSetBonuses || [],
             mealBuffs: this.mealBuffs || [],
-            avatar: this.avatar
+            avatar: this.avatar,
+            skillTierPoints: this.getSkillTierPoints(),
+            isInscriptionEligible: this.getSkillTierPoints() >= 12 && (this.magicTier || 0) >= 7,
+            hybridMpCost: this.getHybridMpCost(),
+            skillPointMilestones: Hero.SKILL_POINT_MILESTONES
         };
     }
 }

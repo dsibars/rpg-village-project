@@ -3,7 +3,7 @@ import { GLYPH_DATA } from '../../../../engine/shared/data/GameConstants.js';
 import { el } from '../../shared/utils/DOMUtils.js';
 
 export class HeroInscriptionModal {
-    static show(hero, t, emit) {
+    static show(hero, t, emit, calculateHybridMpCost) {
         if (!hero) return;
 
         const maxSlots = 7;
@@ -37,21 +37,9 @@ export class HeroInscriptionModal {
             const slotsUsed = selectedGlyphIds.length;
             const slotsLeft = maxSlots - slotsUsed;
 
-            let hybridCost = 0;
-            if (hasCore) {
-                let base = 8;
-                for (const gid of selectedGlyphIds) {
-                    const tier = glyphTiers[gid]?.tier || 1;
-                    switch (gid) {
-                        case 'glyph_potentiate': base += 2 * tier; break;
-                        case 'glyph_multi': base += 5; break;
-                        case 'glyph_pierce': base += 3; break;
-                        case 'glyph_leech': base += 2; break;
-                        case 'glyph_focus': base += 2; break;
-                    }
-                }
-                hybridCost = Math.floor(base * (1 + (hero.magicTier || 1) / 20));
-            }
+            const hybridCost = calculateHybridMpCost
+                ? calculateHybridMpCost(selectedGlyphIds, glyphTiers, hero.magicTier)
+                : 0;
 
             const headerRow = el('div', {
                 style: { margin: '12px 0', display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }

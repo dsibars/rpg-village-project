@@ -1,5 +1,4 @@
 import { el } from '../../shared/utils/DOMUtils.js';
-import { Hero } from '../../../../engine/heroes/models/Hero.js';
 
 const STAT_LABELS = {
     hp: 'ui_stats_hp',
@@ -158,16 +157,7 @@ export function createHeroProfilePane({
         witchBtn.style.display = (infra.witchs_hut || 0) >= 1 ? '' : 'none';
         academyBtn.style.display = (infra.arcane_sanctum || 0) >= 2 ? '' : 'none';
 
-        let skillTierPoints = 0;
-        if (hero.getSkillTierPoints) {
-            skillTierPoints = hero.getSkillTierPoints();
-        } else if (hero.knownFamilies) {
-            skillTierPoints = hero.knownFamilies.reduce((sum, family) => {
-                const tier = (hero.techniqueTiers && hero.techniqueTiers[family]) || 1;
-                return sum + (tier + 1);
-            }, 0);
-        }
-        inscribeBtn.style.display = skillTierPoints >= 12 && (hero.magicTier || 0) >= 7 ? '' : 'none';
+        inscribeBtn.style.display = hero.isInscriptionEligible ? '' : 'none';
         gambitBtn.style.display = (state?.heroes || []).some(h => h.level >= 5) ? '' : 'none';
 
         // Stat Point allocation alert
@@ -184,8 +174,7 @@ export function createHeroProfilePane({
 
         // Skill points alert
         const canManageSkills = isIdle;
-        const knownFamilies = hero.knownFamilies || ['single_strike'];
-        const milestones = Hero.SKILL_POINT_MILESTONES || [1, 5, 10, 15, 20, 25];
+        const milestones = hero.skillPointMilestones || [1, 5, 10, 15, 20, 25];
         const nextMilestone = milestones.find(m => m > hero.level);
 
         skillAlertRef.className = `skill-points-alert ${canManageSkills ? '' : 'locked'}`;

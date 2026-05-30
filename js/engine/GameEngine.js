@@ -20,6 +20,8 @@ const DEBUG = false;
 import { i18n } from './shared/core/i18n/I18nService.js';
 import { Result } from './shared/core/Result.js';
 import { getRefineCost, MEAL_RECIPES } from './shared/data/GameConstants.js';
+import { getEquipmentStats } from './shared/inventory/EquipmentService.js';
+import { getWeaponBaseCost, getArmorBaseCost } from './shared/data/ShopCatalog.js';
 
 export class GameEngine {
     constructor() {
@@ -448,6 +450,52 @@ export class GameEngine {
 
         this.villageService.addGold(sellPrice);
         return Result.ok({ goldEarned: sellPrice });
+    }
+
+    getEquipmentStats(item) {
+        return getEquipmentStats(item);
+    }
+
+    getSellPrice(item) {
+        if (!item) return 0;
+        if (item.type === 'consumable') {
+            return Math.floor((item.basePrice || 0) * 0.3);
+        }
+        if (item.type === 'equipment' || item.type === 'weapon' || item.type === 'armor') {
+            let baseCost = 0;
+            if (item.type === 'weapon') {
+                baseCost = getWeaponBaseCost(item.material, item.family);
+            } else {
+                baseCost = getArmorBaseCost(item.material, item.archetype, item.slot);
+            }
+            const level = item.level || 0;
+            return Math.floor(baseCost * 0.3 * Math.pow(1.1, level));
+        }
+        return 0;
+    }
+
+    getRecruitCost() {
+        const heroCount = this.heroService.list().length;
+        const baseCost = 100;
+        return Math.floor(baseCost * Math.pow(1.2, heroCount));
+    }
+
+    calculateHybridMpCost(glyphIds, glyphTiers, magicTier) {
+        if (!glyphIds || glyphIds.length === 0) return 0;
+        const hasCore = glyphIds.some(gid => gid.startsWith('glyph_core_'));
+        if (!hasCore) return 0;
+        let base = 8;
+        for (const gid of glyphIds) {
+            const tier = glyphTiers?.[gid] || 1;
+            switch (gid) {
+                case 'glyph_potentiate': base += 2 * tier; break;
+                case 'glyph_multi': base += 5; break;
+                case 'glyph_pierce': base += 3; break;
+                case 'glyph_leech': base += 2; break;
+                case 'glyph_focus': base += 2; break;
+            }
+        }
+        return Math.floor(base * (1 + (magicTier || 1) / 20));
     }
 
     getRefineCost(item) {
