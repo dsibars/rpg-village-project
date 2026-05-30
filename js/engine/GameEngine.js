@@ -687,6 +687,12 @@ export class GameEngine {
         return Result.ok({ skipped: true });
     }
 
+    toggleAutoBattle() {
+        if (this.battleService) {
+            this.battleService.autoBattle = !this.battleService.autoBattle;
+        }
+    }
+
     // --- Time & Construction ---
     nextDay() {
         const villageState = this.villageService.getState();

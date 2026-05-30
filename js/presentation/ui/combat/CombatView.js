@@ -99,8 +99,8 @@ export class CombatView {
 
     autoBtn.addEventListener('click', () => {
       if (overlay.battleRef && overlay.battleRef.isOver) return;
-      if (this.engine && this.engine.battleService) {
-        this.engine.battleService.autoBattle = !this.engine.battleService.autoBattle;
+      if (this.engine && this.engine.toggleAutoBattle) {
+        this.engine.toggleAutoBattle();
       }
       if (this.adapter) this.adapter.forceUpdate();
     });

@@ -64,10 +64,7 @@ test('CombatView DOM Integration Tests', async (t) => {
         const view = new CombatView({ i18n: mockI18n });
         view.adapter = mockAdapter;
         view.engine = {
-            battleService: {
-                get autoBattle() { return false; },
-                set autoBattle(val) { autoToggled = true; }
-            },
+            toggleAutoBattle: () => { autoToggled = true; },
             skipBattle: () => { skipped = true; },
             canAffordSkill: () => true,
             getSkillCost: () => ({ staCost: 5, mpCost: 0 }),
