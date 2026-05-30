@@ -1,7 +1,6 @@
 const DEBUG = false;
 
 import { BaseView } from '../BaseView.js';
-import { persistence } from '../../../engine/shared/core/Persistence.js';
 
 /**
  * SettingsView - Manages the game settings and data wiping.
@@ -43,7 +42,7 @@ export class SettingsView extends BaseView {
 
         // Current Slot Label
         if (this.elements.currentSlotLabel) {
-            const slotIndex = persistence.slotIndex !== null ? persistence.slotIndex : 0;
+            const slotIndex = this.ui.engine.getCurrentSlotIndex();
             this.elements.currentSlotLabel.textContent = this.t('ui_settings_current_slot', { index: slotIndex + 1 });
         }
 
@@ -64,8 +63,8 @@ export class SettingsView extends BaseView {
                     title: 'ui_settings_wipe_slot',
                     message: 'ui_settings_wipe_slot_confirm',
                     onConfirm: () => {
-                        if (DEBUG) console.warn('SettingsView: USER CONFIRMED WIPE SLOT. Executing persistence.clear()...');
-                        persistence.clear();
+                        if (DEBUG) console.warn('SettingsView: USER CONFIRMED WIPE SLOT. Executing engine.wipeCurrentSlot()...');
+                        this.ui.engine.wipeCurrentSlot();
                         
                         if (DEBUG) console.log('SettingsView: Wipe complete. Reloading page...');
                         setTimeout(() => {
@@ -85,8 +84,8 @@ export class SettingsView extends BaseView {
                     title: 'ui_settings_wipe_all',
                     message: 'ui_settings_wipe_all_confirm',
                     onConfirm: () => {
-                        if (DEBUG) console.warn('SettingsView: USER CONFIRMED WIPE ALL. Executing persistence.clearAll()...');
-                        persistence.clearAll();
+                        if (DEBUG) console.warn('SettingsView: USER CONFIRMED WIPE ALL. Executing engine.wipeAllSlots()...');
+                        this.ui.engine.wipeAllSlots();
                         
                         if (DEBUG) console.log('SettingsView: Wipe all complete. Reloading page...');
                         setTimeout(() => {

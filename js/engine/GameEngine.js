@@ -1003,4 +1003,18 @@ export class GameEngine {
     getAllTitles() {
         return TitleService.getAllTitles();
     }
+
+    getCurrentSlotIndex() {
+        return persistence.slotIndex !== null ? persistence.slotIndex : 0;
+    }
+
+    wipeCurrentSlot() {
+        persistence.clear();
+        return Result.ok();
+    }
+
+    wipeAllSlots() {
+        persistence.clearAll();
+        return Result.ok();
+    }
 }
