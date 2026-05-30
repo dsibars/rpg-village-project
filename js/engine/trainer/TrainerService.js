@@ -1,14 +1,14 @@
 /**
  * TrainerService generates gruff dialogue hints based on hero technique progress.
+ * Returns i18n keys and params — presentation layer handles translation.
  */
 export class TrainerService {
     /**
      * Get trainer dialogue for a hero.
      * @param {Hero} hero
-     * @param {Object} i18n
-     * @returns {Object} { lines: string[], category: string }
+     * @returns {Object} { lines: [{key, params?}], category: string }
      */
-    static getDialogue(hero, i18n) {
+    static getDialogue(hero) {
         const families = Object.keys(hero.techniqueUses || {});
         const tiers = hero.techniqueTiers || {};
 
@@ -17,7 +17,7 @@ export class TrainerService {
         if (highTierFamily) {
             return {
                 category: 'high_tier',
-                lines: this._getLines('high_tier', i18n, { family: highTierFamily, tier: tiers[highTierFamily] })
+                lines: this._getLines('high_tier', { family: highTierFamily, tier: tiers[highTierFamily] })
             };
         }
 
@@ -37,7 +37,7 @@ export class TrainerService {
         if (families.length === 0) {
             return {
                 category: 'no_family',
-                lines: this._getLines('no_family', i18n)
+                lines: this._getLines('no_family')
             };
         }
 
@@ -48,7 +48,7 @@ export class TrainerService {
 
         return {
             category,
-            lines: this._getLines(category, i18n, {
+            lines: this._getLines(category, {
                 family: bestProgress.family,
                 uses: bestProgress.uses,
                 threshold: bestProgress.threshold
@@ -61,31 +61,30 @@ export class TrainerService {
         return Math.floor(100 * Math.pow(3, tier - 2));
     }
 
-    static _getLines(category, i18n, ctx = {}) {
-        const t = (key) => i18n ? i18n.t(key) : key;
-        const familyName = ctx.family ? t(`family_${ctx.family}`) : '';
+    static _getLines(category, ctx = {}) {
         const lines = [];
+        const familyKey = ctx.family ? `family_${ctx.family}` : '';
 
         switch (category) {
             case 'no_family':
-                lines.push(t('trainer_no_family_1'));
-                lines.push(t('trainer_no_family_2'));
+                lines.push({ key: 'trainer_no_family_1' });
+                lines.push({ key: 'trainer_no_family_2' });
                 break;
             case 'far':
-                lines.push(t('trainer_far_1').replace('{family}', familyName));
-                lines.push(t('trainer_far_2').replace('{family}', familyName));
+                lines.push({ key: 'trainer_far_1', params: { family: familyKey } });
+                lines.push({ key: 'trainer_far_2', params: { family: familyKey } });
                 break;
             case 'approaching':
-                lines.push(t('trainer_approaching_1').replace('{family}', familyName));
-                lines.push(t('trainer_approaching_2').replace('{family}', familyName));
+                lines.push({ key: 'trainer_approaching_1', params: { family: familyKey } });
+                lines.push({ key: 'trainer_approaching_2', params: { family: familyKey } });
                 break;
             case 'near':
-                lines.push(t('trainer_near_1').replace('{family}', familyName));
-                lines.push(t('trainer_near_2').replace('{family}', familyName));
+                lines.push({ key: 'trainer_near_1', params: { family: familyKey } });
+                lines.push({ key: 'trainer_near_2', params: { family: familyKey } });
                 break;
             case 'high_tier':
-                lines.push(t('trainer_high_tier_1').replace('{family}', familyName).replace('{tier}', ctx.tier));
-                lines.push(t('trainer_high_tier_2').replace('{family}', familyName));
+                lines.push({ key: 'trainer_high_tier_1', params: { family: familyKey, tier: ctx.tier } });
+                lines.push({ key: 'trainer_high_tier_2', params: { family: familyKey } });
                 break;
         }
 

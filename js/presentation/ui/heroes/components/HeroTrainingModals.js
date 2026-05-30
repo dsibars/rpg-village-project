@@ -9,7 +9,12 @@ export class TrainerModal {
 
         const contentElement = el('div', { class: 'trainer-dialogue-box' }, [
             el('div', { class: 'trainer-lines' },
-                dialogue.lines.map(line => el('p', { class: 'trainer-line' }, ['"' + line + '"']))
+                dialogue.lines.map(line => {
+                    const lineText = line.params
+                        ? t(line.key, line.params).replace('{family}', t(line.params.family))
+                        : t(line.key);
+                    return el('p', { class: 'trainer-line' }, ['"' + lineText + '"']);
+                })
             ),
             el('div', {
                 class: 'trainer-footer',
@@ -76,7 +81,12 @@ export class WitchModal {
             const contentElement = el('div', { class: 'trainer-dialogue-box witch-dialogue-box' }, [
                 el('div', { style: { marginBottom: '12px' } }, [heroSelect]),
                 el('div', { class: 'trainer-lines' },
-                    dialogue.lines.map(line => el('p', { class: 'trainer-line witch-line' }, [`${elementIcon} "${line}"`]))
+                    dialogue.lines.map(line => {
+                        const lineText = line.params
+                            ? t(line.key, line.params).replace('{glyph}', t(line.params.glyph))
+                            : t(line.key);
+                        return el('p', { class: 'trainer-line witch-line' }, [`${elementIcon} "${lineText}"`]);
+                    })
                 ),
                 masteryHintEl,
                 el('div', {

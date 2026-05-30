@@ -1056,11 +1056,11 @@ export class GameEngine {
     }
 
     getTrainerDialogue(hero) {
-        return TrainerService.getDialogue(hero, this.i18n);
+        return TrainerService.getDialogue(hero);
     }
 
     getWitchDialogue(hero, currentDay) {
-        return WitchService.getDialogue(hero, this.i18n, currentDay);
+        return WitchService.getDialogue(hero, currentDay);
     }
 
     recordWitchVisit(hero, currentDay) {
