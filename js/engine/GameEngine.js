@@ -20,6 +20,7 @@ const DEBUG = false;
 import { i18n } from './shared/core/i18n/I18nService.js';
 import { Result } from './shared/core/Result.js';
 import { getRefineCost, MEAL_RECIPES, SKILLS_DATA } from './shared/data/GameConstants.js';
+import { MagicCircleService } from './magic_circle/MagicCircleService.js';
 import { getEquipmentStats } from './shared/inventory/EquipmentService.js';
 import { getWeaponBaseCost, getArmorBaseCost } from './shared/data/ShopCatalog.js';
 
@@ -1002,6 +1003,18 @@ export class GameEngine {
 
     getAllTitles() {
         return TitleService.getAllTitles();
+    }
+
+    getMagicCircleSlotCount(magicTier) {
+        return MagicCircleService.getSlotCount(magicTier);
+    }
+
+    getGlyphSymbol(tier) {
+        return MagicCircleService.getGlyphSymbol(tier);
+    }
+
+    composeSpell(glyphIds, glyphTiers, customName) {
+        return MagicCircleService.compose(glyphIds, glyphTiers, customName);
     }
 
     getCurrentSlotIndex() {

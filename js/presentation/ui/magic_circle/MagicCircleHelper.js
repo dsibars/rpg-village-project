@@ -1,5 +1,4 @@
 import { GLYPH_DATA, CORE_ALLY_EFFECTS, glyphHasGrowthPotential } from '../../../engine/shared/data/GameConstants.js';
-import { MagicCircleService } from '../../../engine/magic_circle/MagicCircleService.js';
 
 /**
  * MagicCircleHelper — Pure presentation logic for the Magic Circle UI.
@@ -142,11 +141,11 @@ export function getMaxSelectableTier(glyph, masteredTier) {
  * @param {number} masteredTier
  * @returns {Array<{tier: number, symbol: string}>}
  */
-export function buildTierOptions(glyph, masteredTier) {
+export function buildTierOptions(glyph, masteredTier, engine = null) {
     const max = getMaxSelectableTier(glyph, masteredTier);
     return Array.from({ length: max }, (_, i) => ({
         tier: i + 1,
-        symbol: MagicCircleService.getGlyphSymbol(i + 1)
+        symbol: engine ? engine.getGlyphSymbol(i + 1) : String(i + 1)
     }));
 }
 

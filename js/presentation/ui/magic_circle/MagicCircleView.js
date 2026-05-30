@@ -1,5 +1,4 @@
 import { el, diffList } from '../shared/utils/DOMUtils.js';
-import { MagicCircleService } from '../../../engine/magic_circle/MagicCircleService.js';
 import { GLYPH_DATA, computeGlyphEffect, computeGlyphCostMult } from '../../../engine/shared/data/GameConstants.js';
 import {
     buildEffectChips,
@@ -141,7 +140,7 @@ export class MagicCircleView {
         this.focusedSlotIndex = null;
         this.activeDrawerGlyphId = null;
 
-        this.maxSlots = MagicCircleService.getSlotCount(magicTier);
+        this.maxSlots = this.ui.engine.getMagicCircleSlotCount(magicTier);
 
         // ─── Define close handler early so overlay can reference it ───
         const close = () => {
@@ -307,7 +306,7 @@ export class MagicCircleView {
                     glyphTiers[c.glyphId] = this.selectedTiers[c.glyphId] || this.glyphMastery[c.glyphId]?.tier || 1;
                 }
                 const composeResult = this.composition.length > 0
-                    ? MagicCircleService.compose(glyphIds, glyphTiers, this.customName || null)
+                    ? this.ui.engine.composeSpell(glyphIds, glyphTiers, this.customName || null)
                     : null;
                 const spell = composeResult?.success ? composeResult.data : null;
 
@@ -502,7 +501,7 @@ export class MagicCircleView {
                         slot.el.classList.add('filled');
                         const g = GLYPH_DATA[slotComp.glyphId];
                         const tier = glyphTiers[slotComp.glyphId] || 1;
-                        const symbol = MagicCircleService.getGlyphSymbol(tier);
+                        const symbol = this.ui.engine.getGlyphSymbol(tier);
 
                         slot.el.textContent = '';
 
@@ -652,7 +651,7 @@ export class MagicCircleView {
                     const activeGlyph = GLYPH_DATA[activeGlyphId];
                     const currentTier = this.selectedTiers[activeGlyphId] || this.glyphMastery[activeGlyphId]?.tier || 1;
                     const desc = this.getGlyphDescription(activeGlyph, currentTier);
-                    const symbol = MagicCircleService.getGlyphSymbol(currentTier);
+                    const symbol = this.ui.engine.getGlyphSymbol(currentTier);
                     const maxSelectable = getMaxSelectableTier(activeGlyph, this.glyphMastery[activeGlyphId]?.tier || 1);
                     const isStatic = isStaticGlyph(activeGlyph);
 
@@ -687,7 +686,7 @@ export class MagicCircleView {
                         } else {
                             tick.removeAttribute('title');
                         }
-                        tick.textContent = MagicCircleService.getGlyphSymbol(t);
+                        tick.textContent = this.ui.engine.getGlyphSymbol(t);
                     });
 
                     this.els.selectedGlyphInfo.style.display = '';
