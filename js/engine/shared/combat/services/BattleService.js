@@ -98,8 +98,7 @@ export class BattleService {
                     type: 'STAMINA_REGEN',
                     actorId: currentEntity.id,
                     actorName: currentEntity.name,
-                    amount: actualRegen,
-                    message: `${currentEntity.name} recovered stamina.`
+                    amount: actualRegen
                 });
             }
         }
@@ -276,10 +275,9 @@ export class BattleService {
 
     _handleDefend(entity) {
         const event = {
-            type: 'defend',
+            type: 'DEFEND',
             actorId: entity.id,
             actorName: entity.name,
-            message: `${entity.name} defends.`,
             targetIsHero: this.heroes.includes(entity)
         };
         this.log.push(event);
@@ -291,10 +289,9 @@ export class BattleService {
         const success = Math.random() < 0.5;
         if (success) {
             const event = {
-                type: 'flee',
+                type: 'FLEE_SUCCESS',
                 actorId: entity.id,
                 actorName: entity.name,
-                message: `${entity.name} leads the party to safety!`,
                 success: true,
                 targetIsHero: this.heroes.includes(entity)
             };
@@ -304,10 +301,9 @@ export class BattleService {
             return Result.ok({ actionEvents: [event], battleOver: true, winner: 'escape' });
         } else {
             const event = {
-                type: 'flee',
+                type: 'FLEE_FAIL',
                 actorId: entity.id,
                 actorName: entity.name,
-                message: `${entity.name} attempted to flee but failed!`,
                 success: false,
                 targetIsHero: this.heroes.includes(entity)
             };

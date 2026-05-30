@@ -36,6 +36,12 @@ export class CombatLogFormatter {
                 return this._formatMpRestore(event);
             case 'STAMINA_RESTORE':
                 return this._formatStaminaRestore(event);
+            case 'DEFEND':
+                return this.i18n.t('log_defend', { actor: event.actorName });
+            case 'FLEE_SUCCESS':
+                return this.i18n.t('log_flee_success', { actor: event.actorName });
+            case 'FLEE_FAIL':
+                return this.i18n.t('log_flee_fail', { actor: event.actorName });
             case 'BUFF_ATK':
             case 'BUFF_DEF':
             case 'BUFF_SPD':
