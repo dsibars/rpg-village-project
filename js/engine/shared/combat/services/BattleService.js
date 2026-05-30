@@ -2,7 +2,9 @@ import { CombatCalculator } from '../core/CombatCalculator.js';
 import { CombatAI } from '../core/CombatAI.js';
 import { GambitService } from '../../../gambit/GambitService.js';
 import { Result } from '../../core/Result.js';
-import { SKILLS_DATA, CONSUMABLES_DATA, CORE_ALLY_EFFECTS } from '../../data/GameConstants.js';
+import { SKILLS_DATA } from '../../data/CombatData.js';
+import { CONSUMABLES_DATA } from '../../data/InventoryData.js';
+import { CORE_ALLY_EFFECTS } from '../../data/MagicCircleData.js';
 import { MagicCircleService } from '../../../magic_circle/MagicCircleService.js';
 
 export class BattleService {

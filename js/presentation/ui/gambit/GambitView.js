@@ -1,4 +1,4 @@
-import { SKILLS_DATA, TECHNIQUE_FAMILIES } from '../../../engine/shared/data/GameConstants.js';
+import { SKILLS_DATA, TECHNIQUE_FAMILIES } from '../../../engine/shared/data/CombatData.js';
 import { BaseModal } from '../components/modal/BaseModal.js';
 import { el, diffList } from '../shared/utils/DOMUtils.js';
 

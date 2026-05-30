@@ -1,4 +1,4 @@
-import { GLYPH_DATA, CORE_ALLY_EFFECTS, glyphHasGrowthPotential } from '../../../engine/shared/data/GameConstants.js';
+import { GLYPH_DATA, CORE_ALLY_EFFECTS, glyphHasGrowthPotential } from '../../../engine/shared/data/MagicCircleData.js';
 
 /**
  * MagicCircleHelper — Pure presentation logic for the Magic Circle UI.

@@ -7,7 +7,7 @@ import {
     computeGlyphEffect,
     computeGlyphCostMult,
     glyphHasGrowthPotential
-} from '../shared/data/GameConstants.js';
+} from '../shared/data/MagicCircleData.js';
 import { Result } from '../shared/core/Result.js';
 
 /**

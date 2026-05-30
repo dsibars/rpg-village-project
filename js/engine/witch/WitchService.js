@@ -1,4 +1,4 @@
-import { MAGIC_TIER_THRESHOLDS, GLYPH_MASTERY_THRESHOLDS } from '../shared/data/GameConstants.js';
+import { MAGIC_TIER_THRESHOLDS, GLYPH_MASTERY_THRESHOLDS } from '../shared/data/MagicCircleData.js';
 
 /**
  * WitchService generates mystical dialogue hints about magic and glyphs.

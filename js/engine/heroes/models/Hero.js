@@ -1,4 +1,6 @@
-import { WEAPON_FAMILIES, ARMOR_ARCHETYPES, MATERIAL_TIERS, EQUIPMENT_SET_BONUSES, SKILLS_DATA, GLYPH_DATA } from '../../shared/data/GameConstants.js';
+import { SKILLS_DATA } from '../../shared/data/CombatData.js';
+import { WEAPON_FAMILIES, ARMOR_ARCHETYPES, MATERIAL_TIERS, EQUIPMENT_SET_BONUSES } from '../../shared/data/EquipmentData.js';
+import { GLYPH_DATA } from '../../shared/data/MagicCircleData.js';
 import { Result } from '../../shared/core/Result.js';
 import { MagicCircleService } from '../../magic_circle/MagicCircleService.js';
 import { HeroMigrationService } from '../services/HeroMigrationService.js';

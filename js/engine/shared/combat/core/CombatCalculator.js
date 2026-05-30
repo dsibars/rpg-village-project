@@ -1,4 +1,4 @@
-import { TECHNIQUE_FAMILIES } from '../../data/GameConstants.js';
+import { TECHNIQUE_FAMILIES } from '../../data/CombatData.js';
 
 export class CombatCalculator {
     /**

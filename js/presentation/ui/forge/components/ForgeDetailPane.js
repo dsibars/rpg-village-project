@@ -1,6 +1,6 @@
 import { el } from '../../shared/utils/DOMUtils.js';
 import { getEquipmentName, getEquipmentStats } from '../../shared/EquipmentHelper.js';
-import { getRefineCost } from '../../../../engine/shared/data/GameConstants.js';
+import { getRefineCost } from '../../../../engine/shared/data/EquipmentData.js';
 
 const STAT_LABEL_MAP = {
     strength: 'ui_stats_power',

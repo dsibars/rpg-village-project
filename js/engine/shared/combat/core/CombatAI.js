@@ -1,4 +1,4 @@
-import { SKILLS_DATA } from '../../data/GameConstants.js';
+import { SKILLS_DATA } from '../../data/CombatData.js';
 import { GambitService } from '../../../gambit/GambitService.js';
 import { MagicCircleService } from '../../../magic_circle/MagicCircleService.js';
 

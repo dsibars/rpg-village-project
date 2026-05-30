@@ -1,5 +1,5 @@
 import { el, diffList } from '../shared/utils/DOMUtils.js';
-import { GLYPH_DATA, computeGlyphEffect, computeGlyphCostMult } from '../../../engine/shared/data/GameConstants.js';
+import { GLYPH_DATA, computeGlyphEffect, computeGlyphCostMult } from '../../../engine/shared/data/MagicCircleData.js';
 import {
     buildEffectChips,
     getPowerDisplay,

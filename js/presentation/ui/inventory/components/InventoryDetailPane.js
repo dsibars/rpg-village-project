@@ -1,6 +1,6 @@
 import { el } from '../../shared/utils/DOMUtils.js';
 import { getFormattedStats } from '../../shared/EquipmentHelper.js';
-import { MEAL_RECIPES } from '../../../../engine/shared/data/GameConstants.js';
+import { MEAL_RECIPES } from '../../../../engine/shared/data/InventoryData.js';
 
 export function createInventoryDetailPane({ onCook, onConsume, onEquip, onUnequip, onDrop, t }) {
     // Empty state

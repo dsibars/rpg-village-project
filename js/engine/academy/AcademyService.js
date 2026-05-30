@@ -1,5 +1,5 @@
 import { Result } from '../shared/core/Result.js';
-import { GLYPH_DATA } from '../shared/data/GameConstants.js';
+import { GLYPH_DATA } from '../shared/data/MagicCircleData.js';
 import { persistence } from '../shared/core/Persistence.js';
 
 /**

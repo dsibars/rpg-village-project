@@ -1,6 +1,6 @@
 import { BaseView } from '../BaseView.js';
 import { getEquipmentName } from '../shared/EquipmentHelper.js';
-import { MEAL_RECIPES } from '../../../engine/shared/data/GameConstants.js';
+import { MEAL_RECIPES } from '../../../engine/shared/data/InventoryData.js';
 import { createInventoryGrid } from './components/InventoryGrid.js';
 import { createInventoryDetailPane } from './components/InventoryDetailPane.js';
 

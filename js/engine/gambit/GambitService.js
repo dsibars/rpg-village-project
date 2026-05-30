@@ -1,4 +1,5 @@
-import { SKILLS_DATA, CONSUMABLES_DATA } from '../shared/data/GameConstants.js';
+import { SKILLS_DATA } from '../shared/data/CombatData.js';
+import { CONSUMABLES_DATA } from '../shared/data/InventoryData.js';
 import { Result } from '../shared/core/Result.js';
 
 export class GambitService {

@@ -1,5 +1,5 @@
 import { BaseView } from '../BaseView.js';
-import { TECHNIQUE_FAMILIES } from '../../../engine/shared/data/GameConstants.js';
+import { TECHNIQUE_FAMILIES } from '../../../engine/shared/data/CombatData.js';
 
 import { HeroSkillsModal } from './components/HeroSkillsModal.js';
 import { TrainerModal, WitchModal, AcademyModal, HallOfFameModal } from './components/HeroTrainingModals.js';

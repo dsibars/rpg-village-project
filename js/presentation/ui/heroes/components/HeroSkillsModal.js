@@ -1,6 +1,6 @@
 import { BaseModal } from '../../components/modal/BaseModal.js';
 import { el, diffList } from '../../shared/utils/DOMUtils.js';
-import { TECHNIQUE_FAMILIES } from '../../../../engine/shared/data/GameConstants.js';
+import { TECHNIQUE_FAMILIES } from '../../../../engine/shared/data/CombatData.js';
 
 function getFamilyEffectLabel(family, tier = 1, t) {
     switch (family.id) {

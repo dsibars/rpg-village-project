@@ -1,5 +1,5 @@
 import { BaseModal } from '../../components/modal/BaseModal.js';
-import { GLYPH_DATA } from '../../../../engine/shared/data/GameConstants.js';
+import { GLYPH_DATA } from '../../../../engine/shared/data/MagicCircleData.js';
 import { el } from '../../shared/utils/DOMUtils.js';
 
 export class HeroInscriptionModal {
