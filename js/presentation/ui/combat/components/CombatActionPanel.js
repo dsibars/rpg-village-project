@@ -1,5 +1,4 @@
 import { el } from '../../shared/utils/DOMUtils.js';
-import { SKILLS_DATA } from '../../../../engine/shared/data/GameConstants.js';
 import { CombatResolutionPane } from './CombatResolutionPane.js';
 
 /**
@@ -57,7 +56,7 @@ export class CombatActionPanel {
             const knownFamilies = currentHero.knownFamilies || ['single_strike'];
             const hasSkills = knownFamilies.length > 1;
             const codex = currentHero.spellCodex || [];
-            const canCastSpells = codex.some((s, idx) => this._canCastSpell(currentHero, s));
+            const canCastSpells = codex.some((s, idx) => engine.canCastSpell(currentHero, s));
 
             const attackBtn = el('button', {
                 id: 'btn-action-attack',
@@ -109,15 +108,11 @@ export class CombatActionPanel {
             );
         } else if (menuState === 'skills') {
             const knownFamilies = (currentHero.knownFamilies || []).filter(f => f !== 'single_strike');
-            const hybridMpCost = currentHero.getHybridMpCost ? currentHero.getHybridMpCost() : 0;
 
             const familyButtons = knownFamilies.map(familyId => {
-                const skillData = SKILLS_DATA[familyId];
-                if (!skillData) return null;
                 const tier = currentHero.techniqueTiers && currentHero.techniqueTiers[familyId] || 1;
-                const staCost = skillData.staminaCostBase + skillData.staminaCostPerTier * (tier - 1);
-                const mpCost = hybridMpCost;
-                const canAfford = (currentHero.stamina || 0) >= staCost && (mpCost <= 0 || (currentHero.mp || 0) >= mpCost);
+                const canAfford = engine.canAffordSkill(currentHero, familyId, tier);
+                const { staCost, mpCost } = engine.getSkillCost(currentHero, familyId, tier);
                 const familyName = this.t('family_' + familyId) || familyId;
                 const mpLabel = mpCost > 0 ? ` + ${mpCost} MP` : '';
 
@@ -147,17 +142,15 @@ export class CombatActionPanel {
             );
         } else if (menuState === 'family_tiers') {
             const familyId = selectedFamily;
-            const skillData = SKILLS_DATA[familyId];
             const maxTier = currentHero.techniqueTiers && currentHero.techniqueTiers[familyId] || 1;
             const familyName = this.t('family_' + familyId) || familyId;
-            const hybridMpCost = currentHero.getHybridMpCost ? currentHero.getHybridMpCost() : 0;
 
             const tierButtons = [];
             for (let t = maxTier; t >= 1; t--) {
-                const staCost = skillData.staminaCostBase + skillData.staminaCostPerTier * (t - 1);
-                const canAfford = (currentHero.stamina || 0) >= staCost && (hybridMpCost <= 0 || (currentHero.mp || 0) >= hybridMpCost);
+                const canAfford = engine.canAffordSkill(currentHero, familyId, t);
+                const { staCost, mpCost } = engine.getSkillCost(currentHero, familyId, t);
                 const label = t === maxTier ? '⚡ ' : t === 1 ? '💧 ' : '';
-                const mpLabel = hybridMpCost > 0 ? ` + ${hybridMpCost} MP` : '';
+                const mpLabel = mpCost > 0 ? ` + ${mpCost} MP` : '';
 
                 tierButtons.push(
                     el('button', {
@@ -287,12 +280,5 @@ export class CombatActionPanel {
         }
     }
 
-    _canCastSpell(hero, spell) {
-        if (!spell || !hero) return false;
-        if ((hero.mp || 0) < spell.mpCost) return false;
-        const magicTier = hero.magicTier || 1;
-        const maxSlots = Math.max(1, Math.min(25, magicTier));
-        if ((spell.glyphIds || []).length > maxSlots) return false;
-        return true;
-    }
+
 }

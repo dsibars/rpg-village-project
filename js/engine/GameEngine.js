@@ -19,7 +19,7 @@ const DEBUG = false;
 
 import { i18n } from './shared/core/i18n/I18nService.js';
 import { Result } from './shared/core/Result.js';
-import { getRefineCost, MEAL_RECIPES } from './shared/data/GameConstants.js';
+import { getRefineCost, MEAL_RECIPES, SKILLS_DATA } from './shared/data/GameConstants.js';
 import { getEquipmentStats } from './shared/inventory/EquipmentService.js';
 import { getWeaponBaseCost, getArmorBaseCost } from './shared/data/ShopCatalog.js';
 
@@ -478,6 +478,34 @@ export class GameEngine {
         const heroCount = this.heroService.list().length;
         const baseCost = 100;
         return Math.floor(baseCost * Math.pow(1.2, heroCount));
+    }
+
+    canCastSpell(hero, spell) {
+        if (!spell || !hero) return false;
+        if ((hero.mp || 0) < spell.mpCost) return false;
+        const maxSlots = Math.max(1, Math.min(25, hero.magicTier || 1));
+        if ((spell.glyphIds || []).length > maxSlots) return false;
+        return true;
+    }
+
+    getSkillCost(hero, familyId, tier) {
+        const skillData = SKILLS_DATA[familyId];
+        if (!skillData || !hero) return { staCost: 0, mpCost: 0 };
+        const staCost = skillData.staminaCostBase + skillData.staminaCostPerTier * ((tier || 1) - 1);
+        const mpCost = hero.hybridMpCost || 0;
+        return { staCost, mpCost };
+    }
+
+    canAffordSkill(hero, familyId, tier) {
+        const { staCost, mpCost } = this.getSkillCost(hero, familyId, tier);
+        const canAffordSta = (hero.stamina || 0) >= staCost;
+        const canAffordMp = mpCost <= 0 || (hero.mp || 0) >= mpCost;
+        return canAffordSta && canAffordMp;
+    }
+
+    getSkillTargetType(familyId) {
+        const skillData = SKILLS_DATA[familyId];
+        return skillData ? skillData.targetType : 'single_enemy';
     }
 
     calculateHybridMpCost(glyphIds, glyphTiers, magicTier) {

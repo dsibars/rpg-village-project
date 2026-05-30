@@ -68,7 +68,11 @@ test('CombatView DOM Integration Tests', async (t) => {
                 get autoBattle() { return false; },
                 set autoBattle(val) { autoToggled = true; }
             },
-            skipBattle: () => { skipped = true; }
+            skipBattle: () => { skipped = true; },
+            canAffordSkill: () => true,
+            getSkillCost: () => ({ staCost: 5, mpCost: 0 }),
+            getSkillTargetType: () => 'single_enemy',
+            canCastSpell: () => true
         };
 
         const battle = createMockBattle();
@@ -106,7 +110,11 @@ test('CombatView DOM Integration Tests', async (t) => {
                 executedAction = actionId;
                 executedIndex = targetIndex;
                 return { success: true };
-            }
+            },
+            canAffordSkill: () => true,
+            getSkillCost: () => ({ staCost: 5, mpCost: 0 }),
+            getSkillTargetType: () => 'single_enemy',
+            canCastSpell: () => true
         };
 
         const battle = createMockBattle();
@@ -151,7 +159,11 @@ test('CombatView DOM Integration Tests', async (t) => {
                 executedIndex = targetIndex;
                 executedTier = tier;
                 return { success: true };
-            }
+            },
+            canAffordSkill: () => true,
+            getSkillCost: () => ({ staCost: 5, mpCost: 0 }),
+            getSkillTargetType: () => 'single_enemy',
+            canCastSpell: () => true
         };
 
         const battle = createMockBattle();
@@ -224,7 +236,11 @@ test('CombatView DOM Integration Tests', async (t) => {
             }),
             resolveBattle: () => {
                 resolved = true;
-            }
+            },
+            canAffordSkill: () => true,
+            getSkillCost: () => ({ staCost: 5, mpCost: 0 }),
+            getSkillTargetType: () => 'single_enemy',
+            canCastSpell: () => true
         };
 
         const battle = createMockBattle();

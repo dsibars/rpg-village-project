@@ -1,4 +1,4 @@
-import { SKILLS_DATA } from '../../../engine/shared/data/GameConstants.js';
+
 import { CombatLogFormatter } from '../../../engine/shared/combat/CombatLogFormatter.js';
 import { el, diffList } from '../shared/utils/DOMUtils.js';
 
@@ -668,17 +668,11 @@ export class CombatView {
       screens.main.style.display = '';
     } else if (menuState === 'skills') {
       const knownFamilies = (currentHero.knownFamilies || []).filter(f => f !== 'single_strike');
-      const hybridMpCost = currentHero.getHybridMpCost ? currentHero.getHybridMpCost() : 0;
 
       const skillButtons = knownFamilies.map(familyId => {
-        const skillData = SKILLS_DATA[familyId];
-        if (!skillData) return null;
         const tier = currentHero.techniqueTiers && currentHero.techniqueTiers[familyId] || 1;
-        const staCost = skillData.staminaCostBase + skillData.staminaCostPerTier * (tier - 1);
-        const mpCost = hybridMpCost;
-        const canAffordSta = (currentHero.stamina || 0) >= staCost;
-        const canAffordMp = mpCost <= 0 || (currentHero.mp || 0) >= mpCost;
-        const canAfford = canAffordSta && canAffordMp;
+        const canAfford = this.engine.canAffordSkill(currentHero, familyId, tier);
+        const { staCost, mpCost } = this.engine.getSkillCost(currentHero, familyId, tier);
         const familyName = this.t('family_' + familyId) || familyId;
         const mpLabel = mpCost > 0 ? ` + ${mpCost} MP` : '';
         return el('button', {
@@ -703,19 +697,15 @@ export class CombatView {
       screens.skills.style.display = '';
     } else if (menuState === 'family_tiers') {
       const familyId = overlay.selectedFamily;
-      const skillData = SKILLS_DATA[familyId];
       const maxTier = currentHero.techniqueTiers && currentHero.techniqueTiers[familyId] || 1;
       const familyName = this.t('family_' + familyId) || familyId;
-      const hybridMpCost = currentHero.getHybridMpCost ? currentHero.getHybridMpCost() : 0;
 
       const tierButtons = [];
       for (let t = maxTier; t >= 1; t--) {
-        const staCost = skillData.staminaCostBase + skillData.staminaCostPerTier * (t - 1);
-        const canAffordSta = (currentHero.stamina || 0) >= staCost;
-        const canAffordMp = hybridMpCost <= 0 || (currentHero.mp || 0) >= hybridMpCost;
-        const canAfford = canAffordSta && canAffordMp;
+        const canAfford = this.engine.canAffordSkill(currentHero, familyId, t);
+        const { staCost, mpCost } = this.engine.getSkillCost(currentHero, familyId, t);
         const label = t === maxTier ? '⚡ ' : t === 1 ? '💧 ' : '';
-        const mpLabel = hybridMpCost > 0 ? ` + ${hybridMpCost} MP` : '';
+        const mpLabel = mpCost > 0 ? ` + ${mpCost} MP` : '';
         tierButtons.push(el('button', {
           class: 'btn btn-secondary',
           dataId: `tier-${t}`,
@@ -786,10 +776,10 @@ export class CombatView {
       refs.btnTargetBack.textContent = `◀ ${this.t('btn_back')}`;
       refs.targetMessage.textContent = `${this.t('ui_choose_target')} — ${sel ? sel.name : ''}`;
 
-      const skillData = sel && sel.type === 'skill' ? SKILLS_DATA[sel.id] : null;
+      const skillTargetType = sel && sel.type === 'skill' ? this.engine.getSkillTargetType(sel.id) : null;
       const spellData = sel && sel.type === 'spell' ? currentHero.spellCodex?.[sel.index] : null;
       const isFriendly = sel && (
-        (skillData && (skillData.targetType === 'single_ally' || skillData.targetType === 'all_allies')) ||
+        (skillTargetType === 'single_ally' || skillTargetType === 'all_allies') ||
         (spellData && (spellData.targetType === 'single_ally' || spellData.targetType === 'all_allies')) ||
         (sel.type === 'item' && sel.id.includes('potion'))
       );
@@ -1023,12 +1013,7 @@ export class CombatView {
   }
 
   _canCastSpellInCombat(hero, spell, index) {
-    if (!spell || !hero) return false;
-    if ((hero.mp || 0) < spell.mpCost) return false;
-    const magicTier = hero.magicTier || 1;
-    const maxSlots = Math.max(1, Math.min(25, magicTier));
-    if ((spell.glyphIds || []).length > maxSlots) return false;
-    return true;
+    return this.engine.canCastSpell(hero, spell);
   }
 
   _triggerVisualEffect(targetName, text, type) {

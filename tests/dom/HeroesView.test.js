@@ -21,6 +21,9 @@ test('HeroesView DOM Refactor', async (t) => {
         switchView: () => {},
         forceUpdate: () => {},
         update: () => {},
+        engine: {
+            getRecruitCost: () => 100
+        },
         openEquipmentOverlay: (options) => {
             const eqView = new EquipmentView({ ui: mockUi });
             mockUi.equipmentView = eqView;
