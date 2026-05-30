@@ -1017,6 +1017,55 @@ export class GameEngine {
         return MagicCircleService.compose(glyphIds, glyphTiers, customName);
     }
 
+    buildGambit(conditionRaw, actionRaw, target, tier, spellCodex) {
+        const [actionType, actionId] = actionRaw.split(':');
+
+        const conditionMap = {
+            'ALLY_HP_LT_50': { type: 'ally_hp', operator: '<', value: 0.5 },
+            'ALLY_HP_LT_25': { type: 'ally_hp', operator: '<', value: 0.25 },
+            'SELF_HP_LT_50': { type: 'self_hp', operator: '<', value: 0.5 },
+            'SELF_MP_LT_25': { type: 'self_mp', operator: '<', value: 0.25 },
+            'ANY_ENEMY': { type: 'always', value: true },
+            'ENEMY_COUNT_GT_2': { type: 'enemy_count', operator: '>', value: 2 }
+        };
+        const condition = conditionMap[conditionRaw] || { type: 'always', value: true };
+
+        let payload = actionId;
+        let actionTier = undefined;
+        if (actionType === 'tech') {
+            actionTier = tier || 1;
+        } else if (actionType === 'spell') {
+            const spellIdx = parseInt(actionId, 10);
+            const spell = spellCodex?.[spellIdx];
+            payload = spell ? spell.name : actionId;
+        }
+
+        return {
+            id: 'gambit_v1_' + Date.now(),
+            conditions: [{ op: 'SINGLE', left: condition, right: null }],
+            action: {
+                type: actionType === 'tech' ? 'skill' : actionType,
+                payload: payload,
+                ...(actionTier !== undefined ? { tier: actionTier } : {})
+            },
+            target: target,
+            enabled: true
+        };
+    }
+
+    getCompatibleTargets(innateTargetType) {
+        const compatibility = {
+            'single_enemy': ['weakest_enemy', 'strongest_enemy', 'lowest_hp_enemy', 'highest_hp_enemy', 'random_enemy'],
+            'enemy_splash': ['weakest_enemy', 'strongest_enemy', 'lowest_hp_enemy', 'highest_hp_enemy', 'random_enemy'],
+            'all_enemies': ['all_enemies'],
+            'single_ally': ['weakest_ally', 'strongest_ally', 'lowest_hp_ally', 'highest_hp_ally', 'random_ally', 'self'],
+            'all_allies': ['all_allies'],
+            'self': ['self'],
+            'none': []
+        };
+        return compatibility[innateTargetType] || [];
+    }
+
     getCurrentSlotIndex() {
         return persistence.slotIndex !== null ? persistence.slotIndex : 0;
     }
