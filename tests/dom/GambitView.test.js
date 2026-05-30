@@ -4,6 +4,20 @@ import assert from 'node:assert';
 import { GambitView } from '../../js/presentation/ui/gambit/GambitView.js';
 
 test('GambitView DOM Refactor', async (t) => {
+    const mockUi = {
+        t: (k) => k,
+        engine: {
+            getCompatibleTargets: () => ['weakest_enemy', 'strongest_enemy'],
+            buildGambit: () => ({
+                id: 'gambit_test',
+                conditions: [{ op: 'SINGLE', left: { type: 'always', value: true } }],
+                action: { type: 'skill', payload: 'single_strike' },
+                target: 'weakest_enemy',
+                enabled: true
+            })
+        }
+    };
+
     // Helper to create mock hero state
     const createMockHero = () => ({
         id: 'hero_1',
@@ -57,7 +71,7 @@ test('GambitView DOM Refactor', async (t) => {
     });
 
     await t.test('open() renders initial view and lists gambits surgically', () => {
-        const view = new GambitView({ ui: null });
+        const view = new GambitView({ ui: mockUi });
         const hero = createMockHero();
         const emitted = [];
         const emit = (name, data) => emitted.push({ name, data });
@@ -109,7 +123,7 @@ test('GambitView DOM Refactor', async (t) => {
     });
 
     await t.test('clicks and interactions trigger emit events', () => {
-        const view = new GambitView({ ui: null });
+        const view = new GambitView({ ui: mockUi });
         const hero = createMockHero();
         const emitted = [];
         const emit = (name, data) => emitted.push({ name, data });
@@ -153,7 +167,7 @@ test('GambitView DOM Refactor', async (t) => {
     });
 
     await t.test('filterTargets compatibility selection restricts invalid options', () => {
-        const view = new GambitView({ ui: null });
+        const view = new GambitView({ ui: mockUi });
         const hero = createMockHero();
         const emitted = [];
         const emit = (name, data) => emitted.push({ name, data });

@@ -1,7 +1,6 @@
 import { BaseModal } from '../../components/modal/BaseModal.js';
 import { el, diffList } from '../../shared/utils/DOMUtils.js';
 import { TECHNIQUE_FAMILIES } from '../../../../engine/shared/data/GameConstants.js';
-import { Hero } from '../../../../engine/heroes/models/Hero.js';
 
 function getFamilyEffectLabel(family, tier = 1, t) {
     switch (family.id) {
@@ -73,7 +72,7 @@ export class HeroSkillsModal {
             });
 
             // Skill points alert inside modal
-            const milestones = Hero.SKILL_POINT_MILESTONES || [1, 5, 10, 15, 20, 25];
+            const milestones = currentHero.skillPointMilestones || [1, 5, 10, 15, 20, 25];
             const nextMilestone = milestones.find(m => m > currentHero.level);
             let alertText = '';
             if (currentHero.skillPoints > 0 && canManageSkills) {

@@ -21,6 +21,8 @@ import { i18n } from './shared/core/i18n/I18nService.js';
 import { Result } from './shared/core/Result.js';
 import { getRefineCost, MEAL_RECIPES, SKILLS_DATA } from './shared/data/GameConstants.js';
 import { MagicCircleService } from './magic_circle/MagicCircleService.js';
+import { TrainerService } from './trainer/TrainerService.js';
+import { WitchService } from './witch/WitchService.js';
 import { getEquipmentStats } from './shared/inventory/EquipmentService.js';
 import { getWeaponBaseCost, getArmorBaseCost } from './shared/data/ShopCatalog.js';
 
@@ -1051,6 +1053,18 @@ export class GameEngine {
             target: target,
             enabled: true
         };
+    }
+
+    getTrainerDialogue(hero) {
+        return TrainerService.getDialogue(hero, this.i18n);
+    }
+
+    getWitchDialogue(hero, currentDay) {
+        return WitchService.getDialogue(hero, this.i18n, currentDay);
+    }
+
+    recordWitchVisit(hero, currentDay) {
+        return WitchService.recordVisit(hero, currentDay);
     }
 
     getCompatibleTargets(innateTargetType) {

@@ -307,14 +307,14 @@ test('HeroesView DOM Refactor', async (t) => {
 
         try {
             // 1. TrainerModal
-            TrainerModal.show(hero, mockI18n, tFunc);
+            TrainerModal.show(hero, mockI18n, tFunc, () => ({ lines: ['Test'], category: 'test' }));
             let overlay = document.body.querySelector('.modal-overlay');
             assert.ok(overlay);
             assert.ok(overlay.textContent.includes('trainer_title'));
             overlay.remove();
 
             // 2. WitchModal
-            WitchModal.show([hero], 'hero_1', mockI18n, tFunc, { village: { day: 5 } }, () => {});
+            WitchModal.show([hero], 'hero_1', mockI18n, tFunc, { village: { day: 5 } }, () => {}, () => ({ lines: ['Test'], element: 'fire', category: 'test', masteryHints: [] }), () => {});
             overlay = document.body.querySelector('.modal-overlay');
             assert.ok(overlay);
             assert.ok(overlay.textContent.includes('witch_title'));

@@ -229,12 +229,12 @@ export class HeroesView extends BaseView {
 
     _openTrainerModal() {
         const hero = this.lastRawState?.heroes?.find(h => h.id === this.selectedHeroId);
-        TrainerModal.show(hero, this.ui?.i18n, this.t.bind(this));
+        TrainerModal.show(hero, this.ui?.i18n, this.t.bind(this), this.ui.engine.getTrainerDialogue.bind(this.ui.engine));
     }
 
     _openWitchModal() {
         const heroes = this.lastRawState?.heroes || [];
-        WitchModal.show(heroes, this.selectedHeroId, this.ui?.i18n, this.t.bind(this), this.lastRawState, this.emit.bind(this));
+        WitchModal.show(heroes, this.selectedHeroId, this.ui?.i18n, this.t.bind(this), this.lastRawState, this.emit.bind(this), this.ui.engine.getWitchDialogue.bind(this.ui.engine), this.ui.engine.recordWitchVisit.bind(this.ui.engine));
     }
 
     _openAcademyModal() {

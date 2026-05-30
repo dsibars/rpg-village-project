@@ -1,13 +1,11 @@
 import { BaseModal } from '../../components/modal/BaseModal.js';
-import { TrainerService } from '../../../../engine/trainer/TrainerService.js';
-import { WitchService } from '../../../../engine/witch/WitchService.js';
 import { el } from '../../shared/utils/DOMUtils.js';
 
 export class TrainerModal {
-    static show(hero, i18n, t) {
+    static show(hero, i18n, t, getTrainerDialogue) {
         if (!hero) return;
 
-        const dialogue = TrainerService.getDialogue(hero, i18n);
+        const dialogue = getTrainerDialogue(hero);
 
         const contentElement = el('div', { class: 'trainer-dialogue-box' }, [
             el('div', { class: 'trainer-lines' },
@@ -42,7 +40,7 @@ export class TrainerModal {
 }
 
 export class WitchModal {
-    static show(heroes, selectedHeroId, i18n, t, state, emit) {
+    static show(heroes, selectedHeroId, i18n, t, state, emit, getWitchDialogue, recordWitchVisit) {
         let selectedHero = heroes.find(h => h.id === selectedHeroId) || heroes[0];
         if (!selectedHero) return;
 
@@ -52,8 +50,8 @@ export class WitchModal {
         let modalRef = null;
 
         const renderWitch = () => {
-            const dialogue = WitchService.getDialogue(selectedHero, i18n, currentDay);
-            WitchService.recordVisit(selectedHero, currentDay);
+            const dialogue = getWitchDialogue(selectedHero, currentDay);
+            recordWitchVisit(selectedHero, currentDay);
             const elementIcon = elementIcons[dialogue.element] || '🔮';
 
             const heroSelect = el('select', {
@@ -99,7 +97,7 @@ export class WitchModal {
                     el('button', {
                         class: 'btn btn-secondary btn-sm',
                         onClick: () => {
-                            WitchService.recordVisit(selectedHero);
+                            recordWitchVisit(selectedHero, currentDay);
                             emit('updateHero', { hero: selectedHero });
                             modalRef.close();
                         }
@@ -118,7 +116,7 @@ export class WitchModal {
                     icon: '🌙',
                     maxWidth: '520px',
                     onClose: () => {
-                        WitchService.recordVisit(selectedHero);
+                        recordWitchVisit(selectedHero, currentDay);
                         emit('updateHero', { hero: selectedHero });
                     }
                 });
