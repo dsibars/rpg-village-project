@@ -98,7 +98,7 @@ export function createExpeditionDetailPane({ onStart, onRecall, t }) {
                     background: 'rgba(0,0,0,0.2)'
                 }
             }, [
-                el('h3', { style: { marginTop: '0', color: 'var(--primary-color)' } }, [t('ui_assigned_expedition') || 'Assigned Expedition']),
+                el('h3', { style: { marginTop: '0', color: 'var(--accent-color)' } }, [t('ui_assigned_expedition') || 'Assigned Expedition']),
                 el('p', { class: 'description' }, [isStageZero ? t('ui_waiting_combat') : t('ui_progress_combat')]),
                 el('div', { class: 'exp-progress' }, [
                     el('h4', {}, [`${t('exp_stage') || 'Stage'} ${activeExp.currentStage} / ${expedition.stages.length}`]),
@@ -108,7 +108,7 @@ export function createExpeditionDetailPane({ onStart, onRecall, t }) {
                     }, [
                         el('div', {
                             class: 'progress-bar',
-                            style: { background: 'var(--primary-color)', height: '100%', borderRadius: '5px', width: `${progressPct}%` }
+                            style: { background: 'var(--accent-color)', height: '100%', borderRadius: '5px', width: `${progressPct}%` }
                         })
                     ])
                 ]),
@@ -139,7 +139,10 @@ export function createExpeditionDetailPane({ onStart, onRecall, t }) {
         enemiesLabelRef.innerHTML = '';
         const uniqueEnemies = new Set();
         expedition.stages.forEach(s => {
-            if (s.enemies) s.enemies.forEach(e => uniqueEnemies.add(e));
+            if (s.enemies) s.enemies.forEach(e => {
+                const enemyId = typeof e === 'string' ? e : e.id;
+                uniqueEnemies.add(enemyId);
+            });
         });
         if (uniqueEnemies.size > 0) {
             enemiesLabelRef.appendChild(

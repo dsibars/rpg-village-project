@@ -73,17 +73,31 @@ When a region is cleared for the **first time** (transitioning from 0 to 1 clear
 
 ## Region Unlock Conditions
 
-Regions are unlocked dynamically as the player progresses:
+Regions are unlocked dynamically as the player progresses. Unlock requirements are defined **in region data files** (`js/engine/explore/data/regions/reg_*.js`) and evaluated generically by `ExpeditionService` — no service code changes are needed when adding a new region.
 
 | Region | Unlock Condition |
 |--------|------------------|
-| **Greenfields** | Available from game start |
-| **Tiny Cave** | Automatically unlocked after completing `exp_tutorial_cave` |
-| **Calmed Beach** | Unlocked after completing **3 Greenfields expeditions** OR building **Explorer Guild Level 1** |
-| **Dark Forest** | Unlocked after **2 Tiny Cave clears** |
-| **Goblin Camp** | Unlocked after **3 Dark Forest clears** OR **Explorer Guild Level 2** |
-| **Mystic Ruins** | Unlocked after **Explorer Guild Level 2** OR **5 total clears across all regions** |
-| **Frozen Peaks** | Unlocked after **Explorer Guild Level 3** OR **8 total clears across all regions** |
+| **Greenfields** | Available from game start (no requirement) |
+| **Tiny Cave** | Complete `exp_tutorial_cave` |
+| **Calmed Beach** | 3 Greenfields clears **OR** Explorer Guild L1 |
+| **Dark Forest** | 2 Tiny Cave clears |
+| **Goblin Camp** | 3 Dark Forest clears **OR** Explorer Guild L2 |
+| **Mystic Ruins** | Explorer Guild L2 **OR** 5 total clears across all regions |
+| **Frozen Peaks** | Explorer Guild L3 **OR** 8 total clears across all regions |
+| **Whispering Forest** | 5 Greenfields clears **OR** Explorer Guild L1 |
+| **Murky Swamp** | 4 Dark Forest clears |
+| **Forgotten Ruins** | 6 Mystic Ruins clears **OR** Explorer Guild L3 |
+
+> **⚠️ Intentional Design: The Discovery Delay**
+>
+> Region unlocks are evaluated once per day during `nextDay()`, **after** building construction but **before** expedition resolution. This creates a natural one-day delay for expedition-based unlocks:
+>
+> - **Building-based unlocks** (e.g., Explorer Guild L1 → Calmed Beach) appear **the same day** the building completes.
+> - **Expedition-based unlocks** (e.g., completing Tutorial Cave → Tiny Cave) appear **the next day**.
+>
+> This is deliberate — it represents the time for scouts to return and report new discoveries. Do not "fix" this by calling `checkRegionUnlocks()` after `processDay()`.
+
+See [Regions Data](regions_data.md) for the `unlockRequirements` schema and how to add new regions.
 
 ## Building Effects on Expeditions
 
