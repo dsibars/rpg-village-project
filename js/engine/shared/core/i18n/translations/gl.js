@@ -1075,5 +1075,11 @@ export const gl = {
     aria_expand_log: "Expandir Rexistro",
     aria_close_log: "Pechar Rexistro",
     ui_effect_blacksmith_iron_gear: "Equipamento de Ferro",
-    ui_effect_blacksmith_refining: "Equipamento de Ferro e Refinado"
+    ui_tier: "Grado",
+    ui_effect_blacksmith_refining: "Equipamento de Ferro e Refinado",
+    ui_gambit_test_setup_title: "Configuración da Simulación",
+    ui_discovered_bestiary: "Bestiario Descuberto",
+    ui_selected_enemies: "Inimigos Seleccionados",
+    ui_no_enemies_selected: "Non hai inimigos seleccionados. Engade algúns do catálogo!",
+    ui_start_simulation: "Iniciar Simulación"
 };

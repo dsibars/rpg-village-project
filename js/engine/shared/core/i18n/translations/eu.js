@@ -1076,5 +1076,11 @@ export const eu = {
     aria_expand_log: "Hedatu Erregistroa",
     aria_close_log: "Itxi Erregistroa",
     ui_effect_blacksmith_iron_gear: "Burdina Ekipamendua",
-    ui_effect_blacksmith_refining: "Burdina Ekipamendua eta Fintzea"
+    ui_tier: "Maila",
+    ui_effect_blacksmith_refining: "Burdina Ekipamendua eta Fintzea",
+    ui_gambit_test_setup_title: "Borroka Simulazioa",
+    ui_discovered_bestiary: "Aurkitutako Besteriarioa",
+    ui_selected_enemies: "Hautatutako Etsaiak",
+    ui_no_enemies_selected: "Ez dago etsairik hautatuta. Gehitu batzuk katalogotik!",
+    ui_start_simulation: "Simulazioa Hasi"
 };

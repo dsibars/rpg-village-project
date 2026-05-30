@@ -1101,5 +1101,6 @@ export const en = {
     aria_expand_log: "Expand Log",
     aria_close_log: "Close Log",
     ui_effect_blacksmith_iron_gear: "Iron Gear",
+    ui_tier: "Tier",
     ui_effect_blacksmith_refining: "Iron Gear & Refining"
 };

@@ -1082,5 +1082,6 @@ export const es = {
     aria_expand_log: "Expandir Registro",
     aria_close_log: "Cerrar Registro",
     ui_effect_blacksmith_iron_gear: "Equipo de Hierro",
+    ui_tier: "Grado",
     ui_effect_blacksmith_refining: "Equipo de Hierro y Refinado"
 };

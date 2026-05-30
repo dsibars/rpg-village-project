@@ -1082,5 +1082,6 @@ export const ca = {
     aria_expand_log: "Expandir Registre",
     aria_close_log: "Tancar Registre",
     ui_effect_blacksmith_iron_gear: "Equip de Ferro",
+    ui_tier: "Grau",
     ui_effect_blacksmith_refining: "Equip de Ferro i Refinat"
 };
