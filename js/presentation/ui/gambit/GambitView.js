@@ -101,7 +101,7 @@ export class GambitView {
                         e.stopPropagation();
                         onToggle(g.id);
                     }
-                }, g.enabled === false ? 'Enable' : 'Disable'),
+                }, g.enabled === false ? t('ui_enable') : t('ui_disable')),
                 el('button', {
                     class: 'btn btn-danger btn-sm btn-remove-gambit',
                     'data-id': g.id,
@@ -149,8 +149,8 @@ export class GambitView {
             el('div', { class: 'gambit-idx', style: { width: '30px', textAlign: 'center', color: '#ff6b6b', fontWeight: 'bold' } }, '0'),
             el('div', { class: 'gambit-content', style: { flex: '1' } }, [
                 el('div', { class: 'gambit-rule-text', style: { color: '#ff6b6b', fontSize: '0.95rem' } }, [
-                    el('strong', {}, 'FALLBACK: '),
-                    'Always → ',
+                    el('strong', {}, t('ui_fallback') || 'FALLBACK: '),
+                    (t('ui_always') || 'Always → '),
                     el('span', { id: 'fallback-display' }, t('family_' + fallbackAction) || fallbackAction)
                 ])
             ]),
@@ -170,7 +170,7 @@ export class GambitView {
                     onChange: (e) => onFallbackChange(e.target.value)
                 }, [
                     ...learnedFamilies.map(f => el('option', { value: f.id, selected: fallbackAction === f.id }, t('family_' + f.id))),
-                    el('option', { value: 'defend', selected: fallbackAction === 'defend' }, 'Defend')
+                    el('option', { value: 'defend', selected: fallbackAction === 'defend' }, t('ui_defend') || 'Defend')
                 ])
             ])
         ]);
@@ -278,12 +278,12 @@ export class GambitView {
                 outline: 'none'
             }
         }, [
-            el('option', { value: 'ALLY_HP_LT_50' }, 'Ally HP < 50%'),
-            el('option', { value: 'ALLY_HP_LT_25' }, 'Ally HP < 25%'),
-            el('option', { value: 'SELF_HP_LT_50' }, 'Self HP < 50%'),
-            el('option', { value: 'SELF_MP_LT_25' }, 'Self MP < 25%'),
-            el('option', { value: 'ANY_ENEMY', selected: true }, 'Any Enemy'),
-            el('option', { value: 'ENEMY_COUNT_GT_2' }, 'Enemies > 2')
+            el('option', { value: 'ALLY_HP_LT_50' }, t('cond_ally_hp_lt_50') || 'Ally HP < 50%'),
+            el('option', { value: 'ALLY_HP_LT_25' }, t('cond_ally_hp_lt_25') || 'Ally HP < 25%'),
+            el('option', { value: 'SELF_HP_LT_50' }, t('cond_self_hp_lt_50') || 'Self HP < 50%'),
+            el('option', { value: 'SELF_MP_LT_25' }, t('cond_self_mp_lt_25') || 'Self MP < 25%'),
+            el('option', { value: 'ANY_ENEMY', selected: true }, t('cond_any_enemy') || 'Any Enemy'),
+            el('option', { value: 'ENEMY_COUNT_GT_2' }, t('cond_enemies_gt_2') || 'Enemies > 2')
         ]);
 
         const actionSelect = el('select', {
@@ -299,14 +299,14 @@ export class GambitView {
                 outline: 'none'
             }
         }, [
-            el('optgroup', { label: 'Techniques' }, 
+            el('optgroup', { label: t('ui_techniques') || 'Techniques' }, 
                 learnedFamilies.map(f => {
                     const skillData = SKILLS_DATA[f.id];
                     const targetType = skillData ? skillData.targetType : 'single_enemy';
                     return el('option', { value: `tech:${f.id}`, 'data-target-type': targetType }, t('family_' + f.id));
                 })
             ),
-            el('optgroup', { label: 'Spells' }, 
+            el('optgroup', { label: t('ui_spells') || 'Spells' }, 
                 spellCodex.map((s, i) => el('option', { value: `spell:${i}`, 'data-target-type': s.targetType || 'single_enemy' }, s.name))
             )
         ]);
@@ -340,7 +340,7 @@ export class GambitView {
                     fontWeight: '600',
                     letterSpacing: '0.05em'
                 }
-            }, 'Skill Tier'),
+            }, t('ui_skill_tier') || 'Skill Tier'),
             tierSelect
         ]);
 
@@ -351,7 +351,7 @@ export class GambitView {
                 const maxTier = hero.techniqueTiers && hero.techniqueTiers[actionId] || 1;
                 tierSelect.innerHTML = '';
                 for (let tNum = 1; tNum <= maxTier; tNum++) {
-                    const opt = el('option', { value: String(tNum) }, `Tier ${tNum}`);
+                    const opt = el('option', { value: String(tNum) }, `${t('ui_tier') || 'Tier'} ${tNum}`);
                     tierSelect.appendChild(opt);
                 }
                 tierContainer.style.display = 'block';
@@ -583,7 +583,7 @@ export class GambitView {
                                         fontWeight: '600',
                                         letterSpacing: '0.05em'
                                     }
-                                }, 'Condition'),
+                                }, t('ui_condition') || 'Condition'),
                                 conditionSelect
                             ]),
                             el('div', {}, [
@@ -597,7 +597,7 @@ export class GambitView {
                                         fontWeight: '600',
                                         letterSpacing: '0.05em'
                                     }
-                                }, 'Action'),
+                                }, t('ui_action') || 'Action'),
                                 actionSelect
                             ]),
                             tierContainer,
@@ -612,7 +612,7 @@ export class GambitView {
                                         fontWeight: '600',
                                         letterSpacing: '0.05em'
                                     }
-                                }, 'Target'),
+                                }, t('ui_target') || 'Target'),
                                 targetSelect
                             ]),
                             addBtn
@@ -877,10 +877,10 @@ export class GambitView {
                 }, [
                     el('div', { style: { display: 'flex', flexDirection: 'column' } }, [
                         el('span', { style: { fontWeight: '500', fontSize: '0.9rem' } }, name),
-                        el('span', { style: { fontSize: '0.75rem', color: 'var(--text-muted)' } }, `Position ${idx + 1}`)
+                        el('span', { style: { fontSize: '0.75rem', color: 'var(--text-muted)' } }, `${t('ui_position') || 'Position'} ${idx + 1}`)
                     ]),
                     el('div', { style: { display: 'flex', alignItems: 'center', gap: '8px' } }, [
-                        el('span', { style: { fontSize: '0.8rem', color: 'var(--text-muted)' } }, 'Lvl:'),
+                        el('span', { style: { fontSize: '0.8rem', color: 'var(--text-muted)' } }, t('ui_level') || 'Lvl:'),
                         lvlInput,
                         el('button', {
                             class: 'btn btn-danger btn-sm',

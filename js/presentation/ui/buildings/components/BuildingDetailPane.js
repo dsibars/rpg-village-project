@@ -79,8 +79,8 @@ function createBuildingStatsComparison(id, currentLevel, nextLevel, t) {
         nextEffect = `${calcStorage(nextLevel)} 🪵/🪨`;
     } else if (id === 'blacksmith') {
         label = t('ui_effect_forge') || 'Forge Features';
-        currentEffect = currentLevel >= 1 ? 'Iron Gear' : 'Locked';
-        nextEffect = 'Iron Gear & Refining';
+        currentEffect = currentLevel >= 1 ? (t('ui_effect_blacksmith_iron_gear') || 'Iron Gear') : (t('ui_locked') || 'Locked');
+        nextEffect = t('ui_effect_blacksmith_refining') || 'Iron Gear & Refining';
     } else if (id === 'infirmary') {
         label = t('ui_effect_heal') || 'Passive Healing';
         currentEffect = `+${currentLevel * 10}%`;

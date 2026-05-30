@@ -49,7 +49,9 @@ test('GambitView DOM Refactor', async (t) => {
         'ui_avg_hp': 'Avg HP',
         'ui_avg_mp': 'Avg MP',
         'gambit_test_mode_title': 'Gambit Simulation Results',
-        'ui_btn_close': 'Close'
+        'ui_btn_close': 'Close',
+        'ui_enable': 'Enable',
+        'ui_disable': 'Disable'
     };
 
     const mockTranslate = (key) => {

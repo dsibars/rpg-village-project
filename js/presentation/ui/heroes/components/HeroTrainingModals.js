@@ -142,7 +142,7 @@ export class AcademyModal {
         if (!hero) return;
 
         const designList = designs.length === 0
-            ? el('p', { style: { color: 'var(--text-muted)', fontSize: '0.85rem' } }, ['No designs saved yet.'])
+            ? el('p', { style: { color: 'var(--text-muted)', fontSize: '0.85rem' } }, [t('ui_no_designs') || 'No designs saved yet.'])
             : el('div', {}, designs.map(d =>
                 el('div', { class: 'academy-design-card' }, [
                     el('strong', {}, [d.name]),
@@ -210,7 +210,7 @@ export class HallOfFameModal {
         ]);
 
         const titlesEl = titles.length === 0
-            ? el('span', { style: { color: 'var(--text-muted)', fontSize: '0.85rem' } }, ['No titles yet.'])
+            ? el('span', { style: { color: 'var(--text-muted)', fontSize: '0.85rem' } }, [t('ui_no_titles') || 'No titles yet.'])
             : el('div', { class: 'hall-titles' }, titles.map(title =>
                 el('span', { class: 'hall-title-badge' }, [t(title) || title])
             ));
@@ -218,7 +218,7 @@ export class HallOfFameModal {
         const contentElement = el('div', { class: 'trainer-dialogue-box hall-dialogue-box' }, [
             el('div', { style: { marginBottom: '16px' } }, [statGrid]),
             el('div', { style: { marginBottom: '16px' } }, [
-                el('h4', { style: { fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '8px' } }, ['Titles']),
+                el('h4', { style: { fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '8px' } }, [t('ui_titles') || 'Titles']),
                 titlesEl
             ]),
             el('div', {

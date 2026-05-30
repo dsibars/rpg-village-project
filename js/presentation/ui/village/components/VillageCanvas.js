@@ -13,7 +13,7 @@ export class VillageCanvas {
     update(village) {
         const infra = village.infrastructure || {};
         const tilesData = [
-            { id: 'townhall', name: 'Town Hall', icon: '🏛️', lvl: 1, active: true },
+            { id: 'townhall', name: this.t('village_townhall') || 'Town Hall', icon: '🏛️', lvl: 1, active: true },
             { id: 'housing', name: this.t('village_housing') || 'Housing', icon: '🏠', lvl: infra.housing || 0, active: (infra.housing || 0) > 0 },
             { id: 'farm', name: this.t('village_farm') || 'Farm', icon: '🌾', lvl: infra.farm || 0, active: (infra.farm || 0) > 0 },
             { id: 'warehouse', name: this.t('village_warehouse') || 'Warehouse', icon: '📦', lvl: infra.warehouse || 0, active: (infra.warehouse || 0) > 0 },

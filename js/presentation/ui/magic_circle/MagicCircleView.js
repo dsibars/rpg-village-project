@@ -682,7 +682,7 @@ export class MagicCircleView {
                         ];
                         tick.disabled = !isUnlocked;
                         if (!isUnlocked) {
-                            tick.title = 'Requires higher mastery';
+                            tick.title = this.t('ui_requires_higher_mastery') || 'Requires higher mastery';
                         } else {
                             tick.removeAttribute('title');
                         }

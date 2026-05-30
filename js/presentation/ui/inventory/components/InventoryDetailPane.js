@@ -84,21 +84,21 @@ export function createInventoryDetailPane({ onCook, onConsume, onEquip, onUnequi
             const formattedStats = getFormattedStats(eq, t);
             eqStatsRef.innerHTML = '';
             eqStatsRef.append(
-                el('h4', {}, ['Equipment Stats']),
+                el('h4', {}, [t('ui_equipment_stats') || 'Equipment Stats']),
                 el('div', { class: 'inspector-stat-row' }, [
-                    el('span', { class: 'inspector-stat-label' }, ['Slot']),
+                    el('span', { class: 'inspector-stat-label' }, [t('ui_slot') || 'Slot']),
                     el('span', { class: 'inspector-stat-value', style: { textTransform: 'capitalize' } }, [`${eq.type} (${eq.slot})`])
                 ]),
                 el('div', { class: 'inspector-stat-row' }, [
-                    el('span', { class: 'inspector-stat-label' }, ['Tier']),
+                    el('span', { class: 'inspector-stat-label' }, [t('ui_tier') || 'Tier']),
                     el('span', { class: 'inspector-stat-value' }, [String(eq.tier || 1)])
                 ]),
                 el('div', { class: 'inspector-stat-row' }, [
-                    el('span', { class: 'inspector-stat-label' }, ['Level']),
+                    el('span', { class: 'inspector-stat-label' }, [t('ui_level') || 'Level']),
                     el('span', { class: 'inspector-stat-value' }, [`+${eq.level || 0}`])
                 ]),
                 el('div', { class: 'inspector-stat-row' }, [
-                    el('span', { class: 'inspector-stat-label' }, ['Properties']),
+                    el('span', { class: 'inspector-stat-label' }, [t('ui_properties') || 'Properties']),
                     el('span', { class: 'inspector-stat-value', style: { color: 'var(--success)' } }, [formattedStats])
                 ])
             );

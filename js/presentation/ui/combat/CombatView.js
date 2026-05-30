@@ -155,11 +155,11 @@ export class CombatView {
     // --- Log section ---
     const logBadge = el('span', { class: 'combat-log-badge' });
     const logConsole = el('div', { class: 'combat-log-console', id: 'combat-log-console' });
-    const logExpandBtn = el('button', { class: 'btn-log-toggle', ariaLabel: 'Expand Log' }, '↗');
+    const logExpandBtn = el('button', { class: 'btn-log-toggle', ariaLabel: this.t('aria_expand_log') || 'Expand Log' }, '↗');
 
     // Expanded-only header
     const expandedTitle = el('h3', { class: 'combat-log-expanded-title' });
-    const expandedCloseBtn = el('button', { class: 'btn-log-close', ariaLabel: 'Close Log' }, '✕');
+    const expandedCloseBtn = el('button', { class: 'btn-log-close', ariaLabel: this.t('aria_close_log') || 'Close Log' }, '✕');
     const expandedHeader = el('div', { class: 'combat-log-expanded-header' }, [expandedTitle, expandedCloseBtn]);
 
     const logSection = el('div', { class: 'combat-log-section' }, [
