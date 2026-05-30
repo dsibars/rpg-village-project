@@ -316,6 +316,42 @@ test('CombatView DOM Integration Tests', async (t) => {
         overlay.remove();
     });
 
+    await t.test('combat log expands and collapses on click events', () => {
+        const view = new CombatView({ i18n: mockI18n });
+        view.adapter = mockAdapter;
+
+        const battle = createMockBattle();
+        const state = { activeBattle: battle };
+
+        view.update(state);
+
+        const overlay = document.body.querySelector('#combat-overlay');
+        const logSection = overlay.querySelector('.combat-log-section');
+        const expandBtn = overlay.querySelector('.btn-log-toggle');
+        const closeBtn = overlay.querySelector('.btn-log-close');
+
+        // Assert initially collapsed
+        assert.ok(!logSection.classList.contains('expanded'));
+
+        // Click section to expand
+        logSection.dispatchEvent(new Event('click', { bubbles: true }));
+        assert.ok(logSection.classList.contains('expanded'));
+
+        // Clicking section again when expanded should not collapse it
+        logSection.dispatchEvent(new Event('click', { bubbles: true }));
+        assert.ok(logSection.classList.contains('expanded'));
+
+        // Click close to collapse
+        closeBtn.dispatchEvent(new Event('click', { bubbles: true }));
+        assert.ok(!logSection.classList.contains('expanded'));
+
+        // Click expand button to expand
+        expandBtn.dispatchEvent(new Event('click', { bubbles: true }));
+        assert.ok(logSection.classList.contains('expanded'));
+
+        overlay.remove();
+    });
+
     await t.test('control panel buttons show/hide correctly based on battle state', () => {
         const view = new CombatView({ i18n: mockI18n });
         view.adapter = mockAdapter;

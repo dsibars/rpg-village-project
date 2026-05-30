@@ -142,18 +142,49 @@ export class CombatView {
     const enemiesCol = el('div', { class: 'combat-column' });
     const enemiesTitle = el('div', { class: 'combat-column-title' });
     enemiesCol.appendChild(enemiesTitle);
+    const enemiesGrid = el('div', { class: 'combat-enemies-grid' });
+    enemiesCol.appendChild(enemiesGrid);
     const enemyCards = [];
     (battleContext.enemies || []).forEach((enemy, index) => {
       const card = this._createCombatEnemyCard(enemy, index);
       enemyCards.push(card);
-      enemiesCol.appendChild(card.root);
+      enemiesGrid.appendChild(card.root);
     });
     grid.appendChild(enemiesCol);
 
     // --- Log section ---
-    const logTitle = el('div', { class: 'combat-column-title' });
+    const logBadge = el('span', { class: 'combat-log-badge' });
     const logConsole = el('div', { class: 'combat-log-console', id: 'combat-log-console' });
-    const logSection = el('div', { class: 'combat-log-section' }, [logTitle, logConsole]);
+    const logExpandBtn = el('button', { class: 'btn-log-toggle', ariaLabel: 'Expand Log' }, '↗');
+
+    // Expanded-only header
+    const expandedTitle = el('h3', { class: 'combat-log-expanded-title' });
+    const expandedCloseBtn = el('button', { class: 'btn-log-close', ariaLabel: 'Close Log' }, '✕');
+    const expandedHeader = el('div', { class: 'combat-log-expanded-header' }, [expandedTitle, expandedCloseBtn]);
+
+    const logSection = el('div', { class: 'combat-log-section' }, [
+      logBadge,
+      expandedHeader,
+      logConsole,
+      logExpandBtn
+    ]);
+
+    logSection.addEventListener('click', (e) => {
+      if (logSection.classList.contains('expanded')) return;
+      logSection.classList.add('expanded');
+      logConsole.scrollTop = logConsole.scrollHeight;
+    });
+
+    expandedCloseBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      logSection.classList.remove('expanded');
+    });
+
+    logExpandBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      logSection.classList.add('expanded');
+      logConsole.scrollTop = logConsole.scrollHeight;
+    });
 
     container.appendChild(header);
     container.appendChild(grid);
@@ -251,7 +282,8 @@ export class CombatView {
       grid.querySelectorAll('.targetable').forEach(c => c.classList.remove('targetable'));
 
       // Update control panel
-      logTitle.textContent = this.t('combat_log');
+      logBadge.textContent = this.t('combat_log');
+      expandedTitle.textContent = this.t('combat_battle_log') || 'Battle Log';
       this._updateControlPanel(controlPanel, battle, state, overlay, grid, activeActor, isHeroTurn);
     };
 
