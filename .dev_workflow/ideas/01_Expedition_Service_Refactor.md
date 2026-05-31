@@ -57,7 +57,13 @@ ExpeditionDefinition {
   status: 'available' | 'completed' | 'closed',
   parentId: string | null,
   reward: { gold, items },
-  stages: [{ type, enemies, isBoss?, enemyLevel?, depth? }]
+  stages: [{ type, enemies, isBoss?, enemyLevel?, depth? }],
+  completionMeta?: {             // added when status becomes 'completed'
+    dayCompleted: number,
+    heroIds: string[],
+    heroNames: string[],
+    rewardReceived: { gold, items }
+  }
 }
 ```
 
@@ -110,9 +116,9 @@ Must support `options.deferLoad` like other services.
 - `getRegionData(regionId)` → `RegionDefinition` from `REGION_REGISTRY`
 - `getTotalClears()` → `number` (sum of clears across all regions)
 - `checkRegionUnlocks(completedIds)` → evaluates unlocks, seeds new regions
-- `completeExpedition(expId, heroIds, heroNames)` → marks node completed, increments clears, spawns children, injects stories; returns `{ wasFirstClear, spawnedNodes, injectedMissions }`
+- `completeExpedition(expId, heroIds, heroNames)` → marks node as `completed`, adds `completionMeta`, increments `clears`/`stats.clears`, updates `deepestDepth`, **injects stories BEFORE counting active paths**, then spawns children; returns `{ wasFirstClear, spawnedNodes, injectedMissions }`
 - `generateExpedition(regionId, clears = null, parentId = null)` — creates `ExpeditionDefinition` using `clears` (falls back to `region.clears` if omitted), **auto-adds to `availableNodes`**, returns the definition
-- `forceRemoveNodeAndIncrementClears(regionId, nodeId)` — for developer cheat: removes node from `availableNodes`, increments `clears` and `stats.clears`
+- `forceRemoveNodeAndIncrementClears(regionId, nodeId)` — for developer cheat: removes node from `availableNodes`, increments `clears` and `stats.clears`, then calls `this.save()`
 - `incrementRegionStat(regionId, statName)` — for retreat tracking
 
 **Private responsibilities:**
@@ -123,7 +129,8 @@ Must support `options.deferLoad` like other services.
 - `_checkMissionRequirements(reqs, completedIds, villageState)` — pure requirement evaluator
 - `_checkUnlockRequirements(reqs, completedIds, villageState)` — pure unlock evaluator
 - `_createProceduralNode(regionId, rData, clears, parentId)` — expedition factory (called by `generateExpedition`)
-- `_rollPackType()`, `_rollPathBranching(activePaths)` — generation helpers
+- `_getBossPoolForRegion(regionId)` — returns boss template IDs for a region
+- `_rollPackType()`, `_rollPathBranching(activePaths)`, `_rollEliteTier()` — generation helpers
 
 ### ExpeditionService — The Expedition Lifecycle & Combat Orchestrator
 **Owns persistence key:** `expedition_state`
@@ -158,7 +165,7 @@ constructor(battleService, heroService, villageService, inventoryService, region
 **Private responsibilities:**
 - `_getDefaultState()` — initializes expedition state (NO `regions`)
 - `_load()` — loads `expedition_state`, removes legacy `regions` field, applies fallbacks
-- `_finishExpedition(exp, activeExp)` — **coordination method**: calls `regionService.completeExpedition()`, distributes rewards, handles first-clear bonus, checks unlocks, saves both services **exactly once each**. **KEPT for testability and backward compatibility.**
+- `_finishExpedition(exp, activeExp)` — **coordination method**: calls `regionService.completeExpedition()`, distributes rewards, handles first-clear bonus, checks unlocks, saves **each involved service exactly once** (`heroService`, `regionService`, `expeditionService`). **KEPT for testability and backward compatibility.**
 - `_distributeRewards(exp)` — gold, items, loot drops, consumables, special rewards (extracted from `_finishExpedition`)
 - `_createEnemy(templateId, isBoss, level, isElite, eliteTier)` — enemy instantiation
 - `_trackRetreat(expId)` — looks up expedition definition via `regionService.getExpeditionDefinition(expId)` to obtain `regionId`, then delegates to `regionService.incrementRegionStat(regionId, 'retreats')`
