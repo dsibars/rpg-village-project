@@ -26,6 +26,16 @@ export class SaveSlotView {
                     <h1 data-i18n="shared_uxelm_save_slot_title">${this.t('shared_uxelm_save_slot_title')}</h1>
                     <p>RPG Village</p>
                 </div>
+                <div class="save-slots-lang-container">
+                    <label for="slots-lang-select" data-i18n="settings_language_label">${this.t('settings_language_label')}</label>
+                    <select id="slots-lang-select" class="select-control">
+                        <option value="en" ${this.i18n.currentLang === 'en' ? 'selected' : ''}>English</option>
+                        <option value="es" ${this.i18n.currentLang === 'es' ? 'selected' : ''}>Español</option>
+                        <option value="ca" ${this.i18n.currentLang === 'ca' ? 'selected' : ''}>Català</option>
+                        <option value="eu" ${this.i18n.currentLang === 'eu' ? 'selected' : ''}>Euskara</option>
+                        <option value="gl" ${this.i18n.currentLang === 'gl' ? 'selected' : ''}>Galego</option>
+                    </select>
+                </div>
                 <div class="save-slots-grid" id="save-slots-grid">
                     ${slots.map((meta, index) => this._renderSlotCard(meta, index)).join('')}
                 </div>
@@ -93,6 +103,19 @@ export class SaveSlotView {
                 this.onSelectSlot(index);
             }
         });
+
+        // Add language selection handler
+        const langSelect = this.container.querySelector('#slots-lang-select');
+        if (langSelect) {
+            langSelect.addEventListener('change', (e) => {
+                const newLang = e.target.value;
+                if (DEBUG) console.log(`SaveSlotView: Changing language to ${newLang}`);
+                this.i18n.setLanguage(newLang);
+                
+                // Re-render the slot screen in the new language
+                this.render(this.container);
+            });
+        }
     }
 
     _confirmDelete(index) {

@@ -1,7 +1,7 @@
 # Idea 01: Expedition Service Refactor — Extract RegionService
 
 ## Goal
-Split the `ExpeditionService` god-class into two focused services with clean boundaries and **explicit data contracts**, **without adding any new features or changing any observable behavior**. Create a stable architectural foundation so that subsequent ideas can be built on proper domain boundaries instead of a 1,170-line monolith.
+Split the `ExpeditionService` god-class into two focused services with clean boundaries, explicit data contracts, and **zero new features or observable behavior changes**. This is a pure refactor that fixes encapsulation violations discovered across `GameEngine`, `CalendarService`, and `UnlockNarratives`, and corrects two pre-existing bugs in the developer cheat.
 
 ## Current State (as per code)
 `js/engine/explore/services/ExpeditionService.js` (~1,170 lines) owns:
@@ -17,12 +17,16 @@ Split the `ExpeditionService` god-class into two focused services with clean bou
 **CRITICAL: `ExpeditionService.state` is publicly accessed by external consumers:**
 - `GameEngine.js` reads `expeditionService.state.activeCombatExpeditionId`, `state.activeExpeditions`, `state.completedIds`, and `state.regions` in **8 separate locations**
 - `GameEngine.activateDeveloperCheat()` **mutates** `expeditionService.state.regions` and `state.completedIds` directly
+- `GameEngine.testHeroGambits()` calls `expeditionService._createEnemy()` — a **private method** accessed from outside
 - `CalendarService._generateRaid()` reads `this.villageService.state.regions` — this is **dead code** (village state has never had a `regions` property)
 - `GameEngine._buildUnlockState()` passes `expeditionService.state.regions` to `UnlockNarratives` predicates
 - `GameEngine.getState()` returns `expeditionRegions: expeditionService.state.regions` to the presentation layer
 - `tests/unit/ExpeditionService.test.js` directly manipulates `expeditionService.state.regions` **15+ times** and calls private methods (`_finishExpedition`, `_createProceduralNode`, `_getRegionData`)
 
-These encapsulation violations mean the refactor is not just "move methods" — it requires fixing all consumers.
+**PRE-EXISTING BUGS discovered during simulation:**
+1. `GameEngine.activateDeveloperCheat()` calls `this.expeditionService._generateNextNodes('reg_greenfields')` — this method **does not exist** in `ExpeditionService`. The developer cheat would throw a `TypeError` if executed.
+2. `GameEngine.testHeroGambits()` calls `this.expeditionService?.getEnemyPoolForRegion?.(scenarioId)` — this method also **does not exist**. The optional chaining silently falls back to `[]`.
+3. `ExpeditionService._finishExpedition()` calls `this.save()` **twice** (lines 917 and 966) — inefficient but harmless.
 
 ## The Data Contracts
 
@@ -90,24 +94,30 @@ ActiveExpedition {
 ### RegionService — The Region Domain & Expedition Factory
 **Owns persistence key:** `region_state`
 
+**Constructor:**
+```js
+constructor(villageService, options = {})
+```
+Must support `options.deferLoad` like other services.
+
 **Public API:**
 - `state` — public property containing `{ regions }` (maintained for minimal consumer disruption; prefer getters)
 - `getRegions()` → `{ [regionId]: RegionState }`
 - `getRegion(regionId)` → `RegionState`
-- `getAvailableExpeditions()` → `[ExpeditionDefinition | StoryMissionDefinition]` (all available nodes across all unlocked regions)
+- `getAvailableExpeditions()` → `[ExpeditionDefinition | StoryMissionDefinition]` (all nodes with `status === 'available'` or missing `status`, across all unlocked regions). Must return **shallow copies** (`{ ...node }`) to match current `ExpeditionService.getExpeditions()` behavior.
 - `getExpeditionDefinition(expId)` → single node from `availableNodes` or `null`
 - `getRegionTree(regionId)` → `{ regionId, name, clears, nodes }`
 - `getRegionData(regionId)` → `RegionDefinition` from `REGION_REGISTRY`
 - `getTotalClears()` → `number` (sum of clears across all regions)
 - `checkRegionUnlocks(completedIds)` → evaluates unlocks, seeds new regions
 - `completeExpedition(expId, heroIds, heroNames)` → marks node completed, increments clears, spawns children, injects stories; returns `{ wasFirstClear, spawnedNodes, injectedMissions }`
-- `generateExpedition(regionId, clears, parentId = null)` — creates `ExpeditionDefinition`, adds to `availableNodes`, returns the definition
+- `generateExpedition(regionId, clears = null, parentId = null)` — creates `ExpeditionDefinition` using `clears` (falls back to `region.clears` if omitted), **auto-adds to `availableNodes`**, returns the definition
 - `forceRemoveNodeAndIncrementClears(regionId, nodeId)` — for developer cheat: removes node from `availableNodes`, increments `clears` and `stats.clears`
 - `incrementRegionStat(regionId, statName)` — for retreat tracking
 
 **Private responsibilities:**
 - `_getDefaultState()` — initializes `regions` with Greenfields + tutorial cave
-- `_load()` — loads `region_state`, migrates from legacy `expedition_state.regions`
+- `_load()` — loads `region_state`, migrates from legacy `expedition_state.regions`, applies ALL field fallbacks (`firstClearBonusGiven`, `node.status`, `node.parentId`, `region.stats`)
 - `_seedRegion(regionId)` — creates initial `availableNodes` when a region unlocks
 - `_injectStoryMissions(regionId, completedIds, villageState)` — evaluates requirements, adds eligible story missions
 - `_checkMissionRequirements(reqs, completedIds, villageState)` — pure requirement evaluator
@@ -117,6 +127,12 @@ ActiveExpedition {
 
 ### ExpeditionService — The Expedition Lifecycle & Combat Orchestrator
 **Owns persistence key:** `expedition_state`
+
+**Constructor (exact signature):**
+```js
+constructor(battleService, heroService, villageService, inventoryService, regionService, options = {})
+```
+`regionService` is inserted before `options` to preserve backward compatibility for callers that pass options.
 
 **Public API:**
 - `state` — public property containing `{ completedIds, activeExpeditions, expeditionTurnIndex, activeCombatExpeditionId, bestiary }`
@@ -135,17 +151,17 @@ ActiveExpedition {
 - `resumeActiveBattle()` → resumes combat
 - `resolveBattle()` → resolves combat, calls `_finishExpedition()`, returns result
 - `getBattleResolutionPreview()` → preview before resolution
-- `markCompleted(expId)` — for developer cheat: adds to `completedIds`, saves
+- `markCompleted(expId)` — for developer cheat: adds to `completedIds`, persists
 - `checkRegionUnlocks()` — **proxy** to `regionService.checkRegionUnlocks(this.state.completedIds)` (preserves GameEngine contract)
 - `getMaxConcurrentExpeditions()` → `number`
 
 **Private responsibilities:**
 - `_getDefaultState()` — initializes expedition state (NO `regions`)
 - `_load()` — loads `expedition_state`, removes legacy `regions` field, applies fallbacks
-- `_finishExpedition(exp, activeExp)` — **coordination method**: calls `regionService.completeExpedition()`, distributes rewards, handles first-clear bonus, checks unlocks, saves both services. **KEPT for testability and backward compatibility.**
+- `_finishExpedition(exp, activeExp)` — **coordination method**: calls `regionService.completeExpedition()`, distributes rewards, handles first-clear bonus, checks unlocks, saves both services **exactly once each**. **KEPT for testability and backward compatibility.**
 - `_distributeRewards(exp)` — gold, items, loot drops, consumables, special rewards (extracted from `_finishExpedition`)
 - `_createEnemy(templateId, isBoss, level, isElite, eliteTier)` — enemy instantiation
-- `_trackRetreat(expId)` — delegates to `regionService.incrementRegionStat()`
+- `_trackRetreat(expId)` — looks up expedition definition via `regionService.getExpeditionDefinition(expId)` to obtain `regionId`, then delegates to `regionService.incrementRegionStat(regionId, 'retreats')`
 
 ## State Shapes After Refactor
 
@@ -191,7 +207,8 @@ When `resolveBattle()` detects victory on the last stage:
    - Removes `activeExp` from `activeExpeditions`
    - Calls `_distributeRewards(exp)` for gold, items, loot, consumables, special
    - Calls `regionService.checkRegionUnlocks(completedIds)`
-   - Saves both services
+   - Saves **each service exactly once**: `this.heroService.saveAll(); regionService.save(); this.save();`
+     > **Important:** `heroService.saveAll()` must be called after all hero mutations (lifetimeStats, speed bonus, special-reward level-ups) are complete.
    - Returns `Result.ok({ status: 'completed', ... })`
 3. `resolveBattle()` returns the result from `_finishExpedition`
 
@@ -202,9 +219,17 @@ When `resolveBattle()` detects victory on the last stage:
 The following files **must be updated** as part of this refactor:
 
 ### `js/engine/GameEngine.js`
-- **Constructor**: instantiate `RegionService` before `ExpeditionService`, inject `regionService` into `ExpeditionService`
+- **Add import**: `import { RegionService } from './explore/services/RegionService.js';`
+- **Constructor**: instantiate `RegionService` with `deferLoad: true` before `ExpeditionService`, inject `regionService` into `ExpeditionService`
 - **Line 79**: `expeditionService.state.activeCombatExpeditionId` → `expeditionService.getActiveCombatExpeditionId()`
-- **Line 122**: `const expState = this.expeditionService.state` in `activateDeveloperCheat()` → use `expeditionService.markCompleted()` and `regionService.forceRemoveNodeAndIncrementClears()`
+- **Line 122-134** (`activateDeveloperCheat`): Replace broken direct-state-mutation block with:
+  ```js
+  if (!this.expeditionService.getCompletedIds().includes('exp_tutorial_cave')) {
+      this.expeditionService.markCompleted('exp_tutorial_cave');
+      this.regionService.forceRemoveNodeAndIncrementClears('reg_greenfields', 'exp_tutorial_cave');
+  }
+  ```
+  **Remove the broken `this.expeditionService._generateNextNodes()` call entirely.**
 - **Line 141**: `expeditionService.state.activeExpeditions` → `expeditionService.getActiveExpeditions()`
 - **Lines 180, 1008**: `expeditionService.state.completedIds` → `expeditionService.getCompletedIds()`
 - **Lines 186, 1009**: `expeditionService.state.regions` → `regionService.getRegions()`
@@ -212,25 +237,64 @@ The following files **must be updated** as part of this refactor:
 - **Line 933**: `for (const otherExp of expeditionService.state.activeExpeditions)` → `for (const otherExp of expeditionService.getActiveExpeditions())`
 - **`_buildUnlockState()`**: source `expeditionRegions` from `regionService.getRegions()` instead of `expeditionService.state.regions`
 - **`getState()`**: source `expeditionRegions` from `regionService.getRegions()` — return shape stays identical
+- **`initialize()`**: call `this.regionService.load()` before `this.expeditionService.load()`
+- **Line 332** (`testHeroGambits`): `getEnemyPoolForRegion` is dead code — **do NOT implement it**. The optional chaining `?.()` falls back to `|| []`, which then hits the green-slime fallback. This is the current behavior. Implementing `getEnemyPoolForRegion` (e.g. returning string IDs from `REGION_REGISTRY`) would cause the `{ ...template }` spread in GameEngine to produce garbage objects and crash the simulator. Leave it dead.
+- **Lines 321, 335** (`testHeroGambits`): `expeditionService._createEnemy(...)` stays valid (private method remains in ExpeditionService)
 
 ### `js/engine/calendar/services/CalendarService.js`
 - **Line 126**: Remove dead code `Object.values(this.villageService.state.regions || {})`. Replace with `0` (the value it has always effectively returned) OR simply remove the clear-based scaling from raid level calculation since it has never executed.
 
+### `js/engine/shared/core/SaveSlotManager.js`
+- **Line 96**: `getSlotSummary()` reads `exp.regions` directly from raw `localStorage` (`prefix + 'expedition_state'`). After migration, `expedition_state` no longer contains `regions`.
+- **Fix**: Also load `region_state` from localStorage and resolve regions using a fallback:
+  ```js
+  const regionStateRaw = localStorage.getItem(prefix + 'region_state');
+  const regionState = regionStateRaw ? JSON.parse(regionStateRaw) : {};
+  const regions = regionState.regions || exp.regions || {};
+  regionsUnlocked: Object.values(regions).filter(r => r.unlocked).length,
+  ```
+
 ### `js/engine/explore/services/ExpeditionService.js`
-- Remove all region-related methods and state EXCEPT `_finishExpedition` (refactored as coordination method)
-- Add `regionService` constructor parameter
+- Remove all region-related methods and state EXCEPT `_finishExpedition` (refactored as coordination method with single-save semantics)
+- Add `regionService` constructor parameter (before `options`)
 - Add proxy methods and getters
 - Update `_load()` to remove legacy `regions` field
 - Extract `_distributeRewards(exp)` from the old `_finishExpedition` reward logic
 - Replace `_findExpeditionDefinition(expId)` with delegation to `regionService.getExpeditionDefinition(expId)`
+- In `resolveBattle()` **defeat path** (line ~814): replace direct `this.state.regions[exp.regionId]` access with `this.regionService.incrementRegionStat(exp.regionId, 'fails')`
+- Update `LootService` initialization: `new LootService(regionService.getRegionData.bind(regionService))`
 
 ### `js/engine/explore/services/RegionService.js`
 - **New file**: implement all region-related logic extracted from `ExpeditionService`
 - Include save migration: extract `regions` from legacy `expedition_state` on first load
-- Include field migrations: `firstClearBonusGiven`, `node.status`, `region.stats` fallbacks
+- Include **ALL** field migrations that currently exist in `ExpeditionService._load()`:
+  - `region.firstClearBonusGiven === undefined` → `false`
+  - `node.status` missing → `'available'`
+  - `node.parentId === undefined` → `null`
+  - `region.stats` missing → default stats object
 
 ### `tests/unit/ExpeditionService.test.js` — MAJOR RESTRUCTURING
-- `createServices()` must create `RegionService` and pass it to `ExpeditionService`
+- `createServices()` must create `RegionService` and pass it to `ExpeditionService`:
+  ```js
+  function createServices() {
+      const inventoryService = new InventoryService();
+      const villageService = new VillageService(inventoryService);
+      const heroService = new HeroService(inventoryService);
+      const battleService = new BattleService(inventoryService);
+      const regionService = new RegionService(villageService, { deferLoad: true });
+      const expeditionService = new ExpeditionService(
+          battleService, heroService, villageService, inventoryService, regionService, { deferLoad: true }
+      );
+      // Reset state to known defaults
+      expeditionService.state.completedIds = [];
+      expeditionService.state.activeExpeditions = [];
+      expeditionService.state.expeditionTurnIndex = 0;
+      expeditionService.state.activeCombatExpeditionId = null;
+      expeditionService.save();
+      regionService.save();
+      return { regionService, expeditionService, heroService, villageService };
+  }
+  ```
 - All `expeditionService.state.regions[...]` accesses become `regionService.getRegion(...)` or `regionService.state.regions[...]`
 - All `expeditionService.state.regions[...].availableNodes.push(...)` become `regionService.generateExpedition(...)` (which auto-adds to availableNodes)
 - `_finishExpedition` calls stay, but assertions on `state.regions[...]` change to `regionService.getRegion(...)`
@@ -243,9 +307,9 @@ The following files **must be updated** as part of this refactor:
 - **Zero changes expected** — uses `GameEngine` entry point and public methods only. Verify after GameEngine update.
 
 ## In Scope
-1. Create `RegionService` class with its own `STORAGE_KEY = 'region_state'`, full public API, and save migration.
-2. Refactor `ExpeditionService` to remove all region logic EXCEPT `_finishExpedition` (kept as coordination method), add `regionService` dependency, add getters/proxies, extract `_distributeRewards()`.
-3. Update `GameEngine` to wire both services and replace all direct `state` access with getters.
+1. Create `RegionService` class with its own `STORAGE_KEY = 'region_state'`, full public API, `deferLoad` support, and complete save migration (including all field fallbacks).
+2. Refactor `ExpeditionService` to remove all region logic EXCEPT `_finishExpedition` (kept as coordination method with single-save semantics), add `regionService` dependency, add getters/proxies, extract `_distributeRewards()`.
+3. Update `GameEngine` to wire both services, replace all direct `state` access with getters, and **fix the broken developer cheat**.
 4. Fix `CalendarService` dead code.
 5. Ensure `GameEngine.getState()` return shape is preserved (presentation layer unchanged).
 6. Ensure `GameEngine._buildUnlockState()` shape is preserved (`UnlockNarratives` unchanged).
@@ -270,7 +334,10 @@ The following files **must be updated** as part of this refactor:
 - `RegionService` must not depend on `ExpeditionService` (unidirectional: ExpeditionService → RegionService).
 - `GameEngine.getState()` must return the **exact same shape** so the presentation layer does not change.
 - `_finishExpedition` must be kept as a private coordination method on `ExpeditionService` to preserve testability.
+- `_finishExpedition` must save each service **exactly once** (fix the current double-save bug).
 - `generateExpedition()` must add the created definition to `availableNodes` internally and return it (tests rely on this side effect).
+- `ExpeditionService` constructor signature must be: `(battleService, heroService, villageService, inventoryService, regionService, options = {})` — `regionService` inserted before `options`.
+- `RegionService` constructor must be: `(villageService, options = {})` with `deferLoad` support.
 
 ## Dependencies
 - None. This is the foundation for all other ideas.
@@ -282,7 +349,7 @@ The following files **must be updated** as part of this refactor:
 - `CalendarService` no longer references `villageService.state.regions`.
 - `GameEngine.getState()` return shape is identical before/after.
 - `GameEngine._buildUnlockState()` return shape is identical before/after.
-- `activateDeveloperCheat()` uses service methods instead of direct state mutation.
+- `activateDeveloperCheat()` uses service methods and does not call non-existent methods.
 - `tests/unit/ExpeditionService.test.js` passes with updated service setup.
 - `tests/unit/DefenseRaid.test.js` passes without modification.
 - Existing save games load correctly and behave identically after migration.
