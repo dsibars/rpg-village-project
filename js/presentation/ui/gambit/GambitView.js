@@ -37,12 +37,12 @@ export class GambitView {
 
         const targetText = gambit.target || 'Auto';
         
-        const translatedCond = t(condText) || condText;
-        let translatedAction = t('family_' + actionText) || t(actionText) || actionText;
+        const translatedCond = t(condText);
+        let translatedAction = t('heroes_info_family_' + actionText);
         if (gambit.action && gambit.action.type === 'skill' && gambit.action.tier) {
             translatedAction += ` (Tier ${gambit.action.tier})`;
         }
-        const translatedTarget = t('gambit_target_' + targetText) || targetText;
+        const translatedTarget = t('gambit_target_' + targetText);
 
         return el('span', {}, [
             el('span', { style: { color: 'var(--text-primary)', fontWeight: '500' } }, translatedCond),
@@ -101,7 +101,7 @@ export class GambitView {
                         e.stopPropagation();
                         onToggle(g.id);
                     }
-                }, g.enabled === false ? t('ui_enable') : t('ui_disable')),
+                }, g.enabled === false ? t('gambit_uxelm_enable') : t('gambit_uxelm_disable')),
                 el('button', {
                     class: 'btn btn-danger btn-sm btn-remove-gambit',
                     'data-id': g.id,
@@ -129,7 +129,7 @@ export class GambitView {
             }
         }, [
             el('div', { class: 'gambit-idx', style: { width: '30px', textAlign: 'center' } }, String(idx + 1)),
-            el('div', { class: 'gambit-content', style: { color: 'var(--text-muted)', fontSize: '0.85rem' } }, t('ui_empty_slot') || 'Empty Slot')
+            el('div', { class: 'gambit-content', style: { color: 'var(--text-muted)', fontSize: '0.85rem' } }, t('gambit_uxelm_slot_empty'))
         ]);
     }
 
@@ -149,9 +149,9 @@ export class GambitView {
             el('div', { class: 'gambit-idx', style: { width: '30px', textAlign: 'center', color: '#ff6b6b', fontWeight: 'bold' } }, '0'),
             el('div', { class: 'gambit-content', style: { flex: '1' } }, [
                 el('div', { class: 'gambit-rule-text', style: { color: '#ff6b6b', fontSize: '0.95rem' } }, [
-                    el('strong', {}, t('ui_fallback') || 'FALLBACK: '),
-                    (t('ui_always') || 'Always → '),
-                    el('span', { id: 'fallback-display' }, t('family_' + fallbackAction) || fallbackAction)
+                    el('strong', {}, t('gambit_uxelm_fallback')),
+                    t('gambit_uxelm_always'),
+                    el('span', { id: 'fallback-display' }, t('heroes_info_family_' + fallbackAction))
                 ])
             ]),
             el('div', { class: 'gambit-actions' }, [
@@ -169,8 +169,8 @@ export class GambitView {
                     },
                     onChange: (e) => onFallbackChange(e.target.value)
                 }, [
-                    ...learnedFamilies.map(f => el('option', { value: f.id, selected: fallbackAction === f.id }, t('family_' + f.id))),
-                    el('option', { value: 'defend', selected: fallbackAction === 'defend' }, t('ui_defend') || 'Defend')
+                    ...learnedFamilies.map(f => el('option', { value: f.id, selected: fallbackAction === f.id }, t('heroes_info_family_' + f.id))),
+                    el('option', { value: 'defend', selected: fallbackAction === 'defend' }, t('gambit_uxelm_defend'))
                 ])
             ])
         ]);
@@ -229,7 +229,7 @@ export class GambitView {
             }
         }, [
             `💡 `,
-            t('gambit_preset_btn') || 'Suggest Preset'
+            t('gambit_uxelm_preset_suggest')
         ]);
 
         const testBtn = el('button', {
@@ -245,7 +245,7 @@ export class GambitView {
             }
         }, [
             `🧪 `,
-            t('gambit_test_mode_btn') || 'Test Gambits'
+            t('gambit_uxelm_test_mode')
         ]);
 
         const closeBtn = el('button', {
@@ -278,12 +278,12 @@ export class GambitView {
                 outline: 'none'
             }
         }, [
-            el('option', { value: 'ALLY_HP_LT_50' }, t('cond_ally_hp_lt_50') || 'Ally HP < 50%'),
-            el('option', { value: 'ALLY_HP_LT_25' }, t('cond_ally_hp_lt_25') || 'Ally HP < 25%'),
-            el('option', { value: 'SELF_HP_LT_50' }, t('cond_self_hp_lt_50') || 'Self HP < 50%'),
-            el('option', { value: 'SELF_MP_LT_25' }, t('cond_self_mp_lt_25') || 'Self MP < 25%'),
-            el('option', { value: 'ANY_ENEMY', selected: true }, t('cond_any_enemy') || 'Any Enemy'),
-            el('option', { value: 'ENEMY_COUNT_GT_2' }, t('cond_enemies_gt_2') || 'Enemies > 2')
+            el('option', { value: 'ALLY_HP_LT_50' }, t('gambit_cond_ally_hp_lt_50')),
+            el('option', { value: 'ALLY_HP_LT_25' }, t('gambit_cond_ally_hp_lt_25')),
+            el('option', { value: 'SELF_HP_LT_50' }, t('gambit_cond_self_hp_lt_50')),
+            el('option', { value: 'SELF_MP_LT_25' }, t('gambit_cond_self_mp_lt_25')),
+            el('option', { value: 'ANY_ENEMY', selected: true }, t('gambit_cond_any_enemy')),
+            el('option', { value: 'ENEMY_COUNT_GT_2' }, t('gambit_cond_enemies_gt_2'))
         ]);
 
         const actionSelect = el('select', {
@@ -299,14 +299,14 @@ export class GambitView {
                 outline: 'none'
             }
         }, [
-            el('optgroup', { label: t('ui_techniques') || 'Techniques' }, 
+            el('optgroup', { label: t('gambit_uxelm_techniques') }, 
                 learnedFamilies.map(f => {
                     const skillData = SKILLS_DATA[f.id];
                     const targetType = skillData ? skillData.targetType : 'single_enemy';
-                    return el('option', { value: `tech:${f.id}`, 'data-target-type': targetType }, t('family_' + f.id));
+                    return el('option', { value: `tech:${f.id}`, 'data-target-type': targetType }, t('heroes_info_family_' + f.id));
                 })
             ),
-            el('optgroup', { label: t('ui_spells') || 'Spells' }, 
+            el('optgroup', { label: t('gambit_uxelm_spells') }, 
                 spellCodex.map((s, i) => el('option', { value: `spell:${i}`, 'data-target-type': s.targetType || 'single_enemy' }, s.name))
             )
         ]);
@@ -340,7 +340,7 @@ export class GambitView {
                     fontWeight: '600',
                     letterSpacing: '0.05em'
                 }
-            }, t('ui_skill_tier') || 'Skill Tier'),
+            }, t('gambit_uxelm_skill_tier')),
             tierSelect
         ]);
 
@@ -351,7 +351,7 @@ export class GambitView {
                 const maxTier = hero.techniqueTiers && hero.techniqueTiers[actionId] || 1;
                 tierSelect.innerHTML = '';
                 for (let tNum = 1; tNum <= maxTier; tNum++) {
-                    const opt = el('option', { value: String(tNum) }, `${t('ui_tier') || 'Tier'} ${tNum}`);
+                    const opt = el('option', { value: String(tNum) }, `${t('shared_uxelm_tier')} ${tNum}`);
                     tierSelect.appendChild(opt);
                 }
                 tierContainer.style.display = 'block';
@@ -373,19 +373,19 @@ export class GambitView {
                 outline: 'none'
             }
         }, [
-            el('option', { value: 'weakest_enemy' }, t('gambit_target_weakest_enemy') || 'Weakest Enemy'),
-            el('option', { value: 'strongest_enemy' }, t('gambit_target_strongest_enemy') || 'Strongest Enemy'),
-            el('option', { value: 'lowest_hp_enemy' }, t('gambit_target_lowest_hp_enemy') || 'Lowest HP Enemy'),
-            el('option', { value: 'highest_hp_enemy' }, t('gambit_target_highest_hp_enemy') || 'Highest HP Enemy'),
-            el('option', { value: 'random_enemy' }, t('gambit_target_random_enemy') || 'Random Enemy'),
-            el('option', { value: 'all_enemies' }, t('gambit_target_all_enemies') || 'All Enemies'),
-            el('option', { value: 'weakest_ally' }, t('gambit_target_weakest_ally') || 'Weakest Ally'),
-            el('option', { value: 'strongest_ally' }, t('gambit_target_strongest_ally') || 'Strongest Ally'),
-            el('option', { value: 'lowest_hp_ally' }, t('gambit_target_lowest_hp_ally') || 'Lowest HP Ally'),
-            el('option', { value: 'highest_hp_ally' }, t('gambit_target_highest_hp_ally') || 'Highest HP Ally'),
-            el('option', { value: 'random_ally' }, t('gambit_target_random_ally') || 'Random Ally'),
-            el('option', { value: 'all_allies' }, t('gambit_target_all_allies') || 'All Allies'),
-            el('option', { value: 'self' }, t('gambit_target_self') || 'Self')
+            el('option', { value: 'weakest_enemy' }, t('gambit_target_weakest_enemy')),
+            el('option', { value: 'strongest_enemy' }, t('gambit_target_strongest_enemy')),
+            el('option', { value: 'lowest_hp_enemy' }, t('gambit_target_lowest_hp_enemy')),
+            el('option', { value: 'highest_hp_enemy' }, t('gambit_target_highest_hp_enemy')),
+            el('option', { value: 'random_enemy' }, t('gambit_target_random_enemy')),
+            el('option', { value: 'all_enemies' }, t('gambit_target_all_enemies')),
+            el('option', { value: 'weakest_ally' }, t('gambit_target_weakest_ally')),
+            el('option', { value: 'strongest_ally' }, t('gambit_target_strongest_ally')),
+            el('option', { value: 'lowest_hp_ally' }, t('gambit_target_lowest_hp_ally')),
+            el('option', { value: 'highest_hp_ally' }, t('gambit_target_highest_hp_ally')),
+            el('option', { value: 'random_ally' }, t('gambit_target_random_ally')),
+            el('option', { value: 'all_allies' }, t('gambit_target_all_allies')),
+            el('option', { value: 'self' }, t('gambit_target_self'))
         ]);
 
         const addBtn = el('button', {
@@ -403,7 +403,7 @@ export class GambitView {
             onClick: () => handleAddGambit()
         }, [
             `➕ `,
-            t('ui_add_gambit') || 'Add Gambit'
+            t('gambit_uxelm_add')
         ]);
 
         // Action handlers
@@ -517,9 +517,9 @@ export class GambitView {
                     el('div', { style: { display: 'flex', alignItems: 'center', gap: '14px' } }, [
                         el('span', { style: { fontSize: '2rem', filter: 'drop-shadow(0 0 8px var(--accent-color))' } }, '🎲'),
                         el('div', {}, [
-                            el('h2', {}, `${t('gambit_title') || 'Gambits'} — ${hero.name}`),
+                            el('h2', {}, `${t('gambit_uxelm_title')} — ${hero.name}`),
                             el('div', { style: { fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '2px' } }, 
-                                t('gambit_desc') || 'Set conditional battle behaviors. Evaluated top-to-bottom; first match wins.'
+                                t('gambit_uxelm_desc')
                             )
                         ])
                     ]),
@@ -544,7 +544,7 @@ export class GambitView {
                     el('div', { class: 'magic-circle-column', style: { overflowY: 'auto', paddingRight: '8px', flex: '1' } }, [
                         el('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', fontSize: '0.85rem', color: 'var(--text-muted)' } }, [
                             el('span', {}, [
-                                el('strong', {}, (t('ui_gambit_count') || 'Gambits') + ': '),
+                                el('strong', {}, t('gambit_uxelm_count') + ': '),
                                 countIndicator
                             ])
                         ]),
@@ -570,7 +570,7 @@ export class GambitView {
                                 paddingBottom: '8px',
                                 fontFamily: "'Outfit', sans-serif"
                             }
-                        }, t('ui_add_gambit') || 'Add Gambit'),
+                        }, t('gambit_uxelm_add')),
                         el('div', { class: 'gambit-form-v1', style: { display: 'flex', flexDirection: 'column', gap: '16px' } }, [
                             el('div', {}, [
                                 el('label', {
@@ -583,7 +583,7 @@ export class GambitView {
                                         fontWeight: '600',
                                         letterSpacing: '0.05em'
                                     }
-                                }, t('ui_condition') || 'Condition'),
+                                }, t('gambit_uxelm_condition')),
                                 conditionSelect
                             ]),
                             el('div', {}, [
@@ -597,7 +597,7 @@ export class GambitView {
                                         fontWeight: '600',
                                         letterSpacing: '0.05em'
                                     }
-                                }, t('ui_action') || 'Action'),
+                                }, t('gambit_uxelm_action')),
                                 actionSelect
                             ]),
                             tierContainer,
@@ -612,7 +612,7 @@ export class GambitView {
                                         fontWeight: '600',
                                         letterSpacing: '0.05em'
                                     }
-                                }, t('ui_target') || 'Target'),
+                                }, t('gambit_uxelm_target')),
                                 targetSelect
                             ]),
                             addBtn
@@ -638,10 +638,10 @@ export class GambitView {
 
     static showTestResults(result, healthScore, rating, t) {
         const witchDialogue = rating === 'ironclad'
-            ? `"${t('gambit_witch_score_ironclad') || 'A flawless design. The threads of fate weave to your will.'}"`
+            ? `"${t('gambit_msg_score_ironclad')}"`
             : rating === 'functional'
-            ? `"${t('gambit_witch_score_functional') || 'It holds... for now. But chaos seeks the smallest crack.'}"`
-            : `"${t('gambit_witch_score_fragile') || 'Brittle. The weave unravels at the slightest breeze.'}"`;
+            ? `"${t('gambit_msg_score_functional')}"`
+            : `"${t('gambit_msg_score_fragile')}"`;
             
         const winRate = Math.floor((result.victories / result.runs) * 100);
 
@@ -650,20 +650,20 @@ export class GambitView {
                 el('div', { class: `health-score-circle ${rating}` }, String(healthScore)),
                 el('div', { style: { flex: '1' } }, [
                     el('h4', { style: { margin: '0', color: 'var(--text-primary)', fontSize: '1.1rem' } }, [
-                        (t('gambit_health_score') || 'Health Score') + ': ',
+                        t('gambit_uxelm_health_score') + ': ',
                         el('span', { style: { textTransform: 'capitalize' } }, rating)
                     ]),
                     el('div', { style: { marginTop: '4px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '0.85rem', color: 'var(--text-muted)' } }, [
                         el('div', {}, [
-                            el('strong', {}, (t('ui_win_rate') || 'Win Rate') + ': '),
+                            el('strong', {}, t('gambit_uxelm_win_rate') + ': '),
                             `${winRate}% (${result.victories}/${result.runs})`
                         ]),
                         el('div', {}, [
-                            el('strong', {}, (t('ui_avg_hp') || 'Avg HP') + ': '),
+                            el('strong', {}, t('gambit_uxelm_avg_hp') + ': '),
                             `${result.avgHpRemaining}%`
                         ]),
                         el('div', {}, [
-                            el('strong', {}, (t('ui_avg_mp') || 'Avg MP') + ': '),
+                            el('strong', {}, t('gambit_uxelm_avg_mp') + ': '),
                             `${result.avgMpRemaining}%`
                         ])
                     ])
@@ -673,7 +673,7 @@ export class GambitView {
                 el('span', { style: { fontSize: '1.2rem', marginRight: '8px' } }, '🌙'),
                 el('span', { style: { fontStyle: 'italic', color: '#e1bee7', fontSize: '0.9rem' } }, witchDialogue)
             ]),
-            el('h4', { style: { fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '8px' } }, t('ui_combat_log') || 'Combat Log (Sample)'),
+            el('h4', { style: { fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '8px' } }, t('gambit_uxelm_combat_log_sample')),
             el('div', { class: 'test-combat-log' }, 
                 result.log.map(line => {
                     const isHeader = line.startsWith('---');
@@ -684,12 +684,12 @@ export class GambitView {
                 })
             ),
             el('div', { class: 'trainer-footer', style: { marginTop: '16px', justifyContent: 'flex-end', borderTop: '1px solid var(--glass-border)', paddingTop: '10px' } }, [
-                el('button', { class: 'btn btn-secondary btn-sm', id: 'btn-close-test' }, t('ui_btn_close') || 'Close')
+                el('button', { class: 'btn btn-secondary btn-sm', id: 'btn-close-test' }, t('shared_uxelm_close'))
             ])
         ]);
 
         const modal = BaseModal.show({
-            title: t('gambit_test_mode_title') || 'Gambit Simulation Results',
+            title: t('gambit_uxelm_test_results_title'),
             contentElement: contentElement,
             icon: '🧪',
             className: 'gambit-test-overlay',
@@ -755,7 +755,7 @@ export class GambitView {
                 modal.close();
                 onStartSimulation(configuredEnemies.map(e => ({ templateId: e.templateId, level: e.level })));
             }
-        }, [t('ui_start_simulation') || 'Start Simulation ⚔️']);
+        }, [t('gambit_uxelm_simulation_start')]);
 
         const updateSelectedUI = () => {
             listContainer.innerHTML = '';
@@ -771,12 +771,12 @@ export class GambitView {
                         border: '1px dashed var(--glass-border)',
                         borderRadius: '8px'
                     }
-                }, [t('ui_no_enemies_selected') || 'No enemies selected. Add some from the catalog!']));
+                }, [t('gambit_uxelm_enemy_none_selected')]));
                 return;
             }
 
             configuredEnemies.forEach((item, idx) => {
-                const name = t(item.templateId) || enemyTemplates[item.templateId]?.name || item.templateId;
+                const name = t(item.templateId);
 
                 const minusBtn = el('button', {
                     style: {
@@ -877,10 +877,10 @@ export class GambitView {
                 }, [
                     el('div', { style: { display: 'flex', flexDirection: 'column' } }, [
                         el('span', { style: { fontWeight: '500', fontSize: '0.9rem' } }, name),
-                        el('span', { style: { fontSize: '0.75rem', color: 'var(--text-muted)' } }, `${t('ui_position') || 'Position'} ${idx + 1}`)
+                        el('span', { style: { fontSize: '0.75rem', color: 'var(--text-muted)' } }, `${t('gambit_uxelm_position')} ${idx + 1}`)
                     ]),
                     el('div', { style: { display: 'flex', alignItems: 'center', gap: '8px' } }, [
-                        el('span', { style: { fontSize: '0.8rem', color: 'var(--text-muted)' } }, t('ui_level') || 'Lvl:'),
+                        el('span', { style: { fontSize: '0.8rem', color: 'var(--text-muted)' } }, t('shared_uxelm_level_abbrev') + ':'),
                         lvlInput,
                         el('button', {
                             class: 'btn btn-danger btn-sm',
@@ -899,7 +899,7 @@ export class GambitView {
         // Populate available bestiary
         const availableEnemyIds = bestiary.length > 0 ? bestiary : ['slime_green'];
         availableEnemyIds.forEach(eid => {
-            const name = t(eid) || enemyTemplates[eid]?.name || eid;
+            const name = t(eid);
             const template = enemyTemplates[eid] || { element: 'neutral' };
             const elemIcon = template.element === 'fire' ? '🔥' : template.element === 'water' ? '💧' : template.element === 'storm' ? '⚡' : '🍃';
 
@@ -937,14 +937,14 @@ export class GambitView {
 
         contentElement.appendChild(el('div', {}, [
             el('h4', { style: { fontSize: '0.9rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px' } }, [
-                t('ui_selected_enemies') || 'Encounter Party',
+                t('gambit_uxelm_encounter_party'),
                 el('span', { style: { float: 'right', fontSize: '0.8rem', color: 'var(--accent-color)' } }, `Limit: ${maxEnemies}`)
             ]),
             listContainer
         ]));
 
         contentElement.appendChild(el('div', {}, [
-            el('h4', { style: { fontSize: '0.9rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px' } }, t('ui_discovered_bestiary') || 'Bestiary Catalog'),
+            el('h4', { style: { fontSize: '0.9rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px' } }, t('gambit_uxelm_bestiary_catalog')),
             bestiaryContainer
         ]));
 
@@ -953,7 +953,7 @@ export class GambitView {
         updateSelectedUI();
 
         const modal = BaseModal.show({
-            title: t('ui_gambit_test_setup_title') || 'Gambit Simulation Setup',
+            title: t('gambit_uxelm_test_setup_title'),
             contentElement,
             icon: '⚔️',
             maxWidth: '480px'

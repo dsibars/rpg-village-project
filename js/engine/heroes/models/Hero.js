@@ -118,7 +118,7 @@ export class Hero {
      * Learn a new glyph. Idempotent.
      */
     learnGlyph(glyphId) {
-        if (this.knownGlyphs.includes(glyphId)) return Result.fail('error_glyph_already_known');
+        if (this.knownGlyphs.includes(glyphId)) return Result.fail('heroes_error_glyph_already_known');
         this.knownGlyphs.push(glyphId);
         if (!this.glyphMastery[glyphId]) {
             this.glyphMastery[glyphId] = { tier: 1, uses: 0 };
@@ -157,7 +157,7 @@ export class Hero {
      */
     replaceSpell(index, spell) {
         if (index < 0 || index >= this.spellCodex.length) {
-            return Result.fail('error_invalid_codex_index');
+            return Result.fail('heroes_error_codex_index_invalid');
         }
         this.spellCodex[index] = spell;
         return Result.ok({ spell });
@@ -168,7 +168,7 @@ export class Hero {
      */
     removeSpell(index) {
         if (index < 0 || index >= this.spellCodex.length) {
-            return Result.fail('error_invalid_codex_index');
+            return Result.fail('heroes_error_codex_index_invalid');
         }
         this.spellCodex.splice(index, 1);
         return Result.ok(true);
@@ -178,12 +178,12 @@ export class Hero {
      * Cast a spell: consume MP, gain Magic Insight, record glyph uses.
      */
     castSpell(spell) {
-        if (!spell) return Result.fail('error_invalid_spell');
+        if (!spell) return Result.fail('heroes_error_spell_invalid');
         if (!MagicCircleService.canCast(spell, this.magicTier)) {
-            return Result.fail('error_magic_tier_too_low');
+            return Result.fail('heroes_error_magic_tier_low');
         }
         if (this.mp < spell.mpCost) {
-            return Result.fail('error_not_enough_mp');
+            return Result.fail('heroes_error_mp_not_enough');
         }
 
         this.mp -= spell.mpCost;
@@ -457,7 +457,7 @@ export class Hero {
     }
 
     increaseStat(statId) {
-        if (this.statPoints <= 0) return Result.fail('error_no_stat_points');
+        if (this.statPoints <= 0) return Result.fail('heroes_error_stat_point_none');
 
         const statMap = {
             baseMaxHp: 3,
@@ -469,7 +469,7 @@ export class Hero {
         };
 
         const gain = statMap[statId];
-        if (gain === undefined) return Result.fail('error_invalid_stat');
+        if (gain === undefined) return Result.fail('heroes_error_stat_invalid');
 
         this[statId] += gain;
         this.statPoints--;
@@ -504,16 +504,16 @@ export class Hero {
      */
     learnFamily(familyId) {
         if (!SKILLS_DATA[familyId]) {
-            return Result.fail('error_invalid_family');
+            return Result.fail('heroes_error_family_invalid');
         }
         if (this.knownFamilies.includes(familyId)) {
-            return Result.fail('error_family_already_known');
+            return Result.fail('heroes_error_family_already_known');
         }
         if (this.knownFamilies.length >= Hero.MAX_FAMILIES) {
-            return Result.fail('error_max_families_reached');
+            return Result.fail('heroes_error_family_max_reached');
         }
         if (this.skillPoints <= 0) {
-            return Result.fail('error_no_skill_points');
+            return Result.fail('heroes_error_skill_point_none');
         }
 
         this.knownFamilies.push(familyId);
@@ -580,22 +580,22 @@ export class Hero {
 
     inscribeBodyCircle(glyphIds, glyphTiers = {}) {
         const skillTierPoints = this.getSkillTierPoints();
-        if (skillTierPoints < 12) return Result.fail('error_body_inscription_not_enough_skills');
-        if ((this.magicTier || 0) < 7) return Result.fail('error_body_inscription_not_enough_magic');
+        if (skillTierPoints < 12) return Result.fail('heroes_error_inscription_skill_not_enough');
+        if ((this.magicTier || 0) < 7) return Result.fail('heroes_error_inscription_magic_not_enough');
 
-        if (!glyphIds || glyphIds.length === 0) return Result.fail('error_no_glyphs');
+        if (!glyphIds || glyphIds.length === 0) return Result.fail('heroes_error_glyph_none');
         // Doc: exactly 7 slots (Core + Ring 1)
-        if (glyphIds.length !== 7) return Result.fail('error_body_circle_must_be_7');
+        if (glyphIds.length !== 7) return Result.fail('heroes_error_body_circle_size_invalid');
 
         const core = glyphIds.find(gid => {
             const g = GLYPH_DATA[gid];
             return g && g.type === 'core';
         });
-        if (!core) return Result.fail('error_no_core_glyph');
+        if (!core) return Result.fail('heroes_error_glyph_core_none');
 
         // Verify all glyphs are known
         for (const gid of glyphIds) {
-            if (!this.knownGlyphs.includes(gid)) return Result.fail('error_glyph_not_known');
+            if (!this.knownGlyphs.includes(gid)) return Result.fail('heroes_error_glyph_not_known');
         }
 
         // Set pending inscription — takes effect after 5 days
@@ -630,7 +630,7 @@ export class Hero {
     }
 
     eraseBodyCircle() {
-        if (!this.bodyInscription) return Result.fail('error_not_inscribed');
+        if (!this.bodyInscription) return Result.fail('heroes_error_inscription_none');
         this.bodyInscription = null;
         this.pendingBodyInscription = null;
         this.bodyInscriptionDaysRemaining = 0;
@@ -663,16 +663,16 @@ export class Hero {
     // --- Gambits ---
 
     setFallbackAction(action) {
-        if (!action) return Result.fail('error_invalid_action');
+        if (!action) return Result.fail('heroes_error_action_invalid');
         this.fallbackAction = action;
         return Result.ok(true);
     }
 
     addGambit(gambit) {
-        if (!gambit || !gambit.id) return Result.fail('error_invalid_gambit');
+        if (!gambit || !gambit.id) return Result.fail('heroes_error_gambit_invalid');
         this.gambits = this.gambits || [];
-        if (this.gambits.length >= 12) return Result.fail('error_gambit_limit_reached');
-        if (this.gambits.find(g => g.id === gambit.id)) return Result.fail('error_gambit_duplicate_id');
+        if (this.gambits.length >= 12) return Result.fail('heroes_error_gambit_limit_reached');
+        if (this.gambits.find(g => g.id === gambit.id)) return Result.fail('heroes_error_gambit_id_duplicate');
         // Auto-migrate old-format gambits before storing
         const migrated = HeroMigrationService.migrateGambits([gambit])[0];
         this.gambits.push(migrated);
@@ -686,7 +686,7 @@ export class Hero {
 
     toggleGambit(gambitId) {
         const gambit = (this.gambits || []).find(g => g.id === gambitId);
-        if (!gambit) return Result.fail('error_gambit_not_found');
+        if (!gambit) return Result.fail('heroes_error_gambit_not_found');
         gambit.enabled = !gambit.enabled;
         return Result.ok(gambit.enabled);
     }
@@ -694,9 +694,9 @@ export class Hero {
     moveGambit(gambitId, direction) {
         const gambits = this.gambits || [];
         const idx = gambits.findIndex(g => g.id === gambitId);
-        if (idx === -1) return Result.fail('error_gambit_not_found');
+        if (idx === -1) return Result.fail('heroes_error_gambit_not_found');
         const newIdx = idx + direction;
-        if (newIdx < 0 || newIdx >= gambits.length) return Result.fail('error_gambit_cannot_move');
+        if (newIdx < 0 || newIdx >= gambits.length) return Result.fail('heroes_error_gambit_move_invalid');
         const temp = gambits[idx];
         gambits[idx] = gambits[newIdx];
         gambits[newIdx] = temp;

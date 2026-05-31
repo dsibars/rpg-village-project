@@ -3,22 +3,22 @@ import { getEquipmentName, getEquipmentStats } from '../../shared/EquipmentHelpe
 import { getRefineCost } from '../../../../engine/shared/data/EquipmentData.js';
 
 const STAT_LABEL_MAP = {
-    strength: 'ui_stats_power',
-    defense: 'ui_stats_defense',
-    maxHp: 'ui_stats_hp',
-    maxMp: 'ui_stats_mp',
-    magicPower: 'ui_stats_magic',
-    speed: 'ui_stats_speed',
-    evasion: 'ui_stats_evasion',
-    mpCostReduction: 'ui_stats_mpreduce'
+    strength: 'heroes_info_stat_strength',
+    defense: 'heroes_info_stat_defense',
+    maxHp: 'heroes_info_stat_hp',
+    maxMp: 'heroes_info_stat_mp',
+    magicPower: 'heroes_info_stat_magic_power',
+    speed: 'heroes_info_stat_speed',
+    evasion: 'heroes_info_stat_evasion',
+    mpCostReduction: 'heroes_info_stat_mpCostReduction'
 };
 
 export function createForgeDetailPane({ onUpgrade, onCraft, t }) {
     // Empty state
     const emptyStateRef = el('div', { class: 'empty-detail' }, [
         el('div', { class: 'detail-icon-bg' }, ['🔥']),
-        el('p', { dataI18n: 'ui_select_item', style: { color: 'var(--text-muted)' } }, [
-            t('ui_select_item') || 'Select a piece of equipment from the inventory to upgrade.'
+        el('p', { dataI18n: 'forge_uxelm_select_item', style: { color: 'var(--text-muted)' } }, [
+            t('forge_uxelm_select_item')
         ])
     ]);
 
@@ -83,12 +83,12 @@ export function createForgeDetailPane({ onUpgrade, onCraft, t }) {
         const allStatKeys = Array.from(new Set([...Object.keys(currentStats), ...(nextStats ? Object.keys(nextStats) : [])]));
 
         statsContainerRef.innerHTML = '';
-        statsContainerRef.appendChild(el('h4', { dataI18n: 'ui_item_stats' }, [t('ui_item_stats') || 'Stats']));
+        statsContainerRef.appendChild(el('h4', { dataI18n: 'forge_uxelm_item_stats' }, [t('forge_uxelm_item_stats')]));
 
         if (allStatKeys.length === 0) {
             statsContainerRef.appendChild(
                 el('div', { style: { color: 'var(--text-muted)', fontSize: '0.9rem' } }, [
-                    t('ui_no_item_stats') || 'No stats modification.'
+                    t('forge_uxelm_item_stats_none')
                 ])
             );
         } else {
@@ -107,7 +107,7 @@ export function createForgeDetailPane({ onUpgrade, onCraft, t }) {
                 }
 
                 const labelKey = STAT_LABEL_MAP[key] || key;
-                const label = t(labelKey) || key.toUpperCase();
+                const label = t(labelKey);
 
                 statsContainerRef.appendChild(el('div', { class: 'forge-stat-row' }, [
                     el('span', { class: 'forge-stat-label' }, [label]),
@@ -148,7 +148,7 @@ export function createForgeDetailPane({ onUpgrade, onCraft, t }) {
                 const isEnough = ownedQty >= requiredQty;
                 if (!isEnough) canAfford = false;
                 const matClass = isEnough ? '' : 'insufficient';
-                const matName = t(matId) || matId;
+                const matName = t(matId);
 
                 costGrid.appendChild(el('div', { class: ['forge-cost-item', matClass] }, [
                     el('span', { class: 'label' }, [`📦 ${matName}`]),
@@ -156,14 +156,14 @@ export function createForgeDetailPane({ onUpgrade, onCraft, t }) {
                 ]));
             }
 
-            costSectionRef.appendChild(el('h4', { dataI18n: 'ui_refine_cost' }, [t('ui_refine_cost') || 'Refine Cost']));
+            costSectionRef.appendChild(el('h4', { dataI18n: 'forge_uxelm_refine_cost' }, [t('forge_uxelm_refine_cost')]));
             costSectionRef.appendChild(costGrid);
             costSectionRef.style.display = 'block';
         } else {
             costSectionRef.style.display = 'none';
         }
 
-        const btnLabel = isMaxLevel ? (t('ui_refine_max') || 'Max Level') : (t('ui_refine') || 'Refine');
+        const btnLabel = isMaxLevel ? t('forge_uxelm_refine_max') : t('forge_uxelm_refine');
         const btnDisabled = isMaxLevel || !canAfford;
 
         actionBtnRef.disabled = btnDisabled;

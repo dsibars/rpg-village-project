@@ -14,11 +14,11 @@ export function createHeroMiniCard({ hero, variant = 'list', selected = false, o
     let root;
     let refs = {};
 
-    const getLevelText = (lvl) => `${t('ui_level') || 'Level'} ${lvl}`;
+    const getLevelText = (lvl) => `${t('shared_uxelm_level')} ${lvl}`;
     const getActivityEmoji = (act) => act === 'idle' ? '💤' : '⚔️';
     const getActivityTitle = (act) => act === 'idle' 
-        ? (t('ui_activity_idle') || 'Idle')
-        : (t('ui_activity_expedition') || 'On Expedition');
+        ? t('heroes_status_activity_idle')
+        : t('heroes_status_activity_expedition');
 
     if (variant === 'list') {
         const titleRef = el('span', { class: 'list-item-title' }, [hero.name]);
@@ -30,7 +30,7 @@ export function createHeroMiniCard({ hero, variant = 'list', selected = false, o
 
         const mealRef = el('span', {
             class: 'hero-activity-badge',
-            title: t('ui_has_meal_buff') || 'Meal buff active',
+            title: t('heroes_status_meal_buff'),
             style: {
                 marginLeft: '4px',
                 display: (hero.mealBuffs && hero.mealBuffs.length > 0) ? 'inline-block' : 'none'

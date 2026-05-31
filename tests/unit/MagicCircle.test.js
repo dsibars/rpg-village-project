@@ -43,7 +43,7 @@ test('MagicCircle: compose with efficiency reduces cost', () => {
 test('MagicCircle: fails without core', () => {
     const result = MagicCircleService.compose(['glyph_potentiate']);
     assert.strictEqual(result.success, false);
-    assert.strictEqual(result.error, 'error_no_core_glyph');
+    assert.strictEqual(result.error, 'magic_circle_error_core_glyph_none');
 });
 
 test('MagicCircle: fails with too many glyphs', () => {
@@ -103,7 +103,7 @@ test('MagicCircle: codex max 6 enforcement', () => {
     const seventh = MagicCircleService.compose(['glyph_fire'], {}).data;
     const result = hero.inscribeSpell(seventh);
     assert.strictEqual(result.success, false);
-    assert.strictEqual(result.error, 'error_codex_full');
+    assert.strictEqual(result.error, 'magic_circle_error_codex_full');
 });
 
 test('MagicCircle: tier-locked casting', () => {
@@ -116,7 +116,7 @@ test('MagicCircle: tier-locked casting', () => {
     // Spell has 3 glyphs, hero only has 2 slots
     const result = hero.castSpell(spell);
     assert.strictEqual(result.success, false);
-    assert.strictEqual(result.error, 'error_magic_tier_too_low');
+    assert.strictEqual(result.error, 'heroes_error_magic_tier_low');
 });
 
 

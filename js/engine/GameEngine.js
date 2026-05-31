@@ -154,7 +154,14 @@ export class GameEngine {
         const activeBattle = (this.battleService.heroes && this.battleService.heroes.length > 0) ? {
             heroes: this.battleService.heroes.map(h => h.toJSON()),
             enemies: this.battleService.enemies.map(e => e.toJSON()),
-            turnOrder: this.battleService.turnOrder.map(e => ({ id: e.id, name: e.name, type: (e.origin !== undefined || e.type === 'Hero') ? 'Hero' : 'Enemy' })),
+            turnOrder: this.battleService.turnOrder.map(e => ({
+                id: e.id,
+                name: e.name,
+                type: (e.origin !== undefined || e.type === 'Hero') ? 'Hero' : 'Enemy',
+                templateId: e.templateId,
+                isElite: e.isElite,
+                eliteTier: e.eliteTier
+            })),
             currentTurnIndex: this.battleService.currentTurnIndex,
             log: [...this.battleService.log],
             isOver: this.battleService.isOver,
@@ -185,7 +192,7 @@ export class GameEngine {
     recruitHero() {
         const tavernLevel = this.villageService.getState().infrastructure.tavern || 0;
         if (tavernLevel < 1) {
-            return Result.fail('error_tavern_required');
+            return Result.fail('village_error_tavern_required');
         }
 
         const heroCount = this.heroService.list().length;
@@ -193,7 +200,7 @@ export class GameEngine {
         const cost = Math.floor(baseCost * Math.pow(1.2, heroCount));
 
         if (this.villageService.state.gold < cost) {
-            return Result.fail('error_not_enough_gold');
+            return Result.fail('village_error_gold_not_enough');
         }
 
         this.villageService.state.gold -= cost;
@@ -212,11 +219,11 @@ export class GameEngine {
     _assertHeroAvailable(heroId) {
         const activityInfo = this.expeditionService.getHeroActivity(heroId);
         if (activityInfo && activityInfo.type === 'expedition') {
-            return Result.fail('error_hero_busy');
+            return Result.fail('heroes_error_hero_busy');
         }
         const hero = this.heroService.get(heroId);
         if (hero && hero.isInscribing && hero.isInscribing()) {
-            return Result.fail('error_hero_inscribing');
+            return Result.fail('heroes_error_hero_inscribing');
         }
         return Result.ok(true);
     }
@@ -238,7 +245,7 @@ export class GameEngine {
         if (!check.success) return check;
         const hero = this.heroService.get(heroId);
         if (hero && hero.isInscribing && hero.isInscribing()) {
-            return Result.fail('error_hero_already_inscribing');
+            return Result.fail('heroes_error_hero_already_inscribing');
         }
         return this.heroService.inscribeHeroBodyCircle(heroId, glyphIds, glyphTiers);
     }
@@ -283,7 +290,7 @@ export class GameEngine {
         const check = this._assertHeroAvailable(heroId);
         if (!check.success) return check;
         const hero = this.heroService.get(heroId);
-        if (!hero) return Result.fail('error_hero_not_found');
+        if (!hero) return Result.fail('heroes_error_hero_not_found');
         
         // This relies on Hero.js setFallbackAction which we need to make sure exists
         if (typeof hero.setFallbackAction === 'function') {
@@ -299,7 +306,7 @@ export class GameEngine {
 
     testHeroGambits(heroId, enemiesOverride = null) {
         const hero = this.heroService.get(heroId);
-        if (!hero) return Result.fail('error_hero_not_found');
+        if (!hero) return Result.fail('heroes_error_hero_not_found');
         
         let enemies = [];
         const scenarioId = 'reg_greenfields';
@@ -350,10 +357,10 @@ export class GameEngine {
         const check = this._assertHeroAvailable(heroId);
         if (!check.success) return check;
         const hero = this.heroService.get(heroId);
-        if (!hero) return Result.fail('error_hero_not_found');
+        if (!hero) return Result.fail('heroes_error_hero_not_found');
 
         const preset = GambitService.getPresetForHero(hero);
-        if (!preset) return Result.fail('error_no_preset_matches');
+        if (!preset) return Result.fail('gambit_error_preset_no_match');
 
         const result = GambitService.applyPreset(hero, preset.id);
         if (!result.success) return result;
@@ -388,12 +395,12 @@ export class GameEngine {
 
     buyItem(itemData, costGold) {
         if (this.villageService.state.gold < costGold) {
-            return Result.fail('error_not_enough_gold');
+            return Result.fail('village_error_gold_not_enough');
         }
 
         const maxStorage = this.villageService.getMaxStorage();
         if (this.inventoryService.getTotalStorageUsed() + 1 > maxStorage) {
-            return Result.fail('error_storage_full');
+            return Result.fail('inventory_error_storage_full');
         }
 
         // Deduct Gold
@@ -419,13 +426,13 @@ export class GameEngine {
     sellResource(resourceId, quantity) {
         const pricePerUnit = GameEngine.SELL_PRICES[resourceId];
         if (!pricePerUnit) {
-            return Result.fail('error_item_not_found');
+            return Result.fail('inventory_error_item_not_found');
         }
 
         const available = this.inventoryService.getItemCount(resourceId);
         const toSell = Math.min(quantity, available);
         if (toSell <= 0) {
-            return Result.fail('error_not_enough_items');
+            return Result.fail('inventory_error_item_not_enough');
         }
 
         // Remove resources
@@ -556,19 +563,19 @@ export class GameEngine {
             }
         }
 
-        if (!item) return Result.fail('error_item_not_found');
-        if (item.level >= 10) return Result.fail('error_refine_max');
+        if (!item) return Result.fail('inventory_error_item_not_found');
+        if (item.level >= 10) return Result.fail('forge_error_refine_max');
 
         const cost = this.getRefineCost(item);
 
         // Validate resources
         if (this.villageService.state.gold < cost.gold) {
-            return Result.fail('error_not_enough_gold');
+            return Result.fail('village_error_gold_not_enough');
         }
 
         for (const [matId, qty] of Object.entries(cost.materials)) {
             if (this.inventoryService.getItemCount(matId) < qty) {
-                return Result.fail('error_not_enough_materials');
+                return Result.fail('forge_error_materials_not_enough');
             }
         }
 
@@ -598,12 +605,12 @@ export class GameEngine {
     // --- Meal Crafting ---
     cookMeal(recipeId) {
         const recipe = MEAL_RECIPES[recipeId];
-        if (!recipe) return Result.fail('error_recipe_not_found');
+        if (!recipe) return Result.fail('inventory_error_recipe_not_found');
 
         // Check ingredients
         for (const [ingId, qty] of Object.entries(recipe.ingredients)) {
             if (this.inventoryService.getItemCount(ingId) < qty) {
-                return Result.fail('error_not_enough_materials');
+                return Result.fail('inventory_error_materials_not_enough');
             }
         }
 
@@ -621,10 +628,10 @@ export class GameEngine {
 
     consumeMeal(mealId) {
         const recipe = MEAL_RECIPES[mealId];
-        if (!recipe) return Result.fail('error_meal_not_found');
+        if (!recipe) return Result.fail('inventory_error_meal_not_found');
 
         const mealCount = this.inventoryService.getItemCount(mealId);
-        if (mealCount < 1) return Result.fail('error_not_enough_items');
+        if (mealCount < 1) return Result.fail('inventory_error_item_not_enough');
 
         this.inventoryService.useItem(mealId, 1);
 
@@ -659,21 +666,21 @@ export class GameEngine {
 
     executeBattleAction(skillId, targetIndex = null, tier = null) {
         const actor = this.battleService.turnOrder[this.battleService.currentTurnIndex];
-        if (!actor) return Result.fail('error_no_active_actor');
+        if (!actor) return Result.fail('combat_error_actor_none');
         return this.battleService.executeAction(actor, skillId, targetIndex, [], tier);
     }
 
     executeBattleSpell(spellIndex, targetIndex = null) {
         const actor = this.battleService.turnOrder[this.battleService.currentTurnIndex];
-        if (!actor) return Result.fail('error_no_active_actor');
+        if (!actor) return Result.fail('combat_error_actor_none');
         const spell = actor.spellCodex?.[spellIndex];
-        if (!spell) return Result.fail('error_spell_not_found');
+        if (!spell) return Result.fail('combat_error_spell_not_found');
         return this.battleService.castSpell(actor, spell, targetIndex);
     }
 
     useBattleConsumable(consumableId, targetId = null) {
         const actor = this.battleService.turnOrder[this.battleService.currentTurnIndex];
-        if (!actor) return Result.fail('error_no_active_actor');
+        if (!actor) return Result.fail('combat_error_actor_none');
         return this.battleService.useConsumable(actor, consumableId, targetId);
     }
 
@@ -836,7 +843,7 @@ export class GameEngine {
         // Mutual exclusion: cannot assign a hero to defense if they are on an expedition
         const activity = this.expeditionService.getHeroActivity(heroId);
         if (activity && activity.type === 'expedition') {
-            return Result.fail('error_hero_on_expedition');
+            return Result.fail('heroes_error_hero_on_expedition');
         }
         return this.calendarService.assignDefense(heroId);
     }

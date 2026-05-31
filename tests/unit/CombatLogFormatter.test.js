@@ -13,16 +13,16 @@ import { CombatLogFormatter } from '../../js/engine/shared/combat/CombatLogForma
 const mockI18n = {
     t(key, params = {}) {
         const dict = {
-            log_attack: '{attacker} attacks {target} for {damage} damage!',
-            log_miss: '{attacker} missed {target}!',
-            log_heal: '{attacker} heals {target} for {amount} HP!',
-            log_vamp: '{actor} drains {amount} HP through vampirism.',
-            log_regen: '{target} regenerates {amount} HP.',
-            log_poison: '{target} takes {damage} poison damage!',
-            log_burn: '{target} takes {damage} burn damage!',
-            log_status_expired: "{target}'s {effect} wore off.",
-            log_target_defeated: '{target} was defeated!',
-            log_use_consumable: '{attacker} used {item} on {target}, restoring {amount} {stat}.',
+            combat_log_attack: '{attacker} attacks {target} for {damage} damage!',
+            combat_log_miss: '{attacker} missed {target}!',
+            combat_log_heal: '{attacker} heals {target} for {amount} HP!',
+            combat_log_vamp: '{actor} drains {amount} HP through vampirism.',
+            combat_log_regen: '{target} regenerates {amount} HP.',
+            combat_log_poison: '{target} takes {damage} poison damage!',
+            combat_log_burn: '{target} takes {damage} burn damage!',
+            combat_log_status_expired: "{target}'s {effect} wore off.",
+            combat_log_target_defeated: '{target} was defeated!',
+            combat_log_use_consumable: '{attacker} used {item} on {target}, restoring {amount} {stat}.',
             item_tiny_hp_potion: 'Tiny HP Potion'
         };
         let text = dict[key] || key;

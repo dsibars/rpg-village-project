@@ -381,26 +381,26 @@ export class ExpeditionService {
         
         if (existing) {
             if (existing.currentStage > 0) {
-                return Result.fail('error_expedition_locked');
+                return Result.fail('explore_error_expedition_locked');
             }
         } else {
             // New expedition — check concurrency limit
             const max = this.getMaxConcurrentExpeditions();
             if (this.state.activeExpeditions.length >= max) {
-                return Result.fail('error_max_expeditions_reached');
+                return Result.fail('explore_error_expeditions_max');
             }
             // Check for heroes already on other expeditions
             for (const other of this.state.activeExpeditions) {
                 for (const hId of heroIds) {
                     if (other.heroIds.includes(hId)) {
-                        return Result.fail('error_hero_on_other_expedition');
+                        return Result.fail('explore_error_hero_busy_expedition');
                     }
                 }
             }
         }
         
         const exp = this.getExpeditions().find(e => e.id === expId);
-        if (!exp || (exp.status && exp.status !== 'available')) return Result.fail('error_expedition_unavailable');
+        if (!exp || (exp.status && exp.status !== 'available')) return Result.fail('explore_error_expedition_unavailable');
 
         const heroes = heroIds.map(id => this.heroService.get(id)).filter(h => h);
         if (heroes.length === 0) {
@@ -411,7 +411,7 @@ export class ExpeditionService {
         }
 
         const hasDeadHero = heroes.some(h => h.hp <= 0);
-        if (hasDeadHero) return Result.fail('error_hero_dead');
+        if (hasDeadHero) return Result.fail('explore_error_hero_dead');
 
         if (existing) {
             existing.heroIds = heroes.map(h => h.id);
@@ -444,7 +444,7 @@ export class ExpeditionService {
                 return Result.ok();
             }
         }
-        return Result.fail('error_no_active_expedition');
+        return Result.fail('explore_error_expedition_none');
     }
 
     /**
@@ -607,7 +607,7 @@ export class ExpeditionService {
             });
         }
 
-        return Result.fail('error_unknown_stage_type');
+        return Result.fail('explore_error_stage_type_unknown');
     }
 
     resumeActiveBattle() {
@@ -708,18 +708,18 @@ export class ExpeditionService {
 
     resolveBattle() {
         if (!this.state.activeCombatExpeditionId) {
-            return Result.fail('error_no_active_battle');
+            return Result.fail('combat_error_battle_none');
         }
         const activeExp = this._findActiveExpeditionById(this.state.activeCombatExpeditionId);
         if (!activeExp || activeExp.status !== 'combat') {
-            return Result.fail('error_no_active_battle');
+            return Result.fail('combat_error_battle_none');
         }
         if (!this.battleService.isOver) {
-            return Result.fail('error_battle_not_over');
+            return Result.fail('combat_error_battle_active');
         }
 
         const exp = this.getExpeditions().find(e => e.id === activeExp.id);
-        if (!exp) return Result.fail('error_expedition_not_found');
+        if (!exp) return Result.fail('explore_error_expedition_not_found');
 
         const ctx = activeExp.battleContext;
         const heroes = this.heroService.list().filter(h => activeExp.heroIds.includes(h.id));
@@ -1143,6 +1143,7 @@ export class ExpeditionService {
         const levelMult = Math.pow(1.1, level - 1);
         const scaled = {
             ...t,
+            templateId: templateId || 'slime_green',
             maxHp: Math.floor(t.maxHp * levelMult),
             strength: Math.floor(t.strength * levelMult),
             defense: Math.floor((t.defense || 1) * levelMult),

@@ -15,12 +15,12 @@ export function createShopCatalogList({ onSelect, t }) {
 
     // Initialize the static category accordion containers once
     const categories = [
-        { id: 'consumables', title: t('ui_consumables') || 'Consumables', icon: '🧪' },
-        { id: 'weapons', title: t('ui_equipment') || 'Weapons', icon: '⚔️' },
-        { id: 'helmets', title: t('slot_name_head') || 'Helmets', icon: '🪖' },
-        { id: 'armors', title: t('slot_name_body') || 'Armors', icon: '🧥' },
-        { id: 'legwear', title: t('slot_name_legs') || 'Legwear', icon: '👖' },
-        { id: 'shields', title: t('slot_name_rightHand') || 'Shields', icon: '🛡️' }
+        { id: 'consumables', title: t('inventory_uxelm_category_consumables'), icon: '🧪' },
+        { id: 'weapons', title: t('inventory_uxelm_category_equipment'), icon: '⚔️' },
+        { id: 'helmets', title: t('inventory_info_slot_head'), icon: '🪖' },
+        { id: 'armors', title: t('inventory_info_slot_body'), icon: '🧥' },
+        { id: 'legwear', title: t('inventory_info_slot_legs'), icon: '👖' },
+        { id: 'shields', title: t('inventory_info_slot_rightHand'), icon: '🛡️' }
     ];
 
     categories.forEach(group => {
@@ -61,7 +61,7 @@ export function createShopCatalogList({ onSelect, t }) {
                 const ownedCount = getOwnedCount(item);
                 const cost = item.cost || item.sellPrice || item.price || 0;
                 const costBadgeClass = 'shop-item-cost-badge';
-                const displayName = t(item.id) || item.id;
+                const displayName = t(item.id);
 
                 return el('div', {
                     class: `shop-item-row ${activeClass}`,

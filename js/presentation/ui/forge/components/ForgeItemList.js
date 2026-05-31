@@ -6,8 +6,8 @@ export function createForgeItemList({ onSelect, t }) {
 
     const emptyStateRef = el('div', {
         class: 'empty-state',
-        dataI18n: 'ui_no_items'
-    }, [t('ui_no_items') || 'No items found.']);
+        dataI18n: 'forge_uxelm_no_items'
+    }, [t('forge_uxelm_no_items')]);
 
     const listContainerRef = el('div', { class: 'forge-item-list' });
 

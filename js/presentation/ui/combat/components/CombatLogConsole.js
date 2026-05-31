@@ -9,7 +9,7 @@ export class CombatLogConsole {
         this.formatLogEntryHtml = formatLogEntryHtml;
         this.consoleEl = el('div', { class: 'combat-log-console', id: 'combat-log-console' });
         this.root = el('div', { class: 'combat-log-section' }, [
-            el('div', { class: 'combat-column-title' }, [this.t('combat_log')]),
+            el('div', { class: 'combat-column-title' }, [this.t('combat_uxelm_log')]),
             this.consoleEl
         ]);
         this.lastLogLength = 0;

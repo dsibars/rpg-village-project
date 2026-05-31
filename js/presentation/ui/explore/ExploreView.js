@@ -150,7 +150,7 @@ export class ExploreView extends BaseView {
             <div style="background: rgba(255,255,255,0.03); border-radius: var(--radius-md); padding: 12px; margin-bottom: 12px;">
                 <div style="margin-bottom: 8px;"><strong>Heroes:</strong> ${heroNames.join(', ') || 'Unknown'}</div>
                 <div><strong>Reward:</strong> ${reward.gold || 0} gold</div>
-                ${reward.items ? `<div style="margin-top: 8px; font-size: 0.85rem; color: var(--text-muted);">${Object.entries(reward.items).map(([k, v]) => `${v} ${this.t(k) || k}`).join(', ')}</div>` : ''}
+                ${reward.items ? `<div style="margin-top: 8px; font-size: 0.85rem; color: var(--text-muted);">${Object.entries(reward.items).map(([k, v]) => `${v} ${this.t(k)}`).join(', ')}</div>` : ''}
                 ${reward.closureBonus ? `<div style="margin-top: 8px; color: #f39c12; font-weight: bold;">Closure Bonus: ${reward.closureBonus.gold}g</div>` : ''}
             </div>
             <div style="font-size: 0.8rem; color: var(--text-muted); text-align: center;">
@@ -200,7 +200,7 @@ export class ExploreView extends BaseView {
             this.elements.statusBanner.className = 'status-banner';
             this.elements.statusBanner.innerHTML = '';
             this.elements.statusBanner.appendChild(
-                document.createTextNode(`${this.t('ui_active_expeditions') || 'Active Expeditions'}: ${count} / ${maxConcurrentExpeditions}`)
+                document.createTextNode(`${this.t('explore_uxelm_active_expeditions')}: ${count} / ${maxConcurrentExpeditions}`)
             );
         } else {
             this.elements.statusBanner.className = 'status-banner none';
@@ -240,7 +240,7 @@ export class ExploreView extends BaseView {
         container.innerHTML = '';
 
         regions.forEach(([regionId, regionData]) => {
-            const rName = this.t(regionId) || regionId;
+            const rName = this.t(regionId);
             const clears = regionData.clears || 0;
             const activeCount = activeExpeditions.filter(ae => {
                 const node = (regionData.availableNodes || []).find(n => n.id === ae.id);
@@ -253,8 +253,8 @@ export class ExploreView extends BaseView {
 
             const isSelected = this.selectedRegionId === regionId;
             const pathWord = availableCount === 1
-                ? (this.t('ui_path') || 'path')
-                : (this.t('ui_paths') || 'paths');
+                ? this.t('explore_uxelm_path_singular')
+                : this.t('explore_uxelm_path_plural');
 
             const item = el('div', {
                 class: ['region-list-item', isSelected ? 'selected' : ''],
@@ -262,8 +262,8 @@ export class ExploreView extends BaseView {
             }, [
                 el('div', { class: 'region-list-name' }, [rName]),
                 el('div', { class: 'region-list-meta' }, [
-                    `${clears} ${this.t('ui_clears') || 'clears'} — ${availableCount} ${pathWord}`,
-                    activeCount > 0 ? ` • ${activeCount} ${this.t('ui_active') || 'active'}` : ''
+                    `${clears} ${this.t('explore_uxelm_clears')} — ${availableCount} ${pathWord}`,
+                    activeCount > 0 ? ` • ${activeCount} ${this.t('explore_uxelm_active')}` : ''
                 ])
             ]);
 
@@ -279,7 +279,7 @@ export class ExploreView extends BaseView {
         if (!this.selectedRegionId) {
             container.appendChild(el('div', { class: 'empty-detail' }, [
                 el('div', { class: 'detail-icon-bg' }, ['🗺️']),
-                el('p', {}, [this.t('ui_select_region') || 'Select a region from the World Map.'])
+                el('p', {}, [this.t('explore_uxelm_select_region')])
             ]));
             return;
         }

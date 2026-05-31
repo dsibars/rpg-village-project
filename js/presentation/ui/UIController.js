@@ -226,7 +226,7 @@ export class UIController {
             const max = state.village.maxStorage || 100;
             const pct = used / max;
             if (pct >= 0.95 && !this._storageWarningShown) {
-                this.showToast(this.t('error_storage_full') || 'Storage is full!', 'error', 4000);
+                this.showToast(this.t('inventory_error_storage_full'), 'error', 4000);
                 this._storageWarningShown = true;
             } else if (pct < 0.8) {
                 this._storageWarningShown = false;
@@ -349,10 +349,10 @@ export class UIController {
                 </div>
                 <div class="modal-actions">
                     <button class="btn btn-secondary" id="modal-btn-cancel">
-                        <span data-i18n="ui_btn_cancel">${this.t('ui_btn_cancel')}</span>
+                        <span data-i18n="shared_uxelm_cancel">${this.t('shared_uxelm_cancel')}</span>
                     </button>
                     <button class="btn btn-danger" id="modal-btn-confirm">
-                        <span data-i18n="ui_btn_confirm">${this.t('ui_btn_confirm')}</span>
+                        <span data-i18n="shared_uxelm_confirm">${this.t('shared_uxelm_confirm')}</span>
                     </button>
                 </div>
             </div>

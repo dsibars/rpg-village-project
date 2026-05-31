@@ -180,7 +180,7 @@ export class VillageView extends BaseView {
         // Worker Roles
         const { available, total } = this.laborPool.update(village.population);
         if (this.elements.laborPoolStatus) {
-            this.elements.laborPoolStatus.textContent = ` (${available} ${this.t('ui_available') || 'Available'} / ${total} ${this.t('ui_total') || 'Total'})`;
+            this.elements.laborPoolStatus.textContent = ` (${available} ${this.t('shared_uxelm_available')} / ${total} ${this.t('shared_uxelm_total')})`;
         }
 
         // Construction Queue

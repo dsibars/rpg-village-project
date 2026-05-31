@@ -31,12 +31,12 @@ export class TrainerModal {
                 el('button', {
                     class: 'btn btn-secondary btn-sm',
                     onClick: () => modal.close()
-                }, [t('ui_btn_close') || 'Close'])
+                }, [t('shared_uxelm_close')])
             ])
         ]);
 
         const modal = BaseModal.show({
-            title: t('trainer_title') || 'Training Grounds',
+            title: t('trainer_uxelm_title'),
             contentElement,
             icon: '💪',
             maxWidth: '480px'
@@ -75,7 +75,7 @@ export class WitchModal {
             const masteryHintEl = dialogue.masteryHints.length > 0
                 ? el('div', {
                     style: { marginTop: '8px', fontSize: '0.8rem', color: 'var(--accent-color)' }
-                }, [t('witch_mastery_detected') || 'Glyph mastery whispers detected...'])
+                }, [t('witch_msg_mastery_detected')])
                 : null;
 
             const contentElement = el('div', { class: 'trainer-dialogue-box witch-dialogue-box' }, [
@@ -111,7 +111,7 @@ export class WitchModal {
                             emit('updateHero', { hero: selectedHero });
                             modalRef.close();
                         }
-                    }, [t('ui_btn_close') || 'Close'])
+                    }, [t('shared_uxelm_close')])
                 ])
             ]);
 
@@ -121,7 +121,7 @@ export class WitchModal {
                 contentArea.appendChild(contentElement);
             } else {
                 modalRef = BaseModal.show({
-                    title: t('witch_title') || "Witch's Hut",
+                    title: t('witch_uxelm_title'),
                     contentElement,
                     icon: '🌙',
                     maxWidth: '520px',
@@ -142,7 +142,7 @@ export class AcademyModal {
         if (!hero) return;
 
         const designList = designs.length === 0
-            ? el('p', { style: { color: 'var(--text-muted)', fontSize: '0.85rem' } }, [t('ui_no_designs') || 'No designs saved yet.'])
+            ? el('p', { style: { color: 'var(--text-muted)', fontSize: '0.85rem' } }, [t('academy_uxelm_no_designs')])
             : el('div', {}, designs.map(d =>
                 el('div', { class: 'academy-design-card' }, [
                     el('strong', {}, [d.name]),
@@ -153,7 +153,7 @@ export class AcademyModal {
         const contentElement = el('div', { class: 'trainer-dialogue-box academy-dialogue-box' }, [
             el('div', { style: { marginBottom: '16px' } }, [
                 el('h4', { style: { fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '8px' } }, [
-                    t('ui_design_library') || 'Design Library'
+                    t('academy_uxelm_design_library')
                 ]),
                 designList
             ]),
@@ -170,12 +170,12 @@ export class AcademyModal {
                 el('button', {
                     class: 'btn btn-secondary btn-sm',
                     onClick: () => modal.close()
-                }, [t('ui_btn_close') || 'Close'])
+                }, [t('shared_uxelm_close')])
             ])
         ]);
 
         const modal = BaseModal.show({
-            title: t('academy_title') || 'Glyph Academy',
+            title: t('academy_uxelm_title'),
             contentElement,
             icon: '📚',
             maxWidth: '540px'
@@ -192,33 +192,33 @@ export class HallOfFameModal {
 
         const statGrid = el('div', { class: 'hall-stat-grid' }, [
             el('div', { class: 'hall-stat' }, [
-                el('span', {}, [t('ui_stats_enemies_defeated') || 'Enemies']),
+                el('span', {}, [t('hall_of_fame_info_stat_enemies')]),
                 el('strong', {}, [String(stats.enemiesDefeated || 0)])
             ]),
             el('div', { class: 'hall-stat' }, [
-                el('span', {}, [t('ui_stats_damage_dealt') || 'Damage']),
+                el('span', {}, [t('hall_of_fame_info_stat_damage')]),
                 el('strong', {}, [String(stats.damageDealt || 0)])
             ]),
             el('div', { class: 'hall-stat' }, [
-                el('span', {}, [t('ui_stats_expeditions') || 'Expeditions']),
+                el('span', {}, [t('hall_of_fame_info_stat_expeditions')]),
                 el('strong', {}, [String(stats.expeditionsCompleted || 0)])
             ]),
             el('div', { class: 'hall-stat' }, [
-                el('span', {}, [t('ui_stats_battles_won') || 'Wins']),
+                el('span', {}, [t('hall_of_fame_info_stat_wins')]),
                 el('strong', {}, [String(stats.battlesWon || 0)])
             ])
         ]);
 
         const titlesEl = titles.length === 0
-            ? el('span', { style: { color: 'var(--text-muted)', fontSize: '0.85rem' } }, [t('ui_no_titles') || 'No titles yet.'])
+            ? el('span', { style: { color: 'var(--text-muted)', fontSize: '0.85rem' } }, [t('hall_of_fame_uxelm_no_titles')])
             : el('div', { class: 'hall-titles' }, titles.map(title =>
-                el('span', { class: 'hall-title-badge' }, [t(title) || title])
+                el('span', { class: 'hall-title-badge' }, [t(title)])
             ));
 
         const contentElement = el('div', { class: 'trainer-dialogue-box hall-dialogue-box' }, [
             el('div', { style: { marginBottom: '16px' } }, [statGrid]),
             el('div', { style: { marginBottom: '16px' } }, [
-                el('h4', { style: { fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '8px' } }, [t('ui_titles') || 'Titles']),
+                el('h4', { style: { fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '8px' } }, [t('hall_of_fame_uxelm_titles')]),
                 titlesEl
             ]),
             el('div', {
@@ -234,12 +234,12 @@ export class HallOfFameModal {
                 el('button', {
                     class: 'btn btn-secondary btn-sm',
                     onClick: () => modal.close()
-                }, [t('ui_btn_close') || 'Close'])
+                }, [t('shared_uxelm_close')])
             ])
         ]);
 
         const modal = BaseModal.show({
-            title: t('hall_of_fame_title') || 'Hall of Fame',
+            title: t('hall_of_fame_uxelm_title'),
             contentElement,
             icon: '🏆',
             maxWidth: '480px'

@@ -135,7 +135,7 @@ export class CodexView extends BaseView {
             container.innerHTML = `
                 <div class="empty-detail">
                     <div class="detail-icon-bg">📖</div>
-                    <p>${this.t('ui_codex_intro')}</p>
+                    <p>${this.t('codex_uxelm_intro')}</p>
                 </div>
             `;
             return;
@@ -153,7 +153,7 @@ export class CodexView extends BaseView {
                     <div class="codex-detail-title-group">
                         <h2>${this.t(feature.nameKey)}</h2>
                         <span class="codex-status-badge ${unlocked ? 'unlocked' : 'locked'}">
-                            ${unlocked ? this.t('ui_unlocked') : this.t('ui_locked')}
+                            ${unlocked ? this.t('shared_uxelm_unlocked') : this.t('shared_uxelm_locked')}
                         </span>
                     </div>
                 </div>
@@ -162,7 +162,7 @@ export class CodexView extends BaseView {
         if (!unlocked) {
             detailsHtml += `
                 <div class="codex-requirement-card">
-                    <h4>${this.t('ui_requirements')}</h4>
+                    <h4>${this.t('shared_uxelm_requirements')}</h4>
                     <p class="codex-requirement-text">${this.t(feature.unlockHintKey)}</p>
                 </div>
                 <div class="codex-explanation-section">

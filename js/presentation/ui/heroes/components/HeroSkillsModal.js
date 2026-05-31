@@ -5,24 +5,24 @@ import { TECHNIQUE_FAMILIES } from '../../../../engine/shared/data/CombatData.js
 function getFamilyEffectLabel(family, tier = 1, t) {
     switch (family.id) {
         case 'single_strike':
-            return t('effect_basic_attack') || 'Basic attack';
+            return t('heroes_info_effect_basic_attack');
         case 'multiple_attack': {
             const hits = Math.max(1, tier);
             const perHit = Math.max(0.4, family.baseMult - family.hitDecay * Math.max(0, tier - 2));
-            return `${hits} ${t('effect_hits') || 'hits'} · ${(hits * perHit).toFixed(1)}×`;
+            return `${hits} ${t('heroes_info_effect_hits')} · ${(hits * perHit).toFixed(1)}×`;
         }
         case 'power_strike': {
             const mult = family.baseMult + family.growth * (tier - 1);
-            return `${mult.toFixed(1)}× ${t('effect_power') || 'power'}`;
+            return `${mult.toFixed(1)}× ${t('heroes_info_effect_power')}`;
         }
         case 'cleave':
-            return t('effect_cleave') || 'Cleave';
+            return t('heroes_info_effect_cleave');
         case 'shield_bash':
-            return t('effect_stun') || 'Stun';
+            return t('heroes_info_effect_stun');
         case 'poison_strike':
-            return t('effect_poison') || 'Poison';
+            return t('heroes_info_effect_poison');
         case 'plunder':
-            return t('effect_steal') || 'Steal';
+            return t('heroes_info_effect_steal');
         default:
             return '';
     }
@@ -76,14 +76,14 @@ export class HeroSkillsModal {
             const nextMilestone = milestones.find(m => m > currentHero.level);
             let alertText = '';
             if (currentHero.skillPoints > 0 && canManageSkills) {
-                alertText = t('ui_skill_points').replace('{amount}', currentHero.skillPoints) + ' · ' + (t('ui_spend_to_unlock') || 'Spend to unlock a new technique');
+                alertText = t('heroes_uxelm_skill_point').replace('{amount}', currentHero.skillPoints) + ' · ' + t('heroes_uxelm_skill_spend_hint');
             } else if (nextMilestone) {
-                alertText = t('ui_next_skill_point').replace('{level}', nextMilestone);
+                alertText = t('heroes_uxelm_skill_next_milestone').replace('{level}', nextMilestone);
             } else {
-                alertText = t('ui_max_families') || 'All techniques unlocked';
+                alertText = t('heroes_uxelm_skill_max_families');
             }
             if (!canManageSkills) {
-                alertText += ' (' + (t('ui_busy') || 'Busy') + ')';
+                alertText += ' (' + t('heroes_uxelm_skill_busy') + ')';
             }
 
             alertEl.innerHTML = '';
@@ -112,11 +112,11 @@ export class HeroSkillsModal {
                     'data-id': familyId
                 }, [
                     el('div', { class: 'skill-info', style: { flex: '1', paddingRight: '15px' } }, [
-                        el('span', { class: 'skill-name' }, [`${t('family_' + familyId)}${isBodyInscribed ? ' · ✦' : ''}`]),
+                        el('span', { class: 'skill-name' }, [`${t('heroes_info_family_' + familyId)}${isBodyInscribed ? ' · ✦' : ''}`]),
                         el('span', { class: 'skill-meta' }, [`${effectLabel ? effectLabel + ' · ' : ''}${staCost} STA`]),
                         el('div', { class: 'skill-tier-progress-container', style: { marginTop: '6px', fontSize: '0.75rem', color: 'var(--text-secondary)' } }, [
                             el('div', { style: { display: 'flex', justifyContent: 'space-between', marginBottom: '2px' } }, [
-                                el('span', {}, [t('ui_tier_progress') || 'Tier Progress'])
+                                el('span', {}, [t('heroes_uxelm_skill_tier_progress')])
                             ]),
                             el('div', { class: `skill-tier-bar ${flashClass}`, style: { height: '6px', background: 'rgba(255,255,255,0.1)', borderRadius: '3px', overflow: 'hidden', position: 'relative' } }, [
                                 el('div', { style: { width: `${tierProgress}%`, height: '100%', background: 'var(--accent-color)', borderRadius: '3px', transition: 'width 0.3s ease' } })
@@ -136,15 +136,15 @@ export class HeroSkillsModal {
                     'data-id': 'divider_locked',
                     style: { margin: '12px 0', paddingTop: '8px', borderTop: '1px dashed var(--glass-border)' }
                 }, [
-                    el('span', { style: { fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' } }, [t('ui_locked_families') || 'Locked'])
+                    el('span', { style: { fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' } }, [t('heroes_uxelm_skill_locked_section')])
                 ]));
 
                 lockedList.forEach(family => {
                     const familyId = family.id;
                     const canLearn = canManageSkills && currentHero.skillPoints > 0 && knownFamilies.length < 6;
                     const actionNode = canLearn
-                        ? el('button', { class: 'btn btn-primary btn-sm btn-learn-family', onClick: () => onLearnFamily(familyId) }, [t('ui_learn') || 'Learn'])
-                        : el('span', { class: 'skill-locked-label' }, [t('ui_locked') || 'Locked']);
+                        ? el('button', { class: 'btn btn-primary btn-sm btn-learn-family', onClick: () => onLearnFamily(familyId) }, [t('heroes_uxelm_skill_learn')])
+                        : el('span', { class: 'skill-locked-label' }, [t('shared_uxelm_locked')]);
 
                     const lockedEffect = getFamilyEffectLabel(family, 1, t);
                     const row = el('div', {
@@ -152,7 +152,7 @@ export class HeroSkillsModal {
                         'data-id': familyId
                     }, [
                         el('div', { class: 'skill-info' }, [
-                            el('span', { class: 'skill-name' }, [`🔒 ${t('family_' + familyId)}`]),
+                            el('span', { class: 'skill-name' }, [`🔒 ${t('heroes_info_family_' + familyId)}`]),
                             el('span', { class: 'skill-meta' }, [`${lockedEffect ? lockedEffect + ' · ' : ''}${family.staminaCostBase} STA`])
                         ]),
                         el('div', { class: 'skill-actions' }, [actionNode])
@@ -172,7 +172,7 @@ export class HeroSkillsModal {
         render(hero);
 
         const modal = BaseModal.show({
-            title: t('ui_hero_skills_title').replace('{name}', hero.name) || `${hero.name}'s Skills`,
+            title: t('heroes_uxelm_skill_title').replace('{name}', hero.name),
             contentElement,
             icon: '⚔️',
             maxWidth: '520px',

@@ -252,7 +252,7 @@ test('CombatView DOM Integration Tests', async (t) => {
 
         // Verify result text
         const title = overlay.querySelector('#combat-control-panel h3');
-        assert.strictEqual(title.textContent, 'victory');
+        assert.strictEqual(title.textContent, 'shared_uxelm_victory');
 
         // Click close
         const closeBtn = overlay.querySelector('#btn-resolve-battle');
@@ -392,7 +392,7 @@ test('CombatView DOM Integration Tests', async (t) => {
 
         assert.strictEqual(mainScreen.style.display, 'none');
         assert.strictEqual(messageScreen.style.display, '');
-        assert.strictEqual(messageScreen.textContent, 'ui_auto_combat_running');
+        assert.strictEqual(messageScreen.textContent, 'shared_uxelm_auto_combat_running');
 
         // Battle over → battle end screen
         battle.isOver = true;

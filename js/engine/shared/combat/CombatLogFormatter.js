@@ -15,52 +15,70 @@ export class CombatLogFormatter {
     format(event) {
         if (!event || typeof event !== 'object') return String(event);
 
-        switch (event.type) {
+        const ev = { ...event };
+        if (ev.actorName && !ev.actorIsHero && ev.actorTemplateId) {
+            ev.actorName = this.translateEnemyName({
+                name: ev.actorName,
+                templateId: ev.actorTemplateId,
+                isElite: ev.actorIsElite,
+                eliteTier: ev.actorEliteTier
+            });
+        }
+        if (ev.targetName && !ev.targetIsHero && ev.targetTemplateId) {
+            ev.targetName = this.translateEnemyName({
+                name: ev.targetName,
+                templateId: ev.targetTemplateId,
+                isElite: ev.targetIsElite,
+                eliteTier: ev.targetEliteTier
+            });
+        }
+
+        switch (ev.type) {
             case 'DAMAGE':
-                return this._formatDamage(event);
+                return this._formatDamage(ev);
             case 'HEAL':
-                return this._formatHeal(event);
+                return this._formatHeal(ev);
             case 'VAMP':
-                return this._formatVamp(event);
+                return this._formatVamp(ev);
             case 'TRAIT_REGEN':
-                return this._formatTraitRegen(event);
+                return this._formatTraitRegen(ev);
             case 'STATUS_TICK':
-                return this._formatStatusTick(event);
+                return this._formatStatusTick(ev);
             case 'STATUS_EXPIRED':
-                return this._formatStatusExpired(event);
+                return this._formatStatusExpired(ev);
             case 'USE_CONSUMABLE':
-                return this._formatUseConsumable(event);
+                return this._formatUseConsumable(ev);
             case 'SPELL_DAMAGE':
-                return this._formatSpellDamage(event);
+                return this._formatSpellDamage(ev);
             case 'MP_RESTORE':
-                return this._formatMpRestore(event);
+                return this._formatMpRestore(ev);
             case 'STAMINA_RESTORE':
-                return this._formatStaminaRestore(event);
+                return this._formatStaminaRestore(ev);
             case 'DEFEND':
-                return this.i18n.t('log_defend', { actor: event.actorName });
+                return this.i18n.t('combat_log_defend', { actor: ev.actorName });
             case 'FLEE_SUCCESS':
-                return this.i18n.t('log_flee_success', { actor: event.actorName });
+                return this.i18n.t('combat_log_flee_success', { actor: ev.actorName });
             case 'FLEE_FAIL':
-                return this.i18n.t('log_flee_fail', { actor: event.actorName });
+                return this.i18n.t('combat_log_flee_fail', { actor: ev.actorName });
             case 'BUFF_ATK':
             case 'BUFF_DEF':
             case 'BUFF_SPD':
             case 'BUFF_CRIT':
-                return this._formatBuff(event);
+                return this._formatBuff(ev);
             default:
-                return `[${event.type}] ${JSON.stringify(event)}`;
+                return `[${ev.type}] ${JSON.stringify(ev)}`;
         }
     }
 
     _formatDamage(event) {
         if (event.isMiss) {
-            return this.i18n.t('log_miss', {
+            return this.i18n.t('combat_log_miss', {
                 attacker: event.actorName,
                 target: event.targetName
             });
         }
 
-        let msg = this.i18n.t('log_attack', {
+        let msg = this.i18n.t('combat_log_attack', {
             attacker: event.actorName,
             target: event.targetName,
             damage: event.amount
@@ -71,14 +89,14 @@ export class CombatLogFormatter {
         }
 
         if (event.targetDefeated) {
-            msg += ` ${this.i18n.t('log_target_defeated', { target: event.targetName })}`;
+            msg += ` ${this.i18n.t('combat_log_target_defeated', { target: event.targetName })}`;
         }
 
         return msg;
     }
 
     _formatHeal(event) {
-        return this.i18n.t('log_heal', {
+        return this.i18n.t('combat_log_heal', {
             attacker: event.actorName,
             target: event.targetName,
             amount: event.amount
@@ -86,22 +104,22 @@ export class CombatLogFormatter {
     }
 
     _formatVamp(event) {
-        return this.i18n.t('log_vamp', {
+        return this.i18n.t('combat_log_vamp', {
             actor: event.actorName,
             amount: event.amount
         });
     }
 
     _formatTraitRegen(event) {
-        return this.i18n.t('log_regen', {
+        return this.i18n.t('combat_log_regen', {
             target: event.targetName,
             amount: event.amount
         });
     }
 
     _formatStatusTick(event) {
-        const key = event.effectType === 'poison' ? 'log_poison'
-            : event.effectType === 'burn' ? 'log_burn'
+        const key = event.effectType === 'poison' ? 'combat_log_poison'
+            : event.effectType === 'burn' ? 'combat_log_burn'
             : null;
 
         if (key) {
@@ -115,7 +133,7 @@ export class CombatLogFormatter {
     }
 
     _formatStatusExpired(event) {
-        return this.i18n.t('log_status_expired', {
+        return this.i18n.t('combat_log_status_expired', {
             target: event.targetName,
             effect: event.effectType
         });
@@ -125,7 +143,7 @@ export class CombatLogFormatter {
         const statLabel = event.healType === 'HEAL_MP' ? 'MP' : 'HP';
         const itemName = this.i18n.t(event.consumableId) || event.consumableId;
 
-        return this.i18n.t('log_use_consumable', {
+        return this.i18n.t('combat_log_use_consumable', {
             attacker: event.actorName,
             item: itemName,
             target: event.targetName,
@@ -135,20 +153,20 @@ export class CombatLogFormatter {
     }
 
     _formatSpellDamage(event) {
-        let msg = this.i18n.t('log_spell_damage', {
+        let msg = this.i18n.t('combat_log_spell_damage', {
             attacker: event.actorName,
             spell: event.spellName,
             target: event.targetName,
             damage: event.amount
         });
         if (event.targetDefeated) {
-            msg += ` ${this.i18n.t('log_target_defeated', { target: event.targetName })}`;
+            msg += ` ${this.i18n.t('combat_log_target_defeated', { target: event.targetName })}`;
         }
         return msg;
     }
 
     _formatMpRestore(event) {
-        return this.i18n.t('log_mp_restore', {
+        return this.i18n.t('combat_log_mp_restore', {
             attacker: event.actorName,
             target: event.targetName,
             amount: event.amount
@@ -156,7 +174,7 @@ export class CombatLogFormatter {
     }
 
     _formatStaminaRestore(event) {
-        return this.i18n.t('log_stamina_restore', {
+        return this.i18n.t('combat_log_stamina_restore', {
             attacker: event.actorName,
             target: event.targetName,
             amount: event.amount
@@ -165,16 +183,34 @@ export class CombatLogFormatter {
 
     _formatBuff(event) {
         const buffKeyMap = {
-            BUFF_ATK: 'log_buff_atk',
-            BUFF_DEF: 'log_buff_def',
-            BUFF_SPD: 'log_buff_spd',
-            BUFF_CRIT: 'log_buff_crit'
+            BUFF_ATK: 'combat_log_buff_atk',
+            BUFF_DEF: 'combat_log_buff_def',
+            BUFF_SPD: 'combat_log_buff_spd',
+            BUFF_CRIT: 'combat_log_buff_crit'
         };
-        const key = buffKeyMap[event.type] || 'log_buff_generic';
+        const key = buffKeyMap[event.type] || 'combat_log_buff_generic';
         return this.i18n.t(key, {
             attacker: event.actorName,
             target: event.targetName,
             amount: event.amount
         });
+    }
+
+    translateEnemyName(actor) {
+        if (!actor) return '';
+        if (!actor.templateId) return actor.name;
+        const translationKey = 'combat_info_' + actor.templateId;
+        const baseName = this.i18n.t(translationKey);
+        if (baseName === translationKey) return actor.name;
+        if (actor.isElite) {
+            const prefixKey = 'combat_info_elite_tier_' + actor.eliteTier;
+            const prefix = this.i18n.t(prefixKey);
+            if (prefix !== prefixKey) {
+                return this.i18n.t('combat_info_elite_format', { prefix, name: baseName });
+            }
+            const defaultPrefixes = ['Fierce', 'Corrupted', 'Ancient', 'Legendary'];
+            return `${defaultPrefixes[actor.eliteTier] || 'Fierce'} ${baseName}`;
+        }
+        return baseName;
     }
 }

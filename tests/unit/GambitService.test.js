@@ -133,14 +133,14 @@ test('GambitService: validateGambit rejects invalid condition', () => {
     });
     const result = GambitService.validateGambit(gambit);
     assert.strictEqual(result.valid, false);
-    assert.strictEqual(result.error, 'error_invalid_gambit_condition');
+    assert.strictEqual(result.error, 'gambit_error_condition_invalid');
 });
 
 test('GambitService: validateGambit rejects missing skill payload', () => {
     const gambit = makeGambit({ action: { type: 'skill', payload: null } });
     const result = GambitService.validateGambit(gambit);
     assert.strictEqual(result.valid, false);
-    assert.strictEqual(result.error, 'error_invalid_skill');
+    assert.strictEqual(result.error, 'gambit_error_skill_invalid');
 });
 
 test('GambitService: self_mp_below matches when MP is low', () => {

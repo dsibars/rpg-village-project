@@ -78,7 +78,7 @@ test('DailyObjectivesService: pickObjectives fails with wrong count', () => {
     const choices = service.getState().pendingChoices;
     const result = service.pickObjectives([choices[0].id]);
     assert.strictEqual(result.success, false);
-    assert.strictEqual(result.error, 'error_invalid_selection_count');
+    assert.strictEqual(result.error, 'daily_error_selection_count_invalid');
 });
 
 test('DailyObjectivesService: pickObjectives fails with invalid ids', () => {
@@ -88,7 +88,7 @@ test('DailyObjectivesService: pickObjectives fails with invalid ids', () => {
 
     const result = service.pickObjectives(['fake_id_1', 'fake_id_2']);
     assert.strictEqual(result.success, false);
-    assert.strictEqual(result.error, 'error_invalid_objective_selection');
+    assert.strictEqual(result.error, 'daily_error_objective_selection_invalid');
 });
 
 test('DailyObjectivesService: track increments progress', () => {
@@ -210,7 +210,7 @@ test('DailyObjectivesService: claimReward fails if not completed', () => {
     const obj = service.getObjectives()[0];
     const result = service.claimReward(obj.id);
     assert.strictEqual(result.success, false);
-    assert.strictEqual(result.error, 'error_reward_not_available');
+    assert.strictEqual(result.error, 'daily_error_reward_not_available');
 });
 
 test('DailyObjectivesService: claimReward fails if already claimed', () => {
@@ -227,7 +227,7 @@ test('DailyObjectivesService: claimReward fails if already claimed', () => {
 
     const result = service.claimReward(obj.id);
     assert.strictEqual(result.success, false);
-    assert.strictEqual(result.error, 'error_reward_not_available');
+    assert.strictEqual(result.error, 'daily_error_reward_not_available');
 });
 
 test('DailyObjectivesService: getState reflects completion', () => {

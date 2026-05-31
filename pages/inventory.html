@@ -1,15 +1,15 @@
 <section id="inventory-view" class="domain-view">
     <div class="category-sub-nav">
-        <button class="sub-nav-tab" data-subview="buildings" data-i18n="nav_buildings">Buildings</button>
-        <button class="sub-nav-tab" data-subview="shop" data-i18n="nav_shop">Shop</button>
-        <button class="sub-nav-tab" data-subview="forge" data-i18n="nav_forge">Forge</button>
-        <button class="sub-nav-tab active" data-subview="inventory" data-i18n="nav_inventory">Inventory</button>
-        <button class="sub-nav-tab" data-subview="settings" data-i18n="nav_settings">Settings</button>
+        <button class="sub-nav-tab" data-subview="buildings" data-i18n="shared_uxelm_nav_buildings"></button>
+        <button class="sub-nav-tab" data-subview="shop" data-i18n="shared_uxelm_nav_shop"></button>
+        <button class="sub-nav-tab" data-subview="forge" data-i18n="shared_uxelm_nav_forge"></button>
+        <button class="sub-nav-tab active" data-subview="inventory" data-i18n="shared_uxelm_nav_inventory"></button>
+        <button class="sub-nav-tab" data-subview="settings" data-i18n="shared_uxelm_nav_settings"></button>
     </div>
     <!-- Storage Summary Widget -->
     <div class="card storage-summary" style="margin-bottom: var(--spacing-md);">
         <div class="list-item-header">
-            <h3 data-i18n="inv_storage">Storage</h3>
+            <h3 data-i18n="shared_uxelm_storage"></h3>
             <span id="inv-storage-text" class="value">-- / --</span>
         </div>
         <div class="progress-container">
@@ -22,11 +22,11 @@
         <aside class="master-pane card">
             <!-- Category Tabs / Filters -->
             <div class="inventory-filters">
-                <button class="filter-btn active" data-filter="all" data-i18n="ui_all">All</button>
-                <button class="filter-btn" data-filter="materials" data-i18n="ui_materials">Materials</button>
-                <button class="filter-btn" data-filter="food" data-i18n="ui_food">Food</button>
-                <button class="filter-btn" data-filter="consumables" data-i18n="ui_consumables">Consumables</button>
-                <button class="filter-btn" data-filter="equipment" data-i18n="ui_equipment">Equipment</button>
+                <button class="filter-btn active" data-filter="all" data-i18n="inventory_uxelm_filter_all"></button>
+                <button class="filter-btn" data-filter="materials" data-i18n="inventory_uxelm_filter_materials"></button>
+                <button class="filter-btn" data-filter="food" data-i18n="inventory_uxelm_filter_food"></button>
+                <button class="filter-btn" data-filter="consumables" data-i18n="inventory_uxelm_filter_consumables"></button>
+                <button class="filter-btn" data-filter="equipment" data-i18n="inventory_uxelm_filter_equipment"></button>
             </div>
             
             <div id="inventory-items-container">
@@ -39,7 +39,7 @@
             <div id="inventory-detail-content">
                 <div class="empty-detail">
                     <div class="detail-icon-bg">🎒</div>
-                    <p data-i18n="ui_select_item">Select an item to view details.</p>
+                    <p data-i18n="inventory_uxelm_select_item"></p>
                 </div>
             </div>
         </main>

@@ -23,7 +23,13 @@ export class I18nService {
 
     t(key, params = {}) {
         const langData = this.translations[this.currentLang];
-        let text = langData[key] || this.translations['en'][key] || key;
+        let text = langData[key];
+
+        // Missing keys show as raw key.
+        // No English fallback for non-English languages (diagnostic mode).
+        if (text === undefined) {
+            text = key;
+        }
 
         // Simple param replacement: {name} -> params.name
         Object.keys(params).forEach(p => {

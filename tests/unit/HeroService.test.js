@@ -48,7 +48,7 @@ test('HeroService: remove hero', () => {
 
     const missing = service.remove('nonexistent');
     assert.strictEqual(missing.success, false);
-    assert.strictEqual(missing.error, 'error_hero_not_found');
+    assert.strictEqual(missing.error, 'heroes_error_hero_not_found');
 });
 
 test('HeroService: increase stat success', () => {
@@ -73,7 +73,7 @@ test('HeroService: increase stat fails without points', () => {
 
     const result = service.increaseHeroStat(added.data.id, 'baseMaxHp');
     assert.strictEqual(result.success, false);
-    assert.strictEqual(result.error, 'error_no_stat_points');
+    assert.strictEqual(result.error, 'heroes_error_stat_point_none');
 });
 
 test('HeroService: increase stat fails for unknown hero', () => {
@@ -82,7 +82,7 @@ test('HeroService: increase stat fails for unknown hero', () => {
 
     const result = service.increaseHeroStat('nonexistent', 'baseMaxHp');
     assert.strictEqual(result.success, false);
-    assert.strictEqual(result.error, 'error_hero_not_found');
+    assert.strictEqual(result.error, 'heroes_error_hero_not_found');
 });
 
 test('HeroService: equip and unequip item', () => {
@@ -134,7 +134,7 @@ test('HeroService: equip fails with wrong slot', () => {
 
     const result = service.equipItem(added.data.id, 'head', 'weapon_001');
     assert.strictEqual(result.success, false);
-    assert.strictEqual(result.error, 'error_invalid_slot');
+    assert.strictEqual(result.error, 'heroes_error_slot_invalid');
 });
 
 test('HeroService: equip fails when item not found', () => {
@@ -144,7 +144,7 @@ test('HeroService: equip fails when item not found', () => {
 
     const result = service.equipItem(added.data.id, 'leftHand', 'nonexistent');
     assert.strictEqual(result.success, false);
-    assert.strictEqual(result.error, 'error_item_not_found');
+    assert.strictEqual(result.error, 'heroes_error_item_not_found');
 });
 
 test('HeroService: unequip fails when slot empty', () => {
@@ -154,7 +154,7 @@ test('HeroService: unequip fails when slot empty', () => {
 
     const result = service.unequipItem(added.data.id, 'leftHand');
     assert.strictEqual(result.success, false);
-    assert.strictEqual(result.error, 'error_slot_empty');
+    assert.strictEqual(result.error, 'heroes_error_slot_empty');
 });
 
 test('HeroService: auto-unequip when equipping to occupied slot', () => {
@@ -203,7 +203,7 @@ test('HeroService: learn family fails without skill points', () => {
 
     const result = service.learnHeroFamily(added.data.id, 'power_strike');
     assert.strictEqual(result.success, false);
-    assert.strictEqual(result.error, 'error_no_skill_points');
+    assert.strictEqual(result.error, 'heroes_error_skill_point_none');
 });
 
 test('HeroService: learn family fails if already known', () => {
@@ -214,7 +214,7 @@ test('HeroService: learn family fails if already known', () => {
 
     const result = service.learnHeroFamily(heroId, 'single_strike');
     assert.strictEqual(result.success, false);
-    assert.strictEqual(result.error, 'error_family_already_known');
+    assert.strictEqual(result.error, 'heroes_error_family_already_known');
 });
 
 test('HeroService: learn family fails at max families', () => {
@@ -228,7 +228,7 @@ test('HeroService: learn family fails at max families', () => {
 
     const result = service.learnHeroFamily(added.data.id, 'plunder');
     assert.strictEqual(result.success, false);
-    assert.strictEqual(result.error, 'error_max_families_reached');
+    assert.strictEqual(result.error, 'heroes_error_family_max_reached');
 });
 
 test('HeroService: skill points increase at milestones', () => {
@@ -370,7 +370,7 @@ test('HeroService: body inscription requires 12 skill tier points and magic tier
 
     const result = service.inscribeHeroBodyCircle(added.data.id, ['glyph_fire'], {});
     assert.strictEqual(result.success, false);
-    assert.strictEqual(result.error, 'error_body_inscription_not_enough_skills');
+    assert.strictEqual(result.error, 'heroes_error_inscription_skill_not_enough');
 });
 
 test('HeroService: body inscription requires magic tier 7', () => {
@@ -385,7 +385,7 @@ test('HeroService: body inscription requires magic tier 7', () => {
 
     const result = service.inscribeHeroBodyCircle(added.data.id, ['glyph_fire'], {});
     assert.strictEqual(result.success, false);
-    assert.strictEqual(result.error, 'error_body_inscription_not_enough_magic');
+    assert.strictEqual(result.error, 'heroes_error_inscription_magic_not_enough');
 });
 
 test('HeroService: body inscription succeeds when requirements met', () => {
@@ -418,7 +418,7 @@ test('HeroService: body inscription rejects unknown glyphs', () => {
     const glyphIds = ['glyph_fire', 'glyph_potentiate', 'glyph_focus', 'glyph_extend', 'glyph_multi', 'glyph_pierce', 'glyph_slumber'];
     const result = service.inscribeHeroBodyCircle(added.data.id, glyphIds, {});
     assert.strictEqual(result.success, false);
-    assert.strictEqual(result.error, 'error_glyph_not_known');
+    assert.strictEqual(result.error, 'heroes_error_glyph_not_known');
 });
 
 test('HeroService: body inscription requires a core glyph', () => {
@@ -434,7 +434,7 @@ test('HeroService: body inscription requires a core glyph', () => {
     const glyphIds = ['glyph_potentiate', 'glyph_focus', 'glyph_extend', 'glyph_multi', 'glyph_pierce', 'glyph_venom', 'glyph_slumber'];
     const result = service.inscribeHeroBodyCircle(added.data.id, glyphIds, {});
     assert.strictEqual(result.success, false);
-    assert.strictEqual(result.error, 'error_no_core_glyph');
+    assert.strictEqual(result.error, 'heroes_error_glyph_core_none');
 });
 
 test('HeroService: body inscription rejects under-filled circle', () => {
@@ -449,7 +449,7 @@ test('HeroService: body inscription rejects under-filled circle', () => {
 
     const result = service.inscribeHeroBodyCircle(added.data.id, ['glyph_fire', 'glyph_potentiate'], {});
     assert.strictEqual(result.success, false);
-    assert.strictEqual(result.error, 'error_body_circle_must_be_7');
+    assert.strictEqual(result.error, 'heroes_error_body_circle_size_invalid');
 });
 
 test('HeroService: body inscription rejects over-filled circle', () => {
@@ -465,7 +465,7 @@ test('HeroService: body inscription rejects over-filled circle', () => {
     const glyphIds = ['glyph_fire', 'glyph_potentiate', 'glyph_focus', 'glyph_extend', 'glyph_multi', 'glyph_pierce', 'glyph_venom', 'glyph_slumber'];
     const result = service.inscribeHeroBodyCircle(added.data.id, glyphIds, {});
     assert.strictEqual(result.success, false);
-    assert.strictEqual(result.error, 'error_body_circle_must_be_7');
+    assert.strictEqual(result.error, 'heroes_error_body_circle_size_invalid');
 });
 
 test('HeroService: erase body circle clears inscription', () => {
@@ -496,7 +496,7 @@ test('HeroService: erase body circle fails when nothing inscribed', () => {
 
     const result = service.eraseHeroBodyCircle(added.data.id);
     assert.strictEqual(result.success, false);
-    assert.strictEqual(result.error, 'error_not_inscribed');
+    assert.strictEqual(result.error, 'heroes_error_inscription_none');
 });
 
 
@@ -523,7 +523,7 @@ test('HeroService: gambit limit is 12', () => {
 
     const result = service.addHeroGambit(added.data.id, { id: 'g13', condition: 'always', action: 'use_skill', skillId: 'basic_attack', enabled: true });
     assert.strictEqual(result.success, false);
-    assert.strictEqual(result.error, 'error_gambit_limit_reached');
+    assert.strictEqual(result.error, 'heroes_error_gambit_limit_reached');
 });
 
 test('HeroService: remove gambit from hero', () => {
@@ -576,7 +576,7 @@ test('HeroService: move gambit fails at boundaries', () => {
 
     const result = service.moveHeroGambit(added.data.id, 'g1', -1);
     assert.strictEqual(result.success, false);
-    assert.strictEqual(result.error, 'error_gambit_cannot_move');
+    assert.strictEqual(result.error, 'heroes_error_gambit_move_invalid');
 });
 
 test('HeroService: duplicate gambit id rejected', () => {
@@ -588,5 +588,5 @@ test('HeroService: duplicate gambit id rejected', () => {
 
     const result = service.addHeroGambit(added.data.id, { id: 'g1', condition: 'always', action: 'use_skill', skillId: 'basic_attack', enabled: true });
     assert.strictEqual(result.success, false);
-    assert.strictEqual(result.error, 'error_gambit_duplicate_id');
+    assert.strictEqual(result.error, 'heroes_error_gambit_id_duplicate');
 });

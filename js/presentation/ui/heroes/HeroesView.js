@@ -166,10 +166,10 @@ export class HeroesView extends BaseView {
         const canAfford = (state.village?.gold || 0) >= cost;
 
         btn.disabled = !canAfford;
-        btn.textContent = `${this.t('ui_recruit') || 'Recruit'} (${cost}g)`;
+        btn.textContent = `${this.t('heroes_uxelm_recruit')} (${cost}g)`;
         btn.title = canAfford
-            ? `${this.t('ui_recruit') || 'Recruit'} ${this.t('ui_hero') || 'Hero'} (${cost}g)`
-            : this.t('error_not_enough_gold');
+            ? `${this.t('heroes_uxelm_recruit')} ${this.t('shared_uxelm_hero')} (${cost}g)`
+            : this.t('village_error_gold_not_enough');
     }
 
     renderHeroesList(heroes) {

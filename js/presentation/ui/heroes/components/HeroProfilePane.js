@@ -1,13 +1,13 @@
 import { el } from '../../shared/utils/DOMUtils.js';
 
 const STAT_LABELS = {
-    hp: 'ui_stats_hp',
-    mp: 'ui_stats_mp',
-    stamina: 'ui_stats_stamina',
-    strength: 'ui_stats_power',
-    speed: 'ui_stats_speed',
-    defense: 'ui_stats_defense',
-    magicPower: 'ui_stats_magic'
+    hp: 'heroes_info_stat_hp',
+    mp: 'heroes_info_stat_mp',
+    stamina: 'heroes_info_stat_stamina',
+    strength: 'heroes_info_stat_strength',
+    speed: 'heroes_info_stat_speed',
+    defense: 'heroes_info_stat_defense',
+    magicPower: 'heroes_info_stat_magic_power'
 };
 
 export function createHeroProfilePane({
@@ -49,15 +49,15 @@ export function createHeroProfilePane({
     skillAlertRef.append(skillAlertStrongRef, skillAlertSuffixRef);
 
     // Quick-access buttons
-    const trainerBtn = el('button', { class: 'btn btn-secondary btn-sm', onClick: onOpenTrainer }, ['💪 ' + (t('trainer_title') || 'Training Grounds')]);
-    const magicCircleBtn = el('button', { class: 'btn btn-secondary btn-sm', onClick: onOpenMagicCircle }, ['🔮 ' + (t('magic_circle_title') || 'Magic Circle')]);
-    const witchBtn = el('button', { class: 'btn btn-secondary btn-sm', onClick: onOpenWitch }, ['🌙 ' + (t('witch_title') || 'Witch\'s Hut')]);
-    const academyBtn = el('button', { class: 'btn btn-secondary btn-sm', onClick: onOpenAcademy }, ['📚 ' + (t('academy_title') || 'Glyph Academy')]);
-    const hallBtn = el('button', { class: 'btn btn-secondary btn-sm', onClick: onOpenHall }, ['🏆 ' + (t('hall_of_fame_title') || 'Hall of Fame')]);
-    const inscribeBtn = el('button', { class: 'btn btn-secondary btn-sm', onClick: onOpenInscribe }, ['✦ ' + (t('body_inscription_title') || 'Body Inscription')]);
-    const gambitBtn = el('button', { class: 'btn btn-secondary btn-sm', onClick: onOpenGambits }, ['🎲 ' + (t('gambit_title') || 'Gambits')]);
-    const equipmentBtn = el('button', { class: 'btn btn-secondary btn-sm', onClick: onOpenEquipment }, ['🛡️ ' + (t('ui_equipment') || 'Equipment')]);
-    const skillsBtn = el('button', { class: 'btn btn-secondary btn-sm', onClick: onOpenSkills }, ['⚔️ ' + (t('ui_skills') || 'Skills')]);
+    const trainerBtn = el('button', { class: 'btn btn-secondary btn-sm', onClick: onOpenTrainer }, ['💪 ' + t('trainer_uxelm_title')]);
+    const magicCircleBtn = el('button', { class: 'btn btn-secondary btn-sm', onClick: onOpenMagicCircle }, ['🔮 ' + t('magic_circle_uxelm_title')]);
+    const witchBtn = el('button', { class: 'btn btn-secondary btn-sm', onClick: onOpenWitch }, ['🌙 ' + t('witch_uxelm_title')]);
+    const academyBtn = el('button', { class: 'btn btn-secondary btn-sm', onClick: onOpenAcademy }, ['📚 ' + t('academy_uxelm_title')]);
+    const hallBtn = el('button', { class: 'btn btn-secondary btn-sm', onClick: onOpenHall }, ['🏆 ' + t('hall_of_fame_uxelm_title')]);
+    const inscribeBtn = el('button', { class: 'btn btn-secondary btn-sm', onClick: onOpenInscribe }, ['✦ ' + t('heroes_uxelm_inscription_title')]);
+    const gambitBtn = el('button', { class: 'btn btn-secondary btn-sm', onClick: onOpenGambits }, ['🎲 ' + t('gambit_uxelm_title')]);
+    const equipmentBtn = el('button', { class: 'btn btn-secondary btn-sm', onClick: onOpenEquipment }, ['🛡️ ' + t('inventory_uxelm_equipment')]);
+    const skillsBtn = el('button', { class: 'btn btn-secondary btn-sm', onClick: onOpenSkills }, ['⚔️ ' + t('heroes_uxelm_skills')]);
 
     const buttonsContainer = el('div', { class: 'hero-quick-links' }, [
         trainerBtn, magicCircleBtn, witchBtn, academyBtn, hallBtn, inscribeBtn, gambitBtn, equipmentBtn, skillsBtn
@@ -67,7 +67,7 @@ export function createHeroProfilePane({
     const statsGridRef = el('div', { class: 'stats-grid' });
 
     const emptyStateRef = el('div', { class: 'empty-detail' }, [
-        el('p', { 'data-i18n': 'ui_select_hero' }, [t('ui_select_hero') || 'Select a hero to view stats.'])
+        el('p', { 'data-i18n': 'heroes_uxelm_select_prompt' }, [t('heroes_uxelm_select_prompt')])
     ]);
 
     const leftColumn = el('div', { class: 'hero-profile-left' }, [
@@ -79,8 +79,8 @@ export function createHeroProfilePane({
             ]),
             originDescRef,
             el('div', { class: 'hero-status-row' }, [
-                el('span', {}, [el('strong', {}, [`${t('ui_activity') || 'Activity'}:`]), statusBadgeRef]),
-                el('span', {}, [el('strong', {}, [`${t('ui_experience') || 'Experience'}:`]), expTextRef])
+                el('span', {}, [el('strong', {}, [`${t('heroes_uxelm_activity')}:`]), statusBadgeRef]),
+                el('span', {}, [el('strong', {}, [`${t('heroes_uxelm_experience')}:`]), expTextRef])
             ]),
             skillAlertRef,
             buttonsContainer
@@ -94,7 +94,7 @@ export function createHeroProfilePane({
 
     const contentRef = el('div', { class: 'hero-profile' }, [
         el('div', { class: 'mobile-only-header btn-mobile-back', onClick: onBack }, [
-            `← ${t('ui_back') || 'Back to Roster'}`
+            `← ${t('shared_uxelm_back')}`
         ]),
         leftColumn,
         rightColumn
@@ -116,7 +116,7 @@ export function createHeroProfilePane({
         contentRef.style.display = 'grid';
 
         const isIdle = hero.activity === 'idle';
-        const activityText = isIdle ? (t('ui_activity_idle') || 'Idle') : (t('ui_activity_expedition') || 'On Expedition');
+        const activityText = isIdle ? t('heroes_status_activity_idle') : t('heroes_status_activity_expedition');
 
         // Avatar Image
         let avatarSrc = 'assets/heroes/arthur.webp';
@@ -141,10 +141,11 @@ export function createHeroProfilePane({
         portraitRef.src = avatarSrc;
         portraitRef.alt = hero.name;
 
-        originBadgeRef.textContent = t(hero.origin) || hero.origin;
+        const originKey = 'heroes_info_origin_' + hero.origin.replace('origin_', '');
+        originBadgeRef.textContent = t(originKey);
         nameRef.textContent = `${hero.name} `;
-        levelRef.textContent = `(${t('ui_level') || 'Level'} ${hero.level})`;
-        originDescEmRef.textContent = t(hero.origin + '_desc') || '';
+        levelRef.textContent = `(${t('shared_uxelm_level')} ${hero.level})`;
+        originDescEmRef.textContent = t(originKey + '_desc');
 
         statusBadgeRef.textContent = activityText;
         statusBadgeRef.className = `status-badge ${isIdle ? 'idle' : 'busy'}`;
@@ -166,7 +167,7 @@ export function createHeroProfilePane({
         if (hasStatPoints) {
             statAlertRef.style.display = 'block';
             statAlertRef.className = `stat-points-alert ${canAllocate ? '' : 'locked'}`;
-            const labelPattern = canAllocate ? (t('ui_stat_points') || 'Unallocated points: {amount}') : (t('ui_stat_points_busy') || 'Points: {amount} (Busy)');
+            const labelPattern = canAllocate ? t('heroes_uxelm_stat_point_available') : t('heroes_uxelm_stat_point_busy');
             statAlertStrongRef.textContent = labelPattern.replace('{amount}', hero.statPoints);
         } else {
             statAlertRef.style.display = 'none';
@@ -179,17 +180,17 @@ export function createHeroProfilePane({
 
         skillAlertRef.className = `skill-points-alert ${canManageSkills ? '' : 'locked'}`;
         if (hero.skillPoints > 0 && canManageSkills) {
-            skillAlertStrongRef.textContent = t('ui_skill_points').replace('{amount}', hero.skillPoints);
-            skillAlertSuffixRef.textContent = ' · ' + (t('ui_spend_to_unlock') || 'Spend to unlock a new technique');
+            skillAlertStrongRef.textContent = t('heroes_uxelm_skill_point').replace('{amount}', hero.skillPoints);
+            skillAlertSuffixRef.textContent = ' · ' + t('heroes_uxelm_skill_spend_hint');
         } else if (nextMilestone) {
-            skillAlertStrongRef.textContent = t('ui_next_skill_point').replace('{level}', nextMilestone);
+            skillAlertStrongRef.textContent = t('heroes_uxelm_skill_next_milestone').replace('{level}', nextMilestone);
             skillAlertSuffixRef.textContent = '';
         } else {
-            skillAlertStrongRef.textContent = t('ui_max_families') || 'All techniques unlocked';
+            skillAlertStrongRef.textContent = t('heroes_uxelm_skill_max_families');
             skillAlertSuffixRef.textContent = '';
         }
         if (!canManageSkills) {
-            skillAlertSuffixRef.textContent += ' (' + (t('ui_busy') || 'Busy') + ')';
+            skillAlertSuffixRef.textContent += ' (' + t('heroes_uxelm_skill_busy') + ')';
         }
 
         // Stats Grid Allocation Rows
@@ -211,8 +212,8 @@ export function createHeroProfilePane({
             const descKey = `${STAT_LABELS[stat.id]}_desc`;
             const row = el('div', { class: `stat-row ${stat.id === 'stamina' ? 'stamina-row' : ''}` }, [
                 el('div', { class: 'stat-info' }, [
-                    el('strong', { class: 'stat-name' }, [t(STAT_LABELS[stat.id]) || stat.id.toUpperCase()]),
-                    el('span', { class: 'stat-desc', style: { fontStyle: 'italic', fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', marginTop: '2px' } }, [t(descKey) || ''])
+                    el('strong', { class: 'stat-name' }, [t(STAT_LABELS[stat.id])]),
+                    el('span', { class: 'stat-desc', style: { fontStyle: 'italic', fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', marginTop: '2px' } }, [t(descKey)])
                 ]),
                 el('div', { class: 'stat-value-group', style: { display: 'flex', alignItems: 'center', gap: '10px' } }, [
                     el('span', { class: 'stat-val', style: { fontWeight: '600' } }, [String(stat.val)]),

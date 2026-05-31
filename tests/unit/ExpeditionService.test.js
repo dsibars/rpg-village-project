@@ -61,7 +61,7 @@ test('ExpeditionService: Concurrent expedition limit', () => {
     // Different expedition should fail since max = 1
     const r3 = expeditionService.assignExpedition('some_other_exp', [hero2.id]);
     assert.strictEqual(r3.success, false);
-    assert.strictEqual(r3.error, 'error_max_expeditions_reached');
+    assert.strictEqual(r3.error, 'explore_error_expeditions_max');
 });
 
 test('ExpeditionService: Explorer guild increases limit', () => {
@@ -111,7 +111,7 @@ test('ExpeditionService: Hero cannot be on two expeditions', () => {
 
     const r2 = expeditionService.assignExpedition('exp_test_second', [hero.id]);
     assert.strictEqual(r2.success, false);
-    assert.strictEqual(r2.error, 'error_hero_on_other_expedition');
+    assert.strictEqual(r2.error, 'explore_error_hero_busy_expedition');
 });
 
 test('ExpeditionService: Round-robin day processing', () => {

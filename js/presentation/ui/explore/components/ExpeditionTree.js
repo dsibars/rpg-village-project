@@ -21,19 +21,19 @@ export function createExpeditionTree({ onNodeClick, t }) {
             root.appendChild(el('div', { class: 'tree-empty-state' }, [
                 el('div', { style: { fontSize: '3rem', opacity: 0.2, marginBottom: '12px' } }, ['🌲']),
                 el('p', { style: { color: 'var(--text-muted)' } }, [
-                    t('ui_no_expeditions') || 'No expeditions available in this region.'
+                    t('explore_uxelm_no_expeditions')
                 ])
             ]));
             return;
         }
 
         // Region title bar at top
-        const rName = t(regionId) || regionId || 'Region';
+        const rName = t(regionId);
         const clears = regionData.clears || 0;
         const titleBar = el('div', { class: 'tree-region-title-bar' }, [
             el('span', { class: 'tree-region-title-name' }, [rName]),
             el('span', { class: 'tree-region-title-meta' }, [
-                `${clears} ${t('ui_clears') || 'clears'}`
+                `${clears} ${t('explore_uxelm_clears')}`
             ])
         ]);
         root.appendChild(titleBar);
@@ -120,7 +120,7 @@ export function createExpeditionTree({ onNodeClick, t }) {
 
         // Tooltip content
         const stageCount = (node.stages || []).length;
-        const tooltipText = `${node.name} — ${stageCount} ${t('ui_stages') || 'stages'}`;
+        const tooltipText = `${node.name} — ${stageCount} ${t('explore_uxelm_stages')}`;
 
         const nodeEl = el('div', {
             class: ['tree-node', stateClass, isSelected ? 'selected' : ''],

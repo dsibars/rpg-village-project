@@ -73,14 +73,14 @@ test('Shared Components DOM Tests', async (t) => {
 
         assert.ok(listCard.root.className.includes('hero-card'));
         assert.strictEqual(listCard.refs.title.textContent, 'Arthur Pendragon');
-        assert.strictEqual(listCard.refs.level.textContent, 'ui_level 5');
+        assert.strictEqual(listCard.refs.level.textContent, 'shared_uxelm_level 5');
         assert.strictEqual(listCard.refs.activity.textContent, '💤');
         assert.strictEqual(listCard.refs.meal.style.display, 'inline-block');
 
         // Update List Variant
         const updatedHero = { ...mockHero, level: 6, activity: 'combat', mealBuffs: [] };
         listCard.update(updatedHero, true);
-        assert.strictEqual(listCard.refs.level.textContent, 'ui_level 6');
+        assert.strictEqual(listCard.refs.level.textContent, 'shared_uxelm_level 6');
         assert.strictEqual(listCard.refs.activity.textContent, '⚔️');
         assert.strictEqual(listCard.refs.meal.style.display, 'none');
         assert.ok(listCard.root.className.includes('active'));
@@ -92,7 +92,7 @@ test('Shared Components DOM Tests', async (t) => {
             t: tMock
         });
         assert.strictEqual(headerCard.refs.title.textContent, 'Arthur Pendragon');
-        assert.ok(headerCard.refs.level.textContent.includes('ui_activity_idle'));
+        assert.ok(headerCard.refs.level.textContent.includes('heroes_status_activity_idle'));
 
         // 3. Defense-Chip Variant
         const chipCard = createHeroMiniCard({

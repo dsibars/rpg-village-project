@@ -6,7 +6,7 @@ import { el, diffList } from '../../shared/utils/DOMUtils.js';
 function createObjectiveItem(obj, t) {
     const pct = Math.min(100, Math.floor((obj.progress / obj.target) * 100));
     const isDone = obj.completed;
-    const labelText = (t(obj.label) || obj.label).replace('{target}', obj.target);
+    const labelText = (t(obj.label)).replace('{target}', obj.target);
 
     return el('div', {
         class: `objective-item ${isDone ? 'completed' : ''}`,
@@ -40,8 +40,8 @@ export class DailyObjectives {
         if (!dailyObj || !dailyObj.objectives || dailyObj.objectives.length === 0) {
             this.container.innerHTML = '';
             this.container.appendChild(
-                el('div', { class: 'empty-state', dataI18n: 'ui_no_objectives' }, [
-                    this.t('ui_no_objectives') || 'No objectives available'
+                el('div', { class: 'empty-state', dataI18n: 'daily_uxelm_objective_none' }, [
+                    this.t('daily_uxelm_objective_none')
                 ])
             );
             this.allCompletedEl = null;
@@ -65,7 +65,7 @@ export class DailyObjectives {
             if (!this.allCompletedEl || !this.allCompletedEl.parentNode) {
                 this.allCompletedEl = el('div', { class: 'objective-all-completed' }, [
                     el('span', {}, ['🎉']),
-                    ` ${this.t('ui_all_objectives_done') || 'All objectives completed! Bonus rewards granted.'}`
+                    ` ${this.t('daily_uxelm_objective_all_done')}`
                 ]);
                 this.container.appendChild(this.allCompletedEl);
             }

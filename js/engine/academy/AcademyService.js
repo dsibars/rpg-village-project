@@ -74,25 +74,25 @@ export class AcademyService {
      */
     enrollSession(teacherId, glyphId, studentIds) {
         const config = this.getAcademyConfig();
-        if (config.level === 0) return Result.fail('error_academy_not_built');
-        if (this.sessions.length >= config.slots) return Result.fail('error_academy_no_slots');
-        if (studentIds.length > config.maxStudents) return Result.fail('error_academy_too_many_students');
+        if (config.level === 0) return Result.fail('academy_error_academy_not_built');
+        if (this.sessions.length >= config.slots) return Result.fail('academy_error_academy_no_slots');
+        if (studentIds.length > config.maxStudents) return Result.fail('academy_error_academy_too_many_students');
 
         const teacher = this.heroService.get(teacherId);
-        if (!teacher) return Result.fail('error_hero_not_found');
+        if (!teacher) return Result.fail('heroes_error_hero_not_found');
         if (!teacher.knownGlyphs?.includes(glyphId)) {
-            return Result.fail('error_teacher_does_not_know_glyph');
+            return Result.fail('academy_error_teacher_glyph_unknown');
         }
 
         const glyph = GLYPH_DATA[glyphId];
-        if (!glyph) return Result.fail('error_invalid_glyph');
+        if (!glyph) return Result.fail('heroes_error_glyph_invalid');
 
         // Verify all students exist and don't already know the glyph
         for (const sid of studentIds) {
             const student = this.heroService.get(sid);
-            if (!student) return Result.fail('error_hero_not_found');
+            if (!student) return Result.fail('heroes_error_hero_not_found');
             if (student.knownGlyphs?.includes(glyphId)) {
-                return Result.fail('error_student_already_knows_glyph');
+                return Result.fail('academy_error_student_glyph_known');
             }
         }
 
@@ -189,7 +189,7 @@ export class AcademyService {
      */
     cancelSession(sessionId) {
         const idx = this.sessions.findIndex(s => s.id === sessionId && s.status === 'active');
-        if (idx < 0) return Result.fail('error_session_not_found');
+        if (idx < 0) return Result.fail('academy_error_session_not_found');
 
         const session = this.sessions[idx];
         const teacher = this.heroService.get(session.teacherId);
@@ -223,11 +223,11 @@ export class AcademyService {
     // --- Design Library ---
     saveDesign(design) {
         if (!design || !design.name || !design.glyphIds) {
-            return Result.fail('error_invalid_design');
+            return Result.fail('academy_error_design_invalid');
         }
         const config = this.getAcademyConfig();
         if (this.designLibrary.length >= config.maxDesigns) {
-            return Result.fail('error_design_library_full');
+            return Result.fail('academy_error_design_library_full');
         }
         const entry = {
             id: `design_${Date.now()}`,
@@ -245,7 +245,7 @@ export class AcademyService {
 
     deleteDesign(designId) {
         const idx = this.designLibrary.findIndex(d => d.id === designId);
-        if (idx < 0) return Result.fail('error_design_not_found');
+        if (idx < 0) return Result.fail('academy_error_design_not_found');
         this.designLibrary.splice(idx, 1);
         this._saveDesigns();
         return Result.ok(true);
@@ -270,24 +270,24 @@ export class AcademyService {
 
     copyDesignToHero(designId, heroId) {
         const config = this.getAcademyConfig();
-        if (config.level === 0) return Result.fail('error_academy_not_built');
+        if (config.level === 0) return Result.fail('academy_error_academy_not_built');
 
         const design = this.designLibrary.find(d => d.id === designId);
-        if (!design) return Result.fail('error_design_not_found');
+        if (!design) return Result.fail('academy_error_design_not_found');
 
         const hero = this.heroService.get(heroId);
-        if (!hero) return Result.fail('error_hero_not_found');
-        if (hero.activity === 'studying_design') return Result.fail('error_hero_busy');
+        if (!hero) return Result.fail('heroes_error_hero_not_found');
+        if (hero.activity === 'studying_design') return Result.fail('heroes_error_hero_busy');
 
         // Check if hero already has all glyphs
         const missingGlyphs = design.glyphIds.filter(gid => !hero.knownGlyphs?.includes(gid));
-        if (missingGlyphs.length === 0) return Result.fail('error_hero_already_has_all_glyphs');
+        if (missingGlyphs.length === 0) return Result.fail('heroes_error_glyph_all_known');
 
         // Cost: Core = 10g, +5g per ring slot
         const cost = 10 + Math.max(0, (design.glyphIds.length - 1) * 5);
         const villageState = this.villageService?.getState();
         if (!villageState || villageState.gold < cost) {
-            return Result.fail('error_not_enough_gold');
+            return Result.fail('village_error_gold_not_enough');
         }
 
         // Deduct gold

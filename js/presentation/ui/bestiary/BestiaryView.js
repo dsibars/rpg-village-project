@@ -58,7 +58,7 @@ export class BestiaryView extends BaseView {
         grid.innerHTML = '';
 
         if (allIds.length === 0) {
-            grid.innerHTML = `<div class="bestiary-empty">${this.t('ui_bestiary_empty') || 'No creatures catalogued yet.'}</div>`;
+            grid.innerHTML = `<div class="bestiary-empty">${this.t('bestiary_uxelm_empty')}</div>`;
             return;
         }
 
@@ -68,7 +68,12 @@ export class BestiaryView extends BaseView {
             const card = template.content.cloneNode(true).querySelector('.bestiary-card');
 
             const icon = TYPE_ICONS[t.type] || '❓';
-            const name = isDiscovered ? t.name : '???';
+            let name = '???';
+            if (isDiscovered) {
+                const translationKey = 'combat_info_' + id;
+                const translated = this.t(translationKey);
+                name = translated !== translationKey ? translated : t.name;
+            }
 
             card.querySelector('.bestiary-type-badge').textContent = icon;
             card.querySelector('.bestiary-name').textContent = name;
@@ -81,7 +86,7 @@ export class BestiaryView extends BaseView {
 
                 const elDiv = card.querySelector('.bestiary-element');
                 const elColor = ELEMENT_COLORS[t.element] || ELEMENT_COLORS.neutral;
-                const elKey = 'el_' + t.element;
+                const elKey = 'shared_info_element_' + t.element;
                 const elVal = this.t(elKey);
                 elDiv.innerHTML = `<span style="color:${elColor};">●</span> ${elVal !== elKey ? elVal : t.element}`;
             } else {

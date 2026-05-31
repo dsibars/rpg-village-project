@@ -60,7 +60,7 @@ export class ShopView extends BaseView {
                 padding: 'var(--spacing-lg)'
             }
         }, [
-            el('p', { style: { color: 'var(--text-muted)' } }, [this.t('ui_no_items_to_sell') || 'No items to sell.'])
+            el('p', { style: { color: 'var(--text-muted)' } }, [this.t('shop_uxelm_no_items_to_sell')])
         ]);
 
         // Initialize ShopTabs Component
@@ -254,12 +254,12 @@ export class ShopView extends BaseView {
                 this.warningEl.style.background = 'rgba(239, 68, 68, 0.1)';
                 this.warningEl.style.border = '1px solid var(--danger)';
                 this.warningEl.style.color = 'var(--danger)';
-                this.warningEl.textContent = `⚠️ ${(t('error_storage_full') || 'Storage is full!')} (${used} / ${maxStorage})`;
+                this.warningEl.textContent = `⚠️ ${t('inventory_error_storage_full')} (${used} / ${maxStorage})`;
             } else {
                 this.warningEl.style.background = 'rgba(245, 158, 11, 0.1)';
                 this.warningEl.style.border = '1px solid var(--warning)';
                 this.warningEl.style.color = 'var(--warning)';
-                this.warningEl.textContent = `⚠️ ${(t('inv_full') || 'Storage nearly full!')} (${used} / ${maxStorage})`;
+                this.warningEl.textContent = `⚠️ ${t('shop_uxelm_storage_nearly_full')} (${used} / ${maxStorage})`;
             }
         } else {
             this.warningEl.style.display = 'none';

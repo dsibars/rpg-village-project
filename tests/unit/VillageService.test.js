@@ -40,14 +40,14 @@ test('VillageService: Cannot set builders below 0', () => {
     const { villageService } = createVillage();
     const result = villageService.setBuilders(-1);
     assert.strictEqual(result.success, false);
-    assert.strictEqual(result.error, 'error_invalid_builder_count');
+    assert.strictEqual(result.error, 'village_error_builder_count_invalid');
 });
 
 test('VillageService: Cannot set builders above total population', () => {
     const { villageService } = createVillage();
     const result = villageService.setBuilders(10);
     assert.strictEqual(result.success, false);
-    assert.strictEqual(result.error, 'error_invalid_builder_count');
+    assert.strictEqual(result.error, 'village_error_builder_count_invalid');
 });
 
 test('VillageService: Cannot reduce builders below assigned', () => {
@@ -59,7 +59,7 @@ test('VillageService: Cannot reduce builders below assigned', () => {
 
     const result = villageService.setBuilders(0);
     assert.strictEqual(result.success, false);
-    assert.strictEqual(result.error, 'error_builders_below_assigned');
+    assert.strictEqual(result.error, 'village_error_builder_assign_exceeded');
 });
 
 test('VillageService: Construction uses builder limit not total pop', () => {
@@ -77,7 +77,7 @@ test('VillageService: Construction uses builder limit not total pop', () => {
     // Third should fail
     const r3 = villageService.startProject('warehouse', 1, 0, {}, 2);
     assert.strictEqual(r3.success, false);
-    assert.strictEqual(r3.error, 'error_no_available_builders');
+    assert.strictEqual(r3.error, 'village_error_builder_unavailable');
 });
 
 test('VillageService: Multiple concurrent projects complete independently', () => {

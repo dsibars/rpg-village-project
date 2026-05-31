@@ -29,7 +29,7 @@ describe('Defense/Raid Mutual Exclusion', () => {
         // Try to assign Arthur to defense
         const defenseResult = engine.assignDefense(arthur.id);
         assert.ok(!defenseResult.success, 'Defense assignment should fail');
-        assert.strictEqual(defenseResult.error, 'error_hero_on_expedition');
+        assert.strictEqual(defenseResult.error, 'heroes_error_hero_on_expedition');
     });
 
     it('assigning expedition auto-removes hero from defense', () => {

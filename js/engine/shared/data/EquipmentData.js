@@ -26,7 +26,7 @@ export const ARMOR_ARCHETYPES = {
  */
 export const EQUIPMENT_SET_BONUSES = {
     wooden: {
-        name: 'set_wooden',
+        name: 'inventory_info_set_wooden',
         thresholds: [2, 4, 6],
         bonuses: {
             2: { maxHp: 5 },
@@ -35,7 +35,7 @@ export const EQUIPMENT_SET_BONUSES = {
         }
     },
     iron: {
-        name: 'set_iron',
+        name: 'inventory_info_set_iron',
         thresholds: [2, 4, 6],
         bonuses: {
             2: { maxHp: 10, strength: 1 },
@@ -44,7 +44,7 @@ export const EQUIPMENT_SET_BONUSES = {
         }
     },
     steel: {
-        name: 'set_steel',
+        name: 'inventory_info_set_steel',
         thresholds: [2, 4, 6],
         bonuses: {
             2: { maxHp: 15, strength: 2, defense: 1 },
@@ -53,7 +53,7 @@ export const EQUIPMENT_SET_BONUSES = {
         }
     },
     gold: {
-        name: 'set_gold',
+        name: 'inventory_info_set_gold',
         thresholds: [2, 4, 6],
         bonuses: {
             2: { maxHp: 20, strength: 3, defense: 2 },
@@ -62,7 +62,7 @@ export const EQUIPMENT_SET_BONUSES = {
         }
     },
     mythril: {
-        name: 'set_mythril',
+        name: 'inventory_info_set_mythril',
         thresholds: [2, 4, 6],
         bonuses: {
             2: { maxHp: 30, strength: 5, defense: 3, speed: 2 },

@@ -30,8 +30,8 @@ export class VillageDefense {
         if (assigned.length === 0 && idleHeroes.length === 0) {
             this.assignmentsContainer.innerHTML = '';
             this.assignmentsContainer.appendChild(
-                el('div', { class: 'empty-state', dataI18n: 'ui_no_defenders' }, [
-                    this.t('ui_no_defenders') || 'No defenders assigned'
+                el('div', { class: 'empty-state', dataI18n: 'village_uxelm_defender_none' }, [
+                    this.t('village_uxelm_defender_none')
                 ])
             );
             return;
@@ -63,7 +63,7 @@ export class VillageDefense {
                         class: 'remove-btn',
                         dataDefenseAction: 'unassign',
                         dataHeroId: heroId,
-                        title: this.t('ui_remove') || 'Remove'
+                        title: this.t('shared_uxelm_remove')
                     }, ['×'])
                 ]);
             });
@@ -79,7 +79,7 @@ export class VillageDefense {
         const assignableHeroes = idleHeroes.filter(hero => !assigned.includes(hero.id));
         if (assignableHeroes.length > 0 && canAssign) {
             if (!assignSection) {
-                const title = el('h4', {}, [this.t('ui_assign_defender') || 'Assign Defender']);
+                const title = el('h4', {}, [this.t('village_uxelm_defender_assign')]);
                 const btnList = el('div', { class: 'assign-buttons-list', style: 'display:flex; flex-wrap:wrap; gap:4px;' });
                 assignSection = el('div', { class: 'defense-assign-section' }, [
                     title,

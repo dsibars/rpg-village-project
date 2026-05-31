@@ -22,7 +22,7 @@ export class CombatHeader {
         this.skipBtn = el('button', {
             class: 'btn btn-secondary btn-sm',
             onClick: () => this.onSkip()
-        }, [this.t('btn_skip_combat')]);
+        }, [this.t('shared_uxelm_skip_combat')]);
 
         this.root = el('div', { class: 'combat-header' }, [
             el('div', {}, [this.titleEl, this.stageLabel]),
@@ -37,8 +37,9 @@ export class CombatHeader {
         if (!battle) return;
 
         const currentStageNum = activeExp ? activeExp.currentStage + 1 : 1;
-        const stageText = `${this.t('exp_stage')} ${currentStageNum}`;
-        const titleText = activeExp ? (this.t(activeExp.id) !== activeExp.id ? this.t(activeExp.id) : activeExp.name) : this.t('combat_battle_title');
+        const stageText = `${this.t('shared_uxelm_stage')} ${currentStageNum}`;
+        // explore domain key — not yet migrated
+        const titleText = activeExp ? (this.t(activeExp.id) !== activeExp.id ? this.t(activeExp.id) : activeExp.name) : this.t('combat_uxelm_battle_title');
 
         if (this.titleEl.textContent !== titleText) {
             this.titleEl.textContent = titleText;
@@ -51,7 +52,7 @@ export class CombatHeader {
         this.autoBtn.disabled = isOver;
         this.skipBtn.disabled = isOver;
 
-        const autoText = `${this.t('btn_auto_combat')} ${battle.autoBattle ? '(ON)' : '(OFF)'}`;
+        const autoText = `${this.t('shared_uxelm_auto_combat')} ${battle.autoBattle ? '(ON)' : '(OFF)'}`;
         if (this.autoBtn.textContent !== autoText) {
             this.autoBtn.textContent = autoText;
         }

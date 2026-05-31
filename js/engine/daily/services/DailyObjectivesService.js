@@ -2,12 +2,12 @@ import { persistence } from '../../shared/core/Persistence.js';
 import { Result } from '../../shared/core/Result.js';
 
 const OBJECTIVE_TYPES = [
-    { id: 'defeat_enemies', label: 'obj_defeat_enemies', target: [3, 5, 8], reward: { gold: 50, material_wood: 10 } },
-    { id: 'spend_gold', label: 'obj_spend_gold', target: [100, 200, 500], reward: { gold: 30, material_stone: 5 } },
-    { id: 'complete_expeditions', label: 'obj_complete_expeditions', target: [1, 2, 3], reward: { gold: 80, material_iron: 3 } },
-    { id: 'upgrade_building', label: 'obj_upgrade_building', target: [1], reward: { gold: 40, material_wood: 15 } },
-    { id: 'recruit_hero', label: 'obj_recruit_hero', target: [1], reward: { gold: 60, material_stone: 10 } },
-    { id: 'craft_items', label: 'obj_craft_items', target: [1, 2, 3], reward: { gold: 35, material_iron: 5 } }
+    { id: 'defeat_enemies', label: 'daily_uxelm_obj_defeat_enemies', target: [3, 5, 8], reward: { gold: 50, material_wood: 10 } },
+    { id: 'spend_gold', label: 'daily_uxelm_obj_spend_gold', target: [100, 200, 500], reward: { gold: 30, material_stone: 5 } },
+    { id: 'complete_expeditions', label: 'daily_uxelm_obj_complete_expeditions', target: [1, 2, 3], reward: { gold: 80, material_iron: 3 } },
+    { id: 'upgrade_building', label: 'daily_uxelm_obj_upgrade_building', target: [1], reward: { gold: 40, material_wood: 15 } },
+    { id: 'recruit_hero', label: 'daily_uxelm_obj_recruit_hero', target: [1], reward: { gold: 60, material_stone: 10 } },
+    { id: 'craft_items', label: 'daily_uxelm_obj_craft_items', target: [1, 2, 3], reward: { gold: 35, material_iron: 5 } }
 ];
 
 export class DailyObjectivesService {
@@ -120,15 +120,15 @@ export class DailyObjectivesService {
 
     pickObjectives(objectiveIds) {
         if (!Array.isArray(objectiveIds) || objectiveIds.length !== 2) {
-            return Result.fail('error_invalid_selection_count');
+            return Result.fail('daily_error_selection_count_invalid');
         }
         if (this.state.pendingChoices.length === 0) {
-            return Result.fail('error_no_pending_choices');
+            return Result.fail('daily_error_choice_none_pending');
         }
         const pendingIds = this.state.pendingChoices.map(o => o.id);
         const allValid = objectiveIds.every(id => pendingIds.includes(id));
         if (!allValid) {
-            return Result.fail('error_invalid_objective_selection');
+            return Result.fail('daily_error_objective_selection_invalid');
         }
 
         this.state.objectives = this.state.pendingChoices.filter(o => objectiveIds.includes(o.id));
@@ -140,7 +140,7 @@ export class DailyObjectivesService {
     claimReward(objectiveId) {
         const obj = this.state.objectives.find(o => o.id === objectiveId);
         if (!obj || !obj.completed || obj.claimed) {
-            return Result.fail('error_reward_not_available');
+            return Result.fail('daily_error_reward_not_available');
         }
 
         obj.claimed = true;

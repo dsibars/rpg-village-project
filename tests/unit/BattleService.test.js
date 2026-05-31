@@ -96,7 +96,7 @@ test('BattleService: Potion Usage Rules', () => {
     // Try using another item on the same turn (should be blocked)
     const secondResult = battle.useConsumable(hero, 'tiny_hp_potion', 'h1');
     assert.strictEqual(secondResult.success, false);
-    assert.strictEqual(secondResult.error, 'error_item_already_used');
+    assert.strictEqual(secondResult.error, 'combat_error_item_used_already');
 });
 
 
@@ -214,7 +214,7 @@ test('BattleService: inscribed physical skill fails if not enough MP', () => {
 
     const result = battle.executeAction(hero, 'power_strike', 0);
     assert.strictEqual(result.success, false);
-    assert.strictEqual(result.error, 'error_not_enough_mp');
+    assert.strictEqual(result.error, 'combat_error_mp_not_enough');
 });
 
 

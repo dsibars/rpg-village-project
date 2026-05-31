@@ -1,22 +1,22 @@
 <section class="domain-view settings-view">
     <div class="category-sub-nav">
-        <button class="sub-nav-tab" data-subview="buildings" data-i18n="nav_buildings">Buildings</button>
-        <button class="sub-nav-tab" data-subview="shop" data-i18n="nav_shop">Shop</button>
-        <button class="sub-nav-tab" data-subview="forge" data-i18n="nav_forge">Forge</button>
-        <button class="sub-nav-tab" data-subview="inventory" data-i18n="nav_inventory">Inventory</button>
-        <button class="sub-nav-tab active" data-subview="settings" data-i18n="nav_settings">Settings</button>
+        <button class="sub-nav-tab" data-subview="buildings" data-i18n="shared_uxelm_nav_buildings"></button>
+        <button class="sub-nav-tab" data-subview="shop" data-i18n="shared_uxelm_nav_shop"></button>
+        <button class="sub-nav-tab" data-subview="forge" data-i18n="shared_uxelm_nav_forge"></button>
+        <button class="sub-nav-tab" data-subview="inventory" data-i18n="shared_uxelm_nav_inventory"></button>
+        <button class="sub-nav-tab active" data-subview="settings" data-i18n="shared_uxelm_nav_settings"></button>
     </div>
     <div class="view-header">
-        <h2 data-i18n="ui_settings_title">Game Settings</h2>
+        <h2 data-i18n="settings_uxelm_title"></h2>
     </div>
 
     <div class="dashboard-grid">
         <div class="settings-content">
             <!-- Preferences -->
             <div class="card settings-group">
-                <h3 data-i18n="ui_settings_language">Interface Language</h3>
+                <h3 data-i18n="settings_uxelm_language"></h3>
                 <div class="settings-body">
-                    <label for="lang-select" class="settings-label" data-i18n="settings_language_label">Choose your language:</label>
+                    <label for="lang-select" class="settings-label" data-i18n="settings_language_label"></label>
                     <select id="lang-select" class="select-control">
                         <option value="en">English</option>
                         <option value="es">Español</option>
@@ -29,48 +29,48 @@
 
             <!-- Current Save Info -->
             <div class="card settings-group">
-                <h3 data-i18n="ui_save_slot_title">Save Slot</h3>
+                <h3 data-i18n="shared_uxelm_save_slot_title"></h3>
                 <div class="settings-body">
                     <p class="settings-label" id="settings-current-slot-label">Current Save: Slot 0</p>
                     <button id="btn-return-slots" class="btn btn-secondary btn-lg" style="margin-bottom: 10px;">
                         <span class="icon">💾</span>
-                        <span data-i18n="ui_settings_return_slots">Return to Save Slots</span>
+                        <span data-i18n="settings_uxelm_return_slots"></span>
                     </button>
                 </div>
             </div>
 
             <!-- Developer Options -->
             <div class="card settings-group">
-                <h3 data-i18n="ui_settings_dev_options">Developer Options</h3>
+                <h3 data-i18n="settings_uxelm_dev_options"></h3>
                 <div class="settings-body">
-                    <p class="settings-label" data-i18n="ui_settings_dev_cheat_desc">Instantly gain 10k Gold, 10k Wood/Stone, Hero XP, and unlock the Shop.</p>
+                    <p class="settings-label" data-i18n="settings_uxelm_dev_cheat_desc"></p>
                     <button id="btn-dev-cheat" class="btn btn-danger btn-lg" style="background: linear-gradient(135deg, #e74c3c, #c0392b); border: none; box-shadow: 0 4px 10px rgba(231, 76, 60, 0.3); margin-bottom: 15px;">
                         <span class="icon">⚡</span>
-                        <span data-i18n="ui_settings_dev_cheat">Activate Developer Cheat</span>
+                        <span data-i18n="settings_uxelm_dev_cheat"></span>
                     </button>
                     
-                    <p class="settings-label" data-i18n="ui_settings_magic_simulator_desc">Simulate magic circle composition with a dummy level 25 hero with all glyphs unlocked at master level.</p>
+                    <p class="settings-label" data-i18n="settings_uxelm_magic_simulator_desc"></p>
                     <button id="btn-magic-simulator" class="btn btn-primary btn-lg" style="background: linear-gradient(135deg, #8e44ad, #2c3e50); border: none; box-shadow: 0 4px 10px rgba(142, 68, 173, 0.3);">
                         <span class="icon">🔮</span>
-                        <span data-i18n="ui_settings_magic_simulator">Magic Circle Simulator</span>
+                        <span data-i18n="settings_uxelm_magic_simulator"></span>
                     </button>
                 </div>
             </div>
 
             <!-- Danger Zone -->
             <div class="card danger-zone settings-group">
-                <h3 data-i18n="ui_settings_danger_zone">Danger Zone</h3>
+                <h3 data-i18n="settings_uxelm_danger_zone"></h3>
                 <div class="settings-body">
-                    <p class="settings-label" data-i18n="ui_settings_wipe_slot_confirm">Delete this save and return to the slot screen?</p>
+                    <p class="settings-label" data-i18n="settings_uxelm_wipe_slot_confirm"></p>
                     <button id="btn-wipe-slot" class="btn btn-danger btn-lg" style="margin-bottom: 12px;">
                         <span class="icon">🗑️</span>
-                        <span data-i18n="ui_settings_wipe_slot">Wipe Current Save</span>
+                        <span data-i18n="settings_uxelm_wipe_slot"></span>
                     </button>
 
-                    <p class="settings-label" data-i18n="ui_settings_wipe_all_confirm">Delete ALL saves across all slots? This will erase everything permanently.</p>
+                    <p class="settings-label" data-i18n="settings_uxelm_wipe_all_confirm"></p>
                     <button id="btn-wipe-all" class="btn btn-danger btn-lg">
                         <span class="icon">☠️</span>
-                        <span data-i18n="ui_settings_wipe_all">Wipe ALL Saves</span>
+                        <span data-i18n="settings_uxelm_wipe_all"></span>
                     </button>
                 </div>
             </div>
@@ -78,11 +78,11 @@
         
         <div class="canvas-widget">
             <div class="card">
-                <h3 data-i18n="ui_about">About</h3>
+                <h3 data-i18n="shared_uxelm_about"></h3>
                 <div class="about-content">
                     <p><strong>RPG Village</strong></p>
-                    <p><span data-i18n="ui_version">Version</span>: 1.0.0-beta</p>
-                    <p data-i18n="ui_built_with">Built with ❤️ and Specs.</p>
+                    <p><span data-i18n="shared_uxelm_version"></span>: 1.0.0-beta</p>
+                    <p data-i18n="shared_uxelm_built_with"></p>
                 </div>
             </div>
         </div>
