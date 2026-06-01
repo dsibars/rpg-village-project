@@ -183,6 +183,29 @@ export const es = {
     explore_uxelm_waiting_combat: "Esperando al siguiente día para iniciar el combate.",
     explore_uxelm_wounded: "Herido",
     explore_uxelm_world_map: "Mapa Mundial",
+    explore_uxelm_completed_title: "Completado",
+    explore_uxelm_path_sealed_title: "Camino Sellado",
+    explore_uxelm_heroes: "Héroes",
+    explore_uxelm_reward: "Recompensa",
+    explore_uxelm_closure_bonus: "Bono de Cierre",
+    explore_uxelm_gold_suffix: "oro",
+    explore_uxelm_stages_suffix: "etapas",
+    explore_uxelm_depth_suffix: "Profundidad",
+    explore_uxelm_unknown: "Desconocido",
+
+    // ═══ REGIONS ═══════════════════════════════════════════════════════════
+    explore_info_reg_greenfields: "Campos Verdes",
+    explore_info_reg_tiny_cave: "Cueva Diminuta",
+    explore_info_reg_calmed_beach: "Playa Calma",
+    explore_info_reg_dark_forest: "Bosque Oscuro",
+    explore_info_reg_goblin_camp: "Campamento Goblin",
+    explore_info_reg_mystic_ruins: "Ruinas Místicas",
+    explore_info_reg_frozen_peaks: "Picos Helados",
+    explore_info_reg_whispering_forest: "Bosque Susurrante",
+    explore_info_reg_murky_swamp: "Pantano Turbio",
+    explore_info_reg_forgotten_ruins: "Ruinas Olvidadas",
+    explore_info_reg_iron_peaks: "Picos de Hierro",
+    explore_info_reg_ancient_library: "Biblioteca Antigua",
 
     // ═══ FORGE ERROR ════════════════════════════════════════════════════
     forge_error_materials_not_enough: "No hay suficientes materiales para completar esta acción.",
@@ -426,6 +449,13 @@ export const es = {
     inventory_info_tier_wooden: "Madera",
     inventory_info_type_armor: "Armadura",
     inventory_info_type_weapon: "Arma",
+    inventory_info_family_dagger: "Daga",
+    inventory_info_family_broadsword: "Espada Ancha",
+    inventory_info_family_battle_axe: "Hacha de Batalla",
+    inventory_info_family_wand: "Varita",
+    inventory_info_archetype_plate: "Placas",
+    inventory_info_archetype_leather: "Cuero",
+    inventory_info_archetype_robes: "Túnicas",
 
     // ═══ INVENTORY UXELM ════════════════════════════════════════════════════
     inventory_uxelm_available_gear: "Equipo Disponible",
@@ -737,12 +767,12 @@ export const es = {
     meal_stew: "Estofado Saboroso",
 
     // ═══ CONSUMABLES ═══════════════════════════════════════════════════════
-    tiny_hp_potion: "Poción Menor de PV",
-    tiny_mp_potion: "Poción Menor de PM",
-    teleport_scroll: "Pergamino de Teletransporte",
-    tiny_hp_potion_desc: "Restaura 20 PV.",
-    tiny_mp_potion_desc: "Restaura 10 PM.",
-    teleport_scroll_desc: "Permite el retorno instantáneo de una expedición.",
+    item_tiny_hp_potion: "Poción Menor de PV",
+    item_tiny_mp_potion: "Poción Menor de PM",
+    item_teleport_scroll: "Pergamino de Teletransporte",
+    item_tiny_hp_potion_desc: "Restaura 20 PV.",
+    item_tiny_mp_potion_desc: "Restaura 10 PM.",
+    item_teleport_scroll_desc: "Permite el retorno instantáneo de una expedición.",
 
     // ═══ EQUIPMENT DESCRIPTIONS ════════════════════════════════════════════
     desc_armor_gold: "Armadura dorada ornamentada que ofrece defensa moderada y recuperación de magia.",

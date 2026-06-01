@@ -28,7 +28,7 @@ export function createExpeditionTree({ onNodeClick, t }) {
         }
 
         // Region title bar at top
-        const rName = t(regionId);
+        const rName = t('explore_info_' + regionId);
         const clears = regionData.clears || 0;
         const titleBar = el('div', { class: 'tree-region-title-bar' }, [
             el('span', { class: 'tree-region-title-name' }, [rName]),

@@ -91,7 +91,7 @@ export class DailyReportModal {
         // Expedition Section
         if (report.expedition) {
             const exp = report.expedition;
-            const expName = this.t(exp.expId);
+            const expName = this.t(exp.expId) !== exp.expId ? this.t(exp.expId) : (exp.expName || exp.expId);
             
             if (exp.status === 'completed') {
                 let rewardsStr = '';
@@ -100,7 +100,8 @@ export class DailyReportModal {
                     if (exp.reward.gold) rewards.push(`${exp.reward.gold} ${this.t('village_info_gold')}`);
                     if (exp.reward.items) {
                         for (const [id, qty] of Object.entries(exp.reward.items)) {
-                            rewards.push(`${qty} ${this.t(id)}`);
+                            const transKey = id.startsWith('material_') || id.startsWith('food_') || id.startsWith('meal_') ? id : 'item_' + id;
+                            rewards.push(`${qty} ${this.t(transKey)}`);
                         }
                     }
                     rewardsStr = rewards.join(', ');

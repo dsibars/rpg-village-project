@@ -103,7 +103,7 @@ test('VillageView DOM Refactor', async (t) => {
         // Verify active building tile
         const farmTile = document.body.querySelector('.village-tile.active:nth-child(3)');
         assert.ok(farmTile);
-        assert.ok(farmTile.querySelector('.village-tile-name').textContent.includes('village_farm'));
+        assert.ok(farmTile.querySelector('.village-tile-name').textContent.includes('village_info_building_farm'));
 
         // Verify construction project rendering
         const projectItem = document.body.querySelector('.construction-item');

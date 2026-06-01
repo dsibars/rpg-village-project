@@ -157,9 +157,9 @@ export class InventoryView extends BaseView {
                     items.push({
                         id,
                         type: 'consumables',
-                        name: this.t(id),
+                        name: this.t('item_' + id),
                         qty: count,
-                        icon: id === 'item_teleport_scroll' ? '📜' : '🧪'
+                        icon: id === 'teleport_scroll' ? '📜' : '🧪'
                     });
                 }
             });

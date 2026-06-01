@@ -163,7 +163,7 @@ export function createExpeditionDetailPane({ onStart, onRecall, t }) {
                         border: '1px solid rgba(255,59,48,0.3)',
                         display: 'inline-block'
                     }
-                }, [t(e)]));
+                }, [t('combat_info_' + e)]));
             });
             enemiesLabelRef.appendChild(badgesContainer);
         }

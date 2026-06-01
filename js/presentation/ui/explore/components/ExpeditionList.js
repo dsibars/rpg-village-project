@@ -22,7 +22,7 @@ export function createExpeditionList({ onSelect, t }) {
                 region = { el: regionEl, nodesContainer, titleEl };
                 regionMap.set(regionId, region);
             }
-            region.titleEl.textContent = t(regionId);
+            region.titleEl.textContent = t('explore_info_' + regionId);
 
             const labelStages = t('explore_uxelm_stages');
             const newCards = exps.map(exp => {

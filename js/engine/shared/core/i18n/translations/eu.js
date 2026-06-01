@@ -183,6 +183,29 @@ export const eu = {
     explore_uxelm_waiting_combat: "Hurrengo egunera arte zain borroka hasteko.",
     explore_uxelm_wounded: "Zauritua",
     explore_uxelm_world_map: "Munduko Mapa",
+    explore_uxelm_completed_title: "Osatua",
+    explore_uxelm_path_sealed_title: "Bidea zigilatua",
+    explore_uxelm_heroes: "Heroiak",
+    explore_uxelm_reward: "Saria",
+    explore_uxelm_closure_bonus: "Itxiera Bonua",
+    explore_uxelm_gold_suffix: "urrea",
+    explore_uxelm_stages_suffix: "etapak",
+    explore_uxelm_depth_suffix: "Sakontasuna",
+    explore_uxelm_unknown: "Ezezaguna",
+
+    // ═══ REGIONS ═══════════════════════════════════════════════════════════
+    explore_info_reg_greenfields: "Larre Berdeak",
+    explore_info_reg_tiny_cave: "Koba Txikia",
+    explore_info_reg_calmed_beach: "Hondartza Lasaia",
+    explore_info_reg_dark_forest: "Baso Iluna",
+    explore_info_reg_goblin_camp: "Goblin Kanpamendua",
+    explore_info_reg_mystic_ruins: "Ruina Mistikoak",
+    explore_info_reg_frozen_peaks: "Gailur Izoztuak",
+    explore_info_reg_whispering_forest: "Xuxurlen Basoa",
+    explore_info_reg_murky_swamp: "Padura Iluna",
+    explore_info_reg_forgotten_ruins: "Ahaztutako Hondakinak",
+    explore_info_reg_iron_peaks: "Burdinezko Gailurrak",
+    explore_info_reg_ancient_library: "Antzinako Liburutegia",
 
     // ═══ FORGE ERROR ════════════════════════════════════════════════════
     forge_error_materials_not_enough: "Ez dago nahikoa material ekintza hau osatzeko.",
@@ -426,6 +449,13 @@ export const eu = {
     inventory_info_tier_wooden: "Zurezkoa",
     inventory_info_type_armor: "Armadura",
     inventory_info_type_weapon: "Arma",
+    inventory_info_family_dagger: "Daga",
+    inventory_info_family_broadsword: "Espata Zabala",
+    inventory_info_family_battle_axe: "Gudu-Aizkora",
+    inventory_info_family_wand: "Makila",
+    inventory_info_archetype_plate: "Plakak",
+    inventory_info_archetype_leather: "Larrua",
+    inventory_info_archetype_robes: "Tunika",
 
     // ═══ INVENTORY UXELM ════════════════════════════════════════════════════
     inventory_uxelm_available_gear: "Ekipamendu Erabilgarria",
@@ -737,12 +767,12 @@ export const eu = {
     meal_stew: "Lapurreko Gozoa",
 
     // ═══ CONSUMABLES ═══════════════════════════════════════════════════════
-    tiny_hp_potion: "BP Pociorik Txikiena",
-    tiny_mp_potion: "MP Pociorik Txikiena",
-    teleport_scroll: "Teleportazio Korritua",
-    tiny_hp_potion_desc: "20 BP berreskuratzen ditu.",
-    tiny_mp_potion_desc: "10 MP berreskuratzen ditu.",
-    teleport_scroll_desc: "Espediziotik berehala itzultzea ahalbidetzen du.",
+    item_tiny_hp_potion: "BP Pociorik Txikiena",
+    item_tiny_mp_potion: "MP Pociorik Txikiena",
+    item_teleport_scroll: "Teleportazio Korritua",
+    item_tiny_hp_potion_desc: "20 BP berreskuratzen ditu.",
+    item_tiny_mp_potion_desc: "10 MP berreskuratzen ditu.",
+    item_teleport_scroll_desc: "Espediziotik berehala itzultzea ahalbidetzen du.",
 
     // ═══ EQUIPMENT DESCRIPTIONS ════════════════════════════════════════════
     desc_armor_gold: "Urrezko armadura apaindua, defentsa moderatua eta magia berreskuratzea eskaintzen duena.",

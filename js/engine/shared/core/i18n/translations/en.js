@@ -183,6 +183,29 @@ export const en = {
     explore_uxelm_waiting_combat: "Waiting for the next day to begin combat.",
     explore_uxelm_wounded: "Wounded",
     explore_uxelm_world_map: "World Map",
+    explore_uxelm_completed_title: "Completed",
+    explore_uxelm_path_sealed_title: "Path Sealed",
+    explore_uxelm_heroes: "Heroes",
+    explore_uxelm_reward: "Reward",
+    explore_uxelm_closure_bonus: "Closure Bonus",
+    explore_uxelm_gold_suffix: "gold",
+    explore_uxelm_stages_suffix: "stages",
+    explore_uxelm_depth_suffix: "Depth",
+    explore_uxelm_unknown: "Unknown",
+
+    // ═══ REGIONS ═══════════════════════════════════════════════════════════
+    explore_info_reg_greenfields: "Greenfields",
+    explore_info_reg_tiny_cave: "Tiny Cave",
+    explore_info_reg_calmed_beach: "Calmed Beach",
+    explore_info_reg_dark_forest: "Dark Forest",
+    explore_info_reg_goblin_camp: "Goblin Camp",
+    explore_info_reg_mystic_ruins: "Mystic Ruins",
+    explore_info_reg_frozen_peaks: "Frozen Peaks",
+    explore_info_reg_whispering_forest: "Whispering Forest",
+    explore_info_reg_murky_swamp: "Murky Swamp",
+    explore_info_reg_forgotten_ruins: "Forgotten Ruins",
+    explore_info_reg_iron_peaks: "Iron Peaks",
+    explore_info_reg_ancient_library: "Ancient Library",
 
     // ═══ FORGE ERROR ════════════════════════════════════════════════════
     forge_error_materials_not_enough: "Not enough materials to complete this action.",
@@ -426,6 +449,13 @@ export const en = {
     inventory_info_tier_wooden: "Wooden",
     inventory_info_type_armor: "Armor",
     inventory_info_type_weapon: "Weapon",
+    inventory_info_family_dagger: "Dagger",
+    inventory_info_family_broadsword: "Broadsword",
+    inventory_info_family_battle_axe: "Battle Axe",
+    inventory_info_family_wand: "Wand",
+    inventory_info_archetype_plate: "Plate",
+    inventory_info_archetype_leather: "Leather",
+    inventory_info_archetype_robes: "Robes",
 
     // ═══ INVENTORY UXELM ════════════════════════════════════════════════════
     inventory_uxelm_available_gear: "Available Gear",
@@ -737,12 +767,12 @@ export const en = {
     meal_stew: "Hearty Stew",
 
     // ═══ CONSUMABLES ═══════════════════════════════════════════════════════
-    tiny_hp_potion: "Tiny HP Potion",
-    tiny_mp_potion: "Tiny MP Potion",
-    teleport_scroll: "Teleport Scroll",
-    tiny_hp_potion_desc: "Restores 20 HP.",
-    tiny_mp_potion_desc: "Restores 10 MP.",
-    teleport_scroll_desc: "Allows instant return from expedition.",
+    item_tiny_hp_potion: "Tiny HP Potion",
+    item_tiny_mp_potion: "Tiny MP Potion",
+    item_teleport_scroll: "Teleport Scroll",
+    item_tiny_hp_potion_desc: "Restores 20 HP.",
+    item_tiny_mp_potion_desc: "Restores 10 MP.",
+    item_teleport_scroll_desc: "Allows instant return from expedition.",
 
     // ═══ EQUIPMENT DESCRIPTIONS ════════════════════════════════════════════
     desc_armor_gold: "Ornate golden armor, offering moderate defense and magic recovery.",

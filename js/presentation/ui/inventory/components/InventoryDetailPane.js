@@ -88,7 +88,7 @@ export function createInventoryDetailPane({ onCook, onConsume, onEquip, onUnequi
         } else if (item.type === 'food') {
             description = t('desc_' + item.id);
         } else if (item.type === 'consumables') {
-            description = t(item.id + '_desc');
+            description = t('item_' + item.id + '_desc');
         }
 
         // Equipment overrides

@@ -138,23 +138,38 @@ export class ExploreView extends BaseView {
         const day = meta.dayCompleted || '?';
         const heroNames = meta.heroNames || [];
         const reward = meta.rewardReceived || {};
-        const status = node.status === 'closed' ? 'Path Sealed' : 'Completed';
+        const status = node.status === 'closed' ? this.t('explore_uxelm_path_sealed_title') : this.t('explore_uxelm_completed_title');
         const icon = node.status === 'closed' ? '⬡' : '✕';
+
+        const rewardItemsStr = reward.items
+            ? Object.entries(reward.items).map(([k, v]) => {
+                const transKey = k.startsWith('material_') || k.startsWith('food_') || k.startsWith('meal_') ? k : 'item_' + k;
+                return `${v} ${this.t(transKey)}`;
+            }).join(', ')
+            : '';
+
+        const heroesLabel = this.t('explore_uxelm_heroes');
+        const rewardLabel = this.t('explore_uxelm_reward');
+        const closureBonusLabel = this.t('explore_uxelm_closure_bonus');
+        const goldSuffix = this.t('explore_uxelm_gold_suffix');
+        const stagesSuffix = this.t('explore_uxelm_stages_suffix');
+        const depthLabel = this.t('explore_uxelm_depth_suffix');
+        const unknownText = this.t('explore_uxelm_unknown');
 
         const content = `
             <div style="text-align: center; margin-bottom: 16px;">
                 <div style="font-size: 2rem; margin-bottom: 8px;">${icon}</div>
                 <div style="font-size: 1.2rem; font-weight: bold; color: var(--accent-color);">${node.name}</div>
-                <div style="color: var(--text-muted); font-size: 0.9rem;">${status} — Day ${day}</div>
+                <div style="color: var(--text-muted); font-size: 0.9rem;">${status} — ${this.t('shared_uxelm_day')} ${day}</div>
             </div>
             <div style="background: rgba(255,255,255,0.03); border-radius: var(--radius-md); padding: 12px; margin-bottom: 12px;">
-                <div style="margin-bottom: 8px;"><strong>Heroes:</strong> ${heroNames.join(', ') || 'Unknown'}</div>
-                <div><strong>Reward:</strong> ${reward.gold || 0} gold</div>
-                ${reward.items ? `<div style="margin-top: 8px; font-size: 0.85rem; color: var(--text-muted);">${Object.entries(reward.items).map(([k, v]) => `${v} ${this.t(k)}`).join(', ')}</div>` : ''}
-                ${reward.closureBonus ? `<div style="margin-top: 8px; color: #f39c12; font-weight: bold;">Closure Bonus: ${reward.closureBonus.gold}g</div>` : ''}
+                <div style="margin-bottom: 8px;"><strong>${heroesLabel}:</strong> ${heroNames.join(', ') || unknownText}</div>
+                <div><strong>${rewardLabel}:</strong> ${reward.gold || 0} ${goldSuffix}</div>
+                ${rewardItemsStr ? `<div style="margin-top: 8px; font-size: 0.85rem; color: var(--text-muted);">${rewardItemsStr}</div>` : ''}
+                ${reward.closureBonus ? `<div style="margin-top: 8px; color: #f39c12; font-weight: bold;">${closureBonusLabel}: ${reward.closureBonus.gold}g</div>` : ''}
             </div>
             <div style="font-size: 0.8rem; color: var(--text-muted); text-align: center;">
-                ${(node.stages || []).length} stages • Depth ${node.depth || 1}
+                ${(node.stages || []).length} ${stagesSuffix} • ${depthLabel} ${node.depth || 1}
             </div>
         `;
 
@@ -240,7 +255,7 @@ export class ExploreView extends BaseView {
         container.innerHTML = '';
 
         regions.forEach(([regionId, regionData]) => {
-            const rName = this.t(regionId);
+            const rName = this.t('explore_info_' + regionId);
             const clears = regionData.clears || 0;
             const activeCount = activeExpeditions.filter(ae => {
                 const node = (regionData.availableNodes || []).find(n => n.id === ae.id);

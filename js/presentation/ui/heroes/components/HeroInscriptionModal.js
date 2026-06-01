@@ -84,7 +84,7 @@ export class HeroInscriptionModal {
                         }
                     }, [
                         el('span', {}, [getElementIcon(g.element)]),
-                        el('span', {}, [t(g.nameKey)]),
+                        el('span', {}, [t('magic_circle_info_' + g.id)]),
                         el('span', { style: { color: 'var(--accent-color)' } }, [getGlyphSymbol(gid)]),
                         el('button', {
                             class: 'btn-glyph-remove',
@@ -129,7 +129,7 @@ export class HeroInscriptionModal {
                 }, [
                     el('span', { class: 'inscribe-skill-name' }, [
                         `${getElementIcon(g.element)} `,
-                        t(g.nameKey),
+                        t('magic_circle_info_' + g.id),
                         el('small', { style: { color: 'var(--text-muted)', marginLeft: '4px' } }, [getGlyphSymbol(g.id)])
                     ]),
                     el('span', {

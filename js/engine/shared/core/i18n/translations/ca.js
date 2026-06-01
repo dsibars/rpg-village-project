@@ -183,6 +183,29 @@ export const ca = {
     explore_uxelm_waiting_combat: "Esperant al dia següent per començar el combat.",
     explore_uxelm_wounded: "Ferit",
     explore_uxelm_world_map: "Mapa Mundial",
+    explore_uxelm_completed_title: "Completat",
+    explore_uxelm_path_sealed_title: "Camí Segellat",
+    explore_uxelm_heroes: "Herois",
+    explore_uxelm_reward: "Recompensa",
+    explore_uxelm_closure_bonus: "Bonificació de Tancament",
+    explore_uxelm_gold_suffix: "or",
+    explore_uxelm_stages_suffix: "etapes",
+    explore_uxelm_depth_suffix: "Profunditat",
+    explore_uxelm_unknown: "Desconegut",
+
+    // ═══ REGIONS ═══════════════════════════════════════════════════════════
+    explore_info_reg_greenfields: "Camps Verds",
+    explore_info_reg_tiny_cave: "Cova Diminuta",
+    explore_info_reg_calmed_beach: "Platja Calma",
+    explore_info_reg_dark_forest: "Bosc Fosc",
+    explore_info_reg_goblin_camp: "Campament Goblin",
+    explore_info_reg_mystic_ruins: "Ruïnes Místiques",
+    explore_info_reg_frozen_peaks: "Pics Gelats",
+    explore_info_reg_whispering_forest: "Bosc dels Murmuris",
+    explore_info_reg_murky_swamp: "Aiguamoll Tèrbol",
+    explore_info_reg_forgotten_ruins: "Ruïnes Oblidades",
+    explore_info_reg_iron_peaks: "Pics de Ferro",
+    explore_info_reg_ancient_library: "Biblioteca Antiga",
 
     // ═══ FORGE ERROR ════════════════════════════════════════════════════
     forge_error_materials_not_enough: "No hi ha prou materials per completar aquesta acció.",
@@ -426,6 +449,13 @@ export const ca = {
     inventory_info_tier_wooden: "Fusta",
     inventory_info_type_armor: "Armadura",
     inventory_info_type_weapon: "Arma",
+    inventory_info_family_dagger: "Daga",
+    inventory_info_family_broadsword: "Espasa Ampla",
+    inventory_info_family_battle_axe: "Destral de Batalla",
+    inventory_info_family_wand: "Varita",
+    inventory_info_archetype_plate: "Placa",
+    inventory_info_archetype_leather: "Cuir",
+    inventory_info_archetype_robes: "Túnica",
 
     // ═══ INVENTORY UXELM ════════════════════════════════════════════════════
     inventory_uxelm_available_gear: "Equip Disponible",
@@ -737,12 +767,12 @@ export const ca = {
     meal_stew: "Estofat Saborós",
 
     // ═══ CONSUMABLES ═══════════════════════════════════════════════════════
-    tiny_hp_potion: "Poció Menor de PV",
-    tiny_mp_potion: "Poció Menor de PM",
-    teleport_scroll: "Pergamí de Teletransport",
-    tiny_hp_potion_desc: "Restaura 20 PV.",
-    tiny_mp_potion_desc: "Restaura 10 PM.",
-    teleport_scroll_desc: "Permet el retorn instantani d'una expedició.",
+    item_tiny_hp_potion: "Poció Menor de PV",
+    item_tiny_mp_potion: "Poció Menor de PM",
+    item_teleport_scroll: "Pergamí de Teletransport",
+    item_tiny_hp_potion_desc: "Restaura 20 PV.",
+    item_tiny_mp_potion_desc: "Restaura 10 PM.",
+    item_teleport_scroll_desc: "Permet el retorn instantani d'una expedició.",
 
     // ═══ EQUIPMENT DESCRIPTIONS ════════════════════════════════════════════
     desc_armor_gold: "Armadura daurada ornamentada que ofereix defensa moderada i recuperació de màgia.",
