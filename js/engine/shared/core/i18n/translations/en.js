@@ -940,6 +940,11 @@ export const en = {
     nar_undefended_raid_title: 'The Cost of Neglect',
     nar_undefended_raid_lore: 'The raiders found the gates unmanned. By dawn, the warehouse was empty, the treasury stripped, and the fields scorched. The survivors whispered that the commander had been warned.',
 
+    nar_greenfields_first_clear_title: 'The Valley Breathes',
+    nar_greenfields_first_clear_lore: 'The Greenfields were tamer than the stories suggested, but the earth itself seemed to sigh with relief. Somewhere, a rabbit watched from the treeline. The village had claimed its first ground.',
+    nar_frozen_peaks_first_clear_title: 'Ice Remembers',
+    nar_frozen_peaks_first_clear_lore: 'The summit did not yield easily. Frost clings to armor, and the wind carries voices that have no throats. Yet the path is open now — and it will not close unless the village forgets how to endure.',
+
     // ═══ MISC UXELM ═══════════════════════════════════════════════════════
     shared_uxelm_add: "Add",
     shared_uxelm_overwrite: "Overwrite",

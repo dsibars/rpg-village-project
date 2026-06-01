@@ -7,6 +7,22 @@ export const reg_forgotten_ruins = {
     enemies: ['skeleton_warrior', 'ghost_wisp', 'cultist_acolyte', 'stone_golem', 'lich_apprentice'],
     baseLevel: 5,
     bossPool: ['lich_apprentice', 'stone_golem'],
+    scaling: {
+        levelPerClears: 3,
+        statMultiplier: 1.1,
+        maxLevelCap: null
+    },
+    lootProfile: {
+        materials: [
+            { id: 'material_stone', min: 4, max: 7, chance: 1.0 },
+            { id: 'material_iron_ore', min: 2, max: 4, chance: 0.5 },
+            { id: 'material_mythril', min: 1, max: 1, chance: 0.15 }
+        ],
+        goldBase: 40,
+        goldPerClear: 8
+    },
+    narrative: null,
+    glyphDropTable: null,
     unlockRequirements: {
         any: [
             { minRegionClears: { reg_mystic_ruins: 6 } },

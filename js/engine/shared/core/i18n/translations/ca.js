@@ -940,6 +940,11 @@ export const ca = {
     nar_undefended_raid_title: 'El Cost del Descuri',
     nar_undefended_raid_lore: 'Els assaltants van trobar les portes sense vigilància. A l\'alba, el dipòsit estava buit, la tresoreria saquejada i els camps cremats. Els supervivents van susurrar que el comandant havia estat advertit.',
 
+    nar_greenfields_first_clear_title: 'La Vall Respira',
+    nar_greenfields_first_clear_lore: 'Els Camps Verds eren més mansos del que suggerien les històries, però la terra mateixa semblava sospirar d\'alleujament. En algun lloc, un conill observava des del límit del bosc. La vila havia reclamat el seu primer terreny.',
+    nar_frozen_peaks_first_clear_title: 'El Gel Recorda',
+    nar_frozen_peaks_first_clear_lore: 'La cimera no va cedir fàcilment. La gebre s\'adhereix a l\'armadura, i el vent porta veus que no tenen gola. Tanmateix, el camí està obert ara — i no es tancarà a menys que la vila oblidi com resistir.',
+
     // ═══ MISC UXELM ═══════════════════════════════════════════════════════
     shared_uxelm_add: "Afegir",
     shared_uxelm_overwrite: "Sobrescriure",

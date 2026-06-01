@@ -940,6 +940,11 @@ export const es = {
     nar_undefended_raid_title: 'El Coste del Descuido',
     nar_undefended_raid_lore: 'Los asaltantes encontraron las puertas sin vigilancia. Al amanecer, el depósito estaba vacío, la tesorería saqueada y los campos quemados. Los supervivientes susurraron que el comandante había sido advertido.',
 
+    nar_greenfields_first_clear_title: 'El Valle Respira',
+    nar_greenfields_first_clear_lore: 'Los Campos Verdes eran más mansos de lo que sugerían las historias, pero la tierra misma parecía suspirar de alivio. En algún lugar, un conejo observaba desde el límite del bosque. La aldea había reclamado su primer terreno.',
+    nar_frozen_peaks_first_clear_title: 'El Hielo Recuerda',
+    nar_frozen_peaks_first_clear_lore: 'La cumbre no cedió fácilmente. La escarcha se adhiere a la armadura, y el viento porta voces que no tienen garganta. Sin embargo, el camino está abierto ahora — y no se cerrará a menos que la aldea olvide cómo resistir.',
+
     // ═══ MISC UXELM ═══════════════════════════════════════════════════════
     shared_uxelm_add: "Añadir",
     shared_uxelm_overwrite: "Sobrescribir",

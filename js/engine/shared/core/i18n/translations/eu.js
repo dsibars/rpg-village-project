@@ -940,6 +940,11 @@ export const eu = {
     nar_undefended_raid_title: 'Utzikeriaren Kostua',
     nar_undefended_raid_lore: 'Erasotzaileek ateak zaindu gabe aurkitu zituzten. Egunsantirako, biltegia hutsik zegoen, altxortegia saileztatuta eta soroak erretakoan. Bizirik atera zirenek xuxurlatu zuten komandanteari abisua eman ziotela.',
 
+    nar_greenfields_first_clear_title: 'Harana Arnasten Du',
+    nar_greenfields_first_clear_lore: 'Greenfieldsek istorioek iradokitzen zutena baino lasaiagoak ziren, baina lurra bera pozten ari zen bezala. Nonbait, untxi batek begiztatu zuen basoaren muga zehar. Herrixkak bere lehen lurraldea eskuratu zuen.',
+    nar_frozen_peaks_first_clear_title: 'Izotzak Gogoratzen Du',
+    nar_frozen_peaks_first_clear_lore: 'Gailurrak erraz eman ez zuen. Izozketa armadurari itsatsita dago, eta haizeak eztarririk gabeko ahotsak ekartzen ditu. Hala ere, bidea irekita dago orain — eta ez da itxiko herrixkak nola iraun ahazten badu.',
+
     // ═══ MISC UXELM ═══════════════════════════════════════════════════════
     shared_uxelm_add: "Gehitu",
     shared_uxelm_overwrite: "Sobreskribatu",

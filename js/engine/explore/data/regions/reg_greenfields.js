@@ -11,7 +11,28 @@ export const reg_greenfields = {
     enemies: ['slime_green', 'wild_boar', 'rabbit_horned', 'slime_earth'],
     baseLevel: 1,
     bossPool: ['slime_fire'],
-    // Greenfields is the starting region; no unlock requirements.
+    scaling: {
+        levelPerClears: 5,
+        statMultiplier: 1.08,
+        maxLevelCap: 10
+    },
+    lootProfile: {
+        materials: [
+            { id: 'material_wood', min: 3, max: 6, chance: 1.0 },
+            { id: 'material_stone', min: 1, max: 2, chance: 0.5 },
+            { id: 'material_iron_ore', min: 1, max: 1, chance: 0.2 }
+        ],
+        goldBase: 40,
+        goldPerClear: 8
+    },
+    narrative: {
+        firstClear: {
+            titleKey: 'nar_greenfields_first_clear_title',
+            loreKey: 'nar_greenfields_first_clear_lore',
+            era: 1
+        }
+    },
+    glyphDropTable: null,
 
     storyMissions: [
         {

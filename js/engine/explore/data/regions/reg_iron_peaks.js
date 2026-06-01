@@ -11,6 +11,21 @@ export const reg_iron_peaks = {
     enemies: ['orc_grunt', 'orc_shaman', 'rock_golem', 'harpy_scout'],
     baseLevel: 5,
     bossPool: ['mountain_troll'],
+    scaling: {
+        levelPerClears: 3,
+        statMultiplier: 1.1,
+        maxLevelCap: null
+    },
+    lootProfile: {
+        materials: [
+            { id: 'material_iron_ore', min: 3, max: 6, chance: 1.0 },
+            { id: 'material_steel_ingot', min: 1, max: 3, chance: 0.4 }
+        ],
+        goldBase: 40,
+        goldPerClear: 8
+    },
+    narrative: null,
+    glyphDropTable: null,
 
     storyMissions: [
         {

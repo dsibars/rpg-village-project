@@ -812,6 +812,21 @@ export class GameEngine {
             raid: raidResult,
             tavernRecruit: tavernRecruitHero
         };
+
+        // ─── Region first-clear narratives ───
+        const regionNarratives = this.regionService.getPendingNarratives();
+        for (const rn of regionNarratives) {
+            dailyReport.newNarratives = dailyReport.newNarratives || [];
+            dailyReport.newNarratives.push({
+                id: `nar_${rn.regionId}_first_clear`,
+                titleKey: rn.titleKey,
+                loreKey: rn.loreKey,
+                era: rn.era || 1
+            });
+        }
+        if (regionNarratives.length > 0) {
+            this.regionService.consumePendingNarratives();
+        }
         
         // ─── Unlock Check: evaluate narrative and codex unlocks after all resolution ───
         const unlockState = this._buildUnlockState();

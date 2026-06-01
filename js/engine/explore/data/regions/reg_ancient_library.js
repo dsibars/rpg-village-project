@@ -11,6 +11,21 @@ export const reg_ancient_library = {
     enemies: ['cultist_acolyte', 'ghost_wisp', 'lich_apprentice', 'skeleton_archer'],
     baseLevel: 6,
     bossPool: ['lich_apprentice'],
+    scaling: {
+        levelPerClears: 3,
+        statMultiplier: 1.1,
+        maxLevelCap: null
+    },
+    lootProfile: {
+        materials: [
+            { id: 'material_stone', min: 3, max: 6, chance: 1.0 },
+            { id: 'material_mythril', min: 1, max: 1, chance: 0.2 }
+        ],
+        goldBase: 40,
+        goldPerClear: 8
+    },
+    narrative: null,
+    glyphDropTable: null,
 
     storyMissions: [
         {

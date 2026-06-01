@@ -306,7 +306,8 @@ export class ExpeditionService {
             const enemyIndices = {};
             const enemies = normalizedEnemies.map(e => {
                 const enemyLevel = stage.enemyLevel || 1;
-                const enemy = this._createEnemy(e.id, stage.isBoss, enemyLevel, e.isElite || false, e.eliteTier || 0);
+                const statMultiplier = stage.statMultiplier || 1.1;
+                const enemy = this._createEnemy(e.id, stage.isBoss, enemyLevel, e.isElite || false, e.eliteTier || 0, statMultiplier);
                 if (enemyCounts[e.id] > 1) {
                     enemyIndices[e.id] = (enemyIndices[e.id] || 0) + 1;
                     const suffix = String.fromCharCode(64 + enemyIndices[e.id]); // A, B, C...
@@ -740,12 +741,12 @@ export class ExpeditionService {
 
 
 
-    _createEnemy(templateId, isBoss, level = 1, isElite = false, eliteTier = 0) {
+    _createEnemy(templateId, isBoss, level = 1, isElite = false, eliteTier = 0, statMultiplier = 1.1) {
         const templates = this.getEnemyTemplates();
         const t = templates[templateId] || templates['slime_green'];
         
-        // Apply level scaling: Base * 1.1^(level - 1)
-        const levelMult = Math.pow(1.1, level - 1);
+        // Apply level scaling: Base * statMultiplier^(level - 1)
+        const levelMult = Math.pow(statMultiplier, level - 1);
         const scaled = {
             ...t,
             templateId: templateId || 'slime_green',

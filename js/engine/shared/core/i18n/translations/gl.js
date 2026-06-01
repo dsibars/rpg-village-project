@@ -940,6 +940,11 @@ export const gl = {
     nar_undefended_raid_title: 'O Coste do Descoido',
     nar_undefended_raid_lore: 'Os asaltantes atoparon as portas sen vixilancia. Ao amencer, o depósito estaba baleiro, a tesouraría saqueada e os campos queimados. Os superviventes susurraron que o comandante fora advertido.',
 
+    nar_greenfields_first_clear_title: 'O Val Respira',
+    nar_greenfields_first_clear_lore: 'Os Greenfields eran máis mansos do que suxerían as historias, pero a terra mesma parecía suspirar de alivio. Nalgún lugar, un coello observaba desde o linde do bosque. A vila reclamara o seu primeiro terreo.',
+    nar_frozen_peaks_first_clear_title: 'O Xeo Lembra',
+    nar_frozen_peaks_first_clear_lore: 'A cumbre non cedeu facilmente. A xebra adhírese á armadura, e o vento leva voces que non teñen gorxa. Con todo, o camiño está aberto agora — e non se pechará a non ser que a vila esqueza como resistir.',
+
     // ═══ MISC UXELM ═══════════════════════════════════════════════════════
     shared_uxelm_add: "Engadir",
     shared_uxelm_overwrite: "Sobrescribir",

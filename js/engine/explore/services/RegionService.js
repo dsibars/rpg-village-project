@@ -59,34 +59,27 @@ export class RegionService {
         const defaultState = this._getDefaultState();
         let loaded = persistence.load(this.STORAGE_KEY, null);
 
-        // Migration: if region_state doesn't exist, extract from legacy expedition_state
         if (!loaded) {
-            const legacyExpState = persistence.load('expedition_state', null);
-            if (legacyExpState && legacyExpState.regions) {
-                loaded = { regions: legacyExpState.regions };
-            } else {
-                loaded = defaultState;
-            }
+            loaded = defaultState;
         }
 
-        // Fallback for missing regions
         if (!loaded.regions) loaded.regions = defaultState.regions;
 
-        // Apply all field migrations
         for (const region of Object.values(loaded.regions)) {
             if (region.firstClearBonusGiven === undefined) {
                 region.firstClearBonusGiven = false;
             }
-            // Migrate nodes missing status and parentId
             if (region.availableNodes) {
                 for (const node of region.availableNodes) {
                     if (!node.status) node.status = 'available';
                     if (node.parentId === undefined) node.parentId = null;
                 }
             }
-            // Migrate missing region.stats
             if (!region.stats) {
                 region.stats = this._getDefaultRegionStats();
+            }
+            if (!region.pendingNarrative) {
+                region.pendingNarrative = null;
             }
         }
 
@@ -223,7 +216,8 @@ export class RegionService {
             unlocked: true,
             firstClearBonusGiven: false,
             availableNodes: [this._createProceduralNode(regionId, rData, 0)],
-            stats: this._getDefaultRegionStats()
+            stats: this._getDefaultRegionStats(),
+            pendingNarrative: null
         };
         this.save();
     }
@@ -258,6 +252,13 @@ export class RegionService {
 
         wasFirstClear = region.clears === 0;
         region.clears++;
+
+        if (wasFirstClear) {
+            const rData = this.getRegionData(regionId);
+            if (rData.narrative?.firstClear) {
+                region.pendingNarrative = { ...rData.narrative.firstClear, consumed: false };
+            }
+        }
 
         // Update region stats
         if (region.stats) {
@@ -431,8 +432,14 @@ export class RegionService {
         
         // Enemy level based on region base level + clears
         // Depth tracking: how far into the region this expedition ventures
+        const scaling = rData.scaling;
         const depth = 1 + Math.floor(clears / 2) + Math.floor(Math.random() * 2);
-        const enemyLevel = (rData.baseLevel || 1) + Math.floor(clears / 3) + Math.floor(depth / 3);
+        let enemyLevel = (rData.baseLevel || 1)
+            + Math.floor(clears / scaling.levelPerClears)
+            + Math.floor(depth / scaling.levelPerClears);
+        if (scaling.maxLevelCap !== null && enemyLevel > scaling.maxLevelCap) {
+            enemyLevel = scaling.maxLevelCap;
+        }
         const guaranteeElite = depth >= 8;
         let eliteSpawned = false;
         
@@ -513,39 +520,19 @@ export class RegionService {
 
         // Reward scaling by region tier with per-node variation (±20%)
         const tierMult = rData.baseLevel || 1;
-        const baseGold = (40 * tierMult) + (clears * 8 * tierMult);
+        const lp = rData.lootProfile;
+        const baseGold = (lp.goldBase * tierMult) + (clears * lp.goldPerClear * tierMult);
         const gold = Math.floor(baseGold * (0.8 + Math.random() * 0.4));
 
         // Region-specific material items
         const rewardItems = {};
-        if (regionId === 'reg_greenfields') {
-            rewardItems.material_wood = Math.floor(Math.random() * 4) + 3; // 3 to 6 Wood
-            if (Math.random() < 0.5) rewardItems.material_stone = Math.floor(Math.random() * 2) + 1;
-            if (Math.random() < 0.2) rewardItems.material_iron_ore = 1;
-        } else if (regionId === 'reg_tiny_cave') {
-            rewardItems.material_stone = Math.floor(Math.random() * 4) + 3; // 3 to 6 Stone
-            if (Math.random() < 0.4) rewardItems.material_iron_ore = Math.floor(Math.random() * 2) + 1;
-            if (Math.random() < 0.15) rewardItems.material_steel_ingot = 1;
-        } else if (regionId === 'reg_calmed_beach') {
-            rewardItems.material_stone = Math.floor(Math.random() * 3) + 3;
-            rewardItems.material_wood = Math.floor(Math.random() * 3) + 3;
-            if (Math.random() < 0.2) rewardItems.material_iron_ore = 1;
-        } else if (regionId === 'reg_dark_forest') {
-            rewardItems.material_wood = Math.floor(Math.random() * 4) + 4;
-            if (Math.random() < 0.5) rewardItems.material_iron_ore = Math.floor(Math.random() * 2) + 2;
-            if (Math.random() < 0.15) rewardItems.material_steel_ingot = 1;
-        } else if (regionId === 'reg_goblin_camp') {
-            rewardItems.material_iron_ore = Math.floor(Math.random() * 4) + 3;
-            if (Math.random() < 0.4) rewardItems.material_stone = Math.floor(Math.random() * 3) + 2;
-            if (Math.random() < 0.15) rewardItems.material_steel_ingot = 1;
-        } else if (regionId === 'reg_mystic_ruins') {
-            rewardItems.material_iron_ore = Math.floor(Math.random() * 3) + 2;
-            if (Math.random() < 0.4) rewardItems.material_stone = Math.floor(Math.random() * 3) + 2;
-            if (Math.random() < 0.15) rewardItems.material_mythril = 1;
-        } else if (regionId === 'reg_frozen_peaks') {
-            rewardItems.material_steel_ingot = Math.floor(Math.random() * 3) + 1;
-            if (Math.random() < 0.4) rewardItems.material_iron_ore = Math.floor(Math.random() * 3) + 1;
-            if (Math.random() < 0.1) rewardItems.material_mythril = 1;
+        for (const mat of lp.materials) {
+            if (Math.random() < mat.chance) {
+                const qty = Math.floor(Math.random() * (mat.max - mat.min + 1)) + mat.min;
+                if (qty > 0) {
+                    rewardItems[mat.id] = (rewardItems[mat.id] || 0) + qty;
+                }
+            }
         }
 
         return {
@@ -559,13 +546,35 @@ export class RegionService {
                 gold,
                 items: rewardItems
             },
-            stages
+            stages,
+            scaling: {
+                statMultiplier: rData.scaling.statMultiplier
+            }
         };
     }
 
     _getBossPoolForRegion(regionId) {
         const rData = this.getRegionData(regionId);
         return rData.bossPool || ['slime_fire'];
+    }
+
+    getPendingNarratives() {
+        const pending = [];
+        for (const [regionId, region] of Object.entries(this.state.regions)) {
+            if (region.pendingNarrative && !region.pendingNarrative.consumed) {
+                pending.push({ regionId, ...region.pendingNarrative });
+            }
+        }
+        return pending;
+    }
+
+    consumePendingNarratives() {
+        for (const region of Object.values(this.state.regions)) {
+            if (region.pendingNarrative && !region.pendingNarrative.consumed) {
+                region.pendingNarrative.consumed = true;
+            }
+        }
+        this.save();
     }
 
     _rollPackType() {

@@ -7,6 +7,22 @@ export const reg_tiny_cave = {
     enemies: ['bat_small', 'spider_minor', 'slime_green', 'goblin_scout'],
     baseLevel: 2,
     bossPool: ['goblin_brute'],
+    scaling: {
+        levelPerClears: 3,
+        statMultiplier: 1.1,
+        maxLevelCap: null
+    },
+    lootProfile: {
+        materials: [
+            { id: 'material_stone', min: 3, max: 6, chance: 1.0 },
+            { id: 'material_iron_ore', min: 1, max: 2, chance: 0.4 },
+            { id: 'material_steel_ingot', min: 1, max: 1, chance: 0.15 }
+        ],
+        goldBase: 40,
+        goldPerClear: 8
+    },
+    narrative: null,
+    glyphDropTable: null,
     unlockRequirements: {
         completedMissions: ['exp_tutorial_cave']
     },
