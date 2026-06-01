@@ -722,6 +722,7 @@ export const es = {
     village_uxelm_report_title: "Informe Diario - Día {day}",
     village_uxelm_report_view: "Ver Informe",
     village_uxelm_role: "Especialización",
+    village_uxelm_not_built: "No Construido",
 
     // ═══ VILLAGE ERROR ════════════════════════════════════════════════════
     village_error_builder_assign_exceeded: "No se pueden reducir los constructores por debajo del número asignado",

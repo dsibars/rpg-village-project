@@ -35,7 +35,8 @@ export class ExpeditionService {
             expeditionTurnIndex: 0,
             activeCombatExpeditionId: null,
             bestiary: [],
-            pendingNarratives: []
+            pendingNarratives: [],
+            storyMissions: {}
         };
     }
 
@@ -60,6 +61,14 @@ export class ExpeditionService {
     consumePendingNarratives() {
         this.state.pendingNarratives = [];
         this.save();
+    }
+
+    getStoryMissionStatus(missionId) {
+        return this.state.storyMissions?.[missionId] || null;
+    }
+
+    getCompletedStoryMissions() {
+        return Object.keys(this.state.storyMissions || {});
     }
 
     _enqueueNarrative(narrative) {
@@ -97,6 +106,7 @@ export class ExpeditionService {
         if (loaded.expeditionTurnIndex === undefined) loaded.expeditionTurnIndex = 0;
         if (!loaded.bestiary) loaded.bestiary = [];
         if (!loaded.pendingNarratives) loaded.pendingNarratives = [];
+        if (!loaded.storyMissions) loaded.storyMissions = {};
 
         return loaded;
     }
@@ -637,27 +647,31 @@ export class ExpeditionService {
             });
         }
 
-        // Enqueue story mission narrative
-        if (exp.isStory && exp.reward?.narrative) {
-            this._enqueueNarrative({
-                id: exp.reward.narrative.id || `nar_${exp.id}_story`,
-                ...exp.reward.narrative
-            });
-        }
-
         // First-clear permanent speed boost
         if (wasFirstClear) {
             const region = this.regionService.getRegion(exp.regionId);
             if (region && !region.firstClearBonusGiven) {
                 region.firstClearBonusGiven = true;
                 heroes.forEach(h => {
-                    h.addPermanentSpeedBonus(2);
+                     h.addPermanentSpeedBonus(2);
                 });
             }
         }
 
-        // Distribute rewards
+        // Register story mission completion
+        if (exp.isStory) {
+            const villageState = this.villageService.getState();
+            this.state.storyMissions[exp.id] = {
+                dayCompleted: villageState.day || 1,
+                heroIds: heroes.map(h => h.id)
+            };
+        }
+
+        // Distribute standard rewards (gold, items, loot, consumables)
         this._distributeRewards(exp);
+
+        // Resolve story mission effects
+        this._resolveEffects(exp, heroes);
 
         // Check if any new regions should unlock
         this.regionService.checkRegionUnlocks(this.state.completedIds);
@@ -694,30 +708,72 @@ export class ExpeditionService {
             this.villageService.addItemToInventory(id, qty);
         });
 
-        // Special rewards
-        if (exp.reward.special) {
-            const s = exp.reward.special;
-            if (s.type === 'hero') {
-                const avatar = s.value === 'Sir Valen' ? 'valen.webp' : null;
-                const existingHeroes = this.heroService.list();
-                const avgLevel = existingHeroes.length > 0
-                    ? Math.floor(existingHeroes.reduce((sum, h) => sum + h.level, 0) / existingHeroes.length)
-                    : 1;
-                const startLevel = Math.max(1, avgLevel - 1);
+    }
 
-                const result = this.heroService.add({ name: s.value, origin: 'origin_guard', avatar, level: startLevel });
-                if (result.success) {
-                    const newHero = result.data;
-                    for (let i = 1; i < startLevel; i++) {
-                        newHero.levelUp();
-                    }
-                    newHero.equipment.leftHand = { type: 'weapon', material: 'wooden', family: 'broadsword', level: 0 };
-                    newHero.equipment.body = { type: 'armor', material: 'wooden', archetype: 'leather', slot: 'body', level: 0 };
-                    newHero.recalculateStats({});
-                }
-            } else if (s.type === 'villagers') {
-                this.villageService.addVillagers(s.value);
+    _resolveEffects(exp, heroes) {
+        if (!exp.reward?.effects) return;
+
+        for (const effect of exp.reward.effects) {
+            switch (effect.type) {
+                case 'hero':
+                    this._effectGrantHero(effect, heroes);
+                    break;
+                case 'villagers':
+                    this.villageService.addVillagers(effect.count);
+                    break;
+                case 'building_blueprint':
+                    this.villageService.unlockBlueprint(effect.buildingId);
+                    break;
+                case 'region_unlock':
+                    this.regionService._seedRegion(effect.regionId);
+                    break;
+                case 'narrative':
+                    this._enqueueNarrative({
+                        id: effect.id || `nar_${exp.id}_story`,
+                        titleKey: effect.titleKey,
+                        loreKey: effect.loreKey,
+                        era: effect.era || 1
+                    });
+                    break;
+                default:
+                    console.warn(`[EffectResolver] Unknown effect type: ${effect.type}`);
             }
+        }
+    }
+
+    _effectGrantHero(effect, expeditionHeroes) {
+        const avatar = effect.avatar || null;
+        const origin = effect.origin || 'origin_warrior';
+        
+        let level = effect.level;
+        if (!level) {
+            const existingHeroes = this.heroService.list();
+            const avgLevel = existingHeroes.length > 0
+                ? Math.floor(existingHeroes.reduce((sum, h) => sum + h.level, 0) / existingHeroes.length)
+                : 1;
+            level = Math.max(1, avgLevel - 1);
+        }
+
+        const result = this.heroService.add({
+            name: effect.name,
+            origin,
+            avatar,
+            level: 1
+        });
+
+        if (result.success) {
+            const newHero = result.data;
+            for (let i = 1; i < level; i++) {
+                newHero.levelUp();
+            }
+            // Default starting gear for recruited heroes
+            if (!newHero.equipment.leftHand) {
+                newHero.equipment.leftHand = { type: 'weapon', material: 'wooden', family: 'broadsword', level: 0 };
+            }
+            if (!newHero.equipment.body) {
+                newHero.equipment.body = { type: 'armor', material: 'wooden', archetype: 'leather', slot: 'body', level: 0 };
+            }
+            newHero.recalculateStats({});
         }
     }
 

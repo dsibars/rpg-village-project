@@ -44,7 +44,17 @@ export const reg_forgotten_ruins = {
             reward: {
                 gold: 800,
                 items: { material_iron_ore: 10 },
-                special: { type: 'hero', value: 'Lyra' }
+                effects: [
+                    {
+                        type: 'hero',
+                        name: 'Lyra',
+                        origin: 'origin_poet',
+                        level: 1,
+                        avatar: 'lyra.png'
+                    },
+                    { type: 'building_blueprint', buildingId: 'witchs_hut' },
+                    { type: 'building_blueprint', buildingId: 'training_grounds' }
+                ]
             },
             stages: [
                 { type: 'battle', enemies: ['skeleton_warrior', 'ghost_wisp'] },

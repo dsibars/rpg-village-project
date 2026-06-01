@@ -722,6 +722,7 @@ export const ca = {
     village_uxelm_report_title: "Informe Diari - Dia {day}",
     village_uxelm_report_view: "Veure Informe",
     village_uxelm_role: "Especialització",
+    village_uxelm_not_built: "No Construit",
 
     // ═══ VILLAGE ERROR ════════════════════════════════════════════════════
     village_error_builder_assign_exceeded: "No es poden reduir els constructors per sota del nombre assignat",

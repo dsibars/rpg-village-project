@@ -722,6 +722,7 @@ export const eu = {
     village_uxelm_report_title: "Eguneroko Txostena - {day}. Eguna",
     village_uxelm_report_view: "Ikusi Txostena",
     village_uxelm_role: "Especializazioa",
+    village_uxelm_not_built: "Eraiki Gabe",
 
     // ═══ VILLAGE ERROR ════════════════════════════════════════════════════
     village_error_builder_assign_exceeded: "Ezin dira eraikitzaileak murriztu esleitutako kopuruaren azpitik",

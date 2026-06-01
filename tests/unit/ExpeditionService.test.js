@@ -255,3 +255,70 @@ test('ExpeditionService: consumePendingNarratives clears queue', () => {
     expeditionService.consumePendingNarratives();
     assert.deepStrictEqual(expeditionService.getPendingNarratives(), []);
 });
+
+test('ExpeditionService: resolving story mission effects', () => {
+    const { expeditionService, villageService, heroService, regionService } = createServices();
+
+    // Mock an expedition with all 5 types of effects
+    const mockExp = {
+        id: 'exp_test_story',
+        name: 'Test Story',
+        regionId: 'reg_greenfields',
+        isStory: true,
+        reward: {
+            effects: [
+                { type: 'hero', name: 'HeroTest', origin: 'origin_thief', level: 3, avatar: 'test.png' },
+                { type: 'villagers', count: 4 },
+                { type: 'building_blueprint', buildingId: 'blacksmith' },
+                { type: 'region_unlock', regionId: 'reg_mystic_ruins' },
+                { type: 'narrative', id: 'nar_test_story', titleKey: 't_key', loreKey: 'l_key', era: 2 }
+            ]
+        }
+    };
+
+    // Call finishExpedition or directly test effect resolution
+    const mockHero = heroService.add({ name: 'Arthur', origin: 'origin_warrior', level: 1 }).data;
+
+    // Before effects execution checks
+    const initialHeroesCount = heroService.list().length;
+    const initialVillagersCount = villageService.getState().population.total;
+    assert.strictEqual(villageService.getState().infrastructure.blacksmith, undefined);
+    assert.strictEqual(regionService.getRegion('reg_mystic_ruins'), null);
+    assert.strictEqual(expeditionService.getPendingNarratives().length, 0);
+
+    expeditionService.state.activeExpeditions = [mockExp];
+    expeditionService.state.activeCombatExpeditionId = mockExp.id;
+
+    // Simulate completion
+    const result = expeditionService._finishExpedition(mockExp, { id: mockExp.id, heroIds: [mockHero.id] });
+    assert.ok(result.success);
+
+    // Assert story mission tracking
+    assert.ok(expeditionService.getStoryMissionStatus('exp_test_story'));
+    assert.deepStrictEqual(expeditionService.getCompletedStoryMissions(), ['exp_test_story']);
+
+    // Assert Hero effect
+    const newHeroes = heroService.list();
+    assert.strictEqual(newHeroes.length, initialHeroesCount + 1);
+    const addedHero = newHeroes.find(h => h.name === 'HeroTest');
+    assert.ok(addedHero);
+    assert.strictEqual(addedHero.origin, 'origin_thief');
+    assert.strictEqual(addedHero.avatar, 'test.png');
+    assert.strictEqual(addedHero.level, 3);
+    assert.ok(addedHero.equipment.leftHand);
+    assert.ok(addedHero.equipment.body);
+
+    // Assert Villagers effect
+    assert.strictEqual(villageService.getState().population.total, initialVillagersCount + 4);
+
+    // Assert Blueprint effect
+    assert.strictEqual(villageService.getState().infrastructure.blacksmith, 0);
+
+    // Assert Region Unlock effect
+    assert.ok(regionService.getRegion('reg_mystic_ruins'));
+
+    // Assert Narrative effect
+    const pending = expeditionService.getPendingNarratives();
+    assert.strictEqual(pending.length, 1);
+    assert.strictEqual(pending[0].titleKey, 't_key');
+});

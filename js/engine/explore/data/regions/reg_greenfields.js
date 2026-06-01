@@ -44,7 +44,11 @@ export const reg_greenfields = {
             parentId: null,
             reward: {
                 gold: 100,
-                items: { material_wood: 20, material_stone: 10 }
+                items: { material_wood: 20, material_stone: 10 },
+                effects: [
+                    { type: 'building_blueprint', buildingId: 'blacksmith' },
+                    { type: 'building_blueprint', buildingId: 'explorer_guild' }
+                ]
             },
             stages: [
                 { type: 'battle', enemies: ['slime_green'] },
@@ -64,13 +68,24 @@ export const reg_greenfields = {
             reward: {
                 gold: 200,
                 items: { material_wood: 15, material_stone: 5 },
-                special: { type: 'hero', value: 'Sir Valen' },
-                narrative: {
-                    id: 'nar_rescue_mission',
-                    titleKey: 'nar_rescue_mission_title',
-                    loreKey: 'nar_rescue_mission_lore',
-                    era: 1
-                }
+                effects: [
+                    {
+                        type: 'hero',
+                        name: 'Sir Valen',
+                        origin: 'origin_guard',
+                        level: 1,
+                        avatar: 'valen.webp'
+                    },
+                    { type: 'building_blueprint', buildingId: 'tavern' },
+                    { type: 'building_blueprint', buildingId: 'infirmary' },
+                    {
+                        type: 'narrative',
+                        id: 'nar_rescue_mission',
+                        titleKey: 'nar_rescue_mission_title',
+                        loreKey: 'nar_rescue_mission_lore',
+                        era: 1
+                    }
+                ]
             },
             stages: [
                 { type: 'battle', enemies: ['slime_green', 'slime_green'] },

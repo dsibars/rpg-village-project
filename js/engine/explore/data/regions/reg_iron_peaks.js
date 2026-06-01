@@ -41,7 +41,15 @@ export const reg_iron_peaks = {
             reward: {
                 gold: 5000,
                 items: { material_steel_ingot: 20 },
-                special: { type: 'hero', value: 'Brog' }
+                effects: [
+                    {
+                        type: 'hero',
+                        name: 'Brog',
+                        origin: 'origin_warrior',
+                        level: 1,
+                        avatar: 'brog.png'
+                    }
+                ]
             },
             stages: [
                 { type: 'battle', enemies: ['orc_grunt', 'orc_grunt', 'orc_shaman'] },

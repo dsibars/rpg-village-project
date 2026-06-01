@@ -31,14 +31,7 @@ export class VillageService {
             infrastructure: {
                 housing: 1,
                 farm: 0,
-                warehouse: 1,
-                blacksmith: 0,
-                training_grounds: 0,
-                explorer_guild: 0,
-                infirmary: 0,
-                tavern: 0,
-                witchs_hut: 0,
-                arcane_sanctum: 0
+                warehouse: 1
             },
             constructionQueue: [],
             day: 1,
@@ -330,5 +323,12 @@ export class VillageService {
         this.state.population.builders = roles.builder;
         this.save();
         return Result.ok();
+    }
+
+    unlockBlueprint(buildingId) {
+        if (this.state.infrastructure[buildingId] === undefined) {
+            this.state.infrastructure[buildingId] = 0;
+            this.save();
+        }
     }
 }

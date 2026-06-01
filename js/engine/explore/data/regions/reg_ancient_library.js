@@ -40,7 +40,12 @@ export const reg_ancient_library = {
             },
             reward: {
                 gold: 7000,
-                special: { type: 'unlock', value: 'advanced_logistics' }
+                effects: [
+                    {
+                        type: 'building_blueprint',
+                        buildingId: 'arcane_sanctum'
+                    }
+                ]
             },
             stages: [
                 { type: 'battle', enemies: ['skeleton_archer', 'skeleton_archer', 'ghost_wisp'] },
