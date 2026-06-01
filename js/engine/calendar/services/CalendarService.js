@@ -123,8 +123,7 @@ export class CalendarService {
     }
 
     _generateRaid(day) {
-        const totalClears = Object.values(this.villageService.state.regions || {})
-            .reduce((sum, r) => sum + (r.clears || 0), 0);
+        const totalClears = 0;
         
         const raidLevel = Math.max(1, Math.floor(day / 10) + Math.floor(totalClears / 5));
         const enemyCount = Math.min(6, 2 + Math.floor(day / 20));

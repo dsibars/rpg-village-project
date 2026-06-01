@@ -7,6 +7,7 @@ import { BattleService } from './shared/combat/services/BattleService.js';
 import { InventoryService } from './shared/inventory/services/InventoryService.js';
 import { VillageService } from './village/services/VillageService.js';
 import { ExpeditionService } from './explore/services/ExpeditionService.js';
+import { RegionService } from './explore/services/RegionService.js';
 import { DailyObjectivesService } from './daily/services/DailyObjectivesService.js';
 import { CalendarService } from './calendar/services/CalendarService.js';
 import { AcademyService } from './academy/AcademyService.js';
@@ -37,11 +38,13 @@ export class GameEngine {
         this.villageService = new VillageService(this.inventoryService, { deferLoad: true });
         this.heroService = new HeroService(this.inventoryService, { deferLoad: true });
         this.battleService = new BattleService(this.inventoryService, { deferLoad: true });
+        this.regionService = new RegionService(this.villageService, { deferLoad: true });
         this.expeditionService = new ExpeditionService(
             this.battleService, 
             this.heroService, 
             this.villageService, 
             this.inventoryService,
+            this.regionService,
             { deferLoad: true }
         );
         this.dailyObjectivesService = new DailyObjectivesService(this.inventoryService, { deferLoad: true });
@@ -58,6 +61,7 @@ export class GameEngine {
         this.villageService.load();
         this.heroService.load();
         this.battleService.load();
+        this.regionService.load();
         this.expeditionService.load();
         this.dailyObjectivesService.load();
         this.calendarService.load();
@@ -76,7 +80,7 @@ export class GameEngine {
 
         this.i18n.setLanguage(globalPersistence.load('settings_lang', 'en'));
 
-        if (this.expeditionService.state.activeCombatExpeditionId) {
+        if (this.expeditionService.getActiveCombatExpeditionId()) {
             if (DEBUG) console.log('Engine: Resuming active combat...');
             this.expeditionService.resumeActiveBattle();
         }
@@ -119,18 +123,9 @@ export class GameEngine {
         this.heroService.saveAll();
 
         // 4. Unlock the shop by marking tutorial cave as completed (if not already)
-        const expState = this.expeditionService.state;
-        if (!expState.completedIds.includes('exp_tutorial_cave')) {
-            expState.completedIds.push('exp_tutorial_cave');
-            // Remove tutorial cave from available nodes so it isn't shown as available
-            const region = expState.regions['reg_greenfields'];
-            if (region) {
-                region.availableNodes = region.availableNodes.filter(n => n.id !== 'exp_tutorial_cave');
-                region.clears = (region.clears || 0) + 1;
-                // Generate next story/procedural nodes
-                this.expeditionService._generateNextNodes('reg_greenfields');
-            }
-            this.expeditionService.save();
+        if (!this.expeditionService.getCompletedIds().includes('exp_tutorial_cave')) {
+            this.expeditionService.markCompleted('exp_tutorial_cave');
+            this.regionService.forceRemoveNodeAndIncrementClears('reg_greenfields', 'exp_tutorial_cave');
         }
 
         return Result.ok();
@@ -138,7 +133,7 @@ export class GameEngine {
 
     update() {
         const now = Date.now();
-        const activeExpeditions = this.expeditionService.state.activeExpeditions;
+        const activeExpeditions = this.expeditionService.getActiveExpeditions();
         const maxConcurrentExpeditions = this.expeditionService.getMaxConcurrentExpeditions();
         
         const heroesDto = this.heroService.list().map(hero => {
@@ -177,13 +172,13 @@ export class GameEngine {
             expeditions: this.expeditionService.getExpeditions(),
             activeExpeditions,
             maxConcurrentExpeditions,
-            completedExpeditions: this.expeditionService.state.completedIds || [],
+            completedExpeditions: this.expeditionService.getCompletedIds(),
             activeBattle,
             bestiary: this.expeditionService.getBestiary(),
             enemyTemplates: this.expeditionService.getEnemyTemplates(),
             dailyObjectives: this.dailyObjectivesService.getState(),
             calendar: this.calendarService.getState(currentDay),
-            expeditionRegions: this.expeditionService.state.regions || {},
+            expeditionRegions: this.regionService.getRegions(),
             unlockedNarratives: this.unlockService.getShownNarratives()
         };
     }
@@ -904,7 +899,7 @@ export class GameEngine {
         
         // Find the expedition and compute duration
         const exp = this.expeditionService.getExpeditions().find(e => e.id === expId);
-        const activeExp = this.expeditionService.state.activeExpeditions.find(e => e.id === expId);
+        const activeExp = this.expeditionService.getActiveExpeditions().find(e => e.id === expId);
         
         let duration = 1;
         if (exp && exp.stages) {
@@ -930,7 +925,7 @@ export class GameEngine {
         
         // Check if any other active expedition returns before the raid
         let otherExpeditionReturnsBeforeRaid = false;
-        for (const otherExp of this.expeditionService.state.activeExpeditions) {
+        for (const otherExp of this.expeditionService.getActiveExpeditions()) {
             if (otherExp.id === expId) continue;
             const otherNode = this.expeditionService.getExpeditions().find(e => e.id === otherExp.id);
             if (otherNode && otherNode.stages) {
@@ -1005,8 +1000,8 @@ export class GameEngine {
         return {
             heroes: this.heroService.list().map(h => h.toJSON()),
             village: this.villageService.getState(),
-            completedExpeditions: this.expeditionService.state.completedIds || [],
-            expeditionRegions: this.expeditionService.state.regions || {},
+            completedExpeditions: this.expeditionService.getCompletedIds(),
+            expeditionRegions: this.regionService.getRegions(),
             calendar: this.calendarService.getState(currentDay)
         };
     }

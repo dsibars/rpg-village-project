@@ -68,6 +68,15 @@ export class SaveSlotManager {
             if (e) exp = JSON.parse(e);
         } catch (e) { /* corrupted */ }
 
+        let regionState = {};
+        try {
+            const r = localStorage.getItem(prefix + 'region_state');
+            if (r) regionState = JSON.parse(r);
+        } catch (e) { /* corrupted */ }
+
+        // Resolve regions: prefer region_state, fall back to legacy exp.regions
+        const regions = regionState.regions || exp.regions || {};
+
         // Validate: if no village day and no heroes, treat as empty
         if (!village.day && heroes.length === 0) return null;
 
@@ -93,7 +102,7 @@ export class SaveSlotManager {
             },
             expeditions: {
                 completed: exp.completedIds?.length || 0,
-                regionsUnlocked: Object.values(exp.regions || {}).filter(r => r.unlocked).length,
+                regionsUnlocked: Object.values(regions).filter(r => r.unlocked).length,
                 activeExpeditions: exp.activeExpeditions?.length || 0
             }
         };
