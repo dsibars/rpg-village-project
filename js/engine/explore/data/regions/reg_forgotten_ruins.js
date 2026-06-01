@@ -22,7 +22,13 @@ export const reg_forgotten_ruins = {
         goldPerClear: 8
     },
     narrative: null,
-    glyphDropTable: null,
+    glyphDropChance: 0.25,
+    glyphDropTable: [
+        { glyphId: 'glyph_pierce', weight: 10, tier: 1 },
+        { glyphId: 'glyph_multi',  weight: 8,  tier: 1 },
+        { glyphId: 'glyph_dark',   weight: 6,  tier: 1 }
+    ],
+
     unlockRequirements: {
         any: [
             { minRegionClears: { reg_mystic_ruins: 6 } },

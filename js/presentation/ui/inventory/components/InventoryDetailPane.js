@@ -20,7 +20,7 @@ const BUFF_STAT_KEY_MAP = {
     mpCostReduction: 'heroes_info_stat_mpCostReduction'
 };
 
-export function createInventoryDetailPane({ onCook, onConsume, onEquip, onUnequip, onDrop, t }) {
+export function createInventoryDetailPane({ onCook, onConsume, onEquip, onUnequip, onDrop, onTeachGlyph, t }) {
     // Empty state
     const emptyStateRef = el('div', { class: 'empty-detail' }, [
         el('div', { class: 'detail-icon-bg' }, ['🎒']),
@@ -211,6 +211,17 @@ export function createInventoryDetailPane({ onCook, onConsume, onEquip, onUnequi
                 ]);
                 actionRef.appendChild(container);
             }
+        } else if (item.id && item.id.startsWith('tablet_glyph_')) {
+            const container = el('div', { class: 'item-inspector-stats', style: { marginTop: '15px' } }, [
+                el('h4', {}, [t('inventory_uxelm_effect')]),
+                el('div', { style: { fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '10px' } }, [t('item_' + item.id + '_desc')]),
+                el('button', {
+                    class: 'btn btn-primary btn-use-tablet',
+                    style: { width: '100%' },
+                    onClick: () => onTeachGlyph(item.id)
+                }, [t('inventory_uxelm_use_tablet')])
+            ]);
+            actionRef.appendChild(container);
         }
     }
 

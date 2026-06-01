@@ -668,7 +668,7 @@ export class ExpeditionService {
         }
 
         // Distribute standard rewards (gold, items, loot, consumables)
-        this._distributeRewards(exp);
+        const drops = this._distributeRewards(exp);
 
         // Resolve story mission effects
         this._resolveEffects(exp, heroes);
@@ -681,18 +681,21 @@ export class ExpeditionService {
         this.regionService.save();
         this.save();
         
-        return Result.ok({ status: 'completed', expId: exp.id, expName: exp.name, reward: exp.reward });
+        return Result.ok({ status: 'completed', expId: exp.id, expName: exp.name, reward: exp.reward, drops });
     }
 
     /**
      * Distributes rewards from a completed expedition.
      */
     _distributeRewards(exp) {
+        const drops = { items: {}, loot: null, consumables: [], glyphs: [] };
+
         // Grant gold and items
         if (exp.reward.gold) this.villageService.addGold(exp.reward.gold);
         if (exp.reward.items) {
             Object.entries(exp.reward.items).forEach(([id, qty]) => {
                 this.villageService.addItemToInventory(id, qty);
+                drops.items[id] = qty;
             });
         }
 
@@ -700,14 +703,26 @@ export class ExpeditionService {
         const loot = this.lootService.generateLootDrop(exp.regionId);
         if (loot) {
             this.inventoryService.addEquipment(loot);
+            drops.loot = loot;
         }
 
         // Consumable drops
         const consumables = this.lootService.generateConsumableDrops(exp.regionId);
         consumables.forEach(({ id, qty }) => {
             this.villageService.addItemToInventory(id, qty);
+            drops.consumables.push({ id, qty });
         });
 
+        // Glyph tablet drop
+        const region = this.regionService.getRegion(exp.regionId);
+        const clears = region ? region.clears : 0;
+        const glyphDrop = this.lootService.generateGlyphDrop(exp.regionId, clears);
+        if (glyphDrop) {
+            this.villageService.addItemToInventory(glyphDrop.tabletId, 1);
+            drops.glyphs.push(glyphDrop);
+        }
+
+        return drops;
     }
 
     _resolveEffects(exp, heroes) {

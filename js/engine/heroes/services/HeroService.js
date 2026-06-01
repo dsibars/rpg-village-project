@@ -1,6 +1,8 @@
 import { Result } from '../../shared/core/Result.js';
 import { Hero } from '../models/Hero.js';
 import { persistence } from '../../shared/core/Persistence.js';
+import { GLYPH_TABLET_DATA } from '../../shared/data/InventoryData.js';
+
 
 export class HeroService {
     constructor(inventoryService, options = {}) {
@@ -223,4 +225,37 @@ export class HeroService {
         this.saveAll();
         return Result.ok(hero);
     }
+
+    useGlyphTablet(heroId, tabletId) {
+        const hero = this.get(heroId);
+        if (!hero) return Result.fail('heroes_error_hero_not_found');
+
+        const tabletData = GLYPH_TABLET_DATA[tabletId];
+        if (!tabletData) return Result.fail('heroes_error_item_type_invalid');
+
+        // Check hero already knows glyph
+        if (hero.knownGlyphs && hero.knownGlyphs.includes(tabletData.glyphId)) {
+            return Result.fail('heroes_error_glyph_already_known');
+        }
+
+        // Check inventory has tablet
+        const hasTablet = this.inventory.getItemCount(tabletId) > 0;
+        if (!hasTablet) return Result.fail('inventory_error_item_not_enough');
+
+        // Consume tablet
+        const useResult = this.inventory.useItem(tabletId, 1);
+        if (!useResult.success) return useResult;
+
+        // Learn glyph
+        const learnResult = hero.learnGlyph(tabletData.glyphId);
+        if (!learnResult.success) {
+            // Refund tablet on learn failure
+            this.inventory.addItem(tabletId, 1);
+            return learnResult;
+        }
+
+        this.saveAll();
+        return Result.ok({ heroId, glyphId: tabletData.glyphId, tier: tabletData.tier });
+    }
 }
+

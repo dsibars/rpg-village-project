@@ -7,7 +7,7 @@ export class RegionValidator {
     static KNOWN_FIELDS = new Set([
         'id', 'name', 'branching', 'minStages', 'maxStages', 'enemies', 'baseLevel',
         'bossPool', 'unlockRequirements', 'storyMissions',
-        'scaling', 'lootProfile', 'narrative', 'glyphDropTable'
+        'scaling', 'lootProfile', 'narrative', 'glyphDropTable', 'glyphDropChance'
     ]);
 
     static validate(region) {

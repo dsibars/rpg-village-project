@@ -298,6 +298,18 @@ export class EngineAdapter {
                     }
                     this.forceUpdate();
                 });
+                view.on('useGlyphTablet', (data) => {
+                    const result = this.engine.useGlyphTablet(data.heroId, data.tabletId);
+                    if (result.success) {
+                        const glyphId = result.data.glyphId;
+                        const hero = this.engine.heroService.get(data.heroId);
+                        const transGlyph = this.engine.i18n.t('magic_circle_info_' + glyphId);
+                        this.ui.showToast(`${hero.name} learned ${transGlyph}!`);
+                    } else {
+                        this.ui.showToast(this.engine.i18n.t(result.error));
+                    }
+                    this.forceUpdate();
+                });
             }
 
             if (domain === 'forge') {

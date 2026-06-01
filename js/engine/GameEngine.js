@@ -654,6 +654,10 @@ export class GameEngine {
         return Result.ok({ fedCount, buffs });
     }
 
+    useGlyphTablet(heroId, tabletId) {
+        return this.heroService.useGlyphTablet(heroId, tabletId);
+    }
+
     // --- Combat Facade ---
     nextBattleTurn() {
         return this.battleService.nextTurn();

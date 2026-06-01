@@ -322,3 +322,41 @@ test('ExpeditionService: resolving story mission effects', () => {
     assert.strictEqual(pending.length, 1);
     assert.strictEqual(pending[0].titleKey, 't_key');
 });
+
+test('ExpeditionService: _finishExpedition compiles and returns drops object', () => {
+    const { expeditionService, heroService, regionService } = createServices();
+    const hero = heroService.add({ name: 'Test Hero', origin: 'origin_warrior', level: 1 }).data;
+
+    const exp = expeditionService.getExpeditions()[0];
+    const activeExp = {
+        id: exp.id,
+        currentStage: exp.stages.length,
+        heroIds: [hero.id],
+        status: 'assigned'
+    };
+    expeditionService.state.activeExpeditions.push(activeExp);
+
+    // Mock LootService glyph tablet drop
+    const originalGenerateGlyphDrop = expeditionService.lootService.generateGlyphDrop;
+    expeditionService.lootService.generateGlyphDrop = () => ({
+        tabletId: 'tablet_glyph_fire_1',
+        glyphId: 'glyph_fire',
+        tier: 1
+    });
+
+    try {
+        const res = expeditionService._finishExpedition(exp, activeExp);
+        assert.ok(res.success);
+        assert.ok(res.data.drops);
+        assert.ok(res.data.drops.consumables);
+        assert.ok(res.data.drops.items);
+        assert.deepStrictEqual(res.data.drops.glyphs, [{
+            tabletId: 'tablet_glyph_fire_1',
+            glyphId: 'glyph_fire',
+            tier: 1
+        }]);
+    } finally {
+        expeditionService.lootService.generateGlyphDrop = originalGenerateGlyphDrop;
+    }
+});
+

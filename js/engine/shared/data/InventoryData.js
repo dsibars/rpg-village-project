@@ -38,3 +38,26 @@ export const MEAL_RECIPES = {
         icon: '🍖'
     }
 };
+
+export const GLYPH_TABLET_DATA = {
+    tablet_glyph_fire_1:        { glyphId: 'glyph_fire',        tier: 1 },
+    tablet_glyph_water_1:       { glyphId: 'glyph_water',       tier: 1 },
+    tablet_glyph_wind_1:        { glyphId: 'glyph_wind',        tier: 1 },
+    tablet_glyph_storm_1:       { glyphId: 'glyph_storm',       tier: 1 },
+    tablet_glyph_light_1:       { glyphId: 'glyph_light',       tier: 1 },
+    tablet_glyph_dark_1:        { glyphId: 'glyph_dark',        tier: 1 },
+    tablet_glyph_earth_1:       { glyphId: 'glyph_earth',       tier: 1 },
+    tablet_glyph_potentiate_1:  { glyphId: 'glyph_potentiate',  tier: 1 },
+    tablet_glyph_focus_1:       { glyphId: 'glyph_focus',       tier: 1 },
+    tablet_glyph_extend_1:      { glyphId: 'glyph_extend',      tier: 1 },
+    tablet_glyph_multi_1:       { glyphId: 'glyph_multi',       tier: 1 },
+    tablet_glyph_pierce_1:      { glyphId: 'glyph_pierce',      tier: 1 },
+    tablet_glyph_venom_1:       { glyphId: 'glyph_venom',       tier: 1 },
+    tablet_glyph_slumber_1:     { glyphId: 'glyph_slumber',     tier: 1 },
+    tablet_glyph_aegis_1:       { glyphId: 'glyph_aegis',       tier: 1 },
+    tablet_glyph_celerity_1:    { glyphId: 'glyph_celerity',    tier: 1 },
+    tablet_glyph_reflect_1:     { glyphId: 'glyph_reflect',     tier: 1 },
+    tablet_glyph_leech_1:       { glyphId: 'glyph_leech',       tier: 1 },
+    tablet_glyph_streamline_1:  { glyphId: 'glyph_streamline',  tier: 1 }
+};
+

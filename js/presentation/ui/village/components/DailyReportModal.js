@@ -95,8 +95,8 @@ export class DailyReportModal {
             
             if (exp.status === 'completed') {
                 let rewardsStr = '';
+                const rewards = [];
                 if (exp.reward) {
-                    const rewards = [];
                     if (exp.reward.gold) rewards.push(`${exp.reward.gold} ${this.t('village_info_gold')}`);
                     if (exp.reward.items) {
                         for (const [id, qty] of Object.entries(exp.reward.items)) {
@@ -104,8 +104,27 @@ export class DailyReportModal {
                             rewards.push(`${qty} ${this.t(transKey)}`);
                         }
                     }
-                    rewardsStr = rewards.join(', ');
                 }
+                if (exp.drops) {
+                    if (exp.drops.loot) {
+                        const loot = exp.drops.loot;
+                        const matKey = 'inventory_info_tier_' + loot.material;
+                        const typeKey = 'inventory_info_type_' + loot.type;
+                        const eqName = `${this.t(matKey)} ${this.t(typeKey)}`;
+                        rewards.push(eqName);
+                    }
+                    if (exp.drops.consumables && exp.drops.consumables.length > 0) {
+                        exp.drops.consumables.forEach(({ id, qty }) => {
+                            rewards.push(`${qty} ${this.t('item_' + id)}`);
+                        });
+                    }
+                    if (exp.drops.glyphs && exp.drops.glyphs.length > 0) {
+                        exp.drops.glyphs.forEach(({ tabletId }) => {
+                            rewards.push(`1 ${this.t('item_' + tabletId)}`);
+                        });
+                    }
+                }
+                rewardsStr = rewards.join(', ');
                 sections.push(el('div', { class: 'report-section success' }, [
                     el('span', { class: 'report-icon' }, ['✨']),
                     el('span', {}, [this.t('village_msg_report_exp_completed').replace('{name}', expName).replace('{rewards}', rewardsStr)])

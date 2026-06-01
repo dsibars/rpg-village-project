@@ -590,3 +590,41 @@ test('HeroService: duplicate gambit id rejected', () => {
     assert.strictEqual(result.success, false);
     assert.strictEqual(result.error, 'heroes_error_gambit_id_duplicate');
 });
+
+test('HeroService: useGlyphTablet teaches glyph and consumes tablet', () => {
+    const inventory = new InventoryService();
+    const service = new HeroService(inventory);
+    const added = service.add({ name: 'TestHero', origin: 'origin_warrior', level: 1, statPoints: 5 });
+    const heroId = added.data.id;
+    const hero = service.get(heroId);
+
+    // Initial state
+    assert.strictEqual(inventory.getItemCount('tablet_glyph_fire_1'), 0);
+    assert.strictEqual(hero.knownGlyphs.includes('glyph_fire'), false);
+
+    // Fail if tablet not in inventory
+    const failNoItem = service.useGlyphTablet(heroId, 'tablet_glyph_fire_1');
+    assert.strictEqual(failNoItem.success, false);
+    assert.strictEqual(failNoItem.error, 'inventory_error_item_not_enough');
+
+    // Add tablet to inventory
+    inventory.addItem('tablet_glyph_fire_1', 1);
+    assert.strictEqual(inventory.getItemCount('tablet_glyph_fire_1'), 1);
+
+    // Teach success
+    const successResult = service.useGlyphTablet(heroId, 'tablet_glyph_fire_1');
+    assert.strictEqual(successResult.success, true);
+    assert.strictEqual(successResult.data.glyphId, 'glyph_fire');
+    assert.strictEqual(successResult.data.tier, 1);
+
+    // Check consumption and learning
+    assert.strictEqual(inventory.getItemCount('tablet_glyph_fire_1'), 0);
+    assert.strictEqual(hero.knownGlyphs.includes('glyph_fire'), true);
+
+    // Fail if already known
+    inventory.addItem('tablet_glyph_fire_1', 1);
+    const failAlreadyKnown = service.useGlyphTablet(heroId, 'tablet_glyph_fire_1');
+    assert.strictEqual(failAlreadyKnown.success, false);
+    assert.strictEqual(failAlreadyKnown.error, 'heroes_error_glyph_already_known');
+});
+

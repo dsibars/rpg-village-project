@@ -22,7 +22,14 @@ export const reg_mystic_ruins = {
         goldPerClear: 8
     },
     narrative: null,
-    glyphDropTable: null,
+    glyphDropChance: 0.40,
+    glyphDropTable: [
+        { glyphId: 'glyph_fire',  weight: 10, tier: 1 },
+        { glyphId: 'glyph_water', weight: 10, tier: 1 },
+        { glyphId: 'glyph_earth', weight: 8,  tier: 1 },
+        { glyphId: 'glyph_wind',  weight: 8,  tier: 1 }
+    ],
+
     unlockRequirements: {
         any: [
             { minTotalClears: 5 },
