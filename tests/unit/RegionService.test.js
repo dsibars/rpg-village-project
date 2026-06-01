@@ -106,70 +106,43 @@ test('RegionService: node carries statMultiplier', () => {
 
 // --- Narrative Tests ---
 
-test('RegionService: first clear enqueues narrative marker', () => {
+test('RegionService: first clear returns narrative in result', () => {
     const { regionService } = createServices();
     const region = regionService.getRegion('reg_greenfields');
     region.clears = 0;
     region.availableNodes = [regionService.generateExpedition('reg_greenfields', 0)];
     const exp = region.availableNodes[0];
 
-    regionService.completeExpedition(exp.id, [], [], []);
+    const result = regionService.completeExpedition(exp.id, [], [], []);
 
-    assert.ok(region.pendingNarrative, 'Pending narrative should exist');
-    assert.strictEqual(region.pendingNarrative.titleKey, 'nar_greenfields_first_clear_title');
-    assert.strictEqual(region.pendingNarrative.consumed, false);
+    assert.ok(result.firstClearNarrative, 'firstClearNarrative should exist');
+    assert.strictEqual(result.firstClearNarrative.titleKey, 'nar_greenfields_first_clear_title');
 });
 
-test('RegionService: second clear does not enqueue narrative', () => {
+test('RegionService: second clear returns no narrative', () => {
     const { regionService } = createServices();
     const region = regionService.getRegion('reg_greenfields');
     region.clears = 1;
     region.firstClearBonusGiven = true;
-    region.pendingNarrative = null;
     region.availableNodes = [regionService.generateExpedition('reg_greenfields', 1)];
     const exp = region.availableNodes[0];
 
-    regionService.completeExpedition(exp.id, [], [], []);
+    const result = regionService.completeExpedition(exp.id, [], [], []);
 
-    assert.ok(region.pendingNarrative === null || region.pendingNarrative === undefined);
+    assert.strictEqual(result.firstClearNarrative, null);
 });
 
-test('RegionService: region without narrative does not enqueue marker', () => {
+test('RegionService: region without narrative returns null', () => {
     const { regionService } = createServices();
-    // dark_forest is not unlocked by default, seed it
     regionService._seedRegion('reg_dark_forest');
     const region = regionService.getRegion('reg_dark_forest');
     region.clears = 0;
     region.availableNodes = [regionService.generateExpedition('reg_dark_forest', 0)];
     const exp = region.availableNodes[0];
 
-    regionService.completeExpedition(exp.id, [], [], []);
+    const result = regionService.completeExpedition(exp.id, [], [], []);
 
-    assert.strictEqual(region.pendingNarrative, null);
-});
-
-test('RegionService: consumePendingNarratives marks consumed', () => {
-    const { regionService } = createServices();
-    const region = regionService.getRegion('reg_greenfields');
-    region.pendingNarrative = { titleKey: 't', loreKey: 'l', consumed: false };
-
-    regionService.consumePendingNarratives();
-
-    assert.strictEqual(region.pendingNarrative.consumed, true);
-});
-
-test('RegionService: getPendingNarratives returns only unconsumed', () => {
-    const { regionService } = createServices();
-    regionService.state.regions.reg_greenfields.pendingNarrative = { titleKey: 'a', loreKey: 'b', consumed: false };
-    regionService.state.regions.reg_frozen_peaks = {
-        clears: 0, unlocked: true, firstClearBonusGiven: false,
-        availableNodes: [], stats: { clears: 0, fails: 0, retreats: 0, totalGoldEarned: 0, deepestDepth: 0 },
-        pendingNarrative: { titleKey: 'c', loreKey: 'd', consumed: true }
-    };
-
-    const pending = regionService.getPendingNarratives();
-    assert.strictEqual(pending.length, 1);
-    assert.strictEqual(pending[0].titleKey, 'a');
+    assert.strictEqual(result.firstClearNarrative, null);
 });
 
 // --- Validator Tests ---

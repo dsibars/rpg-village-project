@@ -944,6 +944,8 @@ export const eu = {
     nar_greenfields_first_clear_lore: 'Greenfieldsek istorioek iradokitzen zutena baino lasaiagoak ziren, baina lurra bera pozten ari zen bezala. Nonbait, untxi batek begiztatu zuen basoaren muga zehar. Herrixkak bere lehen lurraldea eskuratu zuen.',
     nar_frozen_peaks_first_clear_title: 'Izotzak Gogoratzen Du',
     nar_frozen_peaks_first_clear_lore: 'Gailurrak erraz eman ez zuen. Izozketa armadurari itsatsita dago, eta haizeak eztarririk gabeko ahotsak ekartzen ditu. Hala ere, bidea irekita dago orain — eta ez da itxiko herrixkak nola iraun ahazten badu.',
+    nar_rescue_mission_title: 'Ezkutua Iluntasunean',
+    nar_rescue_mission_lore: 'Guardia hondakinen azpian lurperatuta zegoen erdi-erdian, bere armadura pitzatuta eta bere espasa bi eskuekin helduta. Ez zuen esker onez hitz egin, betebeharraz baizik. "Lerroari eutsiko diot", esan zuen. Eta hala egin du.',
 
     // ═══ MISC UXELM ═══════════════════════════════════════════════════════
     shared_uxelm_add: "Gehitu",

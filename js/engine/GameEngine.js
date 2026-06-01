@@ -813,19 +813,14 @@ export class GameEngine {
             tavernRecruit: tavernRecruitHero
         };
 
-        // ─── Region first-clear narratives ───
-        const regionNarratives = this.regionService.getPendingNarratives();
-        for (const rn of regionNarratives) {
+        // ─── Expedition narrative queue ───
+        const pendingNarratives = this.expeditionService.getPendingNarratives();
+        for (const n of pendingNarratives) {
             dailyReport.newNarratives = dailyReport.newNarratives || [];
-            dailyReport.newNarratives.push({
-                id: `nar_${rn.regionId}_first_clear`,
-                titleKey: rn.titleKey,
-                loreKey: rn.loreKey,
-                era: rn.era || 1
-            });
+            dailyReport.newNarratives.push(n);
         }
-        if (regionNarratives.length > 0) {
-            this.regionService.consumePendingNarratives();
+        if (pendingNarratives.length > 0) {
+            this.expeditionService.consumePendingNarratives();
         }
         
         // ─── Unlock Check: evaluate narrative and codex unlocks after all resolution ───

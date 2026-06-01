@@ -944,6 +944,8 @@ export const gl = {
     nar_greenfields_first_clear_lore: 'Os Greenfields eran máis mansos do que suxerían as historias, pero a terra mesma parecía suspirar de alivio. Nalgún lugar, un coello observaba desde o linde do bosque. A vila reclamara o seu primeiro terreo.',
     nar_frozen_peaks_first_clear_title: 'O Xeo Lembra',
     nar_frozen_peaks_first_clear_lore: 'A cumbre non cedeu facilmente. A xebra adhírese á armadura, e o vento leva voces que non teñen gorxa. Con todo, o camiño está aberto agora — e non se pechará a non ser que a vila esqueza como resistir.',
+    nar_rescue_mission_title: 'Un Escudo na Escuridade',
+    nar_rescue_mission_lore: 'O garda estaba medio sepultado baixo a runa, a súa armadura esquerdada, a súa espada aínda suxeita con ambas mans. Non falou de gratitude, só de deber. "Manterei a liña", dixo. E fíxoo.',
 
     // ═══ MISC UXELM ═══════════════════════════════════════════════════════
     shared_uxelm_add: "Engadir",

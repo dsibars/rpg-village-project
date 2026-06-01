@@ -64,7 +64,13 @@ export const reg_greenfields = {
             reward: {
                 gold: 200,
                 items: { material_wood: 15, material_stone: 5 },
-                special: { type: 'hero', value: 'Sir Valen' }
+                special: { type: 'hero', value: 'Sir Valen' },
+                narrative: {
+                    id: 'nar_rescue_mission',
+                    titleKey: 'nar_rescue_mission_title',
+                    loreKey: 'nar_rescue_mission_lore',
+                    era: 1
+                }
             },
             stages: [
                 { type: 'battle', enemies: ['slime_green', 'slime_green'] },

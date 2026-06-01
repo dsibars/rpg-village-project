@@ -944,6 +944,8 @@ export const es = {
     nar_greenfields_first_clear_lore: 'Los Campos Verdes eran más mansos de lo que sugerían las historias, pero la tierra misma parecía suspirar de alivio. En algún lugar, un conejo observaba desde el límite del bosque. La aldea había reclamado su primer terreno.',
     nar_frozen_peaks_first_clear_title: 'El Hielo Recuerda',
     nar_frozen_peaks_first_clear_lore: 'La cumbre no cedió fácilmente. La escarcha se adhiere a la armadura, y el viento porta voces que no tienen garganta. Sin embargo, el camino está abierto ahora — y no se cerrará a menos que la aldea olvide cómo resistir.',
+    nar_rescue_mission_title: 'Un Escudo en la Oscuridad',
+    nar_rescue_mission_lore: 'El guardia estaba medio sepultado bajo los escombros, su armadura agrietada, su espada aún sujeta con ambas manos. No habló de gratitud, solo de deber. "Mantendré la línea", dijo. Y lo ha hecho.',
 
     // ═══ MISC UXELM ═══════════════════════════════════════════════════════
     shared_uxelm_add: "Añadir",

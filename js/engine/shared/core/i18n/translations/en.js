@@ -944,6 +944,8 @@ export const en = {
     nar_greenfields_first_clear_lore: 'The Greenfields were tamer than the stories suggested, but the earth itself seemed to sigh with relief. Somewhere, a rabbit watched from the treeline. The village had claimed its first ground.',
     nar_frozen_peaks_first_clear_title: 'Ice Remembers',
     nar_frozen_peaks_first_clear_lore: 'The summit did not yield easily. Frost clings to armor, and the wind carries voices that have no throats. Yet the path is open now — and it will not close unless the village forgets how to endure.',
+    nar_rescue_mission_title: 'A Shield in the Dark',
+    nar_rescue_mission_lore: 'The guard was half-buried under rubble, his armor cracked, his sword still clutched in both hands. He did not speak of gratitude — only duty. "I will hold the line," he said. And he has.',
 
     // ═══ MISC UXELM ═══════════════════════════════════════════════════════
     shared_uxelm_add: "Add",

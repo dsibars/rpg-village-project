@@ -78,9 +78,6 @@ export class RegionService {
             if (!region.stats) {
                 region.stats = this._getDefaultRegionStats();
             }
-            if (!region.pendingNarrative) {
-                region.pendingNarrative = null;
-            }
         }
 
         return loaded;
@@ -216,8 +213,7 @@ export class RegionService {
             unlocked: true,
             firstClearBonusGiven: false,
             availableNodes: [this._createProceduralNode(regionId, rData, 0)],
-            stats: this._getDefaultRegionStats(),
-            pendingNarrative: null
+            stats: this._getDefaultRegionStats()
         };
         this.save();
     }
@@ -253,10 +249,11 @@ export class RegionService {
         wasFirstClear = region.clears === 0;
         region.clears++;
 
+        let firstClearNarrative = null;
         if (wasFirstClear) {
             const rData = this.getRegionData(regionId);
             if (rData.narrative?.firstClear) {
-                region.pendingNarrative = { ...rData.narrative.firstClear, consumed: false };
+                firstClearNarrative = rData.narrative.firstClear;
             }
         }
 
@@ -312,7 +309,7 @@ export class RegionService {
             }
         }
 
-        return { wasFirstClear, spawnedNodes, injectedMissions };
+        return { wasFirstClear, spawnedNodes, injectedMissions, firstClearNarrative };
     }
 
     // ─── Story Missions ───────────────────────────────────────────────
@@ -558,24 +555,6 @@ export class RegionService {
         return rData.bossPool || ['slime_fire'];
     }
 
-    getPendingNarratives() {
-        const pending = [];
-        for (const [regionId, region] of Object.entries(this.state.regions)) {
-            if (region.pendingNarrative && !region.pendingNarrative.consumed) {
-                pending.push({ regionId, ...region.pendingNarrative });
-            }
-        }
-        return pending;
-    }
-
-    consumePendingNarratives() {
-        for (const region of Object.values(this.state.regions)) {
-            if (region.pendingNarrative && !region.pendingNarrative.consumed) {
-                region.pendingNarrative.consumed = true;
-            }
-        }
-        this.save();
-    }
 
     _rollPackType() {
         const roll = Math.random() * 100;

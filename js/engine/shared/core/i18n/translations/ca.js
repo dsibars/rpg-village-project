@@ -944,6 +944,8 @@ export const ca = {
     nar_greenfields_first_clear_lore: 'Els Camps Verds eren més mansos del que suggerien les històries, però la terra mateixa semblava sospirar d\'alleujament. En algun lloc, un conill observava des del límit del bosc. La vila havia reclamat el seu primer terreny.',
     nar_frozen_peaks_first_clear_title: 'El Gel Recorda',
     nar_frozen_peaks_first_clear_lore: 'La cimera no va cedir fàcilment. La gebre s\'adhereix a l\'armadura, i el vent porta veus que no tenen gola. Tanmateix, el camí està obert ara — i no es tancarà a menys que la vila oblidi com resistir.',
+    nar_rescue_mission_title: 'Un Escut en la Foscor',
+    nar_rescue_mission_lore: 'El guàrdia estava mig sepultat sota la runa, la seva armadura esquerdada, la seva espasa encara subjecta amb ambdues mans. No va parlar de gratitud, només de deure. "Mantindré la línia", va dir. I ho ha fet.',
 
     // ═══ MISC UXELM ═══════════════════════════════════════════════════════
     shared_uxelm_add: "Afegir",

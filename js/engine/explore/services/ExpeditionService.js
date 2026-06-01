@@ -34,7 +34,8 @@ export class ExpeditionService {
             activeExpeditions: [],
             expeditionTurnIndex: 0,
             activeCombatExpeditionId: null,
-            bestiary: []
+            bestiary: [],
+            pendingNarratives: []
         };
     }
 
@@ -50,6 +51,29 @@ export class ExpeditionService {
 
     getActiveCombatExpeditionId() {
         return this.state.activeCombatExpeditionId;
+    }
+
+    getPendingNarratives() {
+        return this.state.pendingNarratives || [];
+    }
+
+    consumePendingNarratives() {
+        this.state.pendingNarratives = [];
+        this.save();
+    }
+
+    _enqueueNarrative(narrative) {
+        // Deduplicate by titleKey
+        const alreadyQueued = (this.state.pendingNarratives || []).some(
+            n => n.titleKey === narrative.titleKey
+        );
+        if (!alreadyQueued) {
+            if (!this.state.pendingNarratives) {
+                this.state.pendingNarratives = [];
+            }
+            this.state.pendingNarratives.push(narrative);
+            this.save();
+        }
     }
 
     _load() {
@@ -72,6 +96,7 @@ export class ExpeditionService {
         if (!loaded.activeExpeditions) loaded.activeExpeditions = [];
         if (loaded.expeditionTurnIndex === undefined) loaded.expeditionTurnIndex = 0;
         if (!loaded.bestiary) loaded.bestiary = [];
+        if (!loaded.pendingNarratives) loaded.pendingNarratives = [];
 
         return loaded;
     }
@@ -597,12 +622,28 @@ export class ExpeditionService {
         this.state.activeCombatExpeditionId = null;
 
         // Delegate region completion to RegionService
-        const { wasFirstClear } = this.regionService.completeExpedition(
+        const { wasFirstClear, firstClearNarrative } = this.regionService.completeExpedition(
             exp.id,
             heroes.map(h => h.id),
             heroes.map(h => h.name),
             this.state.completedIds
         );
+
+        // Enqueue region first-clear narrative
+        if (firstClearNarrative) {
+            this._enqueueNarrative({
+                id: `nar_${exp.regionId}_first_clear`,
+                ...firstClearNarrative
+            });
+        }
+
+        // Enqueue story mission narrative
+        if (exp.isStory && exp.reward?.narrative) {
+            this._enqueueNarrative({
+                id: exp.reward.narrative.id || `nar_${exp.id}_story`,
+                ...exp.reward.narrative
+            });
+        }
 
         // First-clear permanent speed boost
         if (wasFirstClear) {

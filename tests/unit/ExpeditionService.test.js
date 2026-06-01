@@ -229,3 +229,29 @@ test('ExpeditionService: higher level regions drop more MP potions', () => {
     assert.ok(mpPotion, 'Should drop tiny_mp_potion');
     assert.ok(mpPotion.qty >= 3 && mpPotion.qty <= 4, 'Should drop 3-4 MP potions for level 5 region');
 });
+
+test('ExpeditionService: narrative queue state initializes empty', () => {
+    const { expeditionService } = createServices();
+    assert.deepStrictEqual(expeditionService.getPendingNarratives(), []);
+});
+
+test('ExpeditionService: _enqueueNarrative adds to queue', () => {
+    const { expeditionService } = createServices();
+    expeditionService._enqueueNarrative({ id: 'nar_test', titleKey: 't', loreKey: 'l', era: 1 });
+    assert.strictEqual(expeditionService.getPendingNarratives().length, 1);
+    assert.strictEqual(expeditionService.getPendingNarratives()[0].titleKey, 't');
+});
+
+test('ExpeditionService: _enqueueNarrative deduplicates by titleKey', () => {
+    const { expeditionService } = createServices();
+    expeditionService._enqueueNarrative({ id: 'nar_a', titleKey: 't', loreKey: 'l', era: 1 });
+    expeditionService._enqueueNarrative({ id: 'nar_b', titleKey: 't', loreKey: 'l', era: 1 });
+    assert.strictEqual(expeditionService.getPendingNarratives().length, 1);
+});
+
+test('ExpeditionService: consumePendingNarratives clears queue', () => {
+    const { expeditionService } = createServices();
+    expeditionService._enqueueNarrative({ id: 'nar_test', titleKey: 't', loreKey: 'l', era: 1 });
+    expeditionService.consumePendingNarratives();
+    assert.deepStrictEqual(expeditionService.getPendingNarratives(), []);
+});
