@@ -40,6 +40,14 @@ export class VillageView extends BaseView {
 
         // Initialize subcomponents
         this.villageCanvas = new VillageCanvas({ t: this.t.bind(this) });
+        this.villageCanvas.onTileClick = (buildingId) => {
+            this.ui.switchView('buildings').then(() => {
+                const buildingsView = this.ui.views.get('buildings');
+                if (buildingsView) {
+                    buildingsView.selectBuilding(buildingId);
+                }
+            });
+        };
         const canvasContainer = this.$('#village-canvas-container');
         if (canvasContainer) {
             canvasContainer.innerHTML = '';
@@ -54,7 +62,15 @@ export class VillageView extends BaseView {
 
         this.constructionQueue = new ConstructionQueue({
             t: this.t.bind(this),
-            container: this.elements.constructionList
+            container: this.elements.constructionList,
+            onItemClick: (buildingId) => {
+                this.ui.switchView('buildings').then(() => {
+                    const buildingsView = this.ui.views.get('buildings');
+                    if (buildingsView) {
+                        buildingsView.selectBuilding(buildingId);
+                    }
+                });
+            }
         });
 
         this.dailyObjectives = new DailyObjectives({

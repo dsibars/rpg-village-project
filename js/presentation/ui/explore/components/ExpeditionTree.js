@@ -9,10 +9,12 @@ export function createExpeditionTree({ onNodeClick, t }) {
     const root = el('div', { class: 'expedition-tree-root' });
     let nodesMap = new Map();
     let svgOverlay = null;
+    let activeIds = new Set();
 
     function update({ regionId, regionData, activeExpeditions, selectedId }) {
-        const activeIds = new Set((activeExpeditions || []).map(e => e.id));
+        activeIds = new Set((activeExpeditions || []).map(e => e.id));
         const nodes = regionData?.availableNodes || [];
+// ... (lines 16 to 149 of original code are unchanged, so we keep their context structure)
 
         root.innerHTML = '';
         nodesMap = new Map();
@@ -163,9 +165,24 @@ export function createExpeditionTree({ onNodeClick, t }) {
             const x2 = childRect.left + childRect.width / 2 - containerRect.left;
             const y2 = childRect.top + childRect.height / 2 - containerRect.top;
 
+            const isParentCompleted = parentEntry.node.status === 'completed';
+            const isChildCompleted = node.status === 'completed';
+            const isParentActive = activeIds.has(parentEntry.node.id);
+            const isChildActive = activeIds.has(node.id);
+
+            let lineClass = 'tree-connector-line';
+            if (isParentCompleted && isChildCompleted) {
+                lineClass += ' connector-completed';
+            } else if (isChildActive || isParentActive) {
+                lineClass += ' connector-active';
+            } else if (node.status === 'locked') {
+                lineClass += ' connector-locked';
+            }
+
             const line = el('line', {
                 x1, y1, x2, y2,
-                stroke: 'rgba(255,255,255,0.15)',
+                class: lineClass,
+                stroke: 'rgba(255,255,255,0.12)',
                 'stroke-width': '1.5'
             });
             svgOverlay.appendChild(line);

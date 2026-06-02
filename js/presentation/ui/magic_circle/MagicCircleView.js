@@ -428,7 +428,7 @@ export class MagicCircleView {
             }
 
             const composeResult = this.composition.length > 0
-                ? MagicCircleService.compose(glyphIds, glyphTiers, this.customName || null)
+                ? this.ui.engine.composeSpell(glyphIds, glyphTiers, this.customName || null)
                 : null;
             const spell = composeResult?.success ? composeResult.data : null;
 
