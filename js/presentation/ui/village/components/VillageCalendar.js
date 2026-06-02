@@ -8,8 +8,8 @@ function createEventItem(ev, currentDay, t) {
     const daysAway = ev.day - currentDay;
     const isUrgent = isRaid && daysAway <= 2;
     const icon = isRaid ? '⚔️' : '📅';
-    const label = isRaid ? t('event_raid') || 'Raid' : t('event_' + ev.type) || ev.type;
-    const dayLabel = daysAway === 0 ? t('ui_today') || 'Today' : (daysAway === 1 ? t('ui_tomorrow') || 'Tomorrow' : `D+${daysAway}`);
+    const label = isRaid ? t('calendar_info_event_raid') : t('calendar_info_event_' + ev.type);
+    const dayLabel = daysAway === 0 ? t('shared_uxelm_today') : (daysAway === 1 ? t('shared_uxelm_tomorrow') : `D+${daysAway}`);
 
     return el('div', {
         class: `event-item ${isUrgent ? 'event-urgent' : ''}`,
@@ -51,7 +51,7 @@ export class VillageCalendar {
         }
 
         if (this.seasonLabel) {
-            const expectedLabel = this.t('season_' + calendar.season) || calendar.season;
+            const expectedLabel = this.t('calendar_info_season_' + calendar.season);
             if (this.seasonLabel.textContent !== expectedLabel) {
                 this.seasonLabel.textContent = expectedLabel;
             }
@@ -69,8 +69,8 @@ export class VillageCalendar {
             if (events.length === 0) {
                 this.eventsContainer.innerHTML = '';
                 this.eventsContainer.appendChild(
-                    el('div', { class: 'empty-state', dataI18n: 'ui_no_events' }, [
-                        this.t('ui_no_events') || 'No upcoming events'
+                    el('div', { class: 'empty-state', dataI18n: 'calendar_uxelm_event_none' }, [
+                        this.t('calendar_uxelm_event_none')
                     ])
                 );
             } else {

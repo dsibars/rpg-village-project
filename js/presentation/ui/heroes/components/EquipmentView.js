@@ -72,9 +72,9 @@ export class EquipmentView {
                     el('div', { style: { display: 'flex', alignItems: 'center', gap: '14px' } }, [
                         el('span', { style: { fontSize: '2rem', filter: 'drop-shadow(0 0 8px var(--accent-color))' } }, '🛡️'),
                         el('div', {}, [
-                            el('h2', {}, `${this.t('ui_equipment') || 'Equipment'} — ${this.hero.name}`),
+                            el('h2', {}, `${this.t('inventory_uxelm_equipment')} — ${this.hero.name}`),
                             el('div', { style: { fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '2px' } }, 
-                                this.t('ui_equipment_desc') || 'Manage equipped gear and weapons to boost battle performance.'
+                                this.t('inventory_uxelm_equipment_desc')
                             )
                         ])
                     ]),
@@ -172,7 +172,7 @@ export class EquipmentView {
                 paddingBottom: '8px',
                 fontFamily: "'Outfit', sans-serif"
             }
-        }, this.t('ui_stats') || 'Stats');
+        }, this.t('shared_uxelm_stats'));
 
         // Render standard stats
         const statLabels = {
@@ -237,15 +237,15 @@ export class EquipmentView {
                     borderBottom: '1px solid rgba(255,255,255,0.08)',
                     paddingBottom: '4px'
                 }
-            }, this.t('ui_set_bonuses') || 'Set Bonuses');
+            }, this.t('inventory_uxelm_set_bonuses'));
             
             setBonusesContainer.appendChild(setHeader);
 
             this.hero.activeSetBonuses.forEach(sb => {
-                const setName = this.t(sb.setName) || sb.setName;
+                const setName = this.t(sb.setName);
                 const bonusLines = Object.entries(sb.bonus).map(([stat, val]) => {
                     const sign = val > 0 ? '+' : '';
-                    const label = this.t('ui_stats_' + stat) || stat.toUpperCase();
+                    const label = this.t('heroes_info_stat_' + stat);
                     return `${sign}${val} ${label}`;
                 }).join(', ');
 
@@ -268,7 +268,7 @@ export class EquipmentView {
 
         const diagramSlots = equipSlots.map(s => {
             const hasItem = !!this.hero.equipment[s];
-            const itemName = hasItem ? getEquipmentName(this.hero.equipment[s], this.t.bind(this)) : this.t('ui_empty_slot') || 'Empty';
+            const itemName = hasItem ? getEquipmentName(this.hero.equipment[s], this.t.bind(this)) : this.t('inventory_uxelm_empty_slot');
             const isSelected = this.selectedSlot === s;
 
             return el('div', {
@@ -280,7 +280,7 @@ export class EquipmentView {
                 }
             }, [
                 el('div', { class: 'eq-slot-icon' }, [slotIcons[s]]),
-                el('div', { class: 'eq-slot-label' }, [this.t('slot_' + s) || s]),
+                el('div', { class: 'eq-slot-label' }, [this.t('inventory_info_slot_' + s)]),
                 el('div', { class: 'eq-slot-item' }, [itemName])
             ]);
         });
@@ -309,7 +309,7 @@ export class EquipmentView {
                 paddingBottom: '8px',
                 fontFamily: "'Outfit', sans-serif"
             }
-        }, this.selectedSlot ? `${this.t('ui_equip')} - ${this.t('slot_' + this.selectedSlot) || this.selectedSlot}` : this.t('ui_available_gear') || 'Available Gear');
+        }, this.selectedSlot ? `${this.t('inventory_uxelm_equip')} - ${this.t('inventory_info_slot_' + this.selectedSlot)}` : this.t('inventory_uxelm_available_gear'));
 
         if (!this.selectedSlot) {
             const emptyHint = el('div', {
@@ -326,7 +326,7 @@ export class EquipmentView {
                 }
             }, [
                 el('span', { style: { fontSize: '2.5rem', marginBottom: '12px' } }, '👈'),
-                el('p', {}, [this.t('ui_select_slot_prompt') || 'Select an equipment slot on the body to see available gear.'])
+                el('p', {}, [this.t('inventory_uxelm_select_slot_prompt')])
             ]);
             this.selectionPanel.append(title, emptyHint);
             return;
@@ -351,7 +351,7 @@ export class EquipmentView {
                 }
             }, [
                 el('div', { style: { textAlign: 'left' } }, [
-                    el('div', { style: { fontSize: '0.8rem', color: 'var(--text-muted)' } }, [this.t('ui_equipped') || 'Equipped']),
+                    el('div', { style: { fontSize: '0.8rem', color: 'var(--text-muted)' } }, [this.t('inventory_uxelm_equipped')]),
                     el('div', { style: { fontWeight: '700', color: 'var(--danger)', marginTop: '2px' } }, [getEquipmentName(currentItem, this.t.bind(this))])
                 ]),
                 isIdle ? el('button', {
@@ -360,7 +360,7 @@ export class EquipmentView {
                     onClick: () => {
                         this.emit('unequipItem', { heroId: this.hero.id, slot });
                     }
-                }, [this.t('ui_unequip') || 'Unequip']) : null
+                }, [this.t('inventory_uxelm_unequip')]) : null
             ].filter(Boolean));
         }
 
@@ -386,7 +386,7 @@ export class EquipmentView {
         if (eligibleItems.length === 0) {
             itemsListEl = el('div', {
                 style: { textAlign: 'center', padding: '25px', color: 'var(--text-muted)', fontSize: '0.95rem' }
-            }, [this.t('ui_no_items') || 'No items available']);
+            }, [this.t('inventory_uxelm_no_items')]);
         } else {
             const listItems = eligibleItems.map(item => {
                 const statsObj = getEquipmentStats(item);
@@ -409,7 +409,7 @@ export class EquipmentView {
                     }
                 };
 
-                pushStat('strength', this.t('ui_stats_power') || 'STR');
+                pushStat('strength', this.t('heroes_info_stat_strength'));
                 pushStat('defense', 'DEF');
                 pushStat('maxHp', 'HP');
                 pushStat('maxMp', 'MP');
@@ -447,7 +447,7 @@ export class EquipmentView {
                         onClick: () => {
                             this.emit('equipItem', { heroId: this.hero.id, slot, itemId: item.id });
                         }
-                    }, [this.t('ui_equip') || 'Equip']) : null
+                    }, [this.t('inventory_uxelm_equip')]) : null
                 ].filter(Boolean));
             });
 
@@ -461,7 +461,7 @@ export class EquipmentView {
                 this.selectedSlot = null;
                 this.updateUI();
             }
-        }, [this.t('ui_back') || 'Deselect Slot']);
+        }, [this.t('shared_uxelm_back')]);
 
         this.selectionPanel.append(...[
             title,
@@ -476,7 +476,7 @@ export class EquipmentView {
                     letterSpacing: '0.5px',
                     textAlign: 'left'
                 }
-            }, [this.t('ui_available_gear') || 'Available Gear']),
+            }, [this.t('inventory_uxelm_available_gear')]),
             itemsListEl,
             el('div', {
                 style: { marginTop: '15px', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '12px' }

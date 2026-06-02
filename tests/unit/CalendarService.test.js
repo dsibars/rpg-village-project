@@ -142,12 +142,12 @@ test('CalendarService: defense assignment limits', () => {
     // Duplicate should fail
     const dup = cal.assignDefense('hero_0');
     assert.strictEqual(dup.success, false);
-    assert.strictEqual(dup.error, 'error_already_assigned');
+    assert.strictEqual(dup.error, 'calendar_error_defender_already_assigned');
 
     // 5th unique should fail
     const result = cal.assignDefense('hero_4');
     assert.strictEqual(result.success, false);
-    assert.strictEqual(result.error, 'error_max_defenders');
+    assert.strictEqual(result.error, 'calendar_error_defender_max_reached');
 });
 
 test('CalendarService: unassignDefense', () => {
@@ -164,7 +164,7 @@ test('CalendarService: unassignDefense', () => {
 
     const missing = cal.unassignDefense('hero_1');
     assert.strictEqual(missing.success, false);
-    assert.strictEqual(missing.error, 'error_not_assigned');
+    assert.strictEqual(missing.error, 'calendar_error_defender_not_assigned');
 });
 
 // --- Raid Resolution Tests ---

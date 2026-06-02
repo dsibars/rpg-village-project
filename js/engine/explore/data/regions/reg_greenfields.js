@@ -11,7 +11,28 @@ export const reg_greenfields = {
     enemies: ['slime_green', 'wild_boar', 'rabbit_horned', 'slime_earth'],
     baseLevel: 1,
     bossPool: ['slime_fire'],
-    // Greenfields is the starting region; no unlock requirements.
+    scaling: {
+        levelPerClears: 5,
+        statMultiplier: 1.08,
+        maxLevelCap: 10
+    },
+    lootProfile: {
+        materials: [
+            { id: 'material_wood', min: 3, max: 6, chance: 1.0 },
+            { id: 'material_stone', min: 1, max: 2, chance: 0.5 },
+            { id: 'material_iron_ore', min: 1, max: 1, chance: 0.2 }
+        ],
+        goldBase: 40,
+        goldPerClear: 8
+    },
+    narrative: {
+        firstClear: {
+            titleKey: 'nar_greenfields_first_clear_title',
+            loreKey: 'nar_greenfields_first_clear_lore',
+            era: 1
+        }
+    },
+    glyphDropTable: null,
 
     storyMissions: [
         {
@@ -23,7 +44,11 @@ export const reg_greenfields = {
             parentId: null,
             reward: {
                 gold: 100,
-                items: { material_wood: 20, material_stone: 10 }
+                items: { material_wood: 20, material_stone: 10 },
+                effects: [
+                    { type: 'building_blueprint', buildingId: 'blacksmith' },
+                    { type: 'building_blueprint', buildingId: 'explorer_guild' }
+                ]
             },
             stages: [
                 { type: 'battle', enemies: ['slime_green'] },
@@ -43,7 +68,24 @@ export const reg_greenfields = {
             reward: {
                 gold: 200,
                 items: { material_wood: 15, material_stone: 5 },
-                special: { type: 'hero', value: 'Sir Valen' }
+                effects: [
+                    {
+                        type: 'hero',
+                        name: 'Sir Valen',
+                        origin: 'origin_guard',
+                        level: 1,
+                        avatar: 'valen.webp'
+                    },
+                    { type: 'building_blueprint', buildingId: 'tavern' },
+                    { type: 'building_blueprint', buildingId: 'infirmary' },
+                    {
+                        type: 'narrative',
+                        id: 'nar_rescue_mission',
+                        titleKey: 'nar_rescue_mission_title',
+                        loreKey: 'nar_rescue_mission_lore',
+                        era: 1
+                    }
+                ]
             },
             stages: [
                 { type: 'battle', enemies: ['slime_green', 'slime_green'] },

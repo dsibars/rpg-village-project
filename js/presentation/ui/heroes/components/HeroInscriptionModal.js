@@ -1,9 +1,9 @@
 import { BaseModal } from '../../components/modal/BaseModal.js';
-import { GLYPH_DATA } from '../../../../engine/shared/data/GameConstants.js';
+import { GLYPH_DATA } from '../../../../engine/shared/data/MagicCircleData.js';
 import { el } from '../../shared/utils/DOMUtils.js';
 
 export class HeroInscriptionModal {
-    static show(hero, t, emit) {
+    static show(hero, t, emit, calculateHybridMpCost) {
         if (!hero) return;
 
         const maxSlots = 7;
@@ -37,26 +37,14 @@ export class HeroInscriptionModal {
             const slotsUsed = selectedGlyphIds.length;
             const slotsLeft = maxSlots - slotsUsed;
 
-            let hybridCost = 0;
-            if (hasCore) {
-                let base = 8;
-                for (const gid of selectedGlyphIds) {
-                    const tier = glyphTiers[gid]?.tier || 1;
-                    switch (gid) {
-                        case 'glyph_potentiate': base += 2 * tier; break;
-                        case 'glyph_multi': base += 5; break;
-                        case 'glyph_pierce': base += 3; break;
-                        case 'glyph_leech': base += 2; break;
-                        case 'glyph_focus': base += 2; break;
-                    }
-                }
-                hybridCost = Math.floor(base * (1 + (hero.magicTier || 1) / 20));
-            }
+            const hybridCost = calculateHybridMpCost
+                ? calculateHybridMpCost(selectedGlyphIds, glyphTiers, hero.magicTier)
+                : 0;
 
             const headerRow = el('div', {
                 style: { margin: '12px 0', display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }
             }, [
-                el('span', {}, [`${t('ui_inscribed_slots') || 'Slots'}: ${slotsUsed} / ${maxSlots}`]),
+                el('span', {}, [`${t('heroes_uxelm_inscription_slots')}: ${slotsUsed} / ${maxSlots}`]),
                 hybridCost > 0 ? el('span', { style: { color: 'var(--accent-color)' } }, [`Hybrid MP: ${hybridCost}`]) : null
             ].filter(Boolean));
 
@@ -71,14 +59,14 @@ export class HeroInscriptionModal {
                         fontSize: '0.8rem',
                         color: '#ffc107'
                     }
-                }, [`⏳ ${t('body_inscription_pending') || 'Inscription in progress'}: ${hero.bodyInscriptionDaysRemaining} ${t('ui_days_remaining') || 'days remaining'}`])
+                }, [`⏳ ${t('heroes_uxelm_inscription_pending')}: ${hero.bodyInscriptionDaysRemaining} ${t('heroes_uxelm_inscription_days_remaining')}`])
                 : null;
 
             let selectedGlyphsContainer;
             if (selectedGlyphIds.length === 0) {
                 selectedGlyphsContainer = el('span', {
                     style: { color: 'var(--text-muted)', fontSize: '0.8rem' }
-                }, [t('body_circle_empty') || 'No glyphs inscribed']);
+                }, [t('heroes_uxelm_inscription_empty')]);
             } else {
                 selectedGlyphsContainer = el('div', {
                     style: { display: 'flex', flexWrap: 'wrap', gap: '6px' }
@@ -96,7 +84,7 @@ export class HeroInscriptionModal {
                         }
                     }, [
                         el('span', {}, [getElementIcon(g.element)]),
-                        el('span', {}, [t(g.nameKey) || g.id]),
+                        el('span', {}, [t('magic_circle_info_' + g.id)]),
                         el('span', { style: { color: 'var(--accent-color)' } }, [getGlyphSymbol(gid)]),
                         el('button', {
                             class: 'btn-glyph-remove',
@@ -120,7 +108,7 @@ export class HeroInscriptionModal {
 
                 let actionElement;
                 if (isSelected) {
-                    actionElement = el('span', { style: { fontSize: '0.75rem', color: 'var(--accent-color)' } }, [t('ui_selected') || 'Selected']);
+                    actionElement = el('span', { style: { fontSize: '0.75rem', color: 'var(--accent-color)' } }, [t('heroes_uxelm_inscription_selected')]);
                 } else if (canSelect) {
                     actionElement = el('button', {
                         class: 'btn btn-primary btn-sm btn-glyph-select',
@@ -128,10 +116,10 @@ export class HeroInscriptionModal {
                             selectedGlyphIds.push(g.id);
                             render();
                         }
-                    }, [t('ui_add') || 'Add']);
+                    }, [t('shared_uxelm_add')]);
                 } else {
                     actionElement = el('span', { class: 'inscribe-locked' }, [
-                        !isKnown ? (t('ui_not_learned') || 'Not learned') : (slotsLeft <= 0 ? (t('ui_no_slots') || 'No slots') : '')
+                        !isKnown ? t('heroes_uxelm_inscription_not_learned') : (slotsLeft <= 0 ? t('heroes_uxelm_inscription_no_slots') : '')
                     ]);
                 }
 
@@ -141,7 +129,7 @@ export class HeroInscriptionModal {
                 }, [
                     el('span', { class: 'inscribe-skill-name' }, [
                         `${getElementIcon(g.element)} `,
-                        t(g.nameKey) || g.id,
+                        t('magic_circle_info_' + g.id),
                         el('small', { style: { color: 'var(--text-muted)', marginLeft: '4px' } }, [getGlyphSymbol(g.id)])
                     ]),
                     el('span', {
@@ -164,17 +152,17 @@ export class HeroInscriptionModal {
                     emit('inscribeBodyCircle', { heroId: hero.id, glyphIds: selectedGlyphIds, glyphTiers: glyphTierMap });
                     modalRef.close();
                 }
-            }, [hero.bodyInscription ? (t('ui_overwrite') || 'Overwrite') : (t('ui_save') || 'Save')]);
+            }, [hero.bodyInscription ? t('shared_uxelm_overwrite') : t('shared_uxelm_save')]);
 
             const closeBtn = el('button', {
                 class: 'btn btn-secondary btn-sm',
                 id: 'btn-inscribe-close',
                 onClick: () => modalRef.close()
-            }, [t('ui_btn_close') || 'Close']);
+            }, [t('shared_uxelm_close')]);
 
             const contentElement = el('div', { class: 'trainer-dialogue-box inscribe-dialogue-box' }, [
                 el('p', { style: { fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '12px' } }, [
-                    t('body_inscription_desc') || 'Compose glyphs into your body circle. Requires 1 Core glyph. Inscribed heroes gain hybrid skill casting (STA + MP).'
+                    t('heroes_uxelm_inscription_desc')
                 ]),
                 headerRow,
                 pendingBanner,
@@ -187,10 +175,10 @@ export class HeroInscriptionModal {
                     style: { display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '15px', borderTop: '1px solid var(--glass-border)', paddingTop: '10px' }
                 }, [saveBtn, closeBtn]),
                 (!hasCore && slotsUsed > 0)
-                    ? el('p', { style: { color: '#ff6b6b', fontSize: '0.8rem', marginTop: '8px' } }, [t('error_no_core_glyph') || 'At least one Core glyph is required.'])
+                    ? el('p', { style: { color: '#ff6b6b', fontSize: '0.8rem', marginTop: '8px' } }, [t('heroes_error_glyph_core_none')])
                     : null,
                 (slotsUsed > 0 && slotsUsed < maxSlots)
-                    ? el('p', { style: { color: '#ff9f43', fontSize: '0.8rem', marginTop: '8px' } }, [t('error_body_circle_must_be_7') || 'Body circle must have exactly 7 glyphs.'])
+                    ? el('p', { style: { color: '#ff9f43', fontSize: '0.8rem', marginTop: '8px' } }, [t('heroes_error_body_circle_size_invalid')])
                     : null
             ].filter(Boolean));
 
@@ -200,7 +188,7 @@ export class HeroInscriptionModal {
                 contentArea.appendChild(contentElement);
             } else {
                 modalRef = BaseModal.show({
-                    title: t('body_inscription_title') || 'Body Inscription',
+                    title: t('heroes_uxelm_inscription_title'),
                     contentElement: contentElement,
                     icon: '✦',
                     maxWidth: '560px'

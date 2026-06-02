@@ -1,4 +1,4 @@
-import { SKILLS_DATA } from '../../../engine/shared/data/GameConstants.js';
+
 import { CombatLogFormatter } from '../../../engine/shared/combat/CombatLogFormatter.js';
 import { el, diffList } from '../shared/utils/DOMUtils.js';
 
@@ -20,6 +20,25 @@ export class CombatView {
     return this.i18n.t(key, opts);
   }
 
+  translateEnemyName(actor) {
+    if (!actor) return '';
+    if (actor.type === 'Hero') return actor.name;
+    if (!actor.templateId) return actor.name;
+    const translationKey = 'combat_info_' + actor.templateId;
+    const baseName = this.t(translationKey);
+    if (baseName === translationKey) return actor.name;
+    if (actor.isElite) {
+      const prefixKey = 'combat_info_elite_tier_' + actor.eliteTier;
+      const prefix = this.t(prefixKey);
+      if (prefix !== prefixKey) {
+        return this.t('combat_info_elite_format', { prefix, name: baseName });
+      }
+      const defaultPrefixes = ['Fierce', 'Corrupted', 'Ancient', 'Legendary'];
+      return `${defaultPrefixes[actor.eliteTier] || 'Fierce'} ${baseName}`;
+    }
+    return baseName;
+  }
+
   update(state) {
     this.lastState = state;
     if (state.activeBattle && !this.isCombatOverlayOpen) {
@@ -36,7 +55,7 @@ export class CombatView {
     const content = document.createElement('div');
     content.style.cssText = 'max-width:600px;width:90%;text-align:center;';
     const title = document.createElement('h2');
-    title.textContent = this.t('combat_battle_log');
+    title.textContent = this.t('combat_uxelm_battle_log');
     title.style.marginBottom = '16px';
     content.appendChild(title);
     const logContainer = document.createElement('div');
@@ -52,10 +71,10 @@ export class CombatView {
         clearInterval(interval);
         const summary = document.createElement('div');
         summary.style.cssText = 'margin-top:12px;font-weight:bold;color:#ffd700;';
-        summary.textContent = this.t('combat_battle_finished');
+        summary.textContent = this.t('combat_uxelm_battle_finished');
         content.appendChild(summary);
         const closeBtn = document.createElement('button');
-        closeBtn.textContent = this.t('ui_btn_close');
+        closeBtn.textContent = this.t('shared_uxelm_close');
         closeBtn.className = 'btn btn-secondary';
         closeBtn.style.marginTop = '16px';
         closeBtn.addEventListener('click', () => {
@@ -99,8 +118,8 @@ export class CombatView {
 
     autoBtn.addEventListener('click', () => {
       if (overlay.battleRef && overlay.battleRef.isOver) return;
-      if (this.engine && this.engine.battleService) {
-        this.engine.battleService.autoBattle = !this.engine.battleService.autoBattle;
+      if (this.engine && this.engine.toggleAutoBattle) {
+        this.engine.toggleAutoBattle();
       }
       if (this.adapter) this.adapter.forceUpdate();
     });
@@ -155,11 +174,11 @@ export class CombatView {
     // --- Log section ---
     const logBadge = el('span', { class: 'combat-log-badge' });
     const logConsole = el('div', { class: 'combat-log-console', id: 'combat-log-console' });
-    const logExpandBtn = el('button', { class: 'btn-log-toggle', ariaLabel: 'Expand Log' }, '↗');
+    const logExpandBtn = el('button', { class: 'btn-log-toggle', ariaLabel: this.t('shared_aria_expand_log') }, '↗');
 
     // Expanded-only header
     const expandedTitle = el('h3', { class: 'combat-log-expanded-title' });
-    const expandedCloseBtn = el('button', { class: 'btn-log-close', ariaLabel: 'Close Log' }, '✕');
+    const expandedCloseBtn = el('button', { class: 'btn-log-close', ariaLabel: this.t('shared_aria_close_log') }, '✕');
     const expandedHeader = el('div', { class: 'combat-log-expanded-header' }, [expandedTitle, expandedCloseBtn]);
 
     const logSection = el('div', { class: 'combat-log-section' }, [
@@ -235,20 +254,21 @@ export class CombatView {
 
       const activeExp = (state.activeExpeditions || []).find(e => e.status === 'combat');
       const currentStageNum = activeExp ? activeExp.currentStage + 1 : 1;
-      const stageText = `${this.t('exp_stage')} ${currentStageNum}`;
+      const stageText = `${this.t('shared_uxelm_stage')} ${currentStageNum}`;
 
       const activeActor = battle.turnOrder[battle.currentTurnIndex];
       const isHeroTurn = activeActor && activeActor.type === 'Hero';
 
       // Update header
-      title.textContent = activeExp ? (this.t(activeExp.id) !== activeExp.id ? this.t(activeExp.id) : activeExp.name) : this.t('combat_battle_title');
+      // explore domain key — not yet migrated
+      title.textContent = activeExp ? (this.t(activeExp.id) !== activeExp.id ? this.t(activeExp.id) : activeExp.name) : this.t('combat_uxelm_battle_title');
       stageLabel.textContent = stageText;
-      heroesTitle.textContent = this.t('combat_heroes');
-      enemiesTitle.textContent = this.t('combat_enemies');
-      autoBtn.textContent = `${this.t('btn_auto_combat')} ${battle.autoBattle ? '(ON)' : '(OFF)'}`;
+      heroesTitle.textContent = this.t('combat_uxelm_heroes');
+      enemiesTitle.textContent = this.t('combat_uxelm_enemies');
+      autoBtn.textContent = `${this.t('shared_uxelm_auto_combat')} ${battle.autoBattle ? '(ON)' : '(OFF)'}`;
       autoBtn.className = `btn btn-sm ${battle.autoBattle ? 'btn-primary' : 'btn-secondary'}`;
       autoBtn.disabled = battle.isOver;
-      skipBtn.textContent = this.t('btn_skip_combat');
+      skipBtn.textContent = this.t('shared_uxelm_skip_combat');
       skipBtn.disabled = battle.isOver;
 
       // Update hero cards
@@ -268,8 +288,8 @@ export class CombatView {
       });
 
       // Update turn banner
-      const activeActorName = activeActor ? (this.t(activeActor.name) || activeActor.name) : '...';
-      turnBanner.textContent = activeActor ? this.t('ui_turn').replace('{name}', activeActorName) : '...';
+      const activeActorName = activeActor ? this.translateEnemyName(activeActor) : '...';
+      turnBanner.textContent = activeActor ? this.t('shared_uxelm_turn').replace('{name}', activeActorName) : '...';
 
       // Log and animations
       const log = battle.log || [];
@@ -282,8 +302,8 @@ export class CombatView {
       grid.querySelectorAll('.targetable').forEach(c => c.classList.remove('targetable'));
 
       // Update control panel
-      logBadge.textContent = this.t('combat_log');
-      expandedTitle.textContent = this.t('combat_battle_log') || 'Battle Log';
+      logBadge.textContent = this.t('combat_uxelm_log');
+      expandedTitle.textContent = this.t('combat_uxelm_battle_log');
       this._updateControlPanel(controlPanel, battle, state, overlay, grid, activeActor, isHeroTurn);
     };
 
@@ -342,20 +362,20 @@ export class CombatView {
 
       const hpPct = currentHero.maxHp ? Math.max(0, Math.min(100, (currentHero.hp / currentHero.maxHp) * 100)) : 0;
       hpBar.style.width = `${hpPct}%`;
-      hpLabel.textContent = this.t('ui_stats_hp') || 'HP';
+      hpLabel.textContent = this.t('heroes_info_stat_hp');
       hpValue.textContent = `${currentHero.hp}/${currentHero.maxHp}`;
 
       if (staBar) {
         const staPct = currentHero.maxStamina ? Math.max(0, Math.min(100, (currentHero.stamina / currentHero.maxStamina) * 100)) : 0;
         staBar.style.width = `${staPct}%`;
-        staLabel.textContent = this.t('ui_stamina');
+        staLabel.textContent = this.t('shared_uxelm_stamina');
         staValue.textContent = `${currentHero.stamina}/${currentHero.maxStamina}`;
       }
 
       if (mpBar) {
         const mpPct = currentHero.maxMp ? Math.max(0, Math.min(100, (currentHero.mp / currentHero.maxMp) * 100)) : 0;
         mpBar.style.width = `${mpPct}%`;
-        mpLabel.textContent = this.t('ui_stats_mp') || 'MP';
+        mpLabel.textContent = this.t('heroes_info_stat_mp');
         mpValue.textContent = `${currentHero.mp}/${currentHero.maxMp}`;
       }
 
@@ -396,7 +416,7 @@ export class CombatView {
       const isDead = currentEnemy.hp <= 0;
       card.className = `combat-card enemy-card ${isCurrentTurn ? 'active' : ''} ${isDead ? 'dead' : ''}`;
       avatar.textContent = isDead ? '💀' : '👾';
-      nameSpan.textContent = this.t(currentEnemy.name) || currentEnemy.name;
+      nameSpan.textContent = this.translateEnemyName(currentEnemy);
       lvlSpan.textContent = `Lv.${currentEnemy.level || 1}`;
 
       const hpPct = currentEnemy.maxHp ? Math.max(0, Math.min(100, (currentEnemy.hp / currentEnemy.maxHp) * 100)) : 0;
@@ -459,7 +479,7 @@ export class CombatView {
 
     btnAttack.addEventListener('click', () => {
       overlay.menuState = 'targeting';
-      overlay.selectedAction = { type: 'attack', id: 'single_strike', name: this.t('family_single_strike') };
+      overlay.selectedAction = { type: 'attack', id: 'single_strike', name: this.t('heroes_info_family_single_strike') };
       if (this.renderCombatOverlay) this.renderCombatOverlay();
     });
     btnSkills.addEventListener('click', () => {
@@ -515,7 +535,7 @@ export class CombatView {
       const tier = parseInt(btn.getAttribute('data-tier'));
       const familyId = overlay.selectedFamily;
       overlay.menuState = 'targeting';
-      overlay.selectedAction = { type: 'skill', id: familyId, name: this.t('family_' + familyId), tier };
+      overlay.selectedAction = { type: 'skill', id: familyId, name: this.t('heroes_info_family_' + familyId), tier };
       if (this.renderCombatOverlay) this.renderCombatOverlay();
     });
 
@@ -537,7 +557,7 @@ export class CombatView {
       const currentHero = this._getCurrentHero(overlay.battleRef);
       const spell = currentHero && currentHero.spellCodex ? currentHero.spellCodex[idx] : null;
       overlay.menuState = 'targeting';
-      overlay.selectedAction = { type: 'spell', index: idx, name: spell ? spell.name : this.t('ui_magic') };
+      overlay.selectedAction = { type: 'spell', index: idx, name: spell ? spell.name : this.t('shared_uxelm_magic') };
       if (this.renderCombatOverlay) this.renderCombatOverlay();
     });
 
@@ -557,6 +577,7 @@ export class CombatView {
       if (!btn) return;
       const itemId = btn.getAttribute('data-item-id');
       overlay.menuState = 'targeting';
+      // inventory domain key — not yet migrated
       overlay.selectedAction = { type: 'item', id: itemId, name: this.t(itemId) };
       if (this.renderCombatOverlay) this.renderCombatOverlay();
     });
@@ -636,8 +657,8 @@ export class CombatView {
 
     if (!isHeroTurn || battle.autoBattle) {
       refs.messageText.textContent = battle.autoBattle
-        ? (this.t('ui_auto_combat_running') || 'Running Auto-Combat...')
-        : (this.t('ui_enemy_planning') || 'Enemy is planning action...');
+        ? (this.t('shared_uxelm_auto_combat_running'))
+        : (this.t('shared_uxelm_enemy_planning'));
       screens.message.style.display = '';
       return;
     }
@@ -654,32 +675,26 @@ export class CombatView {
       const hasSpells = codex.length > 0;
       const canCastSpells = codex.some((s, idx) => this._canCastSpellInCombat(currentHero, s, idx));
 
-      refs.btnAttack.textContent = `⚔️ ${this.t('family_single_strike')}`;
+      refs.btnAttack.textContent = `⚔️ ${this.t('heroes_info_family_single_strike')}`;
       refs.btnSkills.disabled = !hasSkills;
-      refs.btnSkills.textContent = `✨ ${this.t('ui_skills')}`;
+      refs.btnSkills.textContent = `✨ ${this.t('shared_uxelm_skills')}`;
       refs.btnMagic.disabled = !canCastSpells;
-      refs.btnMagic.textContent = `🔮 ${this.t('ui_magic') || 'Magic'}`;
+      refs.btnMagic.textContent = `🔮 ${this.t('shared_uxelm_magic')}`;
       const itemLabel = battle.itemUsedThisTurn
-        ? `🎒 ${this.t('combat_items')} (${this.t('ui_once_per_turn') || '1/Turn'})`
-        : `🎒 ${this.t('combat_items')}`;
+        ? `🎒 ${this.t('combat_uxelm_items')} (${this.t('shared_uxelm_once_per_turn')})`
+        : `🎒 ${this.t('combat_uxelm_items')}`;
       refs.btnItems.textContent = itemLabel;
       refs.btnItems.disabled = battle.itemUsedThisTurn;
 
       screens.main.style.display = '';
     } else if (menuState === 'skills') {
       const knownFamilies = (currentHero.knownFamilies || []).filter(f => f !== 'single_strike');
-      const hybridMpCost = currentHero.getHybridMpCost ? currentHero.getHybridMpCost() : 0;
 
       const skillButtons = knownFamilies.map(familyId => {
-        const skillData = SKILLS_DATA[familyId];
-        if (!skillData) return null;
         const tier = currentHero.techniqueTiers && currentHero.techniqueTiers[familyId] || 1;
-        const staCost = skillData.staminaCostBase + skillData.staminaCostPerTier * (tier - 1);
-        const mpCost = hybridMpCost;
-        const canAffordSta = (currentHero.stamina || 0) >= staCost;
-        const canAffordMp = mpCost <= 0 || (currentHero.mp || 0) >= mpCost;
-        const canAfford = canAffordSta && canAffordMp;
-        const familyName = this.t('family_' + familyId) || familyId;
+        const canAfford = this.engine.canAffordSkill(currentHero, familyId, tier);
+        const { staCost, mpCost } = this.engine.getSkillCost(currentHero, familyId, tier);
+        const familyName = this.t('heroes_info_family_' + familyId);
         const mpLabel = mpCost > 0 ? ` + ${mpCost} MP` : '';
         return el('button', {
           class: 'btn btn-secondary',
@@ -695,27 +710,23 @@ export class CombatView {
       }).filter(Boolean);
 
       if (skillButtons.length === 0) {
-        skillButtons.push(el('div', { style: { color: 'var(--text-muted)' } }, this.t('ui_no_techniques')));
+        skillButtons.push(el('div', { style: { color: 'var(--text-muted)' } }, this.t('shared_uxelm_technique_none')));
       }
 
-      refs.btnSkillBack.textContent = `◀ ${this.t('btn_back')}`;
+      refs.btnSkillBack.textContent = `◀ ${this.t('shared_uxelm_back')}`;
       diffList(refs.skillsList, skillButtons, 'data-id');
       screens.skills.style.display = '';
     } else if (menuState === 'family_tiers') {
       const familyId = overlay.selectedFamily;
-      const skillData = SKILLS_DATA[familyId];
       const maxTier = currentHero.techniqueTiers && currentHero.techniqueTiers[familyId] || 1;
-      const familyName = this.t('family_' + familyId) || familyId;
-      const hybridMpCost = currentHero.getHybridMpCost ? currentHero.getHybridMpCost() : 0;
+      const familyName = this.t('heroes_info_family_' + familyId);
 
       const tierButtons = [];
       for (let t = maxTier; t >= 1; t--) {
-        const staCost = skillData.staminaCostBase + skillData.staminaCostPerTier * (t - 1);
-        const canAffordSta = (currentHero.stamina || 0) >= staCost;
-        const canAffordMp = hybridMpCost <= 0 || (currentHero.mp || 0) >= hybridMpCost;
-        const canAfford = canAffordSta && canAffordMp;
+        const canAfford = this.engine.canAffordSkill(currentHero, familyId, t);
+        const { staCost, mpCost } = this.engine.getSkillCost(currentHero, familyId, t);
         const label = t === maxTier ? '⚡ ' : t === 1 ? '💧 ' : '';
-        const mpLabel = hybridMpCost > 0 ? ` + ${hybridMpCost} MP` : '';
+        const mpLabel = mpCost > 0 ? ` + ${mpCost} MP` : '';
         tierButtons.push(el('button', {
           class: 'btn btn-secondary',
           dataId: `tier-${t}`,
@@ -729,7 +740,7 @@ export class CombatView {
         ]));
       }
 
-      refs.btnTierBack.textContent = `◀ ${this.t('btn_back')}`;
+      refs.btnTierBack.textContent = `◀ ${this.t('shared_uxelm_back')}`;
       refs.familyNameText.textContent = familyName;
       diffList(refs.tiersList, tierButtons, 'data-id');
       screens.familyTiers.style.display = '';
@@ -753,10 +764,10 @@ export class CombatView {
       });
 
       if (spellButtons.length === 0) {
-        spellButtons.push(el('div', { style: { color: 'var(--text-muted)' } }, this.t('ui_no_spells')));
+        spellButtons.push(el('div', { style: { color: 'var(--text-muted)' } }, this.t('shared_uxelm_spell_none')));
       }
 
-      refs.btnMagicBack.textContent = `◀ ${this.t('btn_back')}`;
+      refs.btnMagicBack.textContent = `◀ ${this.t('shared_uxelm_back')}`;
       diffList(refs.spellsList, spellButtons, 'data-id');
       screens.magic.style.display = '';
     } else if (menuState === 'items') {
@@ -765,7 +776,8 @@ export class CombatView {
       const itemButtons = Object.keys(consumables)
         .filter(itemId => consumables[itemId] > 0)
         .map(itemId => {
-          const itemName = this.t(itemId) || itemId;
+          // inventory domain key — not yet migrated
+          const itemName = this.t(itemId);
           return el('button', {
             class: 'btn btn-secondary',
             dataId: `item-${itemId}`,
@@ -775,21 +787,21 @@ export class CombatView {
         });
 
       if (itemButtons.length === 0) {
-        itemButtons.push(el('div', { style: { color: 'var(--text-muted)' } }, this.t('ui_no_consumables')));
+        itemButtons.push(el('div', { style: { color: 'var(--text-muted)' } }, this.t('shared_uxelm_consumable_none')));
       }
 
-      refs.btnItemBack.textContent = `◀ ${this.t('btn_back')}`;
+      refs.btnItemBack.textContent = `◀ ${this.t('shared_uxelm_back')}`;
       diffList(refs.itemsList, itemButtons, 'data-id');
       screens.items.style.display = '';
     } else if (menuState === 'targeting') {
       const sel = overlay.selectedAction;
-      refs.btnTargetBack.textContent = `◀ ${this.t('btn_back')}`;
-      refs.targetMessage.textContent = `${this.t('ui_choose_target')} — ${sel ? sel.name : ''}`;
+      refs.btnTargetBack.textContent = `◀ ${this.t('shared_uxelm_back')}`;
+      refs.targetMessage.textContent = `${this.t('shared_uxelm_choose_target')} — ${sel ? sel.name : ''}`;
 
-      const skillData = sel && sel.type === 'skill' ? SKILLS_DATA[sel.id] : null;
+      const skillTargetType = sel && sel.type === 'skill' ? this.engine.getSkillTargetType(sel.id) : null;
       const spellData = sel && sel.type === 'spell' ? currentHero.spellCodex?.[sel.index] : null;
       const isFriendly = sel && (
-        (skillData && (skillData.targetType === 'single_ally' || skillData.targetType === 'all_allies')) ||
+        (skillTargetType === 'single_ally' || skillTargetType === 'all_allies') ||
         (spellData && (spellData.targetType === 'single_ally' || spellData.targetType === 'all_allies')) ||
         (sel.type === 'item' && sel.id.includes('potion'))
       );
@@ -820,7 +832,7 @@ export class CombatView {
     const preview = this.engine && this.engine.getBattleResolutionPreview ? this.engine.getBattleResolutionPreview() : null;
     const isVictory = preview ? preview.isVictory : battle.winner === 'heroes';
     const resultColor = isVictory ? '#4caf50' : '#f44336';
-    const resultText = isVictory ? this.t('victory') : this.t('defeat');
+    const resultText = isVictory ? this.t('shared_uxelm_victory') : this.t('shared_uxelm_defeat');
 
     refs.battleEndResultTitle.textContent = resultText;
     refs.battleEndResultTitle.style.color = resultColor;
@@ -859,12 +871,13 @@ export class CombatView {
       if (preview.rewards.gold) rewards.push(`💰 ${preview.rewards.gold} Gold`);
       if (preview.rewards.items) {
         for (const [itemId, qty] of Object.entries(preview.rewards.items)) {
-          rewards.push(`📦 ${qty}x ${this.t(itemId) || itemId}`);
+          // inventory domain key — not yet migrated
+          rewards.push(`📦 ${qty}x ${this.t(itemId)}`);
         }
       }
       if (rewards.length > 0) {
         refs.battleEndRewards.appendChild(el('div', { style: { marginTop: '15px', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '10px' } }, [
-          el('h4', { style: { color: '#ffeb3b', margin: '0 0 5px 0' } }, this.t('combat_rewards')),
+          el('h4', { style: { color: '#ffeb3b', margin: '0 0 5px 0' } }, this.t('combat_uxelm_rewards')),
           el('div', { style: { display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center', fontSize: '0.95rem' } },
             rewards.map(r => el('span', { style: { background: 'rgba(255,235,59,0.1)', border: '1px solid rgba(255,235,59,0.3)', padding: '4px 8px', borderRadius: '4px' } }, r))
           )
@@ -872,7 +885,7 @@ export class CombatView {
       }
     }
 
-    refs.battleEndResolveBtn.textContent = this.t('ui_btn_close');
+    refs.battleEndResolveBtn.textContent = this.t('shared_uxelm_close');
   }
 
   _appendLogEntries(logConsole, newEntries) {
@@ -895,68 +908,85 @@ export class CombatView {
     if (typeof entry === 'string') {
       return el('span', { style: { color: '#aaa' } }, entry);
     }
-    const ev = entry;
+    const ev = { ...entry };
+    if (ev.actorName && !ev.actorIsHero && ev.actorTemplateId) {
+      ev.actorName = this.translateEnemyName({
+        name: ev.actorName,
+        templateId: ev.actorTemplateId,
+        isElite: ev.actorIsElite,
+        eliteTier: ev.actorEliteTier
+      });
+    }
+    if (ev.targetName && !ev.targetIsHero && ev.targetTemplateId) {
+      ev.targetName = this.translateEnemyName({
+        name: ev.targetName,
+        templateId: ev.targetTemplateId,
+        isElite: ev.targetIsElite,
+        eliteTier: ev.targetEliteTier
+      });
+    }
     let text = '';
     let color = '#aaa';
     const extraChildren = [];
 
     if (ev.type === 'DAMAGE') {
       if (ev.isMiss) {
-        text = this.t('log_miss', { attacker: ev.actorName, target: ev.targetName });
+        text = this.t('combat_log_miss', { attacker: ev.actorName, target: ev.targetName });
         color = '#ffcc00';
       } else {
-        const skillLabel = ev.skillName ? `[${this.t('family_' + ev.skillName) || ev.skillName}${ev.effectiveTier ? ' T' + ev.effectiveTier : ''}] ` : '';
-        text = skillLabel + this.t('log_attack', { attacker: ev.actorName, target: ev.targetName, damage: ev.amount });
+        const skillLabel = ev.skillName ? `[${this.t('heroes_info_family_' + ev.skillName)}${ev.effectiveTier ? ' T' + ev.effectiveTier : ''}] ` : '';
+        text = skillLabel + this.t('combat_log_attack', { attacker: ev.actorName, target: ev.targetName, damage: ev.amount });
         color = ev.actorIsHero ? '#4caf50' : '#f44336';
         if (ev.isCrit) text = '🔥 ' + text;
         if (ev.targetDefeated) {
-          const defeatedText = this.t('log_target_defeated') ? this.t('log_target_defeated').replace('{target}', '') : 'DEAD';
+          const defeatedText = this.t('combat_log_target_defeated') ? this.t('combat_log_target_defeated').replace('{target}', '') : 'DEAD';
           extraChildren.push(el('span', { style: { color: '#ff3b30', fontWeight: 'bold' } }, `(${defeatedText} 💀)`));
         }
       }
     } else if (ev.type === 'SPELL_DAMAGE') {
-      text = this.t('log_spell_damage', { attacker: ev.actorName, spell: ev.spellName || this.t('ui_magic'), target: ev.targetName, damage: ev.amount });
+      text = this.t('combat_log_spell_damage', { attacker: ev.actorName, spell: ev.spellName || this.t('shared_uxelm_magic'), target: ev.targetName, damage: ev.amount });
       color = ev.actorIsHero ? '#9c27b0' : '#f44336';
       if (ev.targetDefeated) {
-        const defeatedText = this.t('log_target_defeated') ? this.t('log_target_defeated').replace('{target}', '') : 'DEAD';
+        const defeatedText = this.t('combat_log_target_defeated') ? this.t('combat_log_target_defeated').replace('{target}', '') : 'DEAD';
         extraChildren.push(el('span', { style: { color: '#ff3b30', fontWeight: 'bold' } }, `(${defeatedText} 💀)`));
       }
     } else if (ev.type === 'STUN_SKIP') {
-      text = this.t('log_stun_skip', { actor: ev.actorName });
+      text = this.t('combat_log_stun_skip', { actor: ev.actorName });
       color = '#ffcc00';
     } else if (ev.type === 'SLEEP_SKIP') {
-      text = this.t('log_sleep_skip', { actor: ev.actorName });
+      text = this.t('combat_log_sleep_skip', { actor: ev.actorName });
       color = '#9c27b0';
     } else if (ev.type === 'MAGIC_TIER_UP') {
-      text = this.t('log_magic_tier_up', { actor: ev.actorName, fromTier: ev.fromTier, toTier: ev.toTier });
+      text = this.t('combat_log_magic_tier_up', { actor: ev.actorName, fromTier: ev.fromTier, toTier: ev.toTier });
       color = '#9c27b0';
     } else if (ev.type === 'TECHNIQUE_EVOLVED') {
-      text = this.t('log_evolved', { actor: ev.actorName, family: this.t('family_' + ev.family) || ev.family, tier: ev.tier });
+      text = this.t('combat_log_evolved', { actor: ev.actorName, family: this.t('heroes_info_family_' + ev.family), tier: ev.tier });
       color = '#ff9800';
     } else if (ev.type === 'HEAL') {
-      text = this.t('log_heal', { attacker: ev.actorName, target: ev.targetName, amount: ev.amount });
+      text = this.t('combat_log_heal', { attacker: ev.actorName, target: ev.targetName, amount: ev.amount });
       color = '#03a9f4';
     } else if (ev.type === 'VAMP') {
-      text = this.t('log_vamp', { actor: ev.actorName, amount: ev.amount });
+      text = this.t('combat_log_vamp', { actor: ev.actorName, amount: ev.amount });
       color = '#8bc34a';
     } else if (ev.type === 'TRAIT_REGEN') {
-      text = this.t('log_regen', { target: ev.targetName, amount: ev.amount });
+      text = this.t('combat_log_regen', { target: ev.targetName, amount: ev.amount });
       color = '#8bc34a';
     } else if (ev.type === 'STATUS_TICK') {
       if (ev.effectType === 'poison') {
-        text = this.t('log_poison', { target: ev.targetName, damage: ev.damage });
+        text = this.t('combat_log_poison', { target: ev.targetName, damage: ev.damage });
         color = '#9c27b0';
       } else if (ev.effectType === 'burn') {
-        text = this.t('log_burn', { target: ev.targetName, damage: ev.damage });
+        text = this.t('combat_log_burn', { target: ev.targetName, damage: ev.damage });
         color = '#ff9800';
       }
     } else if (ev.type === 'STATUS_EXPIRED') {
-      text = this.t('log_status_expired', { target: ev.targetName, effect: ev.effectType });
+      text = this.t('combat_log_status_expired', { target: ev.targetName, effect: ev.effectType });
       color = '#888';
     } else if (ev.type === 'USE_CONSUMABLE') {
-      const itemName = this.t(ev.consumableId) || ev.consumableId;
+      // inventory domain key — not yet migrated
+      const itemName = this.t(ev.consumableId);
       const stat = ev.healType === 'HEAL_MP' ? 'MP' : 'HP';
-      text = this.t('log_use_consumable', { attacker: ev.actorName, item: itemName, target: ev.targetName, amount: ev.amount, stat });
+      text = this.t('combat_log_use_consumable', { attacker: ev.actorName, item: itemName, target: ev.targetName, amount: ev.amount, stat });
       color = '#00bcd4';
     } else {
       text = `[${ev.type}]`;
@@ -982,7 +1012,7 @@ export class CombatView {
       const targetName = ev.targetName;
       if (!targetName) return;
       if (ev.type === 'DAMAGE') {
-        const text = ev.isMiss ? this.t('miss') : `-${ev.amount}`;
+        const text = ev.isMiss ? this.t('shared_uxelm_miss') : `-${ev.amount}`;
         const type = ev.isMiss ? 'miss' : 'damage';
         this._triggerVisualEffect(targetName, text, type);
       } else if (ev.type === 'HEAL' || ev.type === 'VAMP' || ev.type === 'TRAIT_REGEN' || ev.type === 'USE_CONSUMABLE') {
@@ -1013,7 +1043,7 @@ export class CombatView {
     }
 
     if (result && !result.success) {
-      alert(this.t(result.error) || result.error);
+      alert(this.t(result.error));
       return;
     }
 
@@ -1023,12 +1053,7 @@ export class CombatView {
   }
 
   _canCastSpellInCombat(hero, spell, index) {
-    if (!spell || !hero) return false;
-    if ((hero.mp || 0) < spell.mpCost) return false;
-    const magicTier = hero.magicTier || 1;
-    const maxSlots = Math.max(1, Math.min(25, magicTier));
-    if ((spell.glyphIds || []).length > maxSlots) return false;
-    return true;
+    return this.engine.canCastSpell(hero, spell);
   }
 
   _triggerVisualEffect(targetName, text, type) {

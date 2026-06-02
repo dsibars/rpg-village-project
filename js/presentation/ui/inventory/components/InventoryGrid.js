@@ -9,7 +9,7 @@ export function createInventoryGrid({ onSelect, t }) {
             root.appendChild(el('div', {
                 class: 'empty-state',
                 style: { gridColumn: '1 / -1' }
-            }, [t('ui_no_items') || 'No items found']));
+            }, [t('inventory_uxelm_no_items')]));
             return;
         }
 

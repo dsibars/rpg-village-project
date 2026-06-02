@@ -29,8 +29,8 @@ export function createBuildingList({ onSelect, t }) {
                 onClick: () => onSelect(id)
             }, [
                 el('div', { class: 'list-item-header' }, [
-                    el('span', { class: 'list-item-title' }, [t('village_' + id)]),
-                    el('span', { class: 'list-item-level' }, [`${t('ui_level') || 'Level'} ${level}`])
+                    el('span', { class: 'list-item-title' }, [t('village_info_building_' + id)]),
+                    el('span', { class: 'list-item-level' }, [level > 0 ? `${t('shared_uxelm_level')} ${level}` : t('village_uxelm_not_built')])
                 ]),
                 progressEl
             ]);

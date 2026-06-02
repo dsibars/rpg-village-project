@@ -1,8 +1,11 @@
 import { BaseView } from '../BaseView.js';
 import { getEquipmentName } from '../shared/EquipmentHelper.js';
-import { MEAL_RECIPES } from '../../../engine/shared/data/GameConstants.js';
+import { MEAL_RECIPES, GLYPH_TABLET_DATA } from '../../../engine/shared/data/InventoryData.js';
 import { createInventoryGrid } from './components/InventoryGrid.js';
 import { createInventoryDetailPane } from './components/InventoryDetailPane.js';
+import { BaseModal } from '../components/modal/BaseModal.js';
+import { el } from '../shared/utils/DOMUtils.js';
+
 
 export class InventoryView extends BaseView {
     constructor() {
@@ -73,6 +76,9 @@ export class InventoryView extends BaseView {
             onEquip: () => {},
             onUnequip: () => {},
             onDrop: () => {},
+            onTeachGlyph: (tabletId) => {
+                this._openTeachHeroModal(tabletId);
+            },
             t: this.t.bind(this)
         });
 
@@ -157,9 +163,9 @@ export class InventoryView extends BaseView {
                     items.push({
                         id,
                         type: 'consumables',
-                        name: this.t(id),
+                        name: this.t('item_' + id),
                         qty: count,
-                        icon: id === 'item_teleport_scroll' ? '📜' : '🧪'
+                        icon: id.startsWith('tablet_glyph_') ? '🪧' : (id === 'teleport_scroll' ? '📜' : '🧪')
                     });
                 }
             });
@@ -205,5 +211,57 @@ export class InventoryView extends BaseView {
         if (this.inventoryDetail) {
             this.inventoryDetail.update({ item: selectedItem, state });
         }
+    }
+
+    _openTeachHeroModal(tabletId) {
+        if (!this.lastState || !this.lastState.heroes) return;
+
+        const tabletInfo = GLYPH_TABLET_DATA[tabletId];
+        if (!tabletInfo) return;
+        const glyphId = tabletInfo.glyphId;
+
+        const list = el('div', { style: { maxHeight: '300px', overflowY: 'auto' } });
+
+        const renderList = () => {
+            list.innerHTML = '';
+            this.lastState.heroes.forEach(hero => {
+                const knows = hero.knownGlyphs && hero.knownGlyphs.includes(glyphId);
+                const btn = knows
+                    ? el('span', { style: { color: 'var(--text-muted)', fontSize: '0.85rem' } }, [this.t('heroes_uxelm_inscription_selected') || 'Learned'])
+                    : el('button', {
+                        class: 'btn btn-primary btn-sm',
+                        onClick: () => {
+                            this.emit('useGlyphTablet', { heroId: hero.id, tabletId });
+                            modal.close();
+                        }
+                    }, [this.t('heroes_uxelm_inscription_learn') || 'Teach']);
+
+                const row = el('div', {
+                    style: {
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: '10px 0',
+                        borderBottom: '1px solid rgba(255,255,255,0.05)'
+                    }
+                }, [
+                    el('div', {}, [
+                        el('div', { style: { fontWeight: '600' } }, [hero.name]),
+                        el('div', { style: { fontSize: '0.75rem', color: 'var(--text-muted)' } }, [this.t('heroes_info_origin_' + hero.origin.replace('origin_', '')) || hero.origin])
+                    ]),
+                    btn
+                ]);
+                list.appendChild(row);
+            });
+        };
+
+        renderList();
+
+        const modal = BaseModal.show({
+            title: this.t('inventory_uxelm_teach_glyph_title') || 'Teach Glyph',
+            contentElement: list,
+            icon: '📖',
+            maxWidth: '400px'
+        });
     }
 }

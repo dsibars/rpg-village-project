@@ -1,5 +1,5 @@
 import { BaseView } from '../BaseView.js';
-import { TECHNIQUE_FAMILIES } from '../../../engine/shared/data/GameConstants.js';
+import { TECHNIQUE_FAMILIES } from '../../../engine/shared/data/CombatData.js';
 
 import { HeroSkillsModal } from './components/HeroSkillsModal.js';
 import { TrainerModal, WitchModal, AcademyModal, HallOfFameModal } from './components/HeroTrainingModals.js';
@@ -162,16 +162,14 @@ export class HeroesView extends BaseView {
         }
 
         btn.style.display = '';
-        const heroCount = state.heroes?.length || 0;
-        const baseCost = 100;
-        const cost = Math.floor(baseCost * Math.pow(1.2, heroCount));
+        const cost = this.ui.engine.getRecruitCost();
         const canAfford = (state.village?.gold || 0) >= cost;
 
         btn.disabled = !canAfford;
-        btn.textContent = `${this.t('ui_recruit') || 'Recruit'} (${cost}g)`;
+        btn.textContent = `${this.t('heroes_uxelm_recruit')} (${cost}g)`;
         btn.title = canAfford
-            ? `${this.t('ui_recruit') || 'Recruit'} ${this.t('ui_hero') || 'Hero'} (${cost}g)`
-            : this.t('error_not_enough_gold');
+            ? `${this.t('heroes_uxelm_recruit')} ${this.t('shared_uxelm_hero')} (${cost}g)`
+            : this.t('village_error_gold_not_enough');
     }
 
     renderHeroesList(heroes) {
@@ -231,12 +229,12 @@ export class HeroesView extends BaseView {
 
     _openTrainerModal() {
         const hero = this.lastRawState?.heroes?.find(h => h.id === this.selectedHeroId);
-        TrainerModal.show(hero, this.ui?.i18n, this.t.bind(this));
+        TrainerModal.show(hero, this.ui?.i18n, this.t.bind(this), this.ui.engine.getTrainerDialogue.bind(this.ui.engine));
     }
 
     _openWitchModal() {
         const heroes = this.lastRawState?.heroes || [];
-        WitchModal.show(heroes, this.selectedHeroId, this.ui?.i18n, this.t.bind(this), this.lastRawState, this.emit.bind(this));
+        WitchModal.show(heroes, this.selectedHeroId, this.ui?.i18n, this.t.bind(this), this.lastRawState, this.emit.bind(this), this.ui.engine.getWitchDialogue.bind(this.ui.engine), this.ui.engine.recordWitchVisit.bind(this.ui.engine));
     }
 
     _openAcademyModal() {
@@ -282,7 +280,7 @@ export class HeroesView extends BaseView {
 
     _openBodyInscriptionModal() {
         const hero = this.lastRawState?.heroes?.find(h => h.id === this.selectedHeroId);
-        HeroInscriptionModal.show(hero, this.t.bind(this), this.emit.bind(this));
+        HeroInscriptionModal.show(hero, this.t.bind(this), this.emit.bind(this), this.ui.engine.calculateHybridMpCost.bind(this.ui.engine));
     }
 
     _openGambitModal() {

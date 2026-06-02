@@ -70,4 +70,29 @@ export class LootService {
 
         return drops;
     }
+
+    generateGlyphDrop(regionId, clears = 0) {
+        const rData = this._getRegionData(regionId);
+        if (!rData || !rData.glyphDropTable || rData.glyphDropTable.length === 0) {
+            return null;
+        }
+        const baseChance = rData.glyphDropChance || 0;
+        const dropChance = Math.min(1.0, baseChance + (clears * 0.02));
+        if (Math.random() >= dropChance) {
+            return null;
+        }
+        const totalWeight = rData.glyphDropTable.reduce((sum, entry) => sum + (entry.weight || 1), 0);
+        let roll = Math.random() * totalWeight;
+        for (const entry of rData.glyphDropTable) {
+            roll -= (entry.weight || 1);
+            if (roll <= 0) {
+                const tier = entry.tier || 1;
+                const type = entry.glyphId.replace('glyph_', '');
+                const tabletId = `tablet_glyph_${type}_${tier}`;
+                return { tabletId, glyphId: entry.glyphId, tier };
+            }
+        }
+        return null;
+    }
 }
+

@@ -21,7 +21,7 @@ export class CombatResolutionPane {
         const preview = engine && engine.getBattleResolutionPreview ? engine.getBattleResolutionPreview() : null;
         const isVictory = preview ? preview.isVictory : battle.winner === 'heroes';
         const resultColor = isVictory ? '#4caf50' : '#f44336';
-        const resultText = isVictory ? this.t('victory') : this.t('defeat');
+        const resultText = isVictory ? this.t('shared_uxelm_victory') : this.t('shared_uxelm_defeat');
 
         let summaryHtml = '';
         if (preview && preview.summary) {
@@ -41,13 +41,14 @@ export class CombatResolutionPane {
             if (preview.rewards.gold) rewards.push(`💰 ${preview.rewards.gold} Gold`);
             if (preview.rewards.items) {
                 for (const [itemId, qty] of Object.entries(preview.rewards.items)) {
-                    rewards.push(`📦 ${qty}x ${this.t(itemId) || itemId}`);
+                    // inventory domain key — not yet migrated
+                    rewards.push(`📦 ${qty}x ${this.t(itemId)}`);
                 }
             }
             if (rewards.length > 0) {
                 rewardsHtml = `
                     <div style="margin-top:15px;border-top:1px solid rgba(255,255,255,0.1);padding-top:10px;">
-                        <h4 style="color:#ffeb3b;margin:0 0 5px 0;">${this.t('combat_rewards')}</h4>
+                        <h4 style="color:#ffeb3b;margin:0 0 5px 0;">${this.t('combat_uxelm_rewards')}</h4>
                         <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;font-size:0.95rem;">
                             ${rewards.map(r => `<span style="background:rgba(255,235,59,0.1);border:1px solid rgba(255,235,59,0.3);padding:4px 8px;border-radius:4px;">${r}</span>`).join('')}
                         </div>
@@ -69,7 +70,7 @@ export class CombatResolutionPane {
             class: 'btn btn-primary',
             style: 'width:100%;',
             onClick: () => this.onResolve()
-        }, [this.t('ui_btn_close')]);
+        }, [this.t('shared_uxelm_close')]);
 
         this.root.appendChild(
             el('div', { style: 'text-align:center;margin-bottom:15px;width:100%;' }, [

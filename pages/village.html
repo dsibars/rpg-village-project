@@ -3,18 +3,18 @@
         <!-- Combined Header & Status Bar -->
         <div class="village-header-bar card">
             <div class="header-left">
-                <h2 data-i18n="nav_village" class="village-title">Village</h2>
+                <h2 data-i18n="shared_uxelm_nav_village" class="village-title"></h2>
                 <div class="status-bar-divider"></div>
                 <div class="status-bar-item">
                     <span class="status-bar-icon">🏡</span>
-                    <span class="status-bar-label" data-i18n="village_townhall">Town Hall</span>
-                    <span class="status-bar-value"><span data-i18n="ui_lvl">Lvl</span> <span id="village-townhall-level">--</span></span>
+                    <span class="status-bar-label" data-i18n="village_info_building_townhall"></span>
+                    <span class="status-bar-value"><span data-i18n="shared_uxelm_level_abbrev"></span> <span id="village-townhall-level">--</span></span>
                 </div>
             </div>
             <div class="header-center">
                 <div class="status-bar-item storage-bar-item">
                     <span class="status-bar-icon">📦</span>
-                    <span class="status-bar-label" data-i18n="inv_storage">Storage</span>
+                    <span class="status-bar-label" data-i18n="shared_uxelm_storage"></span>
                     <span id="village-storage-text" class="status-bar-value">-- / --</span>
                     <div class="progress-container">
                         <div id="village-storage-bar" class="progress-bar" style="width: 0%"></div>
@@ -23,7 +23,7 @@
             </div>
             <div class="header-right">
                 <button id="btn-recall-report" class="btn btn-secondary btn-sm recall-report-btn" style="display: none;">
-                    <span>📜</span> <span data-i18n="ui_view_report">View Report</span>
+                    <span>📜</span> <span data-i18n="village_uxelm_report_view"></span>
                 </button>
             </div>
         </div>
@@ -42,7 +42,7 @@
                 <!-- Specialization Widget -->
                 <div class="card widget roles-widget">
                     <h3 class="roles-title">
-                        <span data-i18n="ui_roles">Specialization</span>
+                        <span data-i18n="village_uxelm_role"></span>
                         <span id="labor-pool-status" class="title-status-sub"></span>
                     </h3>
                     <div id="role-controls" class="role-controls">
@@ -52,11 +52,9 @@
 
                 <!-- Construction Widget -->
                 <div class="card widget construction-widget">
-                    <h3 data-i18n="ui_construction">Construction</h3>
+                    <h3 data-i18n="village_uxelm_construction"></h3>
                     <div id="construction-list-container">
-                        <div id="construction-list" class="empty-state" data-i18n="ui_no_projects">
-                            No active projects.
-                        </div>
+                        <div id="construction-list" class="empty-state" data-i18n="village_uxelm_project_none"></div>
                     </div>
                 </div>
             </div>
@@ -65,7 +63,7 @@
             <div class="dashboard-column right-column">
                 <!-- Calendar & Defense Widget -->
                 <div class="card widget calendar-defense-widget">
-                    <h3 data-i18n="ui_defense_calendar">Calendar & Defense</h3>
+                    <h3 data-i18n="village_uxelm_defense_calendar"></h3>
                     <div class="calendar-defense-split">
                         <!-- Calendar Section -->
                         <div class="calendar-section">
@@ -75,7 +73,7 @@
                                 <span class="calendar-days-counter">(<span id="calendar-day-of-season">--</span>/30)</span>
                             </div>
                             <div id="calendar-events-list">
-                                <div class="empty-state" data-i18n="ui_no_events">No upcoming events.</div>
+                                <div class="empty-state" data-i18n="calendar_uxelm_event_none"></div>
                             </div>
                         </div>
 
@@ -83,11 +81,11 @@
                         <div class="defense-section">
                             <div class="defense-header-sub">
                                 <span>🛡️</span>
-                                <span data-i18n="ui_defenders">Defenders</span>
+                                <span data-i18n="village_uxelm_defender"></span>
                                 <span class="defense-count-container">(<span id="defense-count">0</span>/4)</span>
                             </div>
                             <div id="defense-assignments-list">
-                                <div class="empty-state" data-i18n="ui_no_defenders">No defenders assigned.</div>
+                                <div class="empty-state" data-i18n="village_uxelm_defender_none"></div>
                             </div>
                         </div>
                     </div>
@@ -95,9 +93,9 @@
 
                 <!-- Daily Objectives Widget -->
                 <div class="card widget objectives-widget">
-                    <h3 data-i18n="ui_daily_objectives">Daily Objectives</h3>
+                    <h3 data-i18n="daily_uxelm_objective"></h3>
                     <div id="daily-objectives-list">
-                        <div class="empty-state" data-i18n="ui_no_objectives">No objectives today.</div>
+                        <div class="empty-state" data-i18n="daily_uxelm_objective_none"></div>
                     </div>
                 </div>
             </div>

@@ -1,5 +1,4 @@
-import { GLYPH_DATA, CORE_ALLY_EFFECTS, glyphHasGrowthPotential } from '../../../engine/shared/data/GameConstants.js';
-import { MagicCircleService } from '../../../engine/magic_circle/MagicCircleService.js';
+import { GLYPH_DATA, CORE_ALLY_EFFECTS, glyphHasGrowthPotential } from '../../../engine/shared/data/MagicCircleData.js';
 
 /**
  * MagicCircleHelper — Pure presentation logic for the Magic Circle UI.
@@ -12,14 +11,14 @@ import { MagicCircleService } from '../../../engine/magic_circle/MagicCircleServ
 // ─── Effect Chip Formatting ───
 
 const EFFECT_CHIP_MAP = {
-    pierce:       { icon: '⚔️',  labelKey: 'mc_effect_pierce' },
-    poisonStacks: { icon: '☠️',  labelKey: 'mc_effect_poison' },
-    sleepChance:  { icon: '💤',  labelKey: 'mc_effect_sleep' },
-    lifesteal:    { icon: '🧛',  labelKey: 'mc_effect_leech' },
-    speedBoost:   { icon: '💨',  labelKey: 'mc_effect_speed' },
-    reflectChance:{ icon: '🔄',  labelKey: 'mc_effect_reflect' },
-    critBonus:    { icon: '🎯',  labelKey: 'mc_effect_crit' },
-    costReduction:{ icon: '💎',  labelKey: 'mc_effect_cost_reduce' }
+    pierce:       { icon: '⚔️',  labelKey: 'magic_circle_info_effect_pierce' },
+    poisonStacks: { icon: '☠️',  labelKey: 'magic_circle_info_effect_poison' },
+    sleepChance:  { icon: '💤',  labelKey: 'magic_circle_info_effect_sleep' },
+    lifesteal:    { icon: '🧛',  labelKey: 'magic_circle_info_effect_leech' },
+    speedBoost:   { icon: '💨',  labelKey: 'magic_circle_info_effect_speed' },
+    reflectChance:{ icon: '🔄',  labelKey: 'magic_circle_info_effect_reflect' },
+    critBonus:    { icon: '🎯',  labelKey: 'magic_circle_info_effect_crit' },
+    costReduction:{ icon: '💎',  labelKey: 'magic_circle_info_effect_cost_reduce' }
 };
 
 const HARMFUL_EFFECTS = ['poisonStacks', 'sleepChance', 'pierce', 'lifesteal'];
@@ -61,26 +60,26 @@ export function buildEffectChips(effects, isSupport = false) {
  * @returns {{labelKey: string, value: number}}
  */
 export function getPowerDisplay(spell) {
-    if (!spell) return { labelKey: 'mc_preview_damage', value: 0 };
+    if (!spell) return { labelKey: 'magic_circle_info_preview_damage', value: 0 };
 
     if (spell.category === 'support') {
         const amount = Math.max(1, Math.floor(spell.damage * (spell.allyFactor || 0.2)));
         const allyEffect = CORE_ALLY_EFFECTS[spell.element];
-        if (!allyEffect) return { labelKey: 'mc_preview_heal', value: amount };
+        if (!allyEffect) return { labelKey: 'magic_circle_info_preview_heal', value: amount };
 
         const labelMap = {
-            heal_hp: 'mc_preview_heal',
-            restore_mp: 'mc_preview_restore_mp',
-            restore_stamina: 'mc_preview_restore_stamina',
-            buff_atk: 'mc_preview_buff_atk',
-            buff_def: 'mc_preview_buff_def',
-            buff_spd: 'mc_preview_buff_spd',
-            buff_crit: 'mc_preview_buff_crit'
+            heal_hp: 'magic_circle_info_preview_heal',
+            restore_mp: 'magic_circle_info_preview_restore_mp',
+            restore_stamina: 'magic_circle_info_preview_restore_stamina',
+            buff_atk: 'magic_circle_info_preview_buff_atk',
+            buff_def: 'magic_circle_info_preview_buff_def',
+            buff_spd: 'magic_circle_info_preview_buff_spd',
+            buff_crit: 'magic_circle_info_preview_buff_crit'
         };
-        return { labelKey: labelMap[allyEffect.type] || 'mc_preview_heal', value: amount };
+        return { labelKey: labelMap[allyEffect.type] || 'magic_circle_info_preview_heal', value: amount };
     }
 
-    return { labelKey: 'mc_preview_damage', value: spell.damage };
+    return { labelKey: 'magic_circle_info_preview_damage', value: spell.damage };
 }
 
 // ─── Target Resolution ───
@@ -106,12 +105,12 @@ export function resolveTarget(spell) {
  */
 export function getTargetLabelKey(targetType) {
     const map = {
-        single_enemy: 'mc_preview_target_single_enemy',
-        all_enemies: 'mc_preview_target_all_enemies',
-        single_ally: 'mc_preview_target_single_ally',
-        all_allies: 'mc_preview_target_all_allies'
+        single_enemy: 'magic_circle_info_preview_target_single_enemy',
+        all_enemies: 'magic_circle_info_preview_target_all_enemies',
+        single_ally: 'magic_circle_info_preview_target_single_ally',
+        all_allies: 'magic_circle_info_preview_target_all_allies'
     };
-    return map[targetType] || 'mc_preview_target_single_enemy';
+    return map[targetType] || 'magic_circle_info_preview_target_single_enemy';
 }
 
 // ─── Glyph Card Helpers ───
@@ -142,11 +141,11 @@ export function getMaxSelectableTier(glyph, masteredTier) {
  * @param {number} masteredTier
  * @returns {Array<{tier: number, symbol: string}>}
  */
-export function buildTierOptions(glyph, masteredTier) {
+export function buildTierOptions(glyph, masteredTier, engine = null) {
     const max = getMaxSelectableTier(glyph, masteredTier);
     return Array.from({ length: max }, (_, i) => ({
         tier: i + 1,
-        symbol: MagicCircleService.getGlyphSymbol(i + 1)
+        symbol: engine ? engine.getGlyphSymbol(i + 1) : String(i + 1)
     }));
 }
 
@@ -227,10 +226,10 @@ export function getElementColor(element) {
 export function computeBudgetState(mpCost, maxMp) {
     const ratio = mpCost / Math.max(1, maxMp);
     if (ratio > 0.90) {
-        return { ratio, color: '#ef4444', labelKey: 'mc_budget_over', isOverBudget: true };
+        return { ratio, color: '#ef4444', labelKey: 'magic_circle_info_budget_over', isOverBudget: true };
     }
     if (ratio > 0.75) {
-        return { ratio, color: '#f59e0b', labelKey: 'mc_budget_warning', isOverBudget: false };
+        return { ratio, color: '#f59e0b', labelKey: 'magic_circle_info_budget_warning', isOverBudget: false };
     }
-    return { ratio, color: '#10b981', labelKey: 'mc_budget_within', isOverBudget: false };
+    return { ratio, color: '#10b981', labelKey: 'magic_circle_info_budget_within', isOverBudget: false };
 }

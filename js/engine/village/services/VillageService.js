@@ -31,14 +31,7 @@ export class VillageService {
             infrastructure: {
                 housing: 1,
                 farm: 0,
-                warehouse: 1,
-                blacksmith: 0,
-                training_grounds: 0,
-                explorer_guild: 0,
-                infirmary: 0,
-                tavern: 0,
-                witchs_hut: 0,
-                arcane_sanctum: 0
+                warehouse: 1
             },
             constructionQueue: [],
             day: 1,
@@ -231,20 +224,20 @@ export class VillageService {
 
     startProject(buildingId, targetLevel, costGold, costMaterials, duration) {
         if (this.state.constructionQueue.some(p => p.buildingId === buildingId)) {
-            return Result.fail('error_already_in_queue');
+            return Result.fail('village_error_building_already_queued');
         }
         
-        if (this.state.gold < costGold) return Result.fail('error_not_enough_gold');
+        if (this.state.gold < costGold) return Result.fail('village_error_gold_not_enough');
         
         // Check labor
         if (this.state.population.builders - this.state.population.assigned <= 0) {
-            return Result.fail('error_no_available_builders');
+            return Result.fail('village_error_builder_unavailable');
         }
 
         // Check materials
         for (const [matId, amount] of Object.entries(costMaterials)) {
             if (this.inventoryService.getItemCount(matId) < amount) {
-                return Result.fail('error_not_enough_materials');
+                return Result.fail('village_error_material_not_enough');
             }
         }
 
@@ -291,10 +284,10 @@ export class VillageService {
         const total = this.state.population.total;
         const assigned = this.state.population.assigned;
         if (count < 0 || count > total) {
-            return Result.fail('error_invalid_builder_count');
+            return Result.fail('village_error_builder_count_invalid');
         }
         if (count < assigned) {
-            return Result.fail('error_builders_below_assigned');
+            return Result.fail('village_error_builder_assign_exceeded');
         }
         this.state.population.builders = count;
         // Keep builder role in sync
@@ -310,7 +303,7 @@ export class VillageService {
     setWorkerRole(role, delta) {
         const validRoles = ['builder', 'farmer', 'miner', 'scout'];
         if (!validRoles.includes(role)) {
-            return Result.fail('error_invalid_role');
+            return Result.fail('village_error_role_invalid');
         }
 
         const roles = this.state.population.roles || { builder: this.state.population.builders, farmer: 0, miner: 0, scout: 0 };
@@ -320,7 +313,7 @@ export class VillageService {
         // Calculate total used roles
         const totalUsed = validRoles.reduce((sum, r) => sum + (r === role ? newCount : (roles[r] || 0)), 0);
         if (totalUsed > this.state.population.total) {
-            return Result.fail('error_not_enough_villagers');
+            return Result.fail('village_error_villager_not_enough');
         }
 
         roles[role] = newCount;
@@ -330,5 +323,12 @@ export class VillageService {
         this.state.population.builders = roles.builder;
         this.save();
         return Result.ok();
+    }
+
+    unlockBlueprint(buildingId) {
+        if (this.state.infrastructure[buildingId] === undefined) {
+            this.state.infrastructure[buildingId] = 0;
+            this.save();
+        }
     }
 }

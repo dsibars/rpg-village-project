@@ -3,7 +3,7 @@ import { el } from '../../shared/utils/DOMUtils.js';
 export function createExpeditionDetailPane({ onStart, onRecall, t }) {
     // Empty state
     const emptyStateRef = el('div', { class: 'empty-detail' }, [
-        el('p', { dataI18n: 'ui_select_expedition' }, [t('ui_select_expedition') || 'Select an expedition node on the map.'])
+        el('p', { dataI18n: 'explore_uxelm_select_expedition' }, [t('explore_uxelm_select_expedition')])
     ]);
 
     // Dashboard section (active or warning)
@@ -32,7 +32,7 @@ export function createExpeditionDetailPane({ onStart, onRecall, t }) {
                 enemiesLabelRef
             ]),
             el('div', { class: 'hero-selector' }, [
-                el('h3', {}, [t('ui_select_heroes')]),
+                el('h3', {}, [t('explore_uxelm_select_heroes')]),
                 heroListRef,
                 startBtnRef
             ])
@@ -47,7 +47,7 @@ export function createExpeditionDetailPane({ onStart, onRecall, t }) {
 
     startBtnRef.addEventListener('click', () => {
         if (currentMode !== 'active' && selectedHeroIds.size === 0) {
-            alert(t('ui_select_one_hero') || 'Select at least one hero.');
+            alert(t('explore_uxelm_select_one_hero'));
             return;
         }
         onStart({ expId: currentExpedition.id, heroIds: Array.from(selectedHeroIds) });
@@ -87,7 +87,7 @@ export function createExpeditionDetailPane({ onStart, onRecall, t }) {
                 class: ['btn', 'btn-secondary', 'btn-retire'],
                 style: { width: '100%', marginTop: '10px' },
                 onClick: () => onRecall({ expId: expedition.id })
-            }, [t('ui_unassign_retire') || 'Unassign & Retire']);
+            }, [t('explore_uxelm_unassign_retire')]);
 
             dashboardRef.appendChild(el('div', {
                 class: 'active-expedition-dashboard',
@@ -98,10 +98,10 @@ export function createExpeditionDetailPane({ onStart, onRecall, t }) {
                     background: 'rgba(0,0,0,0.2)'
                 }
             }, [
-                el('h3', { style: { marginTop: '0', color: 'var(--accent-color)' } }, [t('ui_assigned_expedition') || 'Assigned Expedition']),
-                el('p', { class: 'description' }, [isStageZero ? t('ui_waiting_combat') : t('ui_progress_combat')]),
+                el('h3', { style: { marginTop: '0', color: 'var(--accent-color)' } }, [t('explore_uxelm_assigned_expedition')]),
+                el('p', { class: 'description' }, [isStageZero ? t('explore_uxelm_waiting_combat') : t('explore_uxelm_progress_combat')]),
                 el('div', { class: 'exp-progress' }, [
-                    el('h4', {}, [`${t('exp_stage') || 'Stage'} ${activeExp.currentStage} / ${expedition.stages.length}`]),
+                    el('h4', {}, [`${t('explore_uxelm_stage')} ${activeExp.currentStage} / ${expedition.stages.length}`]),
                     el('div', {
                         class: 'progress-bar-container',
                         style: { background: 'rgba(255,255,255,0.1)', height: '10px', borderRadius: '5px', margin: '10px 0' }
@@ -118,22 +118,22 @@ export function createExpeditionDetailPane({ onStart, onRecall, t }) {
             dashboardRef.appendChild(el('div', {
                 class: 'alert alert-warning',
                 style: { marginBottom: '20px' }
-            }, [t('ui_max_expeditions_reached') || 'Maximum expeditions reached.']));
+            }, [t('explore_uxelm_max_expeditions_reached')]));
         }
 
         // Profile
-        badgeRef.textContent = expedition.isStory ? (t('ui_exp_story') || 'Story') : (t('ui_exp_exploration') || 'Exploration');
+        badgeRef.textContent = expedition.isStory ? t('explore_uxelm_story') : t('explore_uxelm_exploration');
         const displayName = t(expedition.id) !== expedition.id ? t(expedition.id) : expedition.name;
         nameRef.textContent = displayName;
         stagesRef.innerHTML = '';
         stagesRef.append(
-            el('strong', {}, [`${t('ui_exp_stages') || 'Stages'}: `]),
+            el('strong', {}, [`${t('explore_uxelm_stages')}: `]),
             `${expedition.stages.length}`
         );
         rewardRef.innerHTML = '';
         rewardRef.append(
-            el('strong', {}, [`${t('ui_exp_base_reward') || 'Base Reward'}: `]),
-            `${expedition.reward?.gold || 0} ${t('village_gold') || 'Gold'}`
+            el('strong', {}, [`${t('explore_uxelm_base_reward')}: `]),
+            `${expedition.reward?.gold || 0} ${t('village_uxelm_gold')}`
         );
 
         enemiesLabelRef.innerHTML = '';
@@ -147,7 +147,7 @@ export function createExpeditionDetailPane({ onStart, onRecall, t }) {
         if (uniqueEnemies.size > 0) {
             enemiesLabelRef.appendChild(
                 el('strong', { style: { fontSize: '0.85rem', textTransform: 'uppercase', color: 'var(--text-muted)' } }, [
-                    t('ui_intel_enemies') || 'Combat Intel'
+                    t('explore_uxelm_intel_enemies')
                 ])
             );
             const badgesContainer = el('div', { style: { marginTop: '6px', display: 'flex', flexWrap: 'wrap', gap: '6px' } });
@@ -163,7 +163,7 @@ export function createExpeditionDetailPane({ onStart, onRecall, t }) {
                         border: '1px solid rgba(255,59,48,0.3)',
                         display: 'inline-block'
                     }
-                }, [t(e) || e]));
+                }, [t('combat_info_' + e)]));
             });
             enemiesLabelRef.appendChild(badgesContainer);
         }
@@ -183,8 +183,8 @@ export function createExpeditionDetailPane({ onStart, onRecall, t }) {
         let canStart = false;
 
         if (isLocked) {
-            const lvlLabel = t('ui_level') || 'Level';
-            heroListRef.appendChild(el('p', {}, [t('ui_roster_locked') || 'Roster locked for this expedition.']));
+            const lvlLabel = t('shared_uxelm_level');
+            heroListRef.appendChild(el('p', {}, [t('explore_uxelm_roster_locked')]));
             const ul = el('ul');
             assignedHeroes.forEach(h => {
                 ul.appendChild(el('li', {}, [`${h.name} (${lvlLabel} ${h.level})`]));
@@ -195,7 +195,7 @@ export function createExpeditionDetailPane({ onStart, onRecall, t }) {
             const availableHeroes = [...assignedHeroes, ...idleHeroes].filter(h => !busyHeroIds.has(h.id));
 
             if (availableHeroes.length === 0) {
-                heroListRef.appendChild(el('p', {}, [t('ui_no_idle_heroes') || 'No idle heroes available.']));
+                heroListRef.appendChild(el('p', {}, [t('explore_uxelm_no_idle_heroes')]));
                 startBtnRef.style.display = 'none';
             } else {
                 const checkboxList = el('div', { class: 'hero-checkbox-list' });
@@ -207,7 +207,7 @@ export function createExpeditionDetailPane({ onStart, onRecall, t }) {
                     const isWounded = h.hp <= 0;
                     const hpColor = isWounded ? '#ff3b30' : (h.hp < h.maxHp * 0.5 ? '#ff9500' : '#4cd964');
                     const hpText = isWounded
-                        ? `💀 ${t('ui_wounded') || 'Wounded'}`
+                        ? `💀 ${t('explore_uxelm_wounded')}`
                         : `HP: ${h.hp}/${h.maxHp}`;
 
                     const checkbox = el('input', {
@@ -233,7 +233,7 @@ export function createExpeditionDetailPane({ onStart, onRecall, t }) {
                         checkbox,
                         el('div', { class: 'hero-info', style: isWounded ? { opacity: '0.6' } : {} }, [
                             el('strong', {}, [h.name]),
-                            ` (${t('ui_level') || 'Level'} ${h.level})`,
+                            ` (${t('shared_uxelm_level')} ${h.level})`,
                             el('br'),
                             el('small', { style: { color: hpColor, fontWeight: 'bold' } }, [hpText])
                         ])
@@ -247,8 +247,8 @@ export function createExpeditionDetailPane({ onStart, onRecall, t }) {
         canStart = !isLocked && (!isAtMax || isActiveNode) && (isActiveNode || selectedHeroIds.size > 0);
         startBtnRef.disabled = !canStart;
         startBtnRef.textContent = isActiveNode
-            ? (t('ui_update_assignment') || 'Update Assignment')
-            : (t('ui_assign_heroes') || 'Assign Heroes');
+            ? t('explore_uxelm_update_assignment')
+            : t('explore_uxelm_assign_heroes');
     }
 
     return { root, update };

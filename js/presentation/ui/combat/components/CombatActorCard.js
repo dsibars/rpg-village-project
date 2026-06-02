@@ -80,7 +80,24 @@ export class CombatActorCard {
             this.avatarEl.textContent = expectedAvatar;
         }
 
-        const expectedName = this.isHero ? actor.name : (this.t(actor.name) || actor.name);
+        let expectedName = actor.name;
+        if (!this.isHero && actor.templateId) {
+            const translationKey = 'combat_info_' + actor.templateId;
+            const baseName = this.t(translationKey);
+            if (baseName !== translationKey) {
+                if (actor.isElite) {
+                    const prefixKey = 'combat_info_elite_tier_' + actor.eliteTier;
+                    const prefix = this.t(prefixKey);
+                    if (prefix !== prefixKey) {
+                        expectedName = this.t('combat_info_elite_format', { prefix, name: baseName });
+                    } else {
+                        expectedName = `${actor.isElite ? ['Fierce', 'Corrupted', 'Ancient', 'Legendary'][actor.eliteTier] : ''} ${baseName}`.trim();
+                    }
+                } else {
+                    expectedName = baseName;
+                }
+            }
+        }
         if (this.nameEl.textContent !== expectedName) {
             this.nameEl.textContent = expectedName;
         }
@@ -93,7 +110,7 @@ export class CombatActorCard {
         const hpPct = actor.maxHp ? Math.max(0, Math.min(100, (actor.hp / actor.maxHp) * 100)) : 0;
         this.hpBar.style.width = `${hpPct}%`;
         
-        const hpLabelHtml = `<span>${this.t('ui_stats_hp') || 'HP'}</span><span>${actor.hp}/${actor.maxHp}</span>`;
+        const hpLabelHtml = `<span>${this.t('heroes_info_stat_hp')}</span><span>${actor.hp}/${actor.maxHp}</span>`;
         if (this.hpText.innerHTML !== hpLabelHtml) {
             this.hpText.innerHTML = hpLabelHtml;
         }
@@ -104,7 +121,7 @@ export class CombatActorCard {
             const staPct = actor.maxStamina ? Math.max(0, Math.min(100, (actor.stamina / actor.maxStamina) * 100)) : 0;
             this.staminaBar.style.width = `${staPct}%`;
             
-            const staLabelHtml = `<span>${this.t('ui_stamina')}</span><span>${actor.stamina}/${actor.maxStamina}</span>`;
+            const staLabelHtml = `<span>${this.t('shared_uxelm_stamina')}</span><span>${actor.stamina}/${actor.maxStamina}</span>`;
             if (this.staminaText.innerHTML !== staLabelHtml) {
                 this.staminaText.innerHTML = staLabelHtml;
             }
@@ -119,7 +136,7 @@ export class CombatActorCard {
             const mpPct = actor.maxMp ? Math.max(0, Math.min(100, (actor.mp / actor.maxMp) * 100)) : 0;
             this.mpBar.style.width = `${mpPct}%`;
             
-            const mpLabelHtml = `<span>${this.t('ui_stats_mp') || 'MP'}</span><span>${actor.mp}/${actor.maxMp}</span>`;
+            const mpLabelHtml = `<span>${this.t('heroes_info_stat_mp')}</span><span>${actor.mp}/${actor.maxMp}</span>`;
             if (this.mpText.innerHTML !== mpLabelHtml) {
                 this.mpText.innerHTML = mpLabelHtml;
             }

@@ -23,8 +23,18 @@ export class SaveSlotView {
         container.innerHTML = `
             <div class="save-slots-screen">
                 <div class="save-slots-header">
-                    <h1 data-i18n="ui_save_slot_title">${this.t('ui_save_slot_title')}</h1>
+                    <h1 data-i18n="shared_uxelm_save_slot_title">${this.t('shared_uxelm_save_slot_title')}</h1>
                     <p>RPG Village</p>
+                </div>
+                <div class="save-slots-lang-container">
+                    <label for="slots-lang-select" data-i18n="settings_language_label">${this.t('settings_language_label')}</label>
+                    <select id="slots-lang-select" class="select-control">
+                        <option value="en" ${this.i18n.currentLang === 'en' ? 'selected' : ''}>English</option>
+                        <option value="es" ${this.i18n.currentLang === 'es' ? 'selected' : ''}>Español</option>
+                        <option value="ca" ${this.i18n.currentLang === 'ca' ? 'selected' : ''}>Català</option>
+                        <option value="eu" ${this.i18n.currentLang === 'eu' ? 'selected' : ''}>Euskara</option>
+                        <option value="gl" ${this.i18n.currentLang === 'gl' ? 'selected' : ''}>Galego</option>
+                    </select>
                 </div>
                 <div class="save-slots-grid" id="save-slots-grid">
                     ${slots.map((meta, index) => this._renderSlotCard(meta, index)).join('')}
@@ -42,27 +52,27 @@ export class SaveSlotView {
         if (!summary) {
             return `
                 <div class="save-slot-card empty" data-slot-index="${index}" data-action="select">
-                    <div class="slot-number">${this.t('ui_save_slot_empty')}</div>
-                    <div class="slot-action">${this.t('ui_save_slot_new_game')}</div>
+                    <div class="slot-number">${this.t('shared_uxelm_save_slot_empty')}</div>
+                    <div class="slot-action">${this.t('shared_uxelm_save_slot_new_game')}</div>
                 </div>
             `;
         }
 
         return `
             <div class="save-slot-card occupied" data-slot-index="${index}" data-action="select">
-                <button class="slot-delete-btn" data-slot-index="${index}" data-action="delete" title="${this.t('ui_save_slot_delete')}">🗑️</button>
+                <button class="slot-delete-btn" data-slot-index="${index}" data-action="delete" title="${this.t('shared_uxelm_save_slot_delete')}">🗑️</button>
                 <div class="slot-header">
-                    <span class="slot-number">${this.t('ui_save_slot_day', { day: summary.day })}</span>
+                    <span class="slot-number">${this.t('shared_uxelm_save_slot_day', { day: summary.day })}</span>
                     <span class="slot-last-played">${lastPlayed}</span>
                 </div>
                 <div class="slot-summary">
-                    <div class="slot-primary">${this.t('ui_save_slot_continue')}</div>
+                    <div class="slot-primary">${this.t('shared_uxelm_save_slot_continue')}</div>
                     <div class="slot-details">
                         <span class="slot-detail"><span class="detail-icon">💰</span>${Math.floor(summary.gold || 0)}</span>
-                        <span class="slot-detail"><span class="detail-icon">⚔️</span>${this.t('ui_save_slot_heroes', { count: summary.heroes.count })}</span>
-                        <span class="slot-detail"><span class="detail-icon">⭐</span>${this.t('ui_save_slot_highest_level', { level: summary.heroes.highestLevel })}</span>
+                        <span class="slot-detail"><span class="detail-icon">⚔️</span>${this.t('shared_uxelm_save_slot_heroes', { count: summary.heroes.count })}</span>
+                        <span class="slot-detail"><span class="detail-icon">⭐</span>${this.t('shared_uxelm_save_slot_highest_level', { level: summary.heroes.highestLevel })}</span>
                         <span class="slot-detail"><span class="detail-icon">🏡</span>${summary.village.population?.total || summary.village.population || 0}</span>
-                        <span class="slot-detail"><span class="detail-icon">🗺️</span>${this.t('ui_save_slot_regions', { count: summary.expeditions.regionsUnlocked })}</span>
+                        <span class="slot-detail"><span class="detail-icon">🗺️</span>${this.t('shared_uxelm_save_slot_regions', { count: summary.expeditions.regionsUnlocked })}</span>
                     </div>
                 </div>
             </div>
@@ -93,6 +103,19 @@ export class SaveSlotView {
                 this.onSelectSlot(index);
             }
         });
+
+        // Add language selection handler
+        const langSelect = this.container.querySelector('#slots-lang-select');
+        if (langSelect) {
+            langSelect.addEventListener('change', (e) => {
+                const newLang = e.target.value;
+                if (DEBUG) console.log(`SaveSlotView: Changing language to ${newLang}`);
+                this.i18n.setLanguage(newLang);
+                
+                // Re-render the slot screen in the new language
+                this.render(this.container);
+            });
+        }
     }
 
     _confirmDelete(index) {
@@ -101,17 +124,17 @@ export class SaveSlotView {
         overlay.innerHTML = `
             <div class="modal-body">
                 <div class="modal-header">
-                    <h3>${this.t('ui_save_slot_delete')}</h3>
+                    <h3>${this.t('shared_uxelm_save_slot_delete')}</h3>
                 </div>
                 <div class="modal-text">
-                    <p>${this.t('ui_save_slot_delete_confirm')}</p>
+                    <p>${this.t('shared_uxelm_save_slot_delete_confirm')}</p>
                 </div>
                 <div class="modal-actions">
                     <button class="btn btn-secondary" id="modal-btn-cancel">
-                        <span>${this.t('ui_btn_cancel')}</span>
+                        <span>${this.t('shared_uxelm_cancel')}</span>
                     </button>
                     <button class="btn btn-danger" id="modal-btn-confirm">
-                        <span>${this.t('ui_btn_confirm')}</span>
+                        <span>${this.t('shared_uxelm_confirm')}</span>
                     </button>
                 </div>
             </div>

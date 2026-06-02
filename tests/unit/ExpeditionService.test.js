@@ -8,6 +8,7 @@ globalThis.localStorage = {
 import test from 'node:test';
 import assert from 'node:assert';
 import { ExpeditionService } from '../../js/engine/explore/services/ExpeditionService.js';
+import { RegionService } from '../../js/engine/explore/services/RegionService.js';
 import { BattleService } from '../../js/engine/shared/combat/services/BattleService.js';
 import { HeroService } from '../../js/engine/heroes/services/HeroService.js';
 import { VillageService } from '../../js/engine/village/services/VillageService.js';
@@ -18,8 +19,9 @@ function createServices() {
     const villageService = new VillageService(inventoryService);
     const heroService = new HeroService(inventoryService);
     const battleService = new BattleService(inventoryService);
+    const regionService = new RegionService(villageService, { deferLoad: true });
     const expeditionService = new ExpeditionService(
-        battleService, heroService, villageService, inventoryService
+        battleService, heroService, villageService, inventoryService, regionService, { deferLoad: true }
     );
     // Reset state to known defaults
     expeditionService.state.completedIds = [];
@@ -27,7 +29,8 @@ function createServices() {
     expeditionService.state.expeditionTurnIndex = 0;
     expeditionService.state.activeCombatExpeditionId = null;
     expeditionService.save();
-    return { expeditionService, heroService, villageService };
+    regionService.save();
+    return { regionService, expeditionService, heroService, villageService };
 }
 
 test('ExpeditionService: Single expedition assignment', () => {
@@ -42,7 +45,7 @@ test('ExpeditionService: Single expedition assignment', () => {
 });
 
 test('ExpeditionService: Concurrent expedition limit', () => {
-    const { expeditionService, heroService, villageService } = createServices();
+    const { expeditionService, heroService, villageService, regionService } = createServices();
     // No explorer guild, so max = 1
     villageService.state.infrastructure.explorer_guild = 0;
     villageService.save();
@@ -61,11 +64,11 @@ test('ExpeditionService: Concurrent expedition limit', () => {
     // Different expedition should fail since max = 1
     const r3 = expeditionService.assignExpedition('some_other_exp', [hero2.id]);
     assert.strictEqual(r3.success, false);
-    assert.strictEqual(r3.error, 'error_max_expeditions_reached');
+    assert.strictEqual(r3.error, 'explore_error_expeditions_max');
 });
 
 test('ExpeditionService: Explorer guild increases limit', () => {
-    const { expeditionService, heroService, villageService } = createServices();
+    const { expeditionService, heroService, villageService, regionService } = createServices();
     villageService.state.infrastructure.explorer_guild = 1;
     villageService.save();
 
@@ -73,60 +76,55 @@ test('ExpeditionService: Explorer guild increases limit', () => {
     const hero2 = heroService.add({ name: 'Hero 2', origin: 'origin_warrior', level: 1 }).data;
     const exps = expeditionService.getExpeditions();
 
-    // Need a second available expedition node
-    expeditionService.state.regions.reg_greenfields.availableNodes.push({
-        id: 'exp_test_second',
-        name: 'Test Node',
-        regionId: 'reg_greenfields',
-        isStory: false,
-        reward: { gold: 10 },
-        stages: [{ type: 'battle', enemies: ['slime_green'] }]
-    });
+    // Need a second available expedition node — generateExpedition auto-adds to availableNodes
+    regionService.generateExpedition('reg_greenfields', 0);
 
     const r1 = expeditionService.assignExpedition(exps[0].id, [hero1.id]);
     assert.strictEqual(r1.success, true);
 
-    const r2 = expeditionService.assignExpedition('exp_test_second', [hero2.id]);
+    // Get fresh list after generating the second expedition
+    const updatedExps = expeditionService.getExpeditions();
+    const secondExp = updatedExps.find(e => e.id !== exps[0].id);
+
+    const r2 = expeditionService.assignExpedition(secondExp.id, [hero2.id]);
     assert.strictEqual(r2.success, true);
     assert.strictEqual(expeditionService.state.activeExpeditions.length, 2);
 });
 
 test('ExpeditionService: Hero cannot be on two expeditions', () => {
-    const { expeditionService, heroService, villageService } = createServices();
+    const { expeditionService, heroService, villageService, regionService } = createServices();
     villageService.state.infrastructure.explorer_guild = 1;
     villageService.save();
 
     const hero = heroService.add({ name: 'Hero 1', origin: 'origin_warrior', level: 1 }).data;
-    expeditionService.state.regions.reg_greenfields.availableNodes.push({
-        id: 'exp_test_second',
-        name: 'Test Node',
-        regionId: 'reg_greenfields',
-        isStory: false,
-        reward: { gold: 10 },
-        stages: [{ type: 'battle', enemies: ['slime_green'] }]
-    });
+    // generateExpedition auto-adds to availableNodes
+    const secondNode = regionService.generateExpedition('reg_greenfields', 0);
 
     const r1 = expeditionService.assignExpedition('exp_tutorial_cave', [hero.id]);
     assert.strictEqual(r1.success, true);
 
-    const r2 = expeditionService.assignExpedition('exp_test_second', [hero.id]);
+    const r2 = expeditionService.assignExpedition(secondNode.id, [hero.id]);
     assert.strictEqual(r2.success, false);
-    assert.strictEqual(r2.error, 'error_hero_on_other_expedition');
+    assert.strictEqual(r2.error, 'explore_error_hero_busy_expedition');
 });
 
 test('ExpeditionService: Round-robin day processing', () => {
-    const { expeditionService, heroService, villageService } = createServices();
+    const { expeditionService, heroService, villageService, regionService } = createServices();
     villageService.state.infrastructure.explorer_guild = 1;
     villageService.save();
 
     const hero1 = heroService.add({ name: 'Hero 1', origin: 'origin_warrior', level: 1 }).data;
     const hero2 = heroService.add({ name: 'Hero 2', origin: 'origin_warrior', level: 1 }).data;
 
-    expeditionService.state.regions.reg_greenfields.availableNodes.push({
+    // generateExpedition auto-adds — use a specific node shape for predictable stages
+    const region = regionService.getRegion('reg_greenfields');
+    region.availableNodes.push({
         id: 'exp_test_second',
         name: 'Test Node',
         regionId: 'reg_greenfields',
         isStory: false,
+        status: 'available',
+        parentId: null,
         reward: { gold: 10 },
         stages: [
             { type: 'battle', enemies: ['slime_green'] },
@@ -166,7 +164,7 @@ test('ExpeditionService: Retire specific expedition', () => {
 });
 
 test('ExpeditionService: first clear grants permanent speed boost', () => {
-    const { expeditionService, heroService } = createServices();
+    const { expeditionService, heroService, regionService } = createServices();
     const hero = heroService.add({ name: 'Test Hero', origin: 'origin_warrior', level: 1 }).data;
     const initialSpeed = hero.baseSpeed;
 
@@ -181,11 +179,11 @@ test('ExpeditionService: first clear grants permanent speed boost', () => {
     expeditionService._finishExpedition(exp, activeExp);
 
     assert.strictEqual(hero.baseSpeed, initialSpeed + 2);
-    assert.strictEqual(expeditionService.state.regions[exp.regionId].firstClearBonusGiven, true);
+    assert.strictEqual(regionService.getRegion(exp.regionId).firstClearBonusGiven, true);
 });
 
 test('ExpeditionService: second clear does not grant speed boost', () => {
-    const { expeditionService, heroService } = createServices();
+    const { expeditionService, heroService, regionService } = createServices();
     const hero = heroService.add({ name: 'Test Hero', origin: 'origin_warrior', level: 1 }).data;
 
     // First clear
@@ -200,9 +198,8 @@ test('ExpeditionService: second clear does not grant speed boost', () => {
     expeditionService._finishExpedition(exp, activeExp1);
     const speedAfterFirst = hero.baseSpeed;
 
-    // Second clear
-    const exp2 = expeditionService._createProceduralNode(exp.regionId, expeditionService._getRegionData(exp.regionId), 1);
-    expeditionService.state.regions[exp.regionId].availableNodes.push(exp2);
+    // Second clear — use regionService.generateExpedition (auto-adds to availableNodes)
+    const exp2 = regionService.generateExpedition(exp.regionId, 1);
     const activeExp2 = {
         id: exp2.id,
         currentStage: exp2.stages.length,
@@ -232,3 +229,134 @@ test('ExpeditionService: higher level regions drop more MP potions', () => {
     assert.ok(mpPotion, 'Should drop tiny_mp_potion');
     assert.ok(mpPotion.qty >= 3 && mpPotion.qty <= 4, 'Should drop 3-4 MP potions for level 5 region');
 });
+
+test('ExpeditionService: narrative queue state initializes empty', () => {
+    const { expeditionService } = createServices();
+    assert.deepStrictEqual(expeditionService.getPendingNarratives(), []);
+});
+
+test('ExpeditionService: _enqueueNarrative adds to queue', () => {
+    const { expeditionService } = createServices();
+    expeditionService._enqueueNarrative({ id: 'nar_test', titleKey: 't', loreKey: 'l', era: 1 });
+    assert.strictEqual(expeditionService.getPendingNarratives().length, 1);
+    assert.strictEqual(expeditionService.getPendingNarratives()[0].titleKey, 't');
+});
+
+test('ExpeditionService: _enqueueNarrative deduplicates by titleKey', () => {
+    const { expeditionService } = createServices();
+    expeditionService._enqueueNarrative({ id: 'nar_a', titleKey: 't', loreKey: 'l', era: 1 });
+    expeditionService._enqueueNarrative({ id: 'nar_b', titleKey: 't', loreKey: 'l', era: 1 });
+    assert.strictEqual(expeditionService.getPendingNarratives().length, 1);
+});
+
+test('ExpeditionService: consumePendingNarratives clears queue', () => {
+    const { expeditionService } = createServices();
+    expeditionService._enqueueNarrative({ id: 'nar_test', titleKey: 't', loreKey: 'l', era: 1 });
+    expeditionService.consumePendingNarratives();
+    assert.deepStrictEqual(expeditionService.getPendingNarratives(), []);
+});
+
+test('ExpeditionService: resolving story mission effects', () => {
+    const { expeditionService, villageService, heroService, regionService } = createServices();
+
+    // Mock an expedition with all 5 types of effects
+    const mockExp = {
+        id: 'exp_test_story',
+        name: 'Test Story',
+        regionId: 'reg_greenfields',
+        isStory: true,
+        reward: {
+            effects: [
+                { type: 'hero', name: 'HeroTest', origin: 'origin_thief', level: 3, avatar: 'test.png' },
+                { type: 'villagers', count: 4 },
+                { type: 'building_blueprint', buildingId: 'blacksmith' },
+                { type: 'region_unlock', regionId: 'reg_mystic_ruins' },
+                { type: 'narrative', id: 'nar_test_story', titleKey: 't_key', loreKey: 'l_key', era: 2 }
+            ]
+        }
+    };
+
+    // Call finishExpedition or directly test effect resolution
+    const mockHero = heroService.add({ name: 'Arthur', origin: 'origin_warrior', level: 1 }).data;
+
+    // Before effects execution checks
+    const initialHeroesCount = heroService.list().length;
+    const initialVillagersCount = villageService.getState().population.total;
+    assert.strictEqual(villageService.getState().infrastructure.blacksmith, undefined);
+    assert.strictEqual(regionService.getRegion('reg_mystic_ruins'), null);
+    assert.strictEqual(expeditionService.getPendingNarratives().length, 0);
+
+    expeditionService.state.activeExpeditions = [mockExp];
+    expeditionService.state.activeCombatExpeditionId = mockExp.id;
+
+    // Simulate completion
+    const result = expeditionService._finishExpedition(mockExp, { id: mockExp.id, heroIds: [mockHero.id] });
+    assert.ok(result.success);
+
+    // Assert story mission tracking
+    assert.ok(expeditionService.getStoryMissionStatus('exp_test_story'));
+    assert.deepStrictEqual(expeditionService.getCompletedStoryMissions(), ['exp_test_story']);
+
+    // Assert Hero effect
+    const newHeroes = heroService.list();
+    assert.strictEqual(newHeroes.length, initialHeroesCount + 1);
+    const addedHero = newHeroes.find(h => h.name === 'HeroTest');
+    assert.ok(addedHero);
+    assert.strictEqual(addedHero.origin, 'origin_thief');
+    assert.strictEqual(addedHero.avatar, 'test.png');
+    assert.strictEqual(addedHero.level, 3);
+    assert.ok(addedHero.equipment.leftHand);
+    assert.ok(addedHero.equipment.body);
+
+    // Assert Villagers effect
+    assert.strictEqual(villageService.getState().population.total, initialVillagersCount + 4);
+
+    // Assert Blueprint effect
+    assert.strictEqual(villageService.getState().infrastructure.blacksmith, 0);
+
+    // Assert Region Unlock effect
+    assert.ok(regionService.getRegion('reg_mystic_ruins'));
+
+    // Assert Narrative effect
+    const pending = expeditionService.getPendingNarratives();
+    assert.strictEqual(pending.length, 1);
+    assert.strictEqual(pending[0].titleKey, 't_key');
+});
+
+test('ExpeditionService: _finishExpedition compiles and returns drops object', () => {
+    const { expeditionService, heroService, regionService } = createServices();
+    const hero = heroService.add({ name: 'Test Hero', origin: 'origin_warrior', level: 1 }).data;
+
+    const exp = expeditionService.getExpeditions()[0];
+    const activeExp = {
+        id: exp.id,
+        currentStage: exp.stages.length,
+        heroIds: [hero.id],
+        status: 'assigned'
+    };
+    expeditionService.state.activeExpeditions.push(activeExp);
+
+    // Mock LootService glyph tablet drop
+    const originalGenerateGlyphDrop = expeditionService.lootService.generateGlyphDrop;
+    expeditionService.lootService.generateGlyphDrop = () => ({
+        tabletId: 'tablet_glyph_fire_1',
+        glyphId: 'glyph_fire',
+        tier: 1
+    });
+
+    try {
+        const res = expeditionService._finishExpedition(exp, activeExp);
+        assert.ok(res.success);
+        assert.ok(res.data.drops);
+        assert.ok(res.data.drops.consumables);
+        assert.ok(res.data.drops.items);
+        assert.deepStrictEqual(res.data.drops.glyphs, [{
+            tabletId: 'tablet_glyph_fire_1',
+            glyphId: 'glyph_fire',
+            tier: 1
+        }]);
+    } finally {
+        expeditionService.lootService.generateGlyphDrop = originalGenerateGlyphDrop;
+    }
+});
+

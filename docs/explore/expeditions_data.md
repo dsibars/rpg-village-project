@@ -10,6 +10,7 @@ While regions generate infinite random expeditions, **Story Missions** are uniqu
 - **Completion Reward**: 
   - `gold`: 100
   - `items`: 20 Wood, 10 Stone
+  - `effects`: Unlock Blueprints for `blacksmith` and `explorer_guild`
 - **Stages**:
   - Stage 1: 1x Green Slime (designed to defeat the hero on the first day if stats/gear are unallocated)
   - Stage 2: 1x Fire Slime (Boss)
@@ -21,7 +22,10 @@ While regions generate infinite random expeditions, **Story Missions** are uniqu
 - **Completion Reward**: 
   - `gold`: 200
   - `items`: 15 Wood, 5 Stone
-  - `special`: **New Hero: "Sir Valen" (Guard)**
+  - `effects`:
+    - New Hero: "Sir Valen" (Guard, `origin_guard`, Level 1, `valen.webp`)
+    - Unlock Blueprints for `tavern` and `infirmary`
+    - Trigger Narrative: `nar_rescue_mission`
 - **Stages**:
   - Stage 1: 2x Green Slime
   - Stage 2: 1x Fire Slime
@@ -31,18 +35,21 @@ While regions generate infinite random expeditions, **Story Missions** are uniqu
 - **Region**: `reg_forgotten_ruins`
 - **Unlock**: Clear 5 expeditions in Whispering Forest.
 - **Completion Reward**: 
-  - `gold**: 800
-  - `items**: 10 Iron Ore
-  - `special**: **New Hero: "Lyra" (Poet)**
+  - `gold`: 800
+  - `items`: 10 Iron Ore
+  - `effects`:
+    - New Hero: "Lyra" (Poet, `origin_poet`, Level 1, `lyra.png`)
+    - Unlock Blueprints for `witchs_hut` and `training_grounds`
 - **Description**: Explore the heart of the ruins to find the lost poet.
 
 ### `exp_orc_stronghold` (Orc Stronghold)
 - **Region**: `reg_iron_peaks`
 - **Unlock**: `explorer_guild` Level 2.
 - **Completion Reward**: 
-  - `gold**: 5000
-  - `items**: 20 Steel Ingots
-  - `special**: **New Hero: "Brog" (Warrior)**
+  - `gold`: 5000
+  - `items`: 20 Steel Ingots
+  - `effects`:
+    - New Hero: "Brog" (Warrior, `origin_warrior`, Level 1, `brog.png`)
 - **Description**: Defeat the orc warlord to secure the mountain pass.
 
 ### `exp_ancient_archives` (The Golem Chambers)
@@ -50,10 +57,11 @@ While regions generate infinite random expeditions, **Story Missions** are uniqu
 - **Unlock**: `explorer_guild` Level 3.
 - **Completion Reward**: 
   - `gold`: 7000
-  - `special**: **Unlock: Advanced Logistics**
+  - `effects`:
+    - Unlock Blueprint: `arcane_sanctum`
 - **Description**: Retrieve the ancient blueprints from the mountain's core.
 
 ---
 
 ## Technical Note
-Story missions override the procedural generation logic for a single run. Once completed, they are removed from the available missions list, and the region returns to generating standard expeditions.
+Story missions override the procedural generation logic for a single run. Once completed, they are registered in the `storyMissions` state key and removed from the available missions list, triggering their rewards via the `effects` system. The region then returns to generating standard expeditions.

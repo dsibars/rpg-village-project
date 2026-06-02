@@ -1,17 +1,20 @@
 import { BaseModal } from '../../components/modal/BaseModal.js';
-import { TrainerService } from '../../../../engine/trainer/TrainerService.js';
-import { WitchService } from '../../../../engine/witch/WitchService.js';
 import { el } from '../../shared/utils/DOMUtils.js';
 
 export class TrainerModal {
-    static show(hero, i18n, t) {
+    static show(hero, i18n, t, getTrainerDialogue) {
         if (!hero) return;
 
-        const dialogue = TrainerService.getDialogue(hero, i18n);
+        const dialogue = getTrainerDialogue(hero);
 
         const contentElement = el('div', { class: 'trainer-dialogue-box' }, [
             el('div', { class: 'trainer-lines' },
-                dialogue.lines.map(line => el('p', { class: 'trainer-line' }, ['"' + line + '"']))
+                dialogue.lines.map(line => {
+                    const lineText = line.params
+                        ? t(line.key, line.params).replace('{family}', t(line.params.family))
+                        : t(line.key);
+                    return el('p', { class: 'trainer-line' }, ['"' + lineText + '"']);
+                })
             ),
             el('div', {
                 class: 'trainer-footer',
@@ -28,12 +31,12 @@ export class TrainerModal {
                 el('button', {
                     class: 'btn btn-secondary btn-sm',
                     onClick: () => modal.close()
-                }, [t('ui_btn_close') || 'Close'])
+                }, [t('shared_uxelm_close')])
             ])
         ]);
 
         const modal = BaseModal.show({
-            title: t('trainer_title') || 'Training Grounds',
+            title: t('trainer_uxelm_title'),
             contentElement,
             icon: '💪',
             maxWidth: '480px'
@@ -42,7 +45,7 @@ export class TrainerModal {
 }
 
 export class WitchModal {
-    static show(heroes, selectedHeroId, i18n, t, state, emit) {
+    static show(heroes, selectedHeroId, i18n, t, state, emit, getWitchDialogue, recordWitchVisit) {
         let selectedHero = heroes.find(h => h.id === selectedHeroId) || heroes[0];
         if (!selectedHero) return;
 
@@ -52,8 +55,8 @@ export class WitchModal {
         let modalRef = null;
 
         const renderWitch = () => {
-            const dialogue = WitchService.getDialogue(selectedHero, i18n, currentDay);
-            WitchService.recordVisit(selectedHero, currentDay);
+            const dialogue = getWitchDialogue(selectedHero, currentDay);
+            recordWitchVisit(selectedHero, currentDay);
             const elementIcon = elementIcons[dialogue.element] || '🔮';
 
             const heroSelect = el('select', {
@@ -72,13 +75,18 @@ export class WitchModal {
             const masteryHintEl = dialogue.masteryHints.length > 0
                 ? el('div', {
                     style: { marginTop: '8px', fontSize: '0.8rem', color: 'var(--accent-color)' }
-                }, [t('witch_mastery_detected') || 'Glyph mastery whispers detected...'])
+                }, [t('witch_msg_mastery_detected')])
                 : null;
 
             const contentElement = el('div', { class: 'trainer-dialogue-box witch-dialogue-box' }, [
                 el('div', { style: { marginBottom: '12px' } }, [heroSelect]),
                 el('div', { class: 'trainer-lines' },
-                    dialogue.lines.map(line => el('p', { class: 'trainer-line witch-line' }, [`${elementIcon} "${line}"`]))
+                    dialogue.lines.map(line => {
+                        const lineText = line.params
+                            ? t(line.key, line.params).replace('{glyph}', t(line.params.glyph))
+                            : t(line.key);
+                        return el('p', { class: 'trainer-line witch-line' }, [`${elementIcon} "${lineText}"`]);
+                    })
                 ),
                 masteryHintEl,
                 el('div', {
@@ -99,11 +107,11 @@ export class WitchModal {
                     el('button', {
                         class: 'btn btn-secondary btn-sm',
                         onClick: () => {
-                            WitchService.recordVisit(selectedHero);
+                            recordWitchVisit(selectedHero, currentDay);
                             emit('updateHero', { hero: selectedHero });
                             modalRef.close();
                         }
-                    }, [t('ui_btn_close') || 'Close'])
+                    }, [t('shared_uxelm_close')])
                 ])
             ]);
 
@@ -113,12 +121,12 @@ export class WitchModal {
                 contentArea.appendChild(contentElement);
             } else {
                 modalRef = BaseModal.show({
-                    title: t('witch_title') || "Witch's Hut",
+                    title: t('witch_uxelm_title'),
                     contentElement,
                     icon: '🌙',
                     maxWidth: '520px',
                     onClose: () => {
-                        WitchService.recordVisit(selectedHero);
+                        recordWitchVisit(selectedHero, currentDay);
                         emit('updateHero', { hero: selectedHero });
                     }
                 });
@@ -134,7 +142,7 @@ export class AcademyModal {
         if (!hero) return;
 
         const designList = designs.length === 0
-            ? el('p', { style: { color: 'var(--text-muted)', fontSize: '0.85rem' } }, ['No designs saved yet.'])
+            ? el('p', { style: { color: 'var(--text-muted)', fontSize: '0.85rem' } }, [t('academy_uxelm_no_designs')])
             : el('div', {}, designs.map(d =>
                 el('div', { class: 'academy-design-card' }, [
                     el('strong', {}, [d.name]),
@@ -145,7 +153,7 @@ export class AcademyModal {
         const contentElement = el('div', { class: 'trainer-dialogue-box academy-dialogue-box' }, [
             el('div', { style: { marginBottom: '16px' } }, [
                 el('h4', { style: { fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '8px' } }, [
-                    t('ui_design_library') || 'Design Library'
+                    t('academy_uxelm_design_library')
                 ]),
                 designList
             ]),
@@ -162,12 +170,12 @@ export class AcademyModal {
                 el('button', {
                     class: 'btn btn-secondary btn-sm',
                     onClick: () => modal.close()
-                }, [t('ui_btn_close') || 'Close'])
+                }, [t('shared_uxelm_close')])
             ])
         ]);
 
         const modal = BaseModal.show({
-            title: t('academy_title') || 'Glyph Academy',
+            title: t('academy_uxelm_title'),
             contentElement,
             icon: '📚',
             maxWidth: '540px'
@@ -184,33 +192,33 @@ export class HallOfFameModal {
 
         const statGrid = el('div', { class: 'hall-stat-grid' }, [
             el('div', { class: 'hall-stat' }, [
-                el('span', {}, [t('ui_stats_enemies_defeated') || 'Enemies']),
+                el('span', {}, [t('hall_of_fame_info_stat_enemies')]),
                 el('strong', {}, [String(stats.enemiesDefeated || 0)])
             ]),
             el('div', { class: 'hall-stat' }, [
-                el('span', {}, [t('ui_stats_damage_dealt') || 'Damage']),
+                el('span', {}, [t('hall_of_fame_info_stat_damage')]),
                 el('strong', {}, [String(stats.damageDealt || 0)])
             ]),
             el('div', { class: 'hall-stat' }, [
-                el('span', {}, [t('ui_stats_expeditions') || 'Expeditions']),
+                el('span', {}, [t('hall_of_fame_info_stat_expeditions')]),
                 el('strong', {}, [String(stats.expeditionsCompleted || 0)])
             ]),
             el('div', { class: 'hall-stat' }, [
-                el('span', {}, [t('ui_stats_battles_won') || 'Wins']),
+                el('span', {}, [t('hall_of_fame_info_stat_wins')]),
                 el('strong', {}, [String(stats.battlesWon || 0)])
             ])
         ]);
 
         const titlesEl = titles.length === 0
-            ? el('span', { style: { color: 'var(--text-muted)', fontSize: '0.85rem' } }, ['No titles yet.'])
+            ? el('span', { style: { color: 'var(--text-muted)', fontSize: '0.85rem' } }, [t('hall_of_fame_uxelm_no_titles')])
             : el('div', { class: 'hall-titles' }, titles.map(title =>
-                el('span', { class: 'hall-title-badge' }, [t(title) || title])
+                el('span', { class: 'hall-title-badge' }, [t(title)])
             ));
 
         const contentElement = el('div', { class: 'trainer-dialogue-box hall-dialogue-box' }, [
             el('div', { style: { marginBottom: '16px' } }, [statGrid]),
             el('div', { style: { marginBottom: '16px' } }, [
-                el('h4', { style: { fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '8px' } }, ['Titles']),
+                el('h4', { style: { fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '8px' } }, [t('hall_of_fame_uxelm_titles')]),
                 titlesEl
             ]),
             el('div', {
@@ -226,12 +234,12 @@ export class HallOfFameModal {
                 el('button', {
                     class: 'btn btn-secondary btn-sm',
                     onClick: () => modal.close()
-                }, [t('ui_btn_close') || 'Close'])
+                }, [t('shared_uxelm_close')])
             ])
         ]);
 
         const modal = BaseModal.show({
-            title: t('hall_of_fame_title') || 'Hall of Fame',
+            title: t('hall_of_fame_uxelm_title'),
             contentElement,
             icon: '🏆',
             maxWidth: '480px'

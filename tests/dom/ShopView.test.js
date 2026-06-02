@@ -15,7 +15,10 @@ test('ShopView DOM Refactor', async (t) => {
     const mockUi = {
         t: (k) => k,
         switchView: () => {},
-        forceUpdate: () => {}
+        forceUpdate: () => {},
+        engine: {
+            getSellPrice: () => 10
+        }
     };
 
     // Helper to create mock state

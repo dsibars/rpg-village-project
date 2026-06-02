@@ -1,6 +1,5 @@
 import { el, diffList } from '../shared/utils/DOMUtils.js';
-import { MagicCircleService } from '../../../engine/magic_circle/MagicCircleService.js';
-import { GLYPH_DATA, computeGlyphEffect, computeGlyphCostMult } from '../../../engine/shared/data/GameConstants.js';
+import { GLYPH_DATA, computeGlyphEffect, computeGlyphCostMult } from '../../../engine/shared/data/MagicCircleData.js';
 import {
     buildEffectChips,
     getPowerDisplay,
@@ -141,7 +140,7 @@ export class MagicCircleView {
         this.focusedSlotIndex = null;
         this.activeDrawerGlyphId = null;
 
-        this.maxSlots = MagicCircleService.getSlotCount(magicTier);
+        this.maxSlots = this.ui.engine.getMagicCircleSlotCount(magicTier);
 
         // ─── Define close handler early so overlay can reference it ───
         const close = () => {
@@ -248,7 +247,7 @@ export class MagicCircleView {
             this.els.infoDescription,
             el('div', { className: 'mc-tuning-section' }, [
                 el('div', { className: 'mc-tuning-label-container' }, [
-                    el('span', { className: 'mc-tuning-title' }, this.t('mc_dial_prompt') || 'Tier Tuning'),
+                    el('span', { className: 'mc-tuning-title' }, this.t('magic_circle_uxelm_dial_prompt')),
                     this.els.tuningValue
                 ]),
                 el('div', { className: 'mc-tuning-dial' }, [
@@ -259,7 +258,7 @@ export class MagicCircleView {
 
         this.els.emptyState = el('div', {
             style: { textAlign: 'center', padding: '24px', color: '#64748b', fontStyle: 'italic', fontSize: '0.85rem' }
-        }, this.t('mc_slot_empty') || 'Select a glyph from the palette above to socket it.');
+        }, this.t('magic_circle_uxelm_slot_empty'));
 
         this.els.drawerContent = el('div', { className: 'mc-drawer-content' }, [
             this.els.paletteTitle,
@@ -307,7 +306,7 @@ export class MagicCircleView {
                     glyphTiers[c.glyphId] = this.selectedTiers[c.glyphId] || this.glyphMastery[c.glyphId]?.tier || 1;
                 }
                 const composeResult = this.composition.length > 0
-                    ? MagicCircleService.compose(glyphIds, glyphTiers, this.customName || null)
+                    ? this.ui.engine.composeSpell(glyphIds, glyphTiers, this.customName || null)
                     : null;
                 const spell = composeResult?.success ? composeResult.data : null;
 
@@ -315,7 +314,7 @@ export class MagicCircleView {
 
                 if (this.isSimulator) {
                     if (this.ui && this.ui.showToast) {
-                        this.ui.showToast(this.t('simulator_inscribe_disabled') || 'Spell composed! (Inscriptions disabled in simulator mode)', 'info');
+                        this.ui.showToast(this.t('magic_circle_msg_simulator_inscribe_disabled'), 'info');
                     }
                     close();
                     return;
@@ -399,7 +398,7 @@ export class MagicCircleView {
         }
 
         // ─── Static action wiring ───
-        this.els.nameInput.placeholder = this.t('ui_spell_name_placeholder') || 'Custom spell name...';
+        this.els.nameInput.placeholder = this.t('shared_uxelm_spell_name_placeholder');
         this.els.nameInput.addEventListener('input', (e) => {
             this.customName = e.target.value;
             render();
@@ -446,34 +445,34 @@ export class MagicCircleView {
             }
 
             // 2. Top Margin
-            this.els.titleText.textContent = this.t('magic_circle_title') || 'Magic Circle';
+            this.els.titleText.textContent = this.t('magic_circle_uxelm_title');
             this.els.heroBadge.textContent = `${this.heroName} · Tier ${this.magicTier} (${this.maxSlots} slots)`;
 
             const power = getPowerDisplay(spell);
-            this.els.powerStat.textContent = this.t(power.labelKey, { value: power.value }) || '';
+            this.els.powerStat.textContent = this.t(power.labelKey, { value: power.value });
             if (isSupport) {
                 this.els.powerStat.className = 'mc-power-stat val-heal';
             } else {
                 this.els.powerStat.className = 'mc-power-stat';
             }
 
-            this.els.mpCost.textContent = `${spell ? spell.mpCost : 0} ${this.t('ui_mp') || 'MP'}`;
+            this.els.mpCost.textContent = `${spell ? spell.mpCost : 0} ${this.t('shared_uxelm_mp')}`;
 
             const budget = computeBudgetState(spell ? spell.mpCost : 0, this.maxMp);
             this.els.budgetFill.style.width = `${Math.min(100, budget.ratio * 100)}%`;
             this.els.budgetFill.style.backgroundColor = budget.color;
             this.els.budgetFill.style.boxShadow = `0 0 8px ${budget.color}`;
 
-            this.els.budgetLabel.textContent = `${this.t(budget.labelKey) || ''} (${spell ? spell.mpCost : 0} / ${this.maxMp} ${this.t('ui_mp') || 'MP'})`;
+            this.els.budgetLabel.textContent = `${this.t(budget.labelKey)} (${spell ? spell.mpCost : 0} / ${this.maxMp} ${this.t('shared_uxelm_mp')})`;
             this.els.budgetLabel.style.color = budget.color;
 
             // 3. Left Margin (Polarity)
             this.els.polarityIcon.textContent = isSupport ? '💚' : '⚔️';
-            this.els.polarityText.textContent = isSupport ? (this.t('mc_ally') || 'ALLY') : (this.t('mc_foe') || 'FOE');
+            this.els.polarityText.textContent = isSupport ? (this.t('magic_circle_info_polarity_ally')) : (this.t('magic_circle_info_polarity_foe'));
 
             // 4. Right Margin (Count)
             this.els.countIcon.textContent = count === 'all' ? '👥' : '👤';
-            this.els.countText.textContent = count === 'all' ? (this.t('mc_all') || 'ALL') : (this.t('mc_one') || 'ONE');
+            this.els.countText.textContent = count === 'all' ? (this.t('magic_circle_info_target_all')) : (this.t('magic_circle_info_target_one'));
             const countIndicator = this.els.countIcon.parentElement;
             if (count === 'all') {
                 countIndicator.className = 'mc-count-indicator all-active';
@@ -492,7 +491,7 @@ export class MagicCircleView {
                 if (i >= this.maxSlots) {
                     slot.el.classList.add('locked');
                     slot.el.textContent = '🔒';
-                    slot.el.title = this.t('mc_slot_locked', { tier: i + 1 }) || `Locked (Magic Tier ${i + 1} required)`;
+                    slot.el.title = this.t('magic_circle_uxelm_slot_locked', { tier: i + 1 });
                 } else {
                     if (i === this.focusedSlotIndex) {
                         slot.el.classList.add('focused-slot');
@@ -502,7 +501,7 @@ export class MagicCircleView {
                         slot.el.classList.add('filled');
                         const g = GLYPH_DATA[slotComp.glyphId];
                         const tier = glyphTiers[slotComp.glyphId] || 1;
-                        const symbol = MagicCircleService.getGlyphSymbol(tier);
+                        const symbol = this.ui.engine.getGlyphSymbol(tier);
 
                         slot.el.textContent = '';
 
@@ -520,11 +519,11 @@ export class MagicCircleView {
                             slot.el.appendChild(slot.abb);
                             slot.el.appendChild(slot.tier);
                         }
-                        slot.el.title = `${i === 0 ? 'CORE' : 'Slot ' + i}: ${this.t(g.id) || g.id} ${symbol}`;
+                        slot.el.title = `${i === 0 ? 'CORE' : 'Slot ' + i}: ${this.t('magic_circle_info_' + g.id)} ${symbol}`;
                     } else {
                         slot.el.classList.add('empty');
                         slot.el.textContent = i === 0 ? '⚡' : '＋';
-                        slot.el.title = `${i === 0 ? 'CORE' : 'Slot ' + i} (${this.t('mc_slot_empty') || 'Empty'})`;
+                        slot.el.title = `${i === 0 ? 'CORE' : 'Slot ' + i} (${this.t('magic_circle_uxelm_slot_empty')})`;
                     }
                 }
             });
@@ -560,7 +559,7 @@ export class MagicCircleView {
                 const elemEmoji = getElementEmoji(spell.element);
                 this.els.elementDisplay.textContent = `${elemEmoji} ${spell.element.charAt(0).toUpperCase() + spell.element.slice(1)}`;
             } else {
-                this.els.elementDisplay.textContent = `🔮 ${this.t('mc_effect_none') || 'None'}`;
+                this.els.elementDisplay.textContent = `🔮 ${this.t('magic_circle_info_effect_none')}`;
             }
 
             this.els.chipsContainer.replaceChildren();
@@ -568,24 +567,24 @@ export class MagicCircleView {
                 const chips = buildEffectChips(spell.effects, isSupport);
                 if (isSupport && chips.length === 0) {
                     this.els.chipsContainer.appendChild(
-                        el('span', { className: ['mc-effect-chip', 'no-harm'] }, `💚 ${this.t('mc_effect_no_harm') || 'No harmful effects'}`)
+                        el('span', { className: ['mc-effect-chip', 'no-harm'] }, `💚 ${this.t('magic_circle_info_effect_no_harm')}`)
                     );
                 } else if (chips.length > 0) {
                     chips.forEach(c => {
-                        const isPercent = c.labelKey !== 'mc_effect_poison';
+                        const isPercent = c.labelKey !== 'magic_circle_info_effect_poison';
                         const suffix = isPercent ? '%' : '';
                         this.els.chipsContainer.appendChild(
-                            el('span', { className: 'mc-effect-chip' }, `${c.icon} ${this.t(c.labelKey) || ''} ${c.value}${suffix}`)
+                            el('span', { className: 'mc-effect-chip' }, `${c.icon} ${this.t(c.labelKey)} ${c.value}${suffix}`)
                         );
                     });
                 } else {
                     this.els.chipsContainer.appendChild(
-                        el('span', { className: 'mc-effect-chip' }, this.t('mc_effect_none') || 'No effects')
+                        el('span', { className: 'mc-effect-chip' }, this.t('magic_circle_info_effect_none'))
                     );
                 }
             } else {
                 this.els.chipsContainer.appendChild(
-                    el('span', { className: 'mc-effect-chip' }, this.t('mc_effect_none') || 'No effects')
+                    el('span', { className: 'mc-effect-chip' }, this.t('magic_circle_info_effect_none'))
                 );
             }
 
@@ -595,13 +594,13 @@ export class MagicCircleView {
             this.els.inscribeBtn.disabled = !canInscribe;
 
             if (this.isSimulator) {
-                this.els.inscribeBtn.textContent = this.t('mc_inscribe_disabled') || 'Simulator';
+                this.els.inscribeBtn.textContent = this.t('magic_circle_uxelm_inscribe_disabled');
             } else {
-                this.els.inscribeBtn.textContent = this.t('mc_inscribe') || 'Inscribe Spell';
+                this.els.inscribeBtn.textContent = this.t('magic_circle_uxelm_inscribe');
             }
 
-            this.els.clearBtn.textContent = this.t('ui_clear') || 'Clear';
-            this.els.closeBtn.textContent = this.t('ui_btn_close') || 'Close';
+            this.els.clearBtn.textContent = this.t('shared_uxelm_clear');
+            this.els.closeBtn.textContent = this.t('shared_uxelm_close');
 
             // 8. Drawer Configuration Update
             if (this.focusedSlotIndex !== null) {
@@ -609,8 +608,8 @@ export class MagicCircleView {
                 this.els.centerContainer.classList.add('drawer-open');
 
                 this.els.drawerTitle.textContent = this.focusedSlotIndex === 0
-                    ? (this.t('mc_drawer_title_core') || 'CORE (Center) Configuration')
-                    : (this.t('mc_drawer_title', { slot: this.focusedSlotIndex }) || `Slot ${this.focusedSlotIndex} Configuration`);
+                    ? (this.t('magic_circle_uxelm_drawer_title_core'))
+                    : (this.t('magic_circle_uxelm_drawer_title', { slot: this.focusedSlotIndex }));
 
                 const isCoreSlot = this.focusedSlotIndex === 0;
                 const filteredKnown = this.knownGlyphs.filter(gid => {
@@ -622,7 +621,7 @@ export class MagicCircleView {
                 const activeGlyphId = activeSlotComp ? activeSlotComp.glyphId : null;
                 this.activeDrawerGlyphId = activeGlyphId;
 
-                this.els.paletteTitle.textContent = this.t('mc_slot_select_prompt') || 'Select Glyph';
+                this.els.paletteTitle.textContent = this.t('magic_circle_uxelm_slot_select_prompt');
 
                 // Build palette cards and reconcile with diffList
                 const paletteCards = filteredKnown.map(gid => {
@@ -639,7 +638,7 @@ export class MagicCircleView {
                             isPlacedElsewhere && 'already-used'
                         ],
                         dataGlyph: gid,
-                        title: this.t(g.id) || g.id
+                        title: this.t('magic_circle_info_' + g.id)
                     }, [
                         el('span', { className: 'mc-palette-icon' }, emoji),
                         el('span', { className: 'mc-palette-abb' }, abbreviation || g.id.replace('glyph_', '').slice(0, 3).toUpperCase())
@@ -652,11 +651,11 @@ export class MagicCircleView {
                     const activeGlyph = GLYPH_DATA[activeGlyphId];
                     const currentTier = this.selectedTiers[activeGlyphId] || this.glyphMastery[activeGlyphId]?.tier || 1;
                     const desc = this.getGlyphDescription(activeGlyph, currentTier);
-                    const symbol = MagicCircleService.getGlyphSymbol(currentTier);
+                    const symbol = this.ui.engine.getGlyphSymbol(currentTier);
                     const maxSelectable = getMaxSelectableTier(activeGlyph, this.glyphMastery[activeGlyphId]?.tier || 1);
                     const isStatic = isStaticGlyph(activeGlyph);
 
-                    this.els.infoTitle.textContent = `${this.t(activeGlyph.id) || activeGlyph.id} ${symbol}`;
+                    this.els.infoTitle.textContent = `${this.t('magic_circle_info_' + activeGlyph.id)} ${symbol}`;
                     this.els.infoType.className = `mc-info-type ${activeGlyph.type}`;
                     this.els.infoType.textContent = activeGlyph.type;
                     this.els.infoDescription.textContent = desc;
@@ -666,7 +665,7 @@ export class MagicCircleView {
                         this.els.tuningValue.appendChild(
                             el('span', {
                                 className: 'static-lock',
-                                title: this.t('mc_glyph_static_tooltip') || 'This glyph has no growth potential'
+                                title: this.t('magic_circle_info_glyph_static_tooltip')
                             }, '🔒')
                         );
                     }
@@ -683,17 +682,17 @@ export class MagicCircleView {
                         ];
                         tick.disabled = !isUnlocked;
                         if (!isUnlocked) {
-                            tick.title = 'Requires higher mastery';
+                            tick.title = this.t('magic_circle_msg_requires_higher_mastery');
                         } else {
                             tick.removeAttribute('title');
                         }
-                        tick.textContent = MagicCircleService.getGlyphSymbol(t);
+                        tick.textContent = this.ui.engine.getGlyphSymbol(t);
                     });
 
                     this.els.selectedGlyphInfo.style.display = '';
                     this.els.emptyState.style.display = 'none';
                     this.els.removeBtn.style.display = '';
-                    this.els.removeBtn.textContent = this.t('mc_slot_remove_prompt') || 'Remove Glyph';
+                    this.els.removeBtn.textContent = this.t('magic_circle_uxelm_slot_remove_prompt');
                 } else {
                     this.els.selectedGlyphInfo.style.display = 'none';
                     this.els.emptyState.style.display = '';

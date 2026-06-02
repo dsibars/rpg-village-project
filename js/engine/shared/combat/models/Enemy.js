@@ -1,6 +1,9 @@
 export class Enemy {
     constructor(data) {
         this.id = data.id || crypto.randomUUID();
+        this.templateId = data.templateId || 'slime_green';
+        this.isElite = data.isElite || false;
+        this.eliteTier = data.eliteTier || 0;
         this.name = data.name;
         this.type = data.type || 'slime';
         this.level = data.level || 1;
@@ -26,6 +29,9 @@ export class Enemy {
     toJSON() {
         return {
             id: this.id,
+            templateId: this.templateId,
+            isElite: this.isElite,
+            eliteTier: this.eliteTier,
             name: this.name,
             type: this.type,
             level: this.level,

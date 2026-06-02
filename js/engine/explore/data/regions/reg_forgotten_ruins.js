@@ -7,6 +7,28 @@ export const reg_forgotten_ruins = {
     enemies: ['skeleton_warrior', 'ghost_wisp', 'cultist_acolyte', 'stone_golem', 'lich_apprentice'],
     baseLevel: 5,
     bossPool: ['lich_apprentice', 'stone_golem'],
+    scaling: {
+        levelPerClears: 3,
+        statMultiplier: 1.1,
+        maxLevelCap: null
+    },
+    lootProfile: {
+        materials: [
+            { id: 'material_stone', min: 4, max: 7, chance: 1.0 },
+            { id: 'material_iron_ore', min: 2, max: 4, chance: 0.5 },
+            { id: 'material_mythril', min: 1, max: 1, chance: 0.15 }
+        ],
+        goldBase: 40,
+        goldPerClear: 8
+    },
+    narrative: null,
+    glyphDropChance: 0.25,
+    glyphDropTable: [
+        { glyphId: 'glyph_pierce', weight: 10, tier: 1 },
+        { glyphId: 'glyph_multi',  weight: 8,  tier: 1 },
+        { glyphId: 'glyph_dark',   weight: 6,  tier: 1 }
+    ],
+
     unlockRequirements: {
         any: [
             { minRegionClears: { reg_mystic_ruins: 6 } },
@@ -28,7 +50,17 @@ export const reg_forgotten_ruins = {
             reward: {
                 gold: 800,
                 items: { material_iron_ore: 10 },
-                special: { type: 'hero', value: 'Lyra' }
+                effects: [
+                    {
+                        type: 'hero',
+                        name: 'Lyra',
+                        origin: 'origin_poet',
+                        level: 1,
+                        avatar: 'lyra.png'
+                    },
+                    { type: 'building_blueprint', buildingId: 'witchs_hut' },
+                    { type: 'building_blueprint', buildingId: 'training_grounds' }
+                ]
             },
             stages: [
                 { type: 'battle', enemies: ['skeleton_warrior', 'ghost_wisp'] },

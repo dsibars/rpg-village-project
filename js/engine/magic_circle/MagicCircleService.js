@@ -7,7 +7,7 @@ import {
     computeGlyphEffect,
     computeGlyphCostMult,
     glyphHasGrowthPotential
-} from '../shared/data/GameConstants.js';
+} from '../shared/data/MagicCircleData.js';
 import { Result } from '../shared/core/Result.js';
 
 /**
@@ -59,22 +59,22 @@ export class MagicCircleService {
      */
     static compose(glyphIds, glyphTiers = {}, customName = null) {
         if (!glyphIds || glyphIds.length === 0) {
-            return Result.fail('error_no_glyphs');
+            return Result.fail('magic_circle_error_glyph_none');
         }
 
         const glyphs = glyphIds.map(id => GLYPH_DATA[id]).filter(Boolean);
         if (glyphs.length === 0) {
-            return Result.fail('error_invalid_glyphs');
+            return Result.fail('magic_circle_error_glyph_invalid');
         }
 
         const core = glyphs.find(g => g.type === 'core');
         if (!core) {
-            return Result.fail('error_no_core_glyph');
+            return Result.fail('magic_circle_error_core_glyph_none');
         }
 
         const nonCore = glyphs.filter(g => g.type !== 'core');
         if (nonCore.length > 0 && nonCore.some(g => g.type === 'core')) {
-            return Result.fail('error_multiple_cores');
+            return Result.fail('magic_circle_error_core_multiple');
         }
 
         let totalDamageMult = 1.0;
@@ -186,14 +186,14 @@ export class MagicCircleService {
      */
     static validateInscription(spell, heroMagicTier, currentCodexSize) {
         if (!spell || !spell.glyphIds || spell.glyphIds.length === 0) {
-            return Result.fail('error_invalid_spell');
+            return Result.fail('magic_circle_error_spell_invalid');
         }
         const maxSlots = this.getSlotCount(heroMagicTier);
         if (spell.glyphIds.length > maxSlots) {
-            return Result.fail('error_too_many_glyphs');
+            return Result.fail('magic_circle_error_glyph_too_many');
         }
         if (currentCodexSize >= 6) {
-            return Result.fail('error_codex_full');
+            return Result.fail('magic_circle_error_codex_full');
         }
         return Result.ok(true);
     }

@@ -33,8 +33,8 @@ export class DailyReportModal {
         // Food Section
         const foodClass = report.starvation ? 'danger' : '';
         const foodText = report.starvation 
-            ? this.t('ui_report_starvation') 
-            : this.t('ui_report_food').replace('{amount}', report.consumed);
+            ? this.t('village_msg_report_starvation') 
+            : this.t('village_msg_report_food').replace('{amount}', report.consumed);
         sections.push(el('div', { class: `report-section ${foodClass}` }, [
             el('span', { class: 'report-icon' }, ['🍞']),
             el('span', {}, [foodText])
@@ -44,18 +44,18 @@ export class DailyReportModal {
         if (report.growth > 0) {
             sections.push(el('div', { class: 'report-section' }, [
                 el('span', { class: 'report-icon' }, ['👶']),
-                el('span', {}, [this.t('ui_report_growth').replace('{amount}', report.growth)])
+                el('span', {}, [this.t('village_msg_report_growth').replace('{amount}', report.growth)])
             ]));
         }
 
         // Miner Yield Section
         if (report.minerYield && (report.minerYield.wood > 0 || report.minerYield.stone > 0)) {
             const yields = [];
-            if (report.minerYield.wood > 0) yields.push(`${report.minerYield.wood} ${this.t('material_wood')}`);
-            if (report.minerYield.stone > 0) yields.push(`${report.minerYield.stone} ${this.t('material_stone')}`);
+            if (report.minerYield.wood > 0) yields.push(`${report.minerYield.wood} ${this.t('inventory_info_mat_wood')}`);
+            if (report.minerYield.stone > 0) yields.push(`${report.minerYield.stone} ${this.t('inventory_info_mat_stone')}`);
             sections.push(el('div', { class: 'report-section success' }, [
                 el('span', { class: 'report-icon' }, ['⛏️']),
-                el('span', {}, [this.t('ui_report_miner').replace('{yield}', yields.join(', '))])
+                el('span', {}, [this.t('village_msg_report_miner').replace('{yield}', yields.join(', '))])
             ]));
         }
 
@@ -63,7 +63,7 @@ export class DailyReportModal {
         if (report.completed && report.completed.length > 0) {
             sections.push(el('div', { class: 'report-section' }, [
                 el('span', { class: 'report-icon' }, ['🔨']),
-                el('span', {}, [`${this.t('ui_report_built')} ${report.completed.map(id => this.t('village_' + id)).join(', ')}`])
+                el('span', {}, [`${this.t('village_msg_report_built')} ${report.completed.map(id => this.t('village_info_building_' + id)).join(', ')}`])
             ]));
         }
 
@@ -72,7 +72,7 @@ export class DailyReportModal {
             const healedStr = report.recovery.map(h => `${h.heroName} (+${h.amount} HP)`).join(', ');
             sections.push(el('div', { class: 'report-section success' }, [
                 el('span', { class: 'report-icon' }, ['💖']),
-                el('span', {}, [this.t('ui_report_recovery').replace('{healed}', healedStr)])
+                el('span', {}, [this.t('village_msg_report_recovery').replace('{healed}', healedStr)])
             ]));
         }
 
@@ -80,8 +80,8 @@ export class DailyReportModal {
         if (report.training && report.training.length > 0) {
             const leveled = report.training.filter(t => t.leveledUp).map(t => t.heroName);
             const trainingText = leveled.length > 0
-                ? this.t('ui_report_training_level').replace('{heroes}', leveled.join(', '))
-                : this.t('ui_report_training').replace('{count}', report.training.length);
+                ? this.t('village_msg_report_training_level').replace('{heroes}', leveled.join(', '))
+                : this.t('village_msg_report_training').replace('{count}', report.training.length);
             sections.push(el('div', { class: `report-section ${leveled.length > 0 ? 'success' : ''}` }, [
                 el('span', { class: 'report-icon' }, ['💪']),
                 el('span', {}, [trainingText])
@@ -91,33 +91,53 @@ export class DailyReportModal {
         // Expedition Section
         if (report.expedition) {
             const exp = report.expedition;
-            const expName = this.t(exp.expId) || exp.expName || 'Expedition';
+            const expName = this.t(exp.expId) !== exp.expId ? this.t(exp.expId) : (exp.expName || exp.expId);
             
             if (exp.status === 'completed') {
                 let rewardsStr = '';
+                const rewards = [];
                 if (exp.reward) {
-                    const rewards = [];
-                    if (exp.reward.gold) rewards.push(`${exp.reward.gold} ${this.t('village_gold')}`);
+                    if (exp.reward.gold) rewards.push(`${exp.reward.gold} ${this.t('village_info_gold')}`);
                     if (exp.reward.items) {
                         for (const [id, qty] of Object.entries(exp.reward.items)) {
-                            rewards.push(`${qty} ${this.t(id) || id}`);
+                            const transKey = id.startsWith('material_') || id.startsWith('food_') || id.startsWith('meal_') ? id : 'item_' + id;
+                            rewards.push(`${qty} ${this.t(transKey)}`);
                         }
                     }
-                    rewardsStr = rewards.join(', ');
                 }
+                if (exp.drops) {
+                    if (exp.drops.loot) {
+                        const loot = exp.drops.loot;
+                        const matKey = 'inventory_info_tier_' + loot.material;
+                        const typeKey = 'inventory_info_type_' + loot.type;
+                        const eqName = `${this.t(matKey)} ${this.t(typeKey)}`;
+                        rewards.push(eqName);
+                    }
+                    if (exp.drops.consumables && exp.drops.consumables.length > 0) {
+                        exp.drops.consumables.forEach(({ id, qty }) => {
+                            rewards.push(`${qty} ${this.t('item_' + id)}`);
+                        });
+                    }
+                    if (exp.drops.glyphs && exp.drops.glyphs.length > 0) {
+                        exp.drops.glyphs.forEach(({ tabletId }) => {
+                            rewards.push(`1 ${this.t('item_' + tabletId)}`);
+                        });
+                    }
+                }
+                rewardsStr = rewards.join(', ');
                 sections.push(el('div', { class: 'report-section success' }, [
                     el('span', { class: 'report-icon' }, ['✨']),
-                    el('span', {}, [this.t('ui_report_exp_completed').replace('{name}', expName).replace('{rewards}', rewardsStr)])
+                    el('span', {}, [this.t('village_msg_report_exp_completed').replace('{name}', expName).replace('{rewards}', rewardsStr)])
                 ]));
             } else if (exp.status === 'failed') {
                 sections.push(el('div', { class: 'report-section danger' }, [
                     el('span', { class: 'report-icon' }, ['💀']),
-                    el('span', {}, [this.t('ui_report_exp_failed').replace('{name}', expName)])
+                    el('span', {}, [this.t('village_msg_report_exp_failed').replace('{name}', expName)])
                 ]));
             } else if (exp.status === 'progress') {
                 sections.push(el('div', { class: 'report-section' }, [
                     el('span', { class: 'report-icon' }, ['⚔️']),
-                    el('span', {}, [this.t('ui_report_exp_progress').replace('{name}', expName)])
+                    el('span', {}, [this.t('village_msg_report_exp_progress').replace('{name}', expName)])
                 ]));
             }
         }
@@ -125,9 +145,10 @@ export class DailyReportModal {
         // Tavern Recruit Section
         if (report.tavernRecruit) {
             const hero = report.tavernRecruit;
+            const originKey = 'heroes_info_origin_' + hero.origin.replace('origin_', '');
             sections.push(el('div', { class: 'report-section success' }, [
                 el('span', { class: 'report-icon' }, ['🍺']),
-                el('span', {}, [this.t('ui_report_tavern_recruit').replace('{name}', hero.name).replace('{origin}', this.t(hero.origin))])
+                el('span', {}, [this.t('village_msg_report_tavern_recruit').replace('{name}', hero.name).replace('{origin}', this.t(originKey))])
             ]));
         }
 
@@ -137,18 +158,18 @@ export class DailyReportModal {
             if (raid.isVictory) {
                 sections.push(el('div', { class: 'report-section success' }, [
                     el('span', { class: 'report-icon' }, ['🛡️']),
-                    el('span', {}, [this.t('ui_report_raid_victory')
+                    el('span', {}, [this.t('village_msg_report_raid_victory')
                         .replace('{defense}', raid.defensePower)
                         .replace('{raid}', raid.raidPower)
                         .replace('{gold}', raid.goldReward || 0)])
                 ]));
             } else {
                 const damagedStr = raid.damagedBuilding
-                    ? this.t('ui_report_raid_damaged').replace('{building}', this.t('village_' + raid.damagedBuilding) || raid.damagedBuilding)
+                    ? this.t('village_msg_report_raid_damaged').replace('{building}', this.t('village_info_building_' + raid.damagedBuilding))
                     : '';
                 sections.push(el('div', { class: 'report-section danger' }, [
                     el('span', { class: 'report-icon' }, ['⚠️']),
-                    el('span', {}, [this.t('ui_report_raid_defeat')
+                    el('span', {}, [this.t('village_msg_report_raid_defeat')
                         .replace('{defense}', raid.defensePower)
                         .replace('{raid}', raid.raidPower)
                         .replace('{wood}', raid.woodLoss || 0)
@@ -162,13 +183,13 @@ export class DailyReportModal {
         
         const closeBtn = el('button', {
             class: 'btn-close-report',
-            title: this.t('ui_close') || 'Close',
+            title: this.t('shared_uxelm_close'),
             onClick: this.onAcknowledge
         }, ['×']);
         closeBtn.setAttribute('data-action', 'dismiss-report');
 
         const headerEl = el('div', { class: 'daily-report-header' }, [
-            el('h3', {}, [this.t('ui_daily_report_title').replace('{day}', report.day - 1)]),
+            el('h3', {}, [this.t('village_uxelm_report_title').replace('{day}', report.day - 1)]),
             closeBtn
         ]);
 
@@ -182,7 +203,7 @@ export class DailyReportModal {
                 class: 'btn btn-primary btn-sm shine-effect',
                 onClick: this.onAcknowledge
             }, [
-                el('span', { dataI18n: 'ui_btn_acknowledge' }, [this.t('ui_btn_acknowledge') || 'Acknowledge'])
+                el('span', { dataI18n: 'shared_uxelm_acknowledge' }, [this.t('shared_uxelm_acknowledge')])
             ])
         ]);
 

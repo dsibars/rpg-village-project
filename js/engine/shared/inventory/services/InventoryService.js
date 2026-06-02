@@ -107,7 +107,7 @@ export class InventoryService {
         if (currentUsed + count > maxStorage) {
             // Partial add if possible? For now, just fail or add up to limit
             const allowed = Math.max(0, maxStorage - currentUsed);
-            if (allowed <= 0) return Result.fail('error_storage_full');
+            if (allowed <= 0) return Result.fail('inventory_error_storage_full');
             count = Math.min(count, allowed);
         }
 
@@ -136,7 +136,7 @@ export class InventoryService {
             this.save();
             return Result.ok(this.getItemCount(id));
         }
-        return Result.fail('error_not_enough_items');
+        return Result.fail('inventory_error_item_not_enough');
     }
 
     // Compatibility aliases for older code
@@ -156,7 +156,7 @@ export class InventoryService {
 
     addEquipment(item, maxStorage = Infinity) {
         if (this.getTotalStorageUsed() + 1 > maxStorage) {
-            return Result.fail('error_storage_full');
+            return Result.fail('inventory_error_storage_full');
         }
         const instance = item instanceof Equipment ? item : new Equipment(item);
         this.data.equipment.push(instance);
@@ -171,6 +171,6 @@ export class InventoryService {
             this.save();
             return Result.ok(removed[0]);
         }
-        return Result.fail('error_item_not_found');
+        return Result.fail('inventory_error_item_not_found');
     }
 }

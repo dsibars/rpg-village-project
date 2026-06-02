@@ -1,17 +1,18 @@
-import { MAGIC_TIER_THRESHOLDS, GLYPH_MASTERY_THRESHOLDS } from '../shared/data/GameConstants.js';
+import { MAGIC_TIER_THRESHOLDS, GLYPH_MASTERY_THRESHOLDS } from '../shared/data/MagicCircleData.js';
 
 /**
  * WitchService generates mystical dialogue hints about magic and glyphs.
  * The Witch is the ONLY source of progress information for hidden systems.
+ * Returns i18n keys — presentation layer handles translation.
  */
 export class WitchService {
     /**
      * Get a reading for a hero.
      * @param {Object} hero
-     * @param {Object} i18n
-     * @returns {Object} { category, lines, proximity, element }
+     * @param {number|null} currentDay
+     * @returns {Object} { category, lines: [{key, params?}], proximity, element }
      */
-    static getDialogue(hero, i18n, currentDay = null) {
+    static getDialogue(hero, currentDay = null) {
         const magicXp = hero.magicXp || 0;
         const magicTier = hero.magicTier || 1;
         const glyphMastery = hero.glyphMastery || {};
@@ -24,7 +25,7 @@ export class WitchService {
                 category: 'cooldown',
                 element: 'neutral',
                 tier: magicTier,
-                lines: [i18n ? i18n.t('witch_repeated_visit') : 'witch_repeated_visit'],
+                lines: [{ key: 'witch_repeated_visit' }],
                 masteryHints: []
             };
         }
@@ -83,7 +84,7 @@ export class WitchService {
         // Determine if repeated visit (same hero, no tier progress since last)
         const isRepeatedVisit = lastVisit && lastVisit.tier === magicTier && lastVisit.xp === magicXp;
 
-        const lines = this._generateLines(proximity, dominantElement, magicTier, masteryHints, isRepeatedVisit, i18n);
+        const lines = this._generateLines(proximity, dominantElement, magicTier, masteryHints, isRepeatedVisit);
 
         return {
             category: proximity,
@@ -94,13 +95,12 @@ export class WitchService {
         };
     }
 
-    static _generateLines(proximity, element, tier, masteryHints, isRepeatedVisit, i18n) {
-        const t = (key) => i18n ? i18n.t(key) : key;
+    static _generateLines(proximity, element, tier, masteryHints, isRepeatedVisit) {
         const lines = [];
 
         // Repeated visit with no change
         if (isRepeatedVisit) {
-            lines.push(t('witch_repeated_visit'));
+            lines.push({ key: 'witch_repeated_visit' });
             return lines;
         }
 
@@ -116,36 +116,25 @@ export class WitchService {
         };
 
         const metaphorKey = (elementMetaphors[element] || elementMetaphors.neutral)[proximity];
-        if (metaphorKey) lines.push(t(metaphorKey));
+        if (metaphorKey) lines.push({ key: metaphorKey });
 
         // Fallback generic lines if no i18n key found
         if (lines.length === 0) {
-            switch (proximity) {
-                case 'far':
-                    lines.push(t('witch_generic_far'));
-                    break;
-                case 'approaching':
-                    lines.push(t('witch_generic_approach'));
-                    break;
-                case 'near':
-                    lines.push(t('witch_generic_near'));
-                    break;
-                case 'just_reached':
-                    lines.push(t('witch_generic_reached'));
-                    break;
-                case 'max':
-                    lines.push(t('witch_generic_max'));
-                    break;
-                default:
-                    lines.push(t('witch_generic_far'));
-            }
+            const fallbackKey = {
+                far: 'witch_generic_far',
+                approaching: 'witch_generic_approach',
+                near: 'witch_generic_near',
+                just_reached: 'witch_generic_reached',
+                max: 'witch_generic_max'
+            }[proximity] || 'witch_generic_far';
+            lines.push({ key: fallbackKey });
         }
 
         // Glyph mastery hints (max 1 per visit)
         if (masteryHints.length > 0) {
             const hint = masteryHints[0];
             const closenessKey = hint.closeness === 'near' ? 'witch_mastery_near' : 'witch_mastery_mid';
-            lines.push(t(closenessKey).replace('{glyph}', t(hint.glyphId)));
+            lines.push({ key: closenessKey, params: { glyph: hint.glyphId } });
         }
 
         return lines;

@@ -71,6 +71,9 @@ Failing an expedition **does not** trigger the Discovery Logic. New paths are on
 ### 5. First-Clear Speed Boost
 When a region is cleared for the **first time** (transitioning from 0 to 1 clears), all participating heroes receive a **permanent +2 Speed** bonus. This is a one-time reward per region; subsequent clears do not grant additional speed. The boost is applied to `baseSpeed` and persists across saves.
 
+### 6. Narrative Rewards
+Story missions may declare a narrative effect inside `reward.effects[]` with `type: 'narrative'` and payload `{ titleKey, loreKey, era? }`. When the mission completes, the narrative is enqueued in `ExpeditionService.pendingNarratives` and appears during the next day transition. It is shown exactly once.
+
 ## Region Unlock Conditions
 
 Regions are unlocked dynamically as the player progresses. Unlock requirements are defined **in region data files** (`js/engine/explore/data/regions/reg_*.js`) and evaluated generically by `ExpeditionService` — no service code changes are needed when adding a new region.

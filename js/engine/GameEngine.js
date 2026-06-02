@@ -7,6 +7,7 @@ import { BattleService } from './shared/combat/services/BattleService.js';
 import { InventoryService } from './shared/inventory/services/InventoryService.js';
 import { VillageService } from './village/services/VillageService.js';
 import { ExpeditionService } from './explore/services/ExpeditionService.js';
+import { RegionService } from './explore/services/RegionService.js';
 import { DailyObjectivesService } from './daily/services/DailyObjectivesService.js';
 import { CalendarService } from './calendar/services/CalendarService.js';
 import { AcademyService } from './academy/AcademyService.js';
@@ -19,7 +20,14 @@ const DEBUG = false;
 
 import { i18n } from './shared/core/i18n/I18nService.js';
 import { Result } from './shared/core/Result.js';
-import { getRefineCost, MEAL_RECIPES } from './shared/data/GameConstants.js';
+import { SKILLS_DATA } from './shared/data/CombatData.js';
+import { MEAL_RECIPES } from './shared/data/InventoryData.js';
+import { getRefineCost } from './shared/data/EquipmentData.js';
+import { MagicCircleService } from './magic_circle/MagicCircleService.js';
+import { TrainerService } from './trainer/TrainerService.js';
+import { WitchService } from './witch/WitchService.js';
+import { getEquipmentStats } from './shared/inventory/EquipmentService.js';
+import { getWeaponBaseCost, getArmorBaseCost } from './shared/data/ShopCatalog.js';
 
 export class GameEngine {
     constructor() {
@@ -30,11 +38,13 @@ export class GameEngine {
         this.villageService = new VillageService(this.inventoryService, { deferLoad: true });
         this.heroService = new HeroService(this.inventoryService, { deferLoad: true });
         this.battleService = new BattleService(this.inventoryService, { deferLoad: true });
+        this.regionService = new RegionService(this.villageService, { deferLoad: true });
         this.expeditionService = new ExpeditionService(
             this.battleService, 
             this.heroService, 
             this.villageService, 
             this.inventoryService,
+            this.regionService,
             { deferLoad: true }
         );
         this.dailyObjectivesService = new DailyObjectivesService(this.inventoryService, { deferLoad: true });
@@ -51,6 +61,7 @@ export class GameEngine {
         this.villageService.load();
         this.heroService.load();
         this.battleService.load();
+        this.regionService.load();
         this.expeditionService.load();
         this.dailyObjectivesService.load();
         this.calendarService.load();
@@ -69,7 +80,7 @@ export class GameEngine {
 
         this.i18n.setLanguage(globalPersistence.load('settings_lang', 'en'));
 
-        if (this.expeditionService.state.activeCombatExpeditionId) {
+        if (this.expeditionService.getActiveCombatExpeditionId()) {
             if (DEBUG) console.log('Engine: Resuming active combat...');
             this.expeditionService.resumeActiveBattle();
         }
@@ -112,18 +123,9 @@ export class GameEngine {
         this.heroService.saveAll();
 
         // 4. Unlock the shop by marking tutorial cave as completed (if not already)
-        const expState = this.expeditionService.state;
-        if (!expState.completedIds.includes('exp_tutorial_cave')) {
-            expState.completedIds.push('exp_tutorial_cave');
-            // Remove tutorial cave from available nodes so it isn't shown as available
-            const region = expState.regions['reg_greenfields'];
-            if (region) {
-                region.availableNodes = region.availableNodes.filter(n => n.id !== 'exp_tutorial_cave');
-                region.clears = (region.clears || 0) + 1;
-                // Generate next story/procedural nodes
-                this.expeditionService._generateNextNodes('reg_greenfields');
-            }
-            this.expeditionService.save();
+        if (!this.expeditionService.getCompletedIds().includes('exp_tutorial_cave')) {
+            this.expeditionService.markCompleted('exp_tutorial_cave');
+            this.regionService.forceRemoveNodeAndIncrementClears('reg_greenfields', 'exp_tutorial_cave');
         }
 
         return Result.ok();
@@ -131,7 +133,7 @@ export class GameEngine {
 
     update() {
         const now = Date.now();
-        const activeExpeditions = this.expeditionService.state.activeExpeditions;
+        const activeExpeditions = this.expeditionService.getActiveExpeditions();
         const maxConcurrentExpeditions = this.expeditionService.getMaxConcurrentExpeditions();
         
         const heroesDto = this.heroService.list().map(hero => {
@@ -147,7 +149,14 @@ export class GameEngine {
         const activeBattle = (this.battleService.heroes && this.battleService.heroes.length > 0) ? {
             heroes: this.battleService.heroes.map(h => h.toJSON()),
             enemies: this.battleService.enemies.map(e => e.toJSON()),
-            turnOrder: this.battleService.turnOrder.map(e => ({ id: e.id, name: e.name, type: (e.origin !== undefined || e.type === 'Hero') ? 'Hero' : 'Enemy' })),
+            turnOrder: this.battleService.turnOrder.map(e => ({
+                id: e.id,
+                name: e.name,
+                type: (e.origin !== undefined || e.type === 'Hero') ? 'Hero' : 'Enemy',
+                templateId: e.templateId,
+                isElite: e.isElite,
+                eliteTier: e.eliteTier
+            })),
             currentTurnIndex: this.battleService.currentTurnIndex,
             log: [...this.battleService.log],
             isOver: this.battleService.isOver,
@@ -163,13 +172,13 @@ export class GameEngine {
             expeditions: this.expeditionService.getExpeditions(),
             activeExpeditions,
             maxConcurrentExpeditions,
-            completedExpeditions: this.expeditionService.state.completedIds || [],
+            completedExpeditions: this.expeditionService.getCompletedIds(),
             activeBattle,
             bestiary: this.expeditionService.getBestiary(),
             enemyTemplates: this.expeditionService.getEnemyTemplates(),
             dailyObjectives: this.dailyObjectivesService.getState(),
             calendar: this.calendarService.getState(currentDay),
-            expeditionRegions: this.expeditionService.state.regions || {},
+            expeditionRegions: this.regionService.getRegions(),
             unlockedNarratives: this.unlockService.getShownNarratives()
         };
     }
@@ -178,7 +187,7 @@ export class GameEngine {
     recruitHero() {
         const tavernLevel = this.villageService.getState().infrastructure.tavern || 0;
         if (tavernLevel < 1) {
-            return Result.fail('error_tavern_required');
+            return Result.fail('village_error_tavern_required');
         }
 
         const heroCount = this.heroService.list().length;
@@ -186,7 +195,7 @@ export class GameEngine {
         const cost = Math.floor(baseCost * Math.pow(1.2, heroCount));
 
         if (this.villageService.state.gold < cost) {
-            return Result.fail('error_not_enough_gold');
+            return Result.fail('village_error_gold_not_enough');
         }
 
         this.villageService.state.gold -= cost;
@@ -205,11 +214,11 @@ export class GameEngine {
     _assertHeroAvailable(heroId) {
         const activityInfo = this.expeditionService.getHeroActivity(heroId);
         if (activityInfo && activityInfo.type === 'expedition') {
-            return Result.fail('error_hero_busy');
+            return Result.fail('heroes_error_hero_busy');
         }
         const hero = this.heroService.get(heroId);
         if (hero && hero.isInscribing && hero.isInscribing()) {
-            return Result.fail('error_hero_inscribing');
+            return Result.fail('heroes_error_hero_inscribing');
         }
         return Result.ok(true);
     }
@@ -231,7 +240,7 @@ export class GameEngine {
         if (!check.success) return check;
         const hero = this.heroService.get(heroId);
         if (hero && hero.isInscribing && hero.isInscribing()) {
-            return Result.fail('error_hero_already_inscribing');
+            return Result.fail('heroes_error_hero_already_inscribing');
         }
         return this.heroService.inscribeHeroBodyCircle(heroId, glyphIds, glyphTiers);
     }
@@ -276,7 +285,7 @@ export class GameEngine {
         const check = this._assertHeroAvailable(heroId);
         if (!check.success) return check;
         const hero = this.heroService.get(heroId);
-        if (!hero) return Result.fail('error_hero_not_found');
+        if (!hero) return Result.fail('heroes_error_hero_not_found');
         
         // This relies on Hero.js setFallbackAction which we need to make sure exists
         if (typeof hero.setFallbackAction === 'function') {
@@ -292,7 +301,7 @@ export class GameEngine {
 
     testHeroGambits(heroId, enemiesOverride = null) {
         const hero = this.heroService.get(heroId);
-        if (!hero) return Result.fail('error_hero_not_found');
+        if (!hero) return Result.fail('heroes_error_hero_not_found');
         
         let enemies = [];
         const scenarioId = 'reg_greenfields';
@@ -343,10 +352,10 @@ export class GameEngine {
         const check = this._assertHeroAvailable(heroId);
         if (!check.success) return check;
         const hero = this.heroService.get(heroId);
-        if (!hero) return Result.fail('error_hero_not_found');
+        if (!hero) return Result.fail('heroes_error_hero_not_found');
 
         const preset = GambitService.getPresetForHero(hero);
-        if (!preset) return Result.fail('error_no_preset_matches');
+        if (!preset) return Result.fail('gambit_error_preset_no_match');
 
         const result = GambitService.applyPreset(hero, preset.id);
         if (!result.success) return result;
@@ -381,12 +390,12 @@ export class GameEngine {
 
     buyItem(itemData, costGold) {
         if (this.villageService.state.gold < costGold) {
-            return Result.fail('error_not_enough_gold');
+            return Result.fail('village_error_gold_not_enough');
         }
 
         const maxStorage = this.villageService.getMaxStorage();
         if (this.inventoryService.getTotalStorageUsed() + 1 > maxStorage) {
-            return Result.fail('error_storage_full');
+            return Result.fail('inventory_error_storage_full');
         }
 
         // Deduct Gold
@@ -412,13 +421,13 @@ export class GameEngine {
     sellResource(resourceId, quantity) {
         const pricePerUnit = GameEngine.SELL_PRICES[resourceId];
         if (!pricePerUnit) {
-            return Result.fail('error_item_not_found');
+            return Result.fail('inventory_error_item_not_found');
         }
 
         const available = this.inventoryService.getItemCount(resourceId);
         const toSell = Math.min(quantity, available);
         if (toSell <= 0) {
-            return Result.fail('error_not_enough_items');
+            return Result.fail('inventory_error_item_not_enough');
         }
 
         // Remove resources
@@ -450,6 +459,80 @@ export class GameEngine {
         return Result.ok({ goldEarned: sellPrice });
     }
 
+    getEquipmentStats(item) {
+        return getEquipmentStats(item);
+    }
+
+    getSellPrice(item) {
+        if (!item) return 0;
+        if (item.type === 'consumable') {
+            return Math.floor((item.basePrice || 0) * 0.3);
+        }
+        if (item.type === 'equipment' || item.type === 'weapon' || item.type === 'armor') {
+            let baseCost = 0;
+            if (item.type === 'weapon') {
+                baseCost = getWeaponBaseCost(item.material, item.family);
+            } else {
+                baseCost = getArmorBaseCost(item.material, item.archetype, item.slot);
+            }
+            const level = item.level || 0;
+            return Math.floor(baseCost * 0.3 * Math.pow(1.1, level));
+        }
+        return 0;
+    }
+
+    getRecruitCost() {
+        const heroCount = this.heroService.list().length;
+        const baseCost = 100;
+        return Math.floor(baseCost * Math.pow(1.2, heroCount));
+    }
+
+    canCastSpell(hero, spell) {
+        if (!spell || !hero) return false;
+        if ((hero.mp || 0) < spell.mpCost) return false;
+        const maxSlots = Math.max(1, Math.min(25, hero.magicTier || 1));
+        if ((spell.glyphIds || []).length > maxSlots) return false;
+        return true;
+    }
+
+    getSkillCost(hero, familyId, tier) {
+        const skillData = SKILLS_DATA[familyId];
+        if (!skillData || !hero) return { staCost: 0, mpCost: 0 };
+        const staCost = skillData.staminaCostBase + skillData.staminaCostPerTier * ((tier || 1) - 1);
+        const mpCost = hero.hybridMpCost || 0;
+        return { staCost, mpCost };
+    }
+
+    canAffordSkill(hero, familyId, tier) {
+        const { staCost, mpCost } = this.getSkillCost(hero, familyId, tier);
+        const canAffordSta = (hero.stamina || 0) >= staCost;
+        const canAffordMp = mpCost <= 0 || (hero.mp || 0) >= mpCost;
+        return canAffordSta && canAffordMp;
+    }
+
+    getSkillTargetType(familyId) {
+        const skillData = SKILLS_DATA[familyId];
+        return skillData ? skillData.targetType : 'single_enemy';
+    }
+
+    calculateHybridMpCost(glyphIds, glyphTiers, magicTier) {
+        if (!glyphIds || glyphIds.length === 0) return 0;
+        const hasCore = glyphIds.some(gid => gid.startsWith('glyph_core_'));
+        if (!hasCore) return 0;
+        let base = 8;
+        for (const gid of glyphIds) {
+            const tier = glyphTiers?.[gid] || 1;
+            switch (gid) {
+                case 'glyph_potentiate': base += 2 * tier; break;
+                case 'glyph_multi': base += 5; break;
+                case 'glyph_pierce': base += 3; break;
+                case 'glyph_leech': base += 2; break;
+                case 'glyph_focus': base += 2; break;
+            }
+        }
+        return Math.floor(base * (1 + (magicTier || 1) / 20));
+    }
+
     getRefineCost(item) {
         return getRefineCost(item);
     }
@@ -475,19 +558,19 @@ export class GameEngine {
             }
         }
 
-        if (!item) return Result.fail('error_item_not_found');
-        if (item.level >= 10) return Result.fail('error_refine_max');
+        if (!item) return Result.fail('inventory_error_item_not_found');
+        if (item.level >= 10) return Result.fail('forge_error_refine_max');
 
         const cost = this.getRefineCost(item);
 
         // Validate resources
         if (this.villageService.state.gold < cost.gold) {
-            return Result.fail('error_not_enough_gold');
+            return Result.fail('village_error_gold_not_enough');
         }
 
         for (const [matId, qty] of Object.entries(cost.materials)) {
             if (this.inventoryService.getItemCount(matId) < qty) {
-                return Result.fail('error_not_enough_materials');
+                return Result.fail('forge_error_materials_not_enough');
             }
         }
 
@@ -517,12 +600,12 @@ export class GameEngine {
     // --- Meal Crafting ---
     cookMeal(recipeId) {
         const recipe = MEAL_RECIPES[recipeId];
-        if (!recipe) return Result.fail('error_recipe_not_found');
+        if (!recipe) return Result.fail('inventory_error_recipe_not_found');
 
         // Check ingredients
         for (const [ingId, qty] of Object.entries(recipe.ingredients)) {
             if (this.inventoryService.getItemCount(ingId) < qty) {
-                return Result.fail('error_not_enough_materials');
+                return Result.fail('inventory_error_materials_not_enough');
             }
         }
 
@@ -540,10 +623,10 @@ export class GameEngine {
 
     consumeMeal(mealId) {
         const recipe = MEAL_RECIPES[mealId];
-        if (!recipe) return Result.fail('error_meal_not_found');
+        if (!recipe) return Result.fail('inventory_error_meal_not_found');
 
         const mealCount = this.inventoryService.getItemCount(mealId);
-        if (mealCount < 1) return Result.fail('error_not_enough_items');
+        if (mealCount < 1) return Result.fail('inventory_error_item_not_enough');
 
         this.inventoryService.useItem(mealId, 1);
 
@@ -571,6 +654,10 @@ export class GameEngine {
         return Result.ok({ fedCount, buffs });
     }
 
+    useGlyphTablet(heroId, tabletId) {
+        return this.heroService.useGlyphTablet(heroId, tabletId);
+    }
+
     // --- Combat Facade ---
     nextBattleTurn() {
         return this.battleService.nextTurn();
@@ -578,21 +665,21 @@ export class GameEngine {
 
     executeBattleAction(skillId, targetIndex = null, tier = null) {
         const actor = this.battleService.turnOrder[this.battleService.currentTurnIndex];
-        if (!actor) return Result.fail('error_no_active_actor');
+        if (!actor) return Result.fail('combat_error_actor_none');
         return this.battleService.executeAction(actor, skillId, targetIndex, [], tier);
     }
 
     executeBattleSpell(spellIndex, targetIndex = null) {
         const actor = this.battleService.turnOrder[this.battleService.currentTurnIndex];
-        if (!actor) return Result.fail('error_no_active_actor');
+        if (!actor) return Result.fail('combat_error_actor_none');
         const spell = actor.spellCodex?.[spellIndex];
-        if (!spell) return Result.fail('error_spell_not_found');
+        if (!spell) return Result.fail('combat_error_spell_not_found');
         return this.battleService.castSpell(actor, spell, targetIndex);
     }
 
     useBattleConsumable(consumableId, targetId = null) {
         const actor = this.battleService.turnOrder[this.battleService.currentTurnIndex];
-        if (!actor) return Result.fail('error_no_active_actor');
+        if (!actor) return Result.fail('combat_error_actor_none');
         return this.battleService.useConsumable(actor, consumableId, targetId);
     }
 
@@ -604,6 +691,12 @@ export class GameEngine {
             }
         }
         return Result.ok({ skipped: true });
+    }
+
+    toggleAutoBattle() {
+        if (this.battleService) {
+            this.battleService.autoBattle = !this.battleService.autoBattle;
+        }
     }
 
     // --- Time & Construction ---
@@ -723,6 +816,16 @@ export class GameEngine {
             raid: raidResult,
             tavernRecruit: tavernRecruitHero
         };
+
+        // ─── Expedition narrative queue ───
+        const pendingNarratives = this.expeditionService.getPendingNarratives();
+        for (const n of pendingNarratives) {
+            dailyReport.newNarratives = dailyReport.newNarratives || [];
+            dailyReport.newNarratives.push(n);
+        }
+        if (pendingNarratives.length > 0) {
+            this.expeditionService.consumePendingNarratives();
+        }
         
         // ─── Unlock Check: evaluate narrative and codex unlocks after all resolution ───
         const unlockState = this._buildUnlockState();
@@ -749,7 +852,7 @@ export class GameEngine {
         // Mutual exclusion: cannot assign a hero to defense if they are on an expedition
         const activity = this.expeditionService.getHeroActivity(heroId);
         if (activity && activity.type === 'expedition') {
-            return Result.fail('error_hero_on_expedition');
+            return Result.fail('heroes_error_hero_on_expedition');
         }
         return this.calendarService.assignDefense(heroId);
     }
@@ -810,7 +913,7 @@ export class GameEngine {
         
         // Find the expedition and compute duration
         const exp = this.expeditionService.getExpeditions().find(e => e.id === expId);
-        const activeExp = this.expeditionService.state.activeExpeditions.find(e => e.id === expId);
+        const activeExp = this.expeditionService.getActiveExpeditions().find(e => e.id === expId);
         
         let duration = 1;
         if (exp && exp.stages) {
@@ -836,7 +939,7 @@ export class GameEngine {
         
         // Check if any other active expedition returns before the raid
         let otherExpeditionReturnsBeforeRaid = false;
-        for (const otherExp of this.expeditionService.state.activeExpeditions) {
+        for (const otherExp of this.expeditionService.getActiveExpeditions()) {
             if (otherExp.id === expId) continue;
             const otherNode = this.expeditionService.getExpeditions().find(e => e.id === otherExp.id);
             if (otherNode && otherNode.stages) {
@@ -911,8 +1014,8 @@ export class GameEngine {
         return {
             heroes: this.heroService.list().map(h => h.toJSON()),
             village: this.villageService.getState(),
-            completedExpeditions: this.expeditionService.state.completedIds || [],
-            expeditionRegions: this.expeditionService.state.regions || {},
+            completedExpeditions: this.expeditionService.getCompletedIds(),
+            expeditionRegions: this.regionService.getRegions(),
             calendar: this.calendarService.getState(currentDay)
         };
     }
@@ -926,5 +1029,92 @@ export class GameEngine {
 
     getAllTitles() {
         return TitleService.getAllTitles();
+    }
+
+    getMagicCircleSlotCount(magicTier) {
+        return MagicCircleService.getSlotCount(magicTier);
+    }
+
+    getGlyphSymbol(tier) {
+        return MagicCircleService.getGlyphSymbol(tier);
+    }
+
+    composeSpell(glyphIds, glyphTiers, customName) {
+        return MagicCircleService.compose(glyphIds, glyphTiers, customName);
+    }
+
+    buildGambit(conditionRaw, actionRaw, target, tier, spellCodex) {
+        const [actionType, actionId] = actionRaw.split(':');
+
+        const conditionMap = {
+            'ALLY_HP_LT_50': { type: 'ally_hp', operator: '<', value: 0.5 },
+            'ALLY_HP_LT_25': { type: 'ally_hp', operator: '<', value: 0.25 },
+            'SELF_HP_LT_50': { type: 'self_hp', operator: '<', value: 0.5 },
+            'SELF_MP_LT_25': { type: 'self_mp', operator: '<', value: 0.25 },
+            'ANY_ENEMY': { type: 'always', value: true },
+            'ENEMY_COUNT_GT_2': { type: 'enemy_count', operator: '>', value: 2 }
+        };
+        const condition = conditionMap[conditionRaw] || { type: 'always', value: true };
+
+        let payload = actionId;
+        let actionTier = undefined;
+        if (actionType === 'tech') {
+            actionTier = tier || 1;
+        } else if (actionType === 'spell') {
+            const spellIdx = parseInt(actionId, 10);
+            const spell = spellCodex?.[spellIdx];
+            payload = spell ? spell.name : actionId;
+        }
+
+        return {
+            id: 'gambit_v1_' + Date.now(),
+            conditions: [{ op: 'SINGLE', left: condition, right: null }],
+            action: {
+                type: actionType === 'tech' ? 'skill' : actionType,
+                payload: payload,
+                ...(actionTier !== undefined ? { tier: actionTier } : {})
+            },
+            target: target,
+            enabled: true
+        };
+    }
+
+    getTrainerDialogue(hero) {
+        return TrainerService.getDialogue(hero);
+    }
+
+    getWitchDialogue(hero, currentDay) {
+        return WitchService.getDialogue(hero, currentDay);
+    }
+
+    recordWitchVisit(hero, currentDay) {
+        return WitchService.recordVisit(hero, currentDay);
+    }
+
+    getCompatibleTargets(innateTargetType) {
+        const compatibility = {
+            'single_enemy': ['weakest_enemy', 'strongest_enemy', 'lowest_hp_enemy', 'highest_hp_enemy', 'random_enemy'],
+            'enemy_splash': ['weakest_enemy', 'strongest_enemy', 'lowest_hp_enemy', 'highest_hp_enemy', 'random_enemy'],
+            'all_enemies': ['all_enemies'],
+            'single_ally': ['weakest_ally', 'strongest_ally', 'lowest_hp_ally', 'highest_hp_ally', 'random_ally', 'self'],
+            'all_allies': ['all_allies'],
+            'self': ['self'],
+            'none': []
+        };
+        return compatibility[innateTargetType] || [];
+    }
+
+    getCurrentSlotIndex() {
+        return persistence.slotIndex !== null ? persistence.slotIndex : 0;
+    }
+
+    wipeCurrentSlot() {
+        persistence.clear();
+        return Result.ok();
+    }
+
+    wipeAllSlots() {
+        persistence.clearAll();
+        return Result.ok();
     }
 }

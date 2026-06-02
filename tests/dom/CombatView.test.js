@@ -64,11 +64,12 @@ test('CombatView DOM Integration Tests', async (t) => {
         const view = new CombatView({ i18n: mockI18n });
         view.adapter = mockAdapter;
         view.engine = {
-            battleService: {
-                get autoBattle() { return false; },
-                set autoBattle(val) { autoToggled = true; }
-            },
-            skipBattle: () => { skipped = true; }
+            toggleAutoBattle: () => { autoToggled = true; },
+            skipBattle: () => { skipped = true; },
+            canAffordSkill: () => true,
+            getSkillCost: () => ({ staCost: 5, mpCost: 0 }),
+            getSkillTargetType: () => 'single_enemy',
+            canCastSpell: () => true
         };
 
         const battle = createMockBattle();
@@ -106,7 +107,11 @@ test('CombatView DOM Integration Tests', async (t) => {
                 executedAction = actionId;
                 executedIndex = targetIndex;
                 return { success: true };
-            }
+            },
+            canAffordSkill: () => true,
+            getSkillCost: () => ({ staCost: 5, mpCost: 0 }),
+            getSkillTargetType: () => 'single_enemy',
+            canCastSpell: () => true
         };
 
         const battle = createMockBattle();
@@ -151,7 +156,11 @@ test('CombatView DOM Integration Tests', async (t) => {
                 executedIndex = targetIndex;
                 executedTier = tier;
                 return { success: true };
-            }
+            },
+            canAffordSkill: () => true,
+            getSkillCost: () => ({ staCost: 5, mpCost: 0 }),
+            getSkillTargetType: () => 'single_enemy',
+            canCastSpell: () => true
         };
 
         const battle = createMockBattle();
@@ -224,7 +233,11 @@ test('CombatView DOM Integration Tests', async (t) => {
             }),
             resolveBattle: () => {
                 resolved = true;
-            }
+            },
+            canAffordSkill: () => true,
+            getSkillCost: () => ({ staCost: 5, mpCost: 0 }),
+            getSkillTargetType: () => 'single_enemy',
+            canCastSpell: () => true
         };
 
         const battle = createMockBattle();
@@ -239,7 +252,7 @@ test('CombatView DOM Integration Tests', async (t) => {
 
         // Verify result text
         const title = overlay.querySelector('#combat-control-panel h3');
-        assert.strictEqual(title.textContent, 'victory');
+        assert.strictEqual(title.textContent, 'shared_uxelm_victory');
 
         // Click close
         const closeBtn = overlay.querySelector('#btn-resolve-battle');
@@ -379,7 +392,7 @@ test('CombatView DOM Integration Tests', async (t) => {
 
         assert.strictEqual(mainScreen.style.display, 'none');
         assert.strictEqual(messageScreen.style.display, '');
-        assert.strictEqual(messageScreen.textContent, 'ui_auto_combat_running');
+        assert.strictEqual(messageScreen.textContent, 'shared_uxelm_auto_combat_running');
 
         // Battle over → battle end screen
         battle.isOver = true;

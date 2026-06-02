@@ -1,5 +1,4 @@
 import { el } from '../../shared/utils/DOMUtils.js';
-import { SKILLS_DATA } from '../../../../engine/shared/data/GameConstants.js';
 import { CombatResolutionPane } from './CombatResolutionPane.js';
 
 /**
@@ -26,8 +25,9 @@ export class CombatActionPanel {
 
     update({ battle, engine, state, menuState, selectedAction, selectedFamily }) {
         const activeActor = battle.turnOrder[battle.currentTurnIndex];
-        const activeActorName = activeActor ? (this.t(activeActor.name) || activeActor.name) : '...';
-        const expectedBannerText = activeActor ? this.t('ui_turn').replace('{name}', activeActorName) : '...';
+        // enemy/bestiary domain key — not yet migrated
+        const activeActorName = activeActor ? (this.t(activeActor.name)) : '...';
+        const expectedBannerText = activeActor ? this.t('shared_uxelm_turn').replace('{name}', activeActorName) : '...';
 
         if (this.turnBanner.textContent !== expectedBannerText) {
             this.turnBanner.textContent = expectedBannerText;
@@ -44,8 +44,8 @@ export class CombatActionPanel {
         const isHeroTurn = activeActor && activeActor.type === 'Hero';
         if (!isHeroTurn || battle.autoBattle) {
             const msg = battle.autoBattle 
-                ? this.t('ui_auto_combat_running') || 'Running Auto-Combat...' 
-                : this.t('ui_enemy_planning') || 'Enemy is planning action...';
+                ? this.t('shared_uxelm_auto_combat_running') 
+                : this.t('shared_uxelm_enemy_planning');
             this.controlPanel.replaceChildren(el('div', { class: 'combat-control-message' }, [msg]));
             return;
         }
@@ -57,7 +57,7 @@ export class CombatActionPanel {
             const knownFamilies = currentHero.knownFamilies || ['single_strike'];
             const hasSkills = knownFamilies.length > 1;
             const codex = currentHero.spellCodex || [];
-            const canCastSpells = codex.some((s, idx) => this._canCastSpell(currentHero, s));
+            const canCastSpells = codex.some((s, idx) => engine.canCastSpell(currentHero, s));
 
             const attackBtn = el('button', {
                 id: 'btn-action-attack',
@@ -67,10 +67,10 @@ export class CombatActionPanel {
                     this.onMenuChange('targeting', {
                         type: 'attack',
                         id: 'single_strike',
-                        name: this.t('family_single_strike')
+                        name: this.t('heroes_info_family_single_strike')
                     });
                 }
-            }, [`⚔️ ${this.t('family_single_strike')}`]);
+            }, [`⚔️ ${this.t('heroes_info_family_single_strike')}`]);
 
             const skillsBtn = el('button', {
                 id: 'btn-action-skills',
@@ -78,7 +78,7 @@ export class CombatActionPanel {
                 style: 'flex:1 1 120px;',
                 disabled: !hasSkills,
                 onClick: () => this.onMenuChange('skills')
-            }, [`✨ ${this.t('ui_skills')}`]);
+            }, [`✨ ${this.t('shared_uxelm_skills')}`]);
 
             const magicBtn = el('button', {
                 id: 'btn-action-magic',
@@ -86,7 +86,7 @@ export class CombatActionPanel {
                 style: 'flex:1 1 120px;',
                 disabled: !canCastSpells,
                 onClick: () => this.onMenuChange('magic')
-            }, [`🔮 ${this.t('ui_magic') || 'Magic'}`]);
+            }, [`🔮 ${this.t('shared_uxelm_magic')}`]);
 
             const itemsBtn = el('button', {
                 id: 'btn-action-items',
@@ -95,8 +95,8 @@ export class CombatActionPanel {
                 disabled: battle.itemUsedThisTurn,
                 onClick: () => this.onMenuChange('items')
             }, [
-                `🎒 ${this.t('combat_items')} `,
-                battle.itemUsedThisTurn ? `(${this.t('ui_once_per_turn') || '1/Turn'})` : ''
+                `🎒 ${this.t('combat_uxelm_items')} `,
+                battle.itemUsedThisTurn ? `(${this.t('shared_uxelm_once_per_turn')})` : ''
             ]);
 
             this.controlPanel.appendChild(
@@ -109,16 +109,12 @@ export class CombatActionPanel {
             );
         } else if (menuState === 'skills') {
             const knownFamilies = (currentHero.knownFamilies || []).filter(f => f !== 'single_strike');
-            const hybridMpCost = currentHero.getHybridMpCost ? currentHero.getHybridMpCost() : 0;
 
             const familyButtons = knownFamilies.map(familyId => {
-                const skillData = SKILLS_DATA[familyId];
-                if (!skillData) return null;
                 const tier = currentHero.techniqueTiers && currentHero.techniqueTiers[familyId] || 1;
-                const staCost = skillData.staminaCostBase + skillData.staminaCostPerTier * (tier - 1);
-                const mpCost = hybridMpCost;
-                const canAfford = (currentHero.stamina || 0) >= staCost && (mpCost <= 0 || (currentHero.mp || 0) >= mpCost);
-                const familyName = this.t('family_' + familyId) || familyId;
+                const canAfford = engine.canAffordSkill(currentHero, familyId, tier);
+                const { staCost, mpCost } = engine.getSkillCost(currentHero, familyId, tier);
+                const familyName = this.t('heroes_info_family_' + familyId);
                 const mpLabel = mpCost > 0 ? ` + ${mpCost} MP` : '';
 
                 return el('button', {
@@ -135,29 +131,27 @@ export class CombatActionPanel {
                 id: 'btn-skill-back',
                 class: 'btn btn-secondary btn-sm',
                 onClick: () => this.onMenuChange('main')
-            }, [`◀ ${this.t('btn_back')}`]);
+            }, [`◀ ${this.t('shared_uxelm_back')}`]);
 
             this.controlPanel.appendChild(
                 el('div', {}, [
                     el('div', { class: 'combat-control-back' }, [backBtn]),
                     el('div', { class: 'combat-control-buttons' }, familyButtons.length > 0 ? familyButtons : [
-                        el('div', { style: 'color:var(--text-muted);' }, [this.t('ui_no_techniques')])
+                        el('div', { style: 'color:var(--text-muted);' }, [this.t('shared_uxelm_technique_none')])
                     ])
                 ])
             );
         } else if (menuState === 'family_tiers') {
             const familyId = selectedFamily;
-            const skillData = SKILLS_DATA[familyId];
             const maxTier = currentHero.techniqueTiers && currentHero.techniqueTiers[familyId] || 1;
-            const familyName = this.t('family_' + familyId) || familyId;
-            const hybridMpCost = currentHero.getHybridMpCost ? currentHero.getHybridMpCost() : 0;
+            const familyName = this.t('heroes_info_family_' + familyId);
 
             const tierButtons = [];
             for (let t = maxTier; t >= 1; t--) {
-                const staCost = skillData.staminaCostBase + skillData.staminaCostPerTier * (t - 1);
-                const canAfford = (currentHero.stamina || 0) >= staCost && (hybridMpCost <= 0 || (currentHero.mp || 0) >= hybridMpCost);
+                const canAfford = engine.canAffordSkill(currentHero, familyId, t);
+                const { staCost, mpCost } = engine.getSkillCost(currentHero, familyId, t);
                 const label = t === maxTier ? '⚡ ' : t === 1 ? '💧 ' : '';
-                const mpLabel = hybridMpCost > 0 ? ` + ${hybridMpCost} MP` : '';
+                const mpLabel = mpCost > 0 ? ` + ${mpCost} MP` : '';
 
                 tierButtons.push(
                     el('button', {
@@ -168,7 +162,7 @@ export class CombatActionPanel {
                             this.onMenuChange('targeting', {
                                 type: 'skill',
                                 id: familyId,
-                                name: this.t('family_' + familyId),
+                                name: this.t('heroes_info_family_' + familyId),
                                 tier: t
                             });
                         }
@@ -180,7 +174,7 @@ export class CombatActionPanel {
                 id: 'btn-tier-back',
                 class: 'btn btn-secondary btn-sm',
                 onClick: () => this.onMenuChange('skills')
-            }, [`◀ ${this.t('btn_back')}`]);
+            }, [`◀ ${this.t('shared_uxelm_back')}`]);
 
             this.controlPanel.appendChild(
                 el('div', {}, [
@@ -213,13 +207,13 @@ export class CombatActionPanel {
                 id: 'btn-magic-back',
                 class: 'btn btn-secondary btn-sm',
                 onClick: () => this.onMenuChange('main')
-            }, [`◀ ${this.t('btn_back')}`]);
+            }, [`◀ ${this.t('shared_uxelm_back')}`]);
 
             this.controlPanel.appendChild(
                 el('div', {}, [
                     el('div', { class: 'combat-control-back' }, [backBtn]),
                     el('div', { class: 'combat-control-buttons' }, spellButtons.length > 0 ? spellButtons : [
-                        el('div', { style: 'color:var(--text-muted);' }, [this.t('ui_no_spells')])
+                        el('div', { style: 'color:var(--text-muted);' }, [this.t('shared_uxelm_spell_none')])
                     ])
                 ])
             );
@@ -230,7 +224,8 @@ export class CombatActionPanel {
             const itemsButtons = Object.keys(consumables)
                 .filter(itemId => consumables[itemId] > 0)
                 .map(itemId => {
-                    const itemName = this.t(itemId) || itemId;
+                    // inventory domain key — not yet migrated
+                    const itemName = this.t(itemId);
                     return el('button', {
                         class: 'btn btn-secondary',
                         style: 'flex:1 1 140px;',
@@ -248,13 +243,13 @@ export class CombatActionPanel {
                 id: 'btn-item-back',
                 class: 'btn btn-secondary btn-sm',
                 onClick: () => this.onMenuChange('main')
-            }, [`◀ ${this.t('btn_back')}`]);
+            }, [`◀ ${this.t('shared_uxelm_back')}`]);
 
             this.controlPanel.appendChild(
                 el('div', {}, [
                     el('div', { class: 'combat-control-back' }, [backBtn]),
                     el('div', { class: 'combat-control-buttons' }, itemsButtons.length > 0 ? itemsButtons : [
-                        el('div', { style: 'color:var(--text-muted);' }, [this.t('ui_no_consumables')])
+                        el('div', { style: 'color:var(--text-muted);' }, [this.t('shared_uxelm_consumable_none')])
                     ])
                 ])
             );
@@ -273,7 +268,7 @@ export class CombatActionPanel {
                         this.onMenuChange('main');
                     }
                 }
-            }, [`◀ ${this.t('btn_back')}`]);
+            }, [`◀ ${this.t('shared_uxelm_back')}`]);
 
             this.controlPanel.appendChild(
                 el('div', {}, [
@@ -281,18 +276,11 @@ export class CombatActionPanel {
                     el('div', {
                         class: 'combat-control-message',
                         style: 'color:var(--success);font-weight:700;'
-                    }, [`${this.t('ui_choose_target')} — ${selectedAction ? selectedAction.name : ''}`])
+                    }, [`${this.t('shared_uxelm_choose_target')} — ${selectedAction ? selectedAction.name : ''}`])
                 ])
             );
         }
     }
 
-    _canCastSpell(hero, spell) {
-        if (!spell || !hero) return false;
-        if ((hero.mp || 0) < spell.mpCost) return false;
-        const magicTier = hero.magicTier || 1;
-        const maxSlots = Math.max(1, Math.min(25, magicTier));
-        if ((spell.glyphIds || []).length > maxSlots) return false;
-        return true;
-    }
+
 }

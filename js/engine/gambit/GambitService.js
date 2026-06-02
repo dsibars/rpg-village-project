@@ -1,4 +1,5 @@
-import { SKILLS_DATA, CONSUMABLES_DATA } from '../shared/data/GameConstants.js';
+import { SKILLS_DATA } from '../shared/data/CombatData.js';
+import { CONSUMABLES_DATA } from '../shared/data/InventoryData.js';
 import { Result } from '../shared/core/Result.js';
 
 export class GambitService {
@@ -289,30 +290,30 @@ export class GambitService {
     }
 
     static validateGambit(gambit) {
-        if (!gambit) return { valid: false, error: 'error_invalid_gambit' };
-        if (!gambit.id) return { valid: false, error: 'error_invalid_gambit' };
+        if (!gambit) return { valid: false, error: 'gambit_error_gambit_invalid' };
+        if (!gambit.id) return { valid: false, error: 'gambit_error_gambit_invalid' };
         if (!gambit.conditions || !Array.isArray(gambit.conditions) || gambit.conditions.length === 0) {
-            return { valid: false, error: 'error_invalid_gambit_condition' };
+            return { valid: false, error: 'gambit_error_condition_invalid' };
         }
         for (const cond of gambit.conditions) {
             if (!cond.left || !cond.left.type) {
-                return { valid: false, error: 'error_invalid_gambit_condition' };
+                return { valid: false, error: 'gambit_error_condition_invalid' };
             }
             if (!this.CONDITION_TYPES.includes(cond.left.type)) {
-                return { valid: false, error: 'error_invalid_gambit_condition' };
+                return { valid: false, error: 'gambit_error_condition_invalid' };
             }
         }
         if (!gambit.action || !gambit.action.type) {
-            return { valid: false, error: 'error_invalid_gambit_action' };
+            return { valid: false, error: 'gambit_error_action_invalid' };
         }
         if (!this.ACTION_TYPES.includes(gambit.action.type)) {
-            return { valid: false, error: 'error_invalid_gambit_action' };
+            return { valid: false, error: 'gambit_error_action_invalid' };
         }
         if (gambit.action.type === 'skill' && !gambit.action.payload) {
-            return { valid: false, error: 'error_invalid_skill' };
+            return { valid: false, error: 'gambit_error_skill_invalid' };
         }
         if (gambit.target && !this.TARGET_TYPES.includes(gambit.target)) {
-            return { valid: false, error: 'error_invalid_gambit_target' };
+            return { valid: false, error: 'gambit_error_target_invalid' };
         }
         return { valid: true };
     }
@@ -370,14 +371,14 @@ export class GambitService {
 
     static applyPreset(hero, presetId) {
         const preset = this.PRESETS[presetId];
-        if (!preset) return Result.fail('error_invalid_preset');
+        if (!preset) return Result.fail('gambit_error_preset_invalid');
 
         // Verify build requirements
         const hasGlyphs = hero.knownGlyphs && hero.knownGlyphs.length > 0;
         const hasFamilies = hero.knownFamilies && hero.knownFamilies.length > 1;
 
-        if (preset.requiredBuild.minGlyphs && !hasGlyphs) return Result.fail('error_preset_requirements_not_met');
-        if (preset.requiredBuild.minFamilies && !hasFamilies) return Result.fail('error_preset_requirements_not_met');
+        if (preset.requiredBuild.minGlyphs && !hasGlyphs) return Result.fail('gambit_error_preset_requirements_not_met');
+        if (preset.requiredBuild.minFamilies && !hasFamilies) return Result.fail('gambit_error_preset_requirements_not_met');
 
         // Fill empty slots with preset rules
         const currentRules = hero.gambits || [];

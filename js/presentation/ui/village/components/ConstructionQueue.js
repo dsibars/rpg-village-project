@@ -5,15 +5,15 @@ import { el, diffList } from '../../shared/utils/DOMUtils.js';
  */
 function createConstructionItem(project, t) {
     const pct = ((project.duration - project.daysRemaining) / project.duration) * 100;
-    const daysLabel = t('ui_days') || 'Days';
-    const lvlLabel = t('ui_level') || 'Level';
+    const daysLabel = t('shared_uxelm_days');
+    const lvlLabel = t('shared_uxelm_level');
     
     return el('div', {
         class: 'list-item construction-item',
         dataId: project.buildingId
     }, [
         el('div', { class: 'list-item-header' }, [
-            el('span', { class: 'list-item-title' }, [t('village_' + project.buildingId) || project.buildingId]),
+            el('span', { class: 'list-item-title' }, [t('village_info_building_' + project.buildingId)]),
             el('span', { class: 'list-item-level' }, [`${lvlLabel} ${project.targetLevel}`])
         ]),
         el('div', { class: 'construction-status' }, [
@@ -41,8 +41,8 @@ export class ConstructionQueue {
         if (!queue || queue.length === 0) {
             this.container.innerHTML = '';
             this.container.appendChild(
-                el('div', { class: 'empty-state', dataI18n: 'ui_no_projects' }, [
-                    this.t('ui_no_projects') || 'No active projects'
+                el('div', { class: 'empty-state', dataI18n: 'village_uxelm_project_none' }, [
+                    this.t('village_uxelm_project_none')
                 ])
             );
             return;

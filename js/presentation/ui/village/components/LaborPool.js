@@ -24,10 +24,10 @@ export class LaborPool {
         };
 
         const ROLE_EFFECTS = {
-            builder: this.t('ui_role_builder') || 'Construction',
-            farmer: this.t('ui_role_farmer') || '+10% food per farmer',
-            miner: this.t('ui_role_miner') || '20% chance for mats',
-            scout: this.t('ui_role_scout') || '-1 stage per 2 scouts'
+            builder: this.t('village_info_role_builder_effect'),
+            farmer: this.t('village_info_role_farmer_effect'),
+            miner: this.t('village_info_role_miner_effect'),
+            scout: this.t('village_info_role_scout_effect')
         };
 
         Object.entries(roles).forEach(([role, count]) => {
@@ -51,7 +51,7 @@ export class LaborPool {
                 }, ['+']);
 
                 const roleNameEl = el('span', { class: 'role-name' }, [
-                    `${ROLE_ICONS[role]} ${this.t('role_' + role) || role} `,
+                    `${ROLE_ICONS[role]} ${this.t('village_info_role_' + role)} `,
                     el('span', { style: 'font-size:0.75rem; color:var(--text-muted);' }, [`(${ROLE_EFFECTS[role]})`])
                 ]);
 

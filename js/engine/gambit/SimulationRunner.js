@@ -2,7 +2,7 @@ import { BattleService } from '../shared/combat/services/BattleService.js';
 import { Result } from '../shared/core/Result.js';
 import { Hero } from '../heroes/models/Hero.js';
 import { Enemy } from '../shared/combat/models/Enemy.js';
-import { SKILLS_DATA } from '../shared/data/GameConstants.js';
+import { SKILLS_DATA } from '../shared/data/CombatData.js';
 
 export class SimulationRunner {
     /**

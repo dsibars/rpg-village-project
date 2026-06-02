@@ -48,7 +48,7 @@ test('Combat Flow: End-To-End Combat and Item Rules', () => {
     // Second potion usage on same turn should be blocked
     const itemRes2 = engine.useBattleConsumable('tiny_hp_potion', arthur.id);
     assert.strictEqual(itemRes2.success, false, 'Second item usage should fail');
-    assert.strictEqual(itemRes2.error, 'error_item_already_used');
+    assert.strictEqual(itemRes2.error, 'combat_error_item_used_already');
 
     // 4. Test Attack Action
     const attackRes = engine.executeBattleAction('single_strike', 0);

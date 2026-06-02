@@ -38,6 +38,18 @@ export const REGION_REGISTRY = {
 /**
  * Flatten all story missions across all regions into a single lookup map.
  */
+import { RegionValidator } from '../../services/RegionValidator.js';
+
+for (const [id, region] of Object.entries(REGION_REGISTRY)) {
+    const result = RegionValidator.validate(region);
+    if (!result.valid) {
+        console.error(`[RegionValidator] ${id} errors:`, result.errors);
+    }
+    if (result.warnings.length > 0) {
+        console.warn(`[RegionValidator] ${id} warnings:`, result.warnings);
+    }
+}
+
 export const STORY_MISSION_INDEX = Object.values(REGION_REGISTRY).reduce((acc, region) => {
     if (region.storyMissions) {
         region.storyMissions.forEach(m => { acc[m.id] = m; });

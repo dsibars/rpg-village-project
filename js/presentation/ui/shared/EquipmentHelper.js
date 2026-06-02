@@ -1,4 +1,4 @@
-import { WEAPON_FAMILIES, ARMOR_ARCHETYPES, MATERIAL_TIERS } from '../../../engine/shared/data/GameConstants.js';
+import { getEquipmentStats as engineGetEquipmentStats } from '../../../engine/shared/inventory/EquipmentService.js';
 
 /**
  * Generates the localized display name for a piece of equipment.
@@ -7,16 +7,16 @@ import { WEAPON_FAMILIES, ARMOR_ARCHETYPES, MATERIAL_TIERS } from '../../../engi
  * @returns {String} Localized name (e.g. "Wooden Dagger +1").
  */
 export function getEquipmentName(item, t) {
-    if (!item) return t('ui_empty_slot');
-    
-    const tierName = t('tier_' + item.material) || item.material;
-    
+    if (!item) return t('inventory_uxelm_empty_slot');
+
+    const tierName = t('inventory_info_tier_' + item.material);
+
     if (item.type === 'weapon') {
-        const familyName = t('family_' + item.family) || item.family;
+        const familyName = t('inventory_info_family_' + item.family);
         return `${tierName} ${familyName} +${item.level || 0}`;
     } else {
-        const archName = t('archetype_' + item.archetype) || item.archetype;
-        const slotName = t('slot_name_' + item.slot) || item.slot;
+        const archName = t('inventory_info_archetype_' + item.archetype);
+        const slotName = t('inventory_info_slot_' + item.slot);
         return `${tierName} ${archName} ${slotName} +${item.level || 0}`;
     }
 }
@@ -27,37 +27,7 @@ export function getEquipmentName(item, t) {
  * @returns {Object} Calculated stats bonuses.
  */
 export function getEquipmentStats(item) {
-    const stats = {};
-    if (!item) return stats;
-
-    const tier = MATERIAL_TIERS[item.material];
-    const upgradeMult = Math.pow(1.1, item.level || 0);
-
-    if (item.type === 'weapon') {
-        const family = WEAPON_FAMILIES[item.family];
-        if (family && tier) {
-            const itemPower = 2 * tier.mult * upgradeMult;
-            stats.strength = Math.floor(itemPower * family.dmgMult);
-            if (family.spdBonus) stats.speed = family.spdBonus;
-            if (family.evaBonus) stats.evasion = family.evaBonus;
-            if (family.magBonus) stats.magicPower = Math.floor(family.magBonus * tier.mult * upgradeMult);
-            if (family.mpCostReduction) stats.mpCostReduction = family.mpCostReduction;
-        }
-    } else if (item.type === 'armor') {
-        const arch = ARMOR_ARCHETYPES[item.archetype];
-        if (arch && tier) {
-            const itemPower = 5 * tier.mult * upgradeMult;
-            stats.defense = Math.floor(itemPower * arch.defMult);
-            if (arch.hpMult) stats.maxHp = Math.floor(itemPower * arch.hpMult);
-            if (arch.mpMult) stats.maxMp = Math.floor(itemPower * arch.mpMult);
-            if (arch.magMult) stats.magicPower = Math.floor(itemPower * arch.magMult);
-            if (arch.spdPenalty) stats.speed = arch.spdPenalty;
-            const eva = arch.evaBonus || arch.evaPenalty || 0;
-            if (eva) stats.evasion = eva;
-        }
-    }
-
-    return stats;
+    return engineGetEquipmentStats(item);
 }
 
 /**
@@ -71,31 +41,31 @@ export function getFormattedStats(item, t) {
     const statLines = [];
     
     if (statsObj.strength) {
-        statLines.push(`+${statsObj.strength} ${t('ui_stats_power') || 'STR'}`);
+        statLines.push(`+${statsObj.strength} ${t('heroes_info_stat_strength')}`);
     }
     if (statsObj.defense) {
-        statLines.push(`+${statsObj.defense} ${t('ui_stats_defense') || 'DEF'}`);
+        statLines.push(`+${statsObj.defense} ${t('heroes_info_stat_defense')}`);
     }
     if (statsObj.maxHp) {
-        statLines.push(`+${statsObj.maxHp} ${t('ui_stats_hp') || 'HP'}`);
+        statLines.push(`+${statsObj.maxHp} ${t('heroes_info_stat_hp')}`);
     }
     if (statsObj.maxMp) {
-        statLines.push(`+${statsObj.maxMp} ${t('ui_stats_mp') || 'MP'}`);
+        statLines.push(`+${statsObj.maxMp} ${t('heroes_info_stat_mp')}`);
     }
     if (statsObj.magicPower) {
-        statLines.push(`+${statsObj.magicPower} ${t('ui_stats_magic') || 'MAG'}`);
+        statLines.push(`+${statsObj.magicPower} ${t('heroes_info_stat_magic_power')}`);
     }
     if (statsObj.speed) {
         const sign = statsObj.speed > 0 ? '+' : '';
-        statLines.push(`${sign}${statsObj.speed} ${t('ui_stats_speed') || 'SPD'}`);
+        statLines.push(`${sign}${statsObj.speed} ${t('heroes_info_stat_speed')}`);
     }
     if (statsObj.evasion) {
         const sign = statsObj.evasion > 0 ? '+' : '';
-        statLines.push(`${sign}${statsObj.evasion}% ${t('ui_stats_evasion') || 'EVA'}`);
+        statLines.push(`${sign}${statsObj.evasion}% ${t('heroes_info_stat_evasion')}`);
     }
     if (statsObj.mpCostReduction) {
-        statLines.push(`-${statsObj.mpCostReduction}% ${t('ui_stats_mpreduce') || 'MP Cost'}`);
+        statLines.push(`-${statsObj.mpCostReduction}% ${t('heroes_info_stat_mpCostReduction')}`);
     }
     
-    return statLines.join(', ') || t('ui_no_item_stats') || 'No stats modification.';
+    return statLines.join(', ') || t('inventory_info_no_stats');
 }

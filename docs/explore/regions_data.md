@@ -121,6 +121,12 @@ Each region file exports an object with the following fields:
 | `bossPool` | `string[]` | Boss candidates for final stages. |
 | `unlockRequirements` | `object \| null` | Conditions to unlock the region. `null` = starting region or stub. |
 | `storyMissions` | `object[]` | Hand-crafted missions injected at milestones. |
+| `scaling` | `{ levelPerClears, statMultiplier, maxLevelCap }` | Difficulty curve for this region. |
+| `lootProfile` | `{ materials[], goldBase, goldPerClear }` | Declarative material and gold drops. |
+| `narrative` | `{ firstClear: { titleKey, loreKey, era } } \| null` | First-clear narrative trigger. |
+| `glyphDropTable` | `any` | **Reserved** for Idea 05. |
+
+> **Note:** `scaling` and `lootProfile` are required. Every region must declare its own identity. There are no global defaults or legacy fallbacks.
 
 ### `unlockRequirements` Schema
 

@@ -56,7 +56,7 @@ export class EngineAdapter {
                         data.duration
                     );
                     if (!result.success) {
-                        this.ui.showToast(this.engine.i18n.t(result.error) || result.error);
+                        this.ui.showToast(this.engine.i18n.t(result.error));
                     }
                     this.forceUpdate();
                 });
@@ -66,21 +66,21 @@ export class EngineAdapter {
                 view.on('setWorkerRole', (data) => {
                     const result = this.engine.setWorkerRole(data.role, data.delta);
                     if (!result.success) {
-                        this.ui.showToast(this.engine.i18n.t(result.error) || result.error);
+                        this.ui.showToast(this.engine.i18n.t(result.error));
                     }
                     this.forceUpdate();
                 });
                 view.on('assignDefense', (data) => {
                     const result = this.engine.assignDefense(data.heroId);
                     if (!result.success) {
-                        this.ui.showToast(this.engine.i18n.t(result.error) || result.error);
+                        this.ui.showToast(this.engine.i18n.t(result.error));
                     }
                     this.forceUpdate();
                 });
                 view.on('unassignDefense', (data) => {
                     const result = this.engine.unassignDefense(data.heroId);
                     if (!result.success) {
-                        this.ui.showToast(this.engine.i18n.t(result.error) || result.error);
+                        this.ui.showToast(this.engine.i18n.t(result.error));
                     }
                     this.forceUpdate();
                 });
@@ -90,7 +90,7 @@ export class EngineAdapter {
                 view.on('assignExpedition', (data) => {
                     const result = this.engine.assignExpedition(data.expId, data.heroIds);
                     if (!result.success) {
-                        this.ui.showToast(this.engine.i18n.t(result.error) || result.error);
+                        this.ui.showToast(this.engine.i18n.t(result.error));
                     }
                     this.forceUpdate();
                 });
@@ -111,12 +111,12 @@ export class EngineAdapter {
                         }
                         
                         this.ui.showConfirmDialog({
-                            title: 'ui_advisory_title',
+                            title: 'shared_uxelm_advisory_title',
                             message: message,
                             onConfirm: () => {
                                 const result = this.engine.assignExpedition(data.expId, data.heroIds);
                                 if (!result.success) {
-                                    this.ui.showToast(i18n.t(result.error) || result.error);
+                                    this.ui.showToast(i18n.t(result.error));
                                 }
                                 this.forceUpdate();
                             }
@@ -125,7 +125,7 @@ export class EngineAdapter {
                         // No warning — proceed directly
                         const result = this.engine.assignExpedition(data.expId, data.heroIds);
                         if (!result.success) {
-                            this.ui.showToast(this.engine.i18n.t(result.error) || result.error);
+                            this.ui.showToast(this.engine.i18n.t(result.error));
                         }
                         this.forceUpdate();
                     }
@@ -140,51 +140,51 @@ export class EngineAdapter {
                 view.on('recruitHero', () => {
                     const result = this.engine.recruitHero();
                     if (result.success) {
-                        this.ui.showToast(`${this.engine.i18n.t('ui_recruit_success') || 'Recruited'} ${result.data.hero.name}! (-${result.data.cost}g)`);
+                        this.ui.showToast(`${this.engine.i18n.t('heroes_uxelm_recruit_success')} ${result.data.hero.name}! (-${result.data.cost}g)`);
                     } else {
-                        this.ui.showToast(this.engine.i18n.t(result.error) || result.error);
+                        this.ui.showToast(this.engine.i18n.t(result.error));
                     }
                     this.forceUpdate();
                 });
                 view.on('increaseStat', (data) => {
                     const result = this.engine.increaseHeroStat(data.heroId, data.statId);
                     if (!result.success) {
-                        this.ui.showToast(this.engine.i18n.t(result.error) || result.error);
+                        this.ui.showToast(this.engine.i18n.t(result.error));
                     }
                     this.forceUpdate();
                 });
                 view.on('equipItem', (data) => {
                     const result = this.engine.equipHeroItem(data.heroId, data.slot, data.itemId);
                     if (!result.success) {
-                        this.ui.showToast(this.engine.i18n.t(result.error) || result.error);
+                        this.ui.showToast(this.engine.i18n.t(result.error));
                     }
                     this.forceUpdate();
                 });
                 view.on('unequipItem', (data) => {
                     const result = this.engine.unequipHeroItem(data.heroId, data.slot);
                     if (!result.success) {
-                        this.ui.showToast(this.engine.i18n.t(result.error) || result.error);
+                        this.ui.showToast(this.engine.i18n.t(result.error));
                     }
                     this.forceUpdate();
                 });
                 view.on('learnFamily', (data) => {
                     const result = this.engine.learnHeroFamily(data.heroId, data.familyId);
                     if (!result.success) {
-                        this.ui.showToast(this.engine.i18n.t(result.error) || result.error);
+                        this.ui.showToast(this.engine.i18n.t(result.error));
                     }
                     this.forceUpdate();
                 });
                 view.on('inscribeSpell', (data) => {
                     const result = this.engine.inscribeHeroSpell(data.heroId, data.spell);
                     if (!result.success) {
-                        this.ui.showToast(this.engine.i18n.t(result.error) || result.error);
+                        this.ui.showToast(this.engine.i18n.t(result.error));
                     }
                     this.forceUpdate();
                 });
                 view.on('inscribeBodyCircle', (data) => {
                     const result = this.engine.inscribeHeroBodyCircle(data.heroId, data.glyphIds, data.glyphTiers);
                     if (!result.success) {
-                        this.ui.showToast(this.engine.i18n.t(result.error) || result.error);
+                        this.ui.showToast(this.engine.i18n.t(result.error));
                     }
                     this.forceUpdate();
                 });
@@ -192,42 +192,42 @@ export class EngineAdapter {
                 view.on('addGambit', (data) => {
                     const result = this.engine.addHeroGambit(data.heroId, data.gambit);
                     if (!result.success) {
-                        this.ui.showToast(this.engine.i18n.t(result.error) || result.error);
+                        this.ui.showToast(this.engine.i18n.t(result.error));
                     }
                     this.forceUpdate();
                 });
                 view.on('removeGambit', (data) => {
                     const result = this.engine.removeHeroGambit(data.heroId, data.gambitId);
                     if (!result.success) {
-                        this.ui.showToast(this.engine.i18n.t(result.error) || result.error);
+                        this.ui.showToast(this.engine.i18n.t(result.error));
                     }
                     this.forceUpdate();
                 });
                 view.on('toggleGambit', (data) => {
                     const result = this.engine.toggleHeroGambit(data.heroId, data.gambitId);
                     if (!result.success) {
-                        this.ui.showToast(this.engine.i18n.t(result.error) || result.error);
+                        this.ui.showToast(this.engine.i18n.t(result.error));
                     }
                     this.forceUpdate();
                 });
                 view.on('moveGambit', (data) => {
                     const result = this.engine.moveHeroGambit(data.heroId, data.gambitId, data.direction);
                     if (!result.success) {
-                        this.ui.showToast(this.engine.i18n.t(result.error) || result.error);
+                        this.ui.showToast(this.engine.i18n.t(result.error));
                     }
                     this.forceUpdate();
                 });
                 view.on('updateFallbackAction', (data) => {
                     const result = this.engine.updateHeroFallbackAction(data.heroId, data.action);
                     if (!result.success) {
-                        this.ui.showToast(this.engine.i18n.t(result.error) || result.error);
+                        this.ui.showToast(this.engine.i18n.t(result.error));
                     }
                     this.forceUpdate();
                 });
                 view.on('testGambits', (data) => {
                     const result = this.engine.testHeroGambits(data.heroId, data.enemies);
                     if (!result.success) {
-                        this.ui.showToast(this.engine.i18n.t(result.error) || result.error);
+                        this.ui.showToast(this.engine.i18n.t(result.error));
                     } else {
                         // Launch the test modal
                         this.ui.views.get('heroes').showGambitTestResults(
@@ -241,10 +241,10 @@ export class EngineAdapter {
                 view.on('suggestPreset', (data) => {
                     const result = this.engine.suggestHeroGambitPreset(data.heroId);
                     if (!result.success) {
-                        this.ui.showToast(this.engine.i18n.t(result.error) || result.error);
+                        this.ui.showToast(this.engine.i18n.t(result.error));
                     } else {
                         const count = result.data.addedCount;
-                        const presetName = this.engine.i18n.t(result.data.presetId) || result.data.presetId;
+                        const presetName = this.engine.i18n.t(result.data.presetId);
                         this.ui.showToast(`Applied ${presetName} (+${count} gambits)`);
                     }
                     this.forceUpdate();
@@ -255,14 +255,14 @@ export class EngineAdapter {
                 view.on('buyItem', (data) => {
                     const result = this.engine.buyItem(data.itemData, data.costGold);
                     if (!result.success) {
-                        this.ui.showToast(this.engine.i18n.t(result.error) || result.error);
+                        this.ui.showToast(this.engine.i18n.t(result.error));
                     }
                     this.forceUpdate();
                 });
                 view.on('sellItem', (data) => {
                     const result = this.engine.sellItem(data.itemId, data.itemType, data.sellPrice);
                     if (!result.success) {
-                        this.ui.showToast(this.engine.i18n.t(result.error) || result.error);
+                        this.ui.showToast(this.engine.i18n.t(result.error));
                     } else {
                         this.ui.showToast(`+${result.data.goldEarned}g`);
                     }
@@ -271,9 +271,9 @@ export class EngineAdapter {
                 view.on('sellResource', (data) => {
                     const result = this.engine.sellResource(data.resourceId, data.quantity);
                     if (!result.success) {
-                        this.ui.showToast(this.engine.i18n.t(result.error) || result.error);
+                        this.ui.showToast(this.engine.i18n.t(result.error));
                     } else {
-                        this.ui.showToast(`+${result.data.goldEarned}g (${result.data.sold} ${this.engine.i18n.t(data.resourceId) || data.resourceId})`);
+                        this.ui.showToast(`+${result.data.goldEarned}g (${result.data.sold} ${this.engine.i18n.t(data.resourceId)})`);
                     }
                     this.forceUpdate();
                 });
@@ -283,18 +283,30 @@ export class EngineAdapter {
                 view.on('cookMeal', (data) => {
                     const result = this.engine.cookMeal(data.recipeId);
                     if (result.success) {
-                        this.ui.showToast(this.engine.i18n.t('ui_cooked') + ' ' + this.engine.i18n.t(data.recipeId));
+                        this.ui.showToast(this.engine.i18n.t('inventory_uxelm_cooked') + ' ' + this.engine.i18n.t(data.recipeId));
                     } else {
-                        this.ui.showToast(this.engine.i18n.t(result.error) || result.error);
+                        this.ui.showToast(this.engine.i18n.t(result.error));
                     }
                     this.forceUpdate();
                 });
                 view.on('consumeMeal', (data) => {
                     const result = this.engine.consumeMeal(data.mealId);
                     if (result.success) {
-                        this.ui.showToast(`${this.engine.i18n.t('ui_fed')} ${result.data.fedCount} ${this.engine.i18n.t('ui_heroes')}`);
+                        this.ui.showToast(`${this.engine.i18n.t('inventory_uxelm_fed')} ${result.data.fedCount} ${this.engine.i18n.t('heroes_uxelm_heroes')}`);
                     } else {
-                        this.ui.showToast(this.engine.i18n.t(result.error) || result.error);
+                        this.ui.showToast(this.engine.i18n.t(result.error));
+                    }
+                    this.forceUpdate();
+                });
+                view.on('useGlyphTablet', (data) => {
+                    const result = this.engine.useGlyphTablet(data.heroId, data.tabletId);
+                    if (result.success) {
+                        const glyphId = result.data.glyphId;
+                        const hero = this.engine.heroService.get(data.heroId);
+                        const transGlyph = this.engine.i18n.t('magic_circle_info_' + glyphId);
+                        this.ui.showToast(`${hero.name} learned ${transGlyph}!`);
+                    } else {
+                        this.ui.showToast(this.engine.i18n.t(result.error));
                     }
                     this.forceUpdate();
                 });
@@ -304,7 +316,7 @@ export class EngineAdapter {
                 view.on('refineItem', (data) => {
                     const result = this.engine.refineEquipment(data.itemId);
                     if (!result.success) {
-                        this.ui.showToast(this.engine.i18n.t(result.error) || result.error);
+                        this.ui.showToast(this.engine.i18n.t(result.error));
                     }
                     this.forceUpdate();
                 });

@@ -21,6 +21,9 @@ test('HeroesView DOM Refactor', async (t) => {
         switchView: () => {},
         forceUpdate: () => {},
         update: () => {},
+        engine: {
+            getRecruitCost: () => 100
+        },
         openEquipmentOverlay: (options) => {
             const eqView = new EquipmentView({ ui: mockUi });
             mockUi.equipmentView = eqView;
@@ -174,7 +177,7 @@ test('HeroesView DOM Refactor', async (t) => {
 
         // Click Equipment button in quick-links
         const buttons = Array.from(document.body.querySelectorAll('.hero-quick-links button'));
-        const equipmentButton = buttons.find(b => b.textContent.includes('ui_equipment'));
+        const equipmentButton = buttons.find(b => b.textContent.includes('inventory_uxelm_equipment'));
         assert.ok(equipmentButton, 'Equipment button should exist in quick-links');
         equipmentButton.dispatchEvent(new Event('click'));
 
@@ -209,14 +212,14 @@ test('HeroesView DOM Refactor', async (t) => {
 
         // Click Skills button in quick-links
         const buttons = Array.from(document.body.querySelectorAll('.hero-quick-links button'));
-        const skillsButton = buttons.find(b => b.textContent.includes('ui_skills'));
+        const skillsButton = buttons.find(b => b.textContent.includes('heroes_uxelm_skills'));
         assert.ok(skillsButton, 'Skills button should exist in quick-links');
         skillsButton.dispatchEvent(new Event('click'));
 
         // Verify modal overlay is in body
         const overlay = document.body.querySelector('.modal-overlay');
         assert.ok(overlay);
-        assert.ok(overlay.textContent.includes('ui_hero_skills_title'));
+        assert.ok(overlay.textContent.includes('heroes_uxelm_skill_title'));
 
         // Close modal
         const closeBtn = overlay.querySelector('.btn-close-modal');
@@ -252,7 +255,7 @@ test('HeroesView DOM Refactor', async (t) => {
             assert.ok(overlay.textContent.includes('family_single_strike'));
             assert.ok(overlay.textContent.includes('family_multiple_attack'));
             // Should show locked families
-            assert.ok(overlay.textContent.includes('ui_locked_families'));
+            assert.ok(overlay.textContent.includes('heroes_uxelm_skill_locked_section'));
             // Should show learn button for locked families
             const learnBtn = overlay.querySelector('.btn-learn-family');
             assert.ok(learnBtn);
@@ -281,7 +284,7 @@ test('HeroesView DOM Refactor', async (t) => {
 
             const overlay = document.body.querySelector('.modal-overlay');
             assert.ok(overlay);
-            assert.ok(overlay.textContent.includes('body_inscription_desc'));
+            assert.ok(overlay.textContent.includes('heroes_uxelm_inscription_desc'));
 
             // Check if known glyphs are listed
             assert.ok(overlay.textContent.includes('glyph_fire'));
@@ -304,31 +307,31 @@ test('HeroesView DOM Refactor', async (t) => {
 
         try {
             // 1. TrainerModal
-            TrainerModal.show(hero, mockI18n, tFunc);
+            TrainerModal.show(hero, mockI18n, tFunc, () => ({ lines: ['Test'], category: 'test' }));
             let overlay = document.body.querySelector('.modal-overlay');
             assert.ok(overlay);
-            assert.ok(overlay.textContent.includes('trainer_title'));
+            assert.ok(overlay.textContent.includes('trainer_uxelm_title'));
             overlay.remove();
 
             // 2. WitchModal
-            WitchModal.show([hero], 'hero_1', mockI18n, tFunc, { village: { day: 5 } }, () => {});
+            WitchModal.show([hero], 'hero_1', mockI18n, tFunc, { village: { day: 5 } }, () => {}, () => ({ lines: ['Test'], element: 'fire', category: 'test', masteryHints: [] }), () => {});
             overlay = document.body.querySelector('.modal-overlay');
             assert.ok(overlay);
-            assert.ok(overlay.textContent.includes('witch_title'));
+            assert.ok(overlay.textContent.includes('witch_uxelm_title'));
             overlay.remove();
 
             // 3. AcademyModal
             AcademyModal.show(hero, [{ name: 'Fire Blast', glyphIds: ['glyph_fire'], mpCost: 5 }], tFunc);
             overlay = document.body.querySelector('.modal-overlay');
             assert.ok(overlay);
-            assert.ok(overlay.textContent.includes('academy_title'));
+            assert.ok(overlay.textContent.includes('academy_uxelm_title'));
             overlay.remove();
 
             // 4. HallOfFameModal
             HallOfFameModal.show(hero, tFunc);
             overlay = document.body.querySelector('.modal-overlay');
             assert.ok(overlay);
-            assert.ok(overlay.textContent.includes('hall_of_fame_title'));
+            assert.ok(overlay.textContent.includes('hall_of_fame_uxelm_title'));
             overlay.remove();
         } finally {
             const overlay = document.body.querySelector('.modal-overlay');

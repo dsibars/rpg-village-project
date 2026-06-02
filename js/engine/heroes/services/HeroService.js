@@ -1,6 +1,8 @@
 import { Result } from '../../shared/core/Result.js';
 import { Hero } from '../models/Hero.js';
 import { persistence } from '../../shared/core/Persistence.js';
+import { GLYPH_TABLET_DATA } from '../../shared/data/InventoryData.js';
+
 
 export class HeroService {
     constructor(inventoryService, options = {}) {
@@ -64,12 +66,12 @@ export class HeroService {
             this.saveAll();
             return Result.ok(removed[0]);
         }
-        return Result.fail('error_hero_not_found');
+        return Result.fail('heroes_error_hero_not_found');
     }
 
     setStatus(id, status) {
         const hero = this.get(id);
-        if (!hero) return Result.fail('error_hero_not_found');
+        if (!hero) return Result.fail('heroes_error_hero_not_found');
 
         hero.status = status;
         this.saveAll();
@@ -78,7 +80,7 @@ export class HeroService {
 
     increaseHeroStat(heroId, statId) {
         const hero = this.get(heroId);
-        if (!hero) return Result.fail('error_hero_not_found');
+        if (!hero) return Result.fail('heroes_error_hero_not_found');
 
         const result = hero.increaseStat(statId);
         if (result.success) {
@@ -103,7 +105,7 @@ export class HeroService {
 
     learnHeroFamily(heroId, familyId) {
         const hero = this.get(heroId);
-        if (!hero) return Result.fail('error_hero_not_found');
+        if (!hero) return Result.fail('heroes_error_hero_not_found');
 
         const result = hero.learnFamily(familyId);
         if (result.success) this.saveAll();
@@ -112,7 +114,7 @@ export class HeroService {
 
     inscribeHeroBodyCircle(heroId, glyphIds, glyphTiers) {
         const hero = this.get(heroId);
-        if (!hero) return Result.fail('error_hero_not_found');
+        if (!hero) return Result.fail('heroes_error_hero_not_found');
 
         const result = hero.inscribeBodyCircle(glyphIds, glyphTiers);
         if (result.success) this.saveAll();
@@ -121,7 +123,7 @@ export class HeroService {
 
     inscribeHeroSpell(heroId, spell) {
         const hero = this.get(heroId);
-        if (!hero) return Result.fail('error_hero_not_found');
+        if (!hero) return Result.fail('heroes_error_hero_not_found');
 
         const result = hero.inscribeSpell(spell);
         if (result.success) this.saveAll();
@@ -130,7 +132,7 @@ export class HeroService {
 
     eraseHeroBodyCircle(heroId) {
         const hero = this.get(heroId);
-        if (!hero) return Result.fail('error_hero_not_found');
+        if (!hero) return Result.fail('heroes_error_hero_not_found');
 
         const result = hero.eraseBodyCircle();
         if (result.success) this.saveAll();
@@ -139,7 +141,7 @@ export class HeroService {
 
     addHeroGambit(heroId, gambit) {
         const hero = this.get(heroId);
-        if (!hero) return Result.fail('error_hero_not_found');
+        if (!hero) return Result.fail('heroes_error_hero_not_found');
 
         const result = hero.addGambit(gambit);
         if (result.success) this.saveAll();
@@ -148,7 +150,7 @@ export class HeroService {
 
     removeHeroGambit(heroId, gambitId) {
         const hero = this.get(heroId);
-        if (!hero) return Result.fail('error_hero_not_found');
+        if (!hero) return Result.fail('heroes_error_hero_not_found');
 
         const result = hero.removeGambit(gambitId);
         if (result.success) this.saveAll();
@@ -157,7 +159,7 @@ export class HeroService {
 
     toggleHeroGambit(heroId, gambitId) {
         const hero = this.get(heroId);
-        if (!hero) return Result.fail('error_hero_not_found');
+        if (!hero) return Result.fail('heroes_error_hero_not_found');
 
         const result = hero.toggleGambit(gambitId);
         if (result.success) this.saveAll();
@@ -166,7 +168,7 @@ export class HeroService {
 
     moveHeroGambit(heroId, gambitId, direction) {
         const hero = this.get(heroId);
-        if (!hero) return Result.fail('error_hero_not_found');
+        if (!hero) return Result.fail('heroes_error_hero_not_found');
 
         const result = hero.moveGambit(gambitId, direction);
         if (result.success) this.saveAll();
@@ -176,20 +178,20 @@ export class HeroService {
     // --- Equipment ---
     equipItem(heroId, slot, equipmentId) {
         const hero = this.get(heroId);
-        if (!hero) return Result.fail('error_hero_not_found');
+        if (!hero) return Result.fail('heroes_error_hero_not_found');
 
-        if (!this.inventory) return Result.fail('error_inventory_not_linked');
+        if (!this.inventory) return Result.fail('heroes_error_inventory_not_linked');
         
         const item = this.inventory.getEquipment(equipmentId);
-        if (!item) return Result.fail('error_item_not_found');
+        if (!item) return Result.fail('heroes_error_item_not_found');
 
         // Validation
         if (item.type === 'weapon') {
-            if (slot !== 'leftHand' && slot !== 'rightHand') return Result.fail('error_invalid_slot');
+            if (slot !== 'leftHand' && slot !== 'rightHand') return Result.fail('heroes_error_slot_invalid');
         } else if (item.type === 'armor') {
-            if (slot !== item.slot) return Result.fail('error_invalid_slot');
+            if (slot !== item.slot) return Result.fail('heroes_error_slot_invalid');
         } else {
-            return Result.fail('error_invalid_item_type');
+            return Result.fail('heroes_error_item_type_invalid');
         }
 
         // Unequip current if exists
@@ -209,12 +211,12 @@ export class HeroService {
 
     unequipItem(heroId, slot) {
         const hero = this.get(heroId);
-        if (!hero) return Result.fail('error_hero_not_found');
+        if (!hero) return Result.fail('heroes_error_hero_not_found');
 
-        if (!this.inventory) return Result.fail('error_inventory_not_linked');
+        if (!this.inventory) return Result.fail('heroes_error_inventory_not_linked');
 
         const itemData = hero.equipment[slot];
-        if (!itemData) return Result.fail('error_slot_empty');
+        if (!itemData) return Result.fail('heroes_error_slot_empty');
 
         hero.equipment[slot] = null;
         this.inventory.addEquipment(itemData);
@@ -223,4 +225,37 @@ export class HeroService {
         this.saveAll();
         return Result.ok(hero);
     }
+
+    useGlyphTablet(heroId, tabletId) {
+        const hero = this.get(heroId);
+        if (!hero) return Result.fail('heroes_error_hero_not_found');
+
+        const tabletData = GLYPH_TABLET_DATA[tabletId];
+        if (!tabletData) return Result.fail('heroes_error_item_type_invalid');
+
+        // Check hero already knows glyph
+        if (hero.knownGlyphs && hero.knownGlyphs.includes(tabletData.glyphId)) {
+            return Result.fail('heroes_error_glyph_already_known');
+        }
+
+        // Check inventory has tablet
+        const hasTablet = this.inventory.getItemCount(tabletId) > 0;
+        if (!hasTablet) return Result.fail('inventory_error_item_not_enough');
+
+        // Consume tablet
+        const useResult = this.inventory.useItem(tabletId, 1);
+        if (!useResult.success) return useResult;
+
+        // Learn glyph
+        const learnResult = hero.learnGlyph(tabletData.glyphId);
+        if (!learnResult.success) {
+            // Refund tablet on learn failure
+            this.inventory.addItem(tabletId, 1);
+            return learnResult;
+        }
+
+        this.saveAll();
+        return Result.ok({ heroId, glyphId: tabletData.glyphId, tier: tabletData.tier });
+    }
 }
+

@@ -2,7 +2,9 @@ import { CombatCalculator } from '../core/CombatCalculator.js';
 import { CombatAI } from '../core/CombatAI.js';
 import { GambitService } from '../../../gambit/GambitService.js';
 import { Result } from '../../core/Result.js';
-import { SKILLS_DATA, CONSUMABLES_DATA, CORE_ALLY_EFFECTS } from '../../data/GameConstants.js';
+import { SKILLS_DATA } from '../../data/CombatData.js';
+import { CONSUMABLES_DATA } from '../../data/InventoryData.js';
+import { CORE_ALLY_EFFECTS } from '../../data/MagicCircleData.js';
 import { MagicCircleService } from '../../../magic_circle/MagicCircleService.js';
 
 export class BattleService {
@@ -26,6 +28,31 @@ export class BattleService {
         this.log = [];
         this.autoBattle = false;
         this.itemUsedThisTurn = false;
+
+        const originalPush = this.log.push;
+        this.log.push = (...args) => {
+            args.forEach(event => {
+                if (event && typeof event === 'object') {
+                    if (event.actorId) {
+                        const actor = [...this.heroes, ...this.enemies].find(e => e.id === event.actorId);
+                        if (actor && actor.type !== 'Hero' && actor.origin === undefined) {
+                            event.actorTemplateId = actor.templateId;
+                            event.actorIsElite = actor.isElite;
+                            event.actorEliteTier = actor.eliteTier;
+                        }
+                    }
+                    if (event.targetId) {
+                        const target = [...this.heroes, ...this.enemies].find(e => e.id === event.targetId);
+                        if (target && target.type !== 'Hero' && target.origin === undefined) {
+                            event.targetTemplateId = target.templateId;
+                            event.targetIsElite = target.isElite;
+                            event.targetEliteTier = target.eliteTier;
+                        }
+                    }
+                }
+            });
+            return originalPush.apply(this.log, args);
+        };
     }
 
     startBattle(heroes, enemies, autoBattle = false) {
@@ -80,7 +107,7 @@ export class BattleService {
     }
 
     nextTurn() {
-        if (this.isOver) return Result.fail('error_battle_over');
+        if (this.isOver) return Result.fail('combat_error_battle_over');
 
         const currentEntity = this.turnOrder[this.currentTurnIndex];
 
@@ -98,8 +125,7 @@ export class BattleService {
                     type: 'STAMINA_REGEN',
                     actorId: currentEntity.id,
                     actorName: currentEntity.name,
-                    amount: actualRegen,
-                    message: `${currentEntity.name} recovered stamina.`
+                    amount: actualRegen
                 });
             }
         }
@@ -276,10 +302,9 @@ export class BattleService {
 
     _handleDefend(entity) {
         const event = {
-            type: 'defend',
+            type: 'DEFEND',
             actorId: entity.id,
             actorName: entity.name,
-            message: `${entity.name} defends.`,
             targetIsHero: this.heroes.includes(entity)
         };
         this.log.push(event);
@@ -291,10 +316,9 @@ export class BattleService {
         const success = Math.random() < 0.5;
         if (success) {
             const event = {
-                type: 'flee',
+                type: 'FLEE_SUCCESS',
                 actorId: entity.id,
                 actorName: entity.name,
-                message: `${entity.name} leads the party to safety!`,
                 success: true,
                 targetIsHero: this.heroes.includes(entity)
             };
@@ -304,10 +328,9 @@ export class BattleService {
             return Result.ok({ actionEvents: [event], battleOver: true, winner: 'escape' });
         } else {
             const event = {
-                type: 'flee',
+                type: 'FLEE_FAIL',
                 actorId: entity.id,
                 actorName: entity.name,
-                message: `${entity.name} attempted to flee but failed!`,
                 success: false,
                 targetIsHero: this.heroes.includes(entity)
             };
@@ -317,10 +340,10 @@ export class BattleService {
     }
 
     executeAction(actor, skillId, targetIndex = null, statusResults = [], forcedTier = null) {
-        if (this.isOver) return Result.fail('error_battle_over');
+        if (this.isOver) return Result.fail('combat_error_battle_over');
 
         const skillData = SKILLS_DATA[skillId];
-        if (!skillData) return Result.fail('error_invalid_skill');
+        if (!skillData) return Result.fail('combat_error_skill_invalid');
 
         const isActorHero = this.heroes.includes(actor);
 
@@ -337,14 +360,14 @@ export class BattleService {
         const isBodyInscribed = isActorHero && !isBasicAttack && actor.bodyInscription && actor.bodyInscription.glyphIds && actor.bodyInscription.glyphIds.length > 0;
         const hybridMpCost = isActorHero && actor.getHybridMpCost ? actor.getHybridMpCost() : 0;
         if (skillData.category === 'physical') {
-            if (actor.stamina < staCost) return Result.fail('error_not_enough_stamina');
+            if (actor.stamina < staCost) return Result.fail('combat_error_stamina_not_enough');
             if (isBodyInscribed && hybridMpCost > 0) {
-                if (actor.mp < hybridMpCost) return Result.fail('error_not_enough_mp');
+                if (actor.mp < hybridMpCost) return Result.fail('combat_error_mp_not_enough');
                 actor.mp -= hybridMpCost;
             }
             actor.stamina -= staCost;
         } else {
-            if (actor.mp < skillData.mpCost) return Result.fail('error_not_enough_mp');
+            if (actor.mp < skillData.mpCost) return Result.fail('combat_error_mp_not_enough');
             actor.mp -= skillData.mpCost;
             // Magic spells cost MP only, even for inscribed heroes
         }
@@ -398,7 +421,7 @@ export class BattleService {
             baseTargets = [actor];
         }
 
-        if (baseTargets.length === 0) return Result.fail('error_no_targets');
+        if (baseTargets.length === 0) return Result.fail('combat_error_target_none');
 
         // Handle Cleave: scales number of adjacent targets with tier
         if (skillData.cleave && baseTargets.length > 0) {
@@ -574,14 +597,14 @@ export class BattleService {
      * @returns {Result}
      */
     castSpell(actor, spell, targetIndex = null) {
-        if (this.isOver) return Result.fail('error_battle_over');
-        if (!spell) return Result.fail('error_invalid_spell');
+        if (this.isOver) return Result.fail('combat_error_battle_over');
+        if (!spell) return Result.fail('combat_error_spell_invalid');
 
         const isActorHero = this.heroes.includes(actor);
 
         // Resource check
         if (actor.mp < spell.mpCost) {
-            return Result.fail('error_not_enough_mp');
+            return Result.fail('combat_error_mp_not_enough');
         }
         actor.mp -= spell.mpCost;
 
@@ -633,7 +656,7 @@ export class BattleService {
         }
 
         if (baseTargets.length === 0) {
-            return Result.fail('error_no_targets');
+            return Result.fail('combat_error_target_none');
         }
 
         const isSupport = spell.category === 'support' ||
@@ -811,14 +834,14 @@ export class BattleService {
     }
 
     useConsumable(actor, consumableId, targetId = null) {
-        if (this.isOver) return Result.fail('error_battle_over');
-        if (this.itemUsedThisTurn) return Result.fail('error_item_already_used');
+        if (this.isOver) return Result.fail('combat_error_battle_over');
+        if (this.itemUsedThisTurn) return Result.fail('combat_error_item_used_already');
 
         const useResult = this.inventory.useConsumable(consumableId);
         if (!useResult.success) return useResult;
 
         const data = CONSUMABLES_DATA[consumableId];
-        if (!data) return Result.fail('error_invalid_consumable');
+        if (!data) return Result.fail('combat_error_consumable_invalid');
 
         const target = [...this.heroes, ...this.enemies].find(e => e.id === targetId) || actor;
 

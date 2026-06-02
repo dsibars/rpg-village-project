@@ -54,11 +54,11 @@ function createBuildingStatsComparison(id, currentLevel, nextLevel, t) {
     let label = '';
 
     if (id === 'farm') {
-        label = t('ui_effect_grain') || 'Daily Grain';
+        label = t('village_info_building_farm_effect_grain');
         currentEffect = `+${4 * currentLevel}`;
         nextEffect = `+${4 * nextLevel}`;
     } else if (id === 'housing') {
-        label = t('ui_effect_pop') || 'Max Villagers';
+        label = t('village_info_building_housing_effect_population');
         const calcPop = (lvl) => {
             if (lvl <= 0) return 0;
             if (lvl === 1) return 3;
@@ -68,7 +68,7 @@ function createBuildingStatsComparison(id, currentLevel, nextLevel, t) {
         currentEffect = `${calcPop(currentLevel)}`;
         nextEffect = `${calcPop(nextLevel)}`;
     } else if (id === 'warehouse') {
-        label = t('ui_effect_storage') || 'Max Storage';
+        label = t('village_info_building_warehouse_effect_storage');
         const calcStorage = (lvl) => {
             if (lvl <= 0) return 100;
             if (lvl === 1) return 200;
@@ -78,37 +78,37 @@ function createBuildingStatsComparison(id, currentLevel, nextLevel, t) {
         currentEffect = `${calcStorage(currentLevel)} 🪵/🪨`;
         nextEffect = `${calcStorage(nextLevel)} 🪵/🪨`;
     } else if (id === 'blacksmith') {
-        label = t('ui_effect_forge') || 'Forge Features';
-        currentEffect = currentLevel >= 1 ? 'Iron Gear' : 'Locked';
-        nextEffect = 'Iron Gear & Refining';
+        label = t('village_info_building_blacksmith_effect_forge');
+        currentEffect = currentLevel >= 1 ? t('village_info_building_blacksmith_effect_iron_gear') : t('shared_uxelm_locked');
+        nextEffect = t('village_info_building_blacksmith_effect_refining');
     } else if (id === 'infirmary') {
-        label = t('ui_effect_heal') || 'Passive Healing';
+        label = t('village_info_building_infirmary_effect_healing');
         currentEffect = `+${currentLevel * 10}%`;
         nextEffect = `+${nextLevel * 10}%`;
     } else if (id === 'tavern') {
-        label = t('ui_effect_tavern') || 'Recruitment';
-        currentEffect = currentLevel >= 1 ? (t('ui_unlocked') || 'Unlocked') : (t('ui_locked') || 'Locked');
-        nextEffect = currentLevel >= 1 ? (t('ui_cheaper_recruits') || 'Cheaper recruits') : (t('ui_unlocked') || 'Unlocked');
+        label = t('village_info_building_tavern_effect_recruitment');
+        currentEffect = currentLevel >= 1 ? t('shared_uxelm_unlocked') : t('shared_uxelm_locked');
+        nextEffect = currentLevel >= 1 ? t('village_info_building_tavern_effect_cheaper_recruits') : t('shared_uxelm_unlocked');
     } else if (id === 'witchs_hut') {
-        label = t('ui_effect_witch') || 'Magic Readings';
-        currentEffect = currentLevel >= 1 ? (t('ui_unlocked') || 'Unlocked') : (t('ui_locked') || 'Locked');
-        nextEffect = currentLevel >= 1 ? (t('ui_more_insights') || 'More insights') : (t('ui_unlocked') || 'Unlocked');
+        label = t('village_info_building_witchs_hut_effect_magic_readings');
+        currentEffect = currentLevel >= 1 ? t('shared_uxelm_unlocked') : t('shared_uxelm_locked');
+        nextEffect = currentLevel >= 1 ? t('village_info_building_witchs_hut_effect_insights') : t('shared_uxelm_unlocked');
     } else if (id === 'arcane_sanctum') {
-        label = t('ui_effect_academy') || 'Glyph Academy';
-        currentEffect = currentLevel >= 1 ? `${t('ui_slots') || 'Slots'}: ${currentLevel}` : (t('ui_locked') || 'Locked');
-        nextEffect = `${t('ui_slots') || 'Slots'}: ${nextLevel}`;
+        label = t('village_info_building_arcane_sanctum_effect_academy');
+        currentEffect = currentLevel >= 1 ? `${t('village_info_building_arcane_sanctum_effect_slots')}: ${currentLevel}` : t('shared_uxelm_locked');
+        nextEffect = `${t('village_info_building_arcane_sanctum_effect_slots')}: ${nextLevel}`;
     } else if (id === 'explorer_guild') {
-        label = t('ui_effect_expeditions') || 'Expeditions';
-        currentEffect = currentLevel >= 1 ? (t('ui_unlocked') || 'Unlocked') : (t('ui_locked') || 'Locked');
-        nextEffect = currentLevel >= 1 ? (t('ui_tier3_maps') || 'Tier 3 maps') : (t('ui_unlocked') || 'Unlocked');
+        label = t('village_info_building_explorer_guild_effect_expeditions');
+        currentEffect = currentLevel >= 1 ? t('shared_uxelm_unlocked') : t('shared_uxelm_locked');
+        nextEffect = currentLevel >= 1 ? t('village_info_building_explorer_guild_effect_tier3_maps') : t('shared_uxelm_unlocked');
     } else if (id === 'training_grounds') {
-        label = t('ui_effect_training') || 'Passive EXP';
-        currentEffect = currentLevel >= 1 ? `+${currentLevel * 5}%` : (t('ui_locked') || 'Locked');
+        label = t('village_info_building_training_grounds_effect_passive_experience');
+        currentEffect = currentLevel >= 1 ? `+${currentLevel * 5}%` : t('shared_uxelm_locked');
         nextEffect = `+${nextLevel * 5}%`;
     }
 
     return el('div', { class: 'building-stats-comparison' }, [
-        el('h4', {}, [t('ui_building_effects') || 'Building Effects']),
+        el('h4', {}, [t('village_uxelm_building_effect')]),
         el('div', { class: 'building-stat-row' }, [
             el('span', { class: 'building-stat-label' }, [label]),
             el('span', { class: 'building-stat-values' }, [
@@ -124,7 +124,7 @@ export function createBuildingDetailPane({ onBuild, onUpgrade, t }) {
     // Empty state
     const emptyStateRef = el('div', { class: 'empty-detail' }, [
         el('div', { class: 'detail-icon-bg' }, ['🏢']),
-        el('p', { dataI18n: 'ui_select_building' }, [t('ui_select_building')])
+        el('p', { dataI18n: 'village_uxelm_building_select' }, [t('village_uxelm_building_select')])
     ]);
 
     // Header
@@ -138,7 +138,7 @@ export function createBuildingDetailPane({ onBuild, onUpgrade, t }) {
             nameRef
         ]),
         el('div', { class: 'profile-stat' }, [
-            el('span', { class: 'label' }, [t('ui_current_level') || 'CURRENT LEVEL']),
+            el('span', { class: 'label' }, [t('village_uxelm_level_current')]),
             levelRef
         ])
     ]);
@@ -214,54 +214,54 @@ export function createBuildingDetailPane({ onBuild, onUpgrade, t }) {
         const hasStone = stoneCount >= cost.stone;
 
         // Header
-        badgeRef.textContent = t('ui_infrastructure') || 'INFRASTRUCTURE';
-        nameRef.textContent = t('village_' + buildingId);
+        badgeRef.textContent = t('village_uxelm_infrastructure');
+        nameRef.textContent = t('village_info_building_' + buildingId);
         levelRef.textContent = String(currentLevel);
 
         // Icon
         iconRef.textContent = icons[buildingId] || '🏢';
 
         // Description
-        descRef.textContent = t('desc_' + buildingId);
+        descRef.textContent = t('village_info_building_' + buildingId + '_desc');
 
         // Stats comparison
         statsComparisonRef.innerHTML = '';
         statsComparisonRef.appendChild(createBuildingStatsComparison(buildingId, currentLevel, nextLevel, t));
 
         // Upgrade title
-        nextUpgradeTitleRef.textContent = (t('ui_next_upgrade') || 'Next Upgrade: Level {level}').replace('{level}', nextLevel);
+        nextUpgradeTitleRef.textContent = t('village_uxelm_upgrade_next').replace('{level}', nextLevel);
 
         // Cost grid
         costGridRef.innerHTML = '';
         costGridRef.appendChild(el('div', { class: ['cost-item', !hasGold ? 'insufficient' : ''] }, [
-            el('span', { class: 'label' }, [t('village_gold') || 'GOLD']),
+            el('span', { class: 'label' }, [t('village_info_gold')]),
             el('span', { class: 'value' }, [`💰 ${cost.gold}`])
         ]));
 
         if (cost.wood > 0) {
             costGridRef.appendChild(el('div', { class: ['cost-item', !hasWood ? 'insufficient' : ''] }, [
-                el('span', { class: 'label' }, [t('material_wood') || 'WOOD']),
+                el('span', { class: 'label' }, [t('inventory_info_mat_wood')]),
                 el('span', { class: 'value' }, [`🪵 ${cost.wood}`])
             ]));
         }
 
         if (cost.stone > 0) {
             costGridRef.appendChild(el('div', { class: ['cost-item', !hasStone ? 'insufficient' : ''] }, [
-                el('span', { class: 'label' }, [t('material_stone') || 'STONE']),
+                el('span', { class: 'label' }, [t('inventory_info_mat_stone')]),
                 el('span', { class: 'value' }, [`🪨 ${cost.stone}`])
             ]));
         }
 
         costGridRef.appendChild(el('div', { class: 'cost-item' }, [
-            el('span', { class: 'label' }, [t('ui_time') || 'TIME']),
-            el('span', { class: 'value' }, [`⏳ ${cost.duration} ${t('ui_days') || 'Days'}`])
+            el('span', { class: 'label' }, [t('shared_uxelm_time')]),
+            el('span', { class: 'value' }, [`⏳ ${cost.duration} ${t('shared_uxelm_days')}`])
         ]));
 
         // Action footer
         actionFooterRef.innerHTML = '';
         if (activeProject) {
             actionFooterRef.appendChild(el('button', { class: ['btn', 'btn-secondary', 'btn-lg'], disabled: true }, [
-                `⏳ ${t('ui_under_construction') || 'Under Construction'} (${activeProject.daysRemaining}d)`
+                `⏳ ${t('village_uxelm_construction_active')} (${activeProject.daysRemaining}d)`
             ]));
         } else {
             const canAfford = hasGold && hasWood && hasStone;
@@ -282,7 +282,7 @@ export function createBuildingDetailPane({ onBuild, onUpgrade, t }) {
                 }
             }, [
                 el('span', { class: 'icon' }, ['⚒️']),
-                t('btn_confirm')
+                t('shared_uxelm_confirm')
             ]));
         }
     }

@@ -22,9 +22,9 @@ export function createExpeditionList({ onSelect, t }) {
                 region = { el: regionEl, nodesContainer, titleEl };
                 regionMap.set(regionId, region);
             }
-            region.titleEl.textContent = t(regionId) || regionId;
+            region.titleEl.textContent = t('explore_info_' + regionId);
 
-            const labelStages = t('ui_exp_stages') || 'Stages';
+            const labelStages = t('explore_uxelm_stages');
             const newCards = exps.map(exp => {
                 const isActive = selectedId === exp.id;
                 const recLevel = Math.max(1, ...(exp.stages || []).map(s => s.enemyLevel || 1));

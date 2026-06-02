@@ -44,7 +44,7 @@ test('AcademyService: teach fails if teacher does not know glyph', () => {
 
     const result = service.teachGlyph(teacher.id, student.id, 'glyph_fire');
     assert.strictEqual(result.success, false);
-    assert.strictEqual(result.error, 'error_teacher_does_not_know_glyph');
+    assert.strictEqual(result.error, 'academy_error_teacher_glyph_unknown');
 });
 
 test('AcademyService: save and retrieve design', () => {

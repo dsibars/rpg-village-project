@@ -3,14 +3,14 @@ import { getEquipmentName, getEquipmentStats, getFormattedStats } from '../../sh
 import { getOwnedBreakdown } from '../utils/ShopUtils.js';
 
 const STAT_LABEL_MAP = {
-    strength:        'ui_stats_power',
-    defense:         'ui_stats_defense',
-    maxHp:           'ui_stats_hp',
-    maxMp:           'ui_stats_mp',
-    magicPower:      'ui_stats_magic',
-    speed:           'ui_stats_speed',
-    evasion:         'ui_stats_evasion',
-    mpCostReduction: 'ui_stats_mpreduce'
+    strength:        'heroes_info_stat_strength',
+    defense:         'heroes_info_stat_defense',
+    maxHp:           'heroes_info_stat_hp',
+    maxMp:           'heroes_info_stat_mp',
+    magicPower:      'heroes_info_stat_magic_power',
+    speed:           'heroes_info_stat_speed',
+    evasion:         'heroes_info_stat_evasion',
+    mpCostReduction: 'heroes_info_stat_mpCostReduction'
 };
 
 /**
@@ -57,7 +57,7 @@ export function createShopDetailPane({ onBuy, onSell, onSellResource, t }) {
     // Empty state element
     const emptyStateRef = el('div', { class: 'empty-detail' }, [
         el('div', { class: 'detail-icon-bg' }, ['🛒']),
-        el('p', {}, [t('ui_select_item') || 'Select an item to view details.'])
+        el('p', {}, [t('shop_uxelm_select_item')])
     ]);
 
     // Content wrapper holding details when item selected
@@ -117,13 +117,13 @@ export function createShopDetailPane({ onBuy, onSell, onSellResource, t }) {
             name = t(item.i18n_name);
             desc = t(item.i18n_desc);
             icon = item.id.includes('potion') ? '🧪' : '📜';
-            categoryText = t('ui_consumables') || 'Consumable';
+            categoryText = t('inventory_uxelm_category_consumables');
             tierRef.style.display = 'none';
         } else if (tab === 'resources') {
-            name = t(item.id) || item.id;
-            desc = t('desc_' + item.id) || '';
+            name = t(item.id);
+            desc = t('desc_' + item.id);
             icon = item.icon || '🌾';
-            categoryText = t('ui_resources') || 'Resource';
+            categoryText = t('shop_uxelm_category_resources');
             tierRef.style.display = 'none';
         } else {
             name = getEquipmentName(item, t);
@@ -133,7 +133,7 @@ export function createShopDetailPane({ onBuy, onSell, onSellResource, t }) {
             } else {
                 icon = item.slot === 'head' ? '🪖' : (item.slot === 'rightHand' ? '🛡️' : '🧥');
             }
-            categoryText = t('slot_name_' + item.slot) || item.type;
+            categoryText = t('inventory_info_slot_' + item.slot);
             if (item.tier) {
                 tierRef.textContent = `Tier ${item.tier}`;
                 tierRef.style.display = '';
@@ -156,7 +156,7 @@ export function createShopDetailPane({ onBuy, onSell, onSellResource, t }) {
             const statRows = Object.entries(stats).map(([stat, val]) => {
                 if (!val) return null;
                 const sign = val > 0 ? '+' : '';
-                const label = t(STAT_LABEL_MAP[stat]) || stat;
+                const label = t(STAT_LABEL_MAP[stat]);
                 return el('div', { class: 'shop-stat-row' }, [
                     el('span', { class: 'shop-stat-label' }, [label]),
                     el('span', { class: 'shop-stat-value' }, [`${sign}${val}`])
@@ -165,7 +165,7 @@ export function createShopDetailPane({ onBuy, onSell, onSellResource, t }) {
 
             if (statRows.length > 0) {
                 statsContainerRef.innerHTML = '';
-                statsContainerRef.append(el('h4', {}, [t('ui_stats') || 'Stats Bonus']), ...statRows);
+                statsContainerRef.append(el('h4', {}, [t('shop_uxelm_stats')]), ...statRows);
                 statsContainerRef.style.display = 'block';
             } else {
                 statsContainerRef.style.display = 'none';
@@ -181,12 +181,12 @@ export function createShopDetailPane({ onBuy, onSell, onSellResource, t }) {
             actionContainerRef.style.display = 'flex';
             resourceContainerRef.style.display = 'none';
 
-            costLabelRef.textContent = t('ui_cost') || 'Cost';
+            costLabelRef.textContent = t('shop_uxelm_cost');
 
             // Get owned stats
             const owned = getOwnedBreakdown(item, state);
-            ownedTextRef.textContent = `${t('ui_owned') || 'Owned'}: ${owned.total}`;
-            ownedBreakdownSubRef.textContent = `(${t('ui_inventory') || 'Inventory'}: ${owned.inventory} | ${t('ui_equipped') || 'Equipped'}: ${owned.equipped})`;
+            ownedTextRef.textContent = `${t('inventory_uxelm_owned')}: ${owned.total}`;
+            ownedBreakdownSubRef.textContent = `(${t('inventory_uxelm_inventory')}: ${owned.inventory} | ${t('inventory_uxelm_equipped')}: ${owned.equipped})`;
 
             const playerGold = state.village?.gold || 0;
             const canAfford = playerGold >= item.cost;
@@ -201,8 +201,8 @@ export function createShopDetailPane({ onBuy, onSell, onSellResource, t }) {
             actionBtnRef.disabled = isJustAction || !canAfford || storageFull;
             actionBtnRef.className = `btn ${isJustAction ? 'btn-success bought' : (canAfford && !storageFull ? 'btn-primary' : 'btn-secondary')} btn-buy-action`;
             actionBtnRef.textContent = isJustAction 
-                ? (t('ui_purchased') || 'Purchased! ✓')
-                : (storageFull ? (t('error_storage_full') || 'Storage Full') : (t('ui_buy') || 'Buy'));
+                ? t('shop_uxelm_purchased')
+                : (storageFull ? t('inventory_error_storage_full') : t('shop_uxelm_buy'));
 
         } else if (tab === 'sell') {
             ownedBreakdownRef.style.display = 'none';
@@ -210,7 +210,7 @@ export function createShopDetailPane({ onBuy, onSell, onSellResource, t }) {
             actionContainerRef.style.display = 'flex';
             resourceContainerRef.style.display = 'none';
 
-            costLabelRef.textContent = t('ui_sell_price') || 'Sell Price';
+            costLabelRef.textContent = t('shop_uxelm_sell_price');
             const sellPrice = item.sellPrice || 0;
             costValueRef.textContent = `💰 ${sellPrice}`;
             costItemRef.classList.remove('insufficient');
@@ -219,8 +219,8 @@ export function createShopDetailPane({ onBuy, onSell, onSellResource, t }) {
             actionBtnRef.disabled = isJustAction;
             actionBtnRef.className = `btn ${isJustAction ? 'btn-success bought' : 'btn-primary'} btn-sell-action`;
             actionBtnRef.textContent = isJustAction
-                ? (t('ui_sold') || 'Sold! ✓')
-                : (t('ui_sell') || 'Sell');
+                ? t('shop_uxelm_sold')
+                : t('shop_uxelm_sell');
 
         } else {
             // resources tab
@@ -234,7 +234,7 @@ export function createShopDetailPane({ onBuy, onSell, onSellResource, t }) {
             const food = inventory.food || {};
             const count = item.id.startsWith('food_') ? (food[item.id] || 0) : (materials[item.id] || 0);
 
-            ownedTextRef.textContent = `${t('ui_owned') || 'Owned'}: ${count}`;
+            ownedTextRef.textContent = `${t('inventory_uxelm_owned')}: ${count}`;
             ownedBreakdownSubRef.textContent = '';
 
             // Render quantity buttons
@@ -247,7 +247,7 @@ export function createShopDetailPane({ onBuy, onSell, onSellResource, t }) {
                     class: `btn ${canSell ? 'btn-primary' : 'btn-secondary'} btn-sell-resource`,
                     disabled: !canSell,
                     onClick: () => onSellResource(item.id, qty, item.price)
-                }, [`${t('ui_sell') || 'Sell'} ${qty} (${total}g)`]);
+                }, [`${t('shop_uxelm_sell')} ${qty} (${total}g)`]);
                 resourceContainerRef.appendChild(btn);
             });
         }
