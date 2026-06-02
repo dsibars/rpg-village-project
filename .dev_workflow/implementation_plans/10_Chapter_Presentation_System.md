@@ -27,7 +27,7 @@ See Implementation Plan 10 for technical details.
 
 Add `seenPresentations` to the per-slot data list:
 ```
-- `seenPresentations`: Array of presentation IDs the player has already viewed.
+- `seenPresentations`: Array of `{ id: string, daySeen: number | null }` objects tracking which presentations the player has viewed and when.
 - `pendingPresentations`: Array of presentation IDs queued for display.
 ```
 
@@ -76,6 +76,15 @@ export const PRESENTATION_CATALOG = [
             { image: 'assets/pres/tavern_inside.png', textKey: 'pres_warm_fire_p2' }
         ],
         trigger: { type: 'building_complete', buildingId: 'tavern', level: 1 }
+    },
+    {
+        id: 'pres_discipline',
+        chapter: 1,
+        pages: [
+            { image: 'assets/pres/hero_training.png', textKey: 'pres_discipline_p1' },
+            { image: 'assets/pres/arthur_sparring.png', textKey: 'pres_discipline_p2' }
+        ],
+        trigger: { type: 'first_event', eventId: 'first_hero_level_5' }
     },
     {
         id: 'pres_first_spark',
@@ -151,6 +160,8 @@ export function getPresentationById(id) {
 
 > **Note:** Image paths are placeholders. Use existing assets initially (hero portraits, building icons, or generic backgrounds). The catalog can be updated with new art without code changes.
 
+> **Chapter field is NOT a gate:** The `chapter` property is metadata for collection and milestone tracking only. `PresentationService` does **not** check "is the player in Chapter X?" before firing a presentation. A Chapter 1 presentation (`pres_first_harvest`) will fire even if the player has already unlocked Chapter 2 content. The only gated presentations are the **finale** entries (`pres_chapter1_finale`, `pres_chapter2_finale`), which require milestone thresholds. See the "Design Philosophy" section in `ideas/10b_Chapter_Presentation_System.md`.
+
 ### 2.2 Create PresentationService
 
 **New File:** `js/engine/shared/services/PresentationService.js`
@@ -165,7 +176,7 @@ export class PresentationService {
 
     _getDefaultState() {
         return {
-            seenPresentations: [],
+            seenPresentations: [], // { id: string, daySeen: number }[]
             pendingPresentations: []
         };
     }
@@ -175,7 +186,7 @@ export class PresentationService {
     checkTriggers(triggerEvent) {
         const newlyTriggered = [];
         for (const pres of PRESENTATION_CATALOG) {
-            if (this.state.seenPresentations.includes(pres.id)) continue;
+            if (this._isSeen(pres.id)) continue;
             if (this.state.pendingPresentations.includes(pres.id)) continue;
             if (this._evaluateTrigger(pres.trigger, triggerEvent)) {
                 newlyTriggered.push(pres.id);
@@ -201,6 +212,9 @@ export class PresentationService {
             case 'first_event':
                 return event.eventId === trigger.eventId;
             case 'chapter_milestones':
+                // Only finale presentations use chapter_milestones. This is the ONLY
+                // trigger type that checks chapter alignment — all other triggers fire
+                // regardless of what "chapter" the player is currently experiencing.
                 return event.chapter === trigger.chapter && event.met >= trigger.required;
             default:
                 return false;
@@ -223,9 +237,12 @@ export class PresentationService {
 
     // --- State Tracking ---
 
-    markAsSeen(presentationId) {
-        if (!this.state.seenPresentations.includes(presentationId)) {
-            this.state.seenPresentations.push(presentationId);
+    markAsSeen(presentationId, currentDay = null) {
+        if (!this._isSeen(presentationId)) {
+            this.state.seenPresentations.push({
+                id: presentationId,
+                daySeen: currentDay ?? null
+            });
         }
         // Also remove from pending if somehow still there
         this.state.pendingPresentations = this.state.pendingPresentations.filter(
@@ -234,7 +251,27 @@ export class PresentationService {
     }
 
     isSeen(presentationId) {
-        return this.state.seenPresentations.includes(presentationId);
+        return this._isSeen(presentationId);
+    }
+
+    _isSeen(presentationId) {
+        return this.state.seenPresentations.some(entry => entry.id === presentationId);
+    }
+
+    getDaySeen(presentationId) {
+        const entry = this.state.seenPresentations.find(e => e.id === presentationId);
+        return entry?.daySeen ?? null;
+    }
+
+    // --- Replay ---
+
+    replayPresentation(presentationId, onComplete) {
+        // Replay does not modify state. It simply returns the presentation
+        // data so a UI view can open it for re-viewing.
+        const pres = getPresentationById(presentationId);
+        if (!pres) return false;
+        // Return the presentation data so the UI can open it
+        return pres;
     }
 
     // --- Persistence ---
@@ -312,7 +349,22 @@ this.presentationService.checkTriggers({
 });
 ```
 
-#### Trigger Point 5: First Spell Inscribed
+#### Trigger Point 5: First Hero Reaches Level 5
+In `GameEngine.nextDay()`, after the Combat/EXP Phase, check if any hero just crossed level 5:
+```js
+const hasLevel5EventFired = this.presentationService.isSeen('pres_discipline');
+if (!hasLevel5EventFired) {
+    const anyHeroAtLevel5 = this.heroService.list().some(h => h.level >= 5);
+    if (anyHeroAtLevel5) {
+        this.presentationService.checkTriggers({ type: 'first_event', eventId: 'first_hero_level_5' });
+        this._persistPresentationState();
+    }
+}
+```
+
+> **Note:** This trigger fires once, the first time any hero reaches level 5. It introduces the player to gambits and serves as a soft tutorial nudge.
+
+#### Trigger Point 6: First Spell Inscribed
 In the Magic Circle inscription flow, after a spell is saved to a hero's Codex:
 ```js
 const hasInscribedBefore = this.presentationService.isSeen('pres_name_flame');
@@ -321,7 +373,7 @@ if (!hasInscribedBefore) {
 }
 ```
 
-#### Trigger Point 6: Chapter Milestones
+#### Trigger Point 7: Chapter Milestones
 In `nextDay()`, after all other resolution, evaluate chapter milestones:
 ```js
 const chapter1Milestones = this._evaluateChapterMilestones(1);
@@ -703,6 +755,9 @@ pres_shield_dark_p2: 'Two swords are not an army. But they are a beginning. Vale
 pres_warm_fire_p1: 'The first keg was tapped before the roof was finished. Word travels fast in desperate lands — a village with a tavern is a village that plans to stay. Heroes began to arrive. Some seeking coin. Some seeking purpose. Some seeking only a place where the war had not yet reached.',
 pres_warm_fire_p2: 'A tavern is not just a building. It is a promise. To the road-weary, it says: rest here. To the hopeful, it says: build here. To the village, it says: you are no longer alone. The first stranger walked through the door on the third night. He asked for work. Arthur gave him a chair.',
 
+pres_discipline_p1: 'The hero did not notice it at first. A feint that would have worked yesterday failed today. A blow that should have landed was dodged. Something had changed — not in their muscles, but in their eyes. They were seeing the fight before it happened.',
+pres_discipline_p2: '"You are not swinging harder," Arthur said. "You are swinging smarter." The hero had developed what the old texts call gambits — premeditated responses to the chaos of battle. One rule was instinct. Two rules was discipline. The village now had a fighter who could think.',
+
 pres_first_spark_p1: 'She arrived at twilight, her robes singed at the hem, her eyes still reflecting something no one else could see. She did not ask for a room. She asked for a circle. "I can teach you," she said to Arthur, "if you build me a circle."',
 pres_first_spark_p2: 'The word she used was not "magic." It was "weave." She spoke of threads beneath the world, of symbols that remember how to burn, of a language older than swords. Arthur did not understand. But he recognized the look in her eyes — it was the same look he had when he first saw the valley.',
 pres_first_spark_p3: 'That night, the villagers whispered about the light in Elara\'s window. It was not candlelight. It moved. It breathed. It wrote shapes on the walls that no one could read — except Elara, who smiled for the first time since her arrival. "Tomorrow," she said to the dark, "we begin."',
@@ -804,6 +859,26 @@ test('PresentationService: state persistence roundtrip', () => {
     assert.ok(!service2.hasPendingPresentations());
 });
 
+test('PresentationService: first_event trigger (first_hero_level_5)', () => {
+    const service = new PresentationService();
+    const triggered = service.checkTriggers({ type: 'first_event', eventId: 'first_hero_level_5' });
+    assert.ok(triggered.includes('pres_discipline'));
+});
+
+test('PresentationService: markAsSeen records daySeen', () => {
+    const service = new PresentationService();
+    service.markAsSeen('pres_prologue', 7);
+    assert.strictEqual(service.getDaySeen('pres_prologue'), 7);
+});
+
+test('PresentationService: replayPresentation returns catalog data', () => {
+    const service = new PresentationService();
+    const pres = service.replayPresentation('pres_prologue');
+    assert.ok(pres);
+    assert.strictEqual(pres.id, 'pres_prologue');
+    assert.ok(Array.isArray(pres.pages));
+});
+
 test('PresentationService: chapter_milestones trigger', () => {
     const service = new PresentationService();
     const triggered = service.checkTriggers({ type: 'chapter_milestones', chapter: 1, met: 3 });
@@ -836,7 +911,7 @@ test('GameEngine: nextDay queues building-completion presentations', () => {
 
 ## Phase 6 — Verification Checklist
 
-- [ ] `PresentationCatalog.js` created with all 11 presentations.
+- [ ] `PresentationCatalog.js` created with all 12 presentations (including `pres_discipline` for gambit unlock at level 5).
 - [ ] `PresentationService.js` created with trigger evaluation, queue management, and state tracking.
 - [ ] `GameEngine.js` wires trigger checks at: new game, building completion, mission completion, hero recruitment, first spell, chapter milestones.
 - [ ] `PresentationModal.js` (or refactored intro modal) supports multi-page, image+text, dots, prev/next, skip.
@@ -847,8 +922,10 @@ test('GameEngine: nextDay queues building-completion presentations', () => {
 - [ ] A presentation marked `seen` never triggers again.
 - [ ] If app closes mid-presentation, it restarts from page 1 on next launch (acceptable behavior).
 - [ ] Skip button is always visible and functional.
-- [ ] All 24+ i18n text keys added to `en.js`.
+- [ ] All 26+ i18n text keys added to `en.js`.
 - [ ] Other language files have keys with `// TODO: translate`.
-- [ ] `PresentationService` unit tests pass (10 tests).
+- [ ] `PresentationService` unit tests pass (12 tests).
 - [ ] Existing prologue flow uses the new `PresentationModal`.
 - [ ] Existing tests (intro, nextDay, expeditions) still pass.
+
+---

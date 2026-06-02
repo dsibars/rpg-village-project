@@ -41,6 +41,23 @@ They coexist. Unlock Narratives handle ambient discovery. Presentations handle *
 
 ---
 
+## Design Philosophy: Chapters Are Collections, Not Gates
+
+> **Critical:** The `chapter` field on a presentation is a **collection tag**, not a **progression lock**.
+
+Players roleplay at their own pace. One player might rush combat and unlock gambits before building the farm. Another might recruit Elara and build the Arcane Sanctum before ever constructing a Tavern. The narrative must **adapt** to the player's choices, not force them into a prescribed order.
+
+**What this means:**
+- **Non-finale presentations fire purely on their trigger condition**, regardless of what "chapter" the player is "in."
+- A player in Chapter 2 who finally builds the Farm will still see *The First Harvest* (Chapter 1). The presentation plays as a "flashback" — a moment they earned, just later than expected.
+- Chapter labels are for the **player's understanding** ("this is part of Chapter 1's story arc") and for the **finale milestone counter**.
+
+**The only exception:** **Finale presentations** (`pres_chapter1_finale`, `pres_chapter2_finale`) are gated by milestone thresholds. These are the only presentations that check "has enough of this chapter's content been experienced?"
+
+**In short:** The game does not say *"You cannot see this until you finish Chapter 1."* It says *"When you do this thing, you earn this moment."*
+
+---
+
 ## Presentation Catalog: Chapter 1 — "The Spark"
 
 ### 1.1 The Landing (Prologue)
@@ -85,7 +102,19 @@ They coexist. Unlock Narratives handle ambient discovery. Presentations handle *
 
 ---
 
-### 1.5 The First Spark
+### 1.5 The Discipline
+- **Trigger:** First hero reaches Level 5 (gambit slot 2 unlocks)
+- **Pages:** 2
+- **Image 1:** A hero in training — sweat, practice sword, a moment of clarity
+- **Text 1:** *"The hero did not notice it at first. A feint that would have worked yesterday failed today. A blow that should have landed was dodged. Something had changed — not in their muscles, but in their eyes. They were seeing the fight before it happened."*
+- **Image 2:** Arthur watching the hero spar, arms crossed, a rare smile
+- **Text 2:** *"'You are not swinging harder,' Arthur said. 'You are swinging smarter.' The hero had developed what the old texts call *gambits* — premeditated responses to the chaos of battle. One rule was instinct. Two rules was discipline. The village now had a fighter who could think."*
+
+> **This is the mechanical tutorial moment.** The player is explicitly told that gambits exist and that they should configure them. It transforms a passive unlock into a story beat.
+
+---
+
+### 1.6 The First Spark
 - **Trigger:** Elara recruited (first `origin_arcane_initiate` hero from Tavern)
 - **Pages:** 3
 - **Image 1:** Elara at twilight — singed robes, eyes reflecting something unseen
@@ -99,7 +128,7 @@ They coexist. Unlock Narratives handle ambient discovery. Presentations handle *
 
 ---
 
-### 1.6 Chapter 1 Finale
+### 1.7 Chapter 1 Finale
 - **Trigger:** 3 of 4 Chapter 1 milestones achieved
 - **Pages:** 2
 - **Image 1:** The village from above — small but whole, smoke rising, walls standing
@@ -163,23 +192,72 @@ They coexist. Unlock Narratives handle ambient discovery. Presentations handle *
 
 ---
 
-## How It Works (Requires Implementation Plan 10)
+## The Chronicle — A Living History of Your Village
 
-This idea describes **what** the player experiences. The technical machinery — data catalog, trigger evaluation, queue system, multi-page modal, state persistence, and i18n wiring — is fully specified in:
+> **Companion Feature:** A dedicated page (like the Codex) that displays all chapter presentations as **milestones** — both seen and unseen. Accessible from the top navigation bar, right of the Codex button.
+
+### Why It Exists
+
+Without the Chronicle, a player who builds the Farm in Chapter 2 has no way to know:
+- That a presentation was queued
+- That it belongs to "Chapter 1's story"
+- What other moments they might have missed
+
+The Chronicle solves this by making the player's **unique narrative path visible**.
+
+### What It Shows
+
+- **Chapters as sections** — "Chapter 1 — The Spark", "Chapter 2 — The Flood"
+- **Milestone rows** — each presentation is a row with a status:
+  - ✅ **Seen** — title revealed, day completed shown, 📖 See Again button
+  - 🔒 **Locked** — title hidden (`???`), trigger hint shown (*"Requires: Build Farm L1"*)
+  - 🆕 **Pending** — title revealed, "Will play next day" indicator
+- **Simple count per chapter** — `X/Y` (seen / total)
+- **Recently Unlocked** — top section showing the 3 most recently seen milestones
+
+### Replay — "See Again"
+
+Every seen milestone has a **📖 See Again** button. Clicking it opens the **exact same multi-page presentation modal** the player saw when it first unlocked — images, text, dots, everything. A small **"Replay"** badge appears so the player knows they've experienced this before.
+
+This is not a summary. It is the **full moment**, re-experienced.
+
+### Design Philosophy
+
+- **No shaming:** Locked milestones are shown with curiosity, not guilt.
+- **Hints, not spoilers:** Locked entries show the trigger hint but not the title.
+- **Always accessible:** Even a brand-new player can open the Chronicle. Nothing is hidden.
+- **Your story, your pace:** The Chronicle adapts to the player's unique path.
+
+> **Technical details:** See Implementation Plan 11.
+
+---
+
+## How It Works
+
+### Core System
+
+The technical machinery — data catalog, trigger evaluation, queue system, multi-page modal, state persistence, and i18n wiring — is fully specified in:
 
 > **Implementation Plan 10:** `implementation_plans/10_Chapter_Presentation_System.md`
 
-That plan must be implemented first. Once the framework exists, adding new presentations is **pure content work**: write text, pick images, add catalog entries, add translation keys.
+### Chronicle UI
 
-### At a Glance
+The companion page — milestone list, replay, navigation — is specified in:
+
+> **Implementation Plan 11:** `implementation_plans/11_The_Chronicle.md`
+
+---
+
+## At a Glance
 
 | Mechanic | Behavior |
 |----------|----------|
 | **Trigger** | Building completion, mission completion, hero recruitment, first-time events, chapter milestones |
 | **Queue** | Presentations queue up and play sequentially at safe moments (after day resolution, before daily report) |
 | **Format** | 1–4 pages. Each page: one image + one block of text. Manual advance. Skip always available. |
-| **Persistence** | `seenPresentations` array per save slot. Seen once, never shown again. |
+| **Persistence** | `seenPresentations` (with `daySeen`) per save slot. Seen once, never shown again. |
 | **Images** | Phase 1 uses existing assets (hero portraits, building icons, backgrounds). Phase 2 adds targeted art. |
+| **Chronicle** | Optional companion page. See Implementation Plan 11. |
 
 ### Relationship to Unlock Narratives
 
