@@ -66,21 +66,22 @@
 
 :root {
     /* Color Palette - Premium Dark Theme */
-    --bg-primary: #0a0b10;
-    --bg-secondary: #161821;
-    --bg-accent: #1e2230;
+    --bg-primary: #0b0f19;
+    --bg-secondary: #121826;
+    --bg-accent: #1a2336;
     
-    --text-primary: #f8f9fa;
-    --text-secondary: #adb5bd;
-    --text-muted: #6c757d;
+    --text-primary: #f8fafc;
+    --text-secondary: #cbd5e1;
+    --text-muted: #64748b;
     
-    --accent-color: #6366f1;
-    --accent-hover: #4f46e5;
-    --accent-glow: rgba(99, 102, 241, 0.4);
+    --accent-color: #8b5cf6; /* Glowing violet */
+    --accent-hover: #7c3aed;
+    --accent-secondary: #06b6d4; /* Neon Cyan */
+    --accent-glow: rgba(139, 92, 246, 0.4);
     
     --success: #10b981;
-    --warning: #f59e0b;
-    --danger: #ef4444;
+    --warning: #fbbf24;
+    --danger: #f87171;
     
     /* Spacing & Borders */
     --radius-sm: 6px;
@@ -93,11 +94,11 @@
     --spacing-xl: 40px;
     
     /* Shadows & Effects */
-    --shadow-sm: 0 1px 3px rgba(0,0,0,0.2);
-    --shadow-md: 0 4px 12px rgba(0,0,0,0.3);
-    --shadow-lg: 0 12px 24px rgba(0,0,0,0.5);
-    --glass-bg: rgba(30, 34, 48, 0.6);
-    --glass-border: rgba(255, 255, 255, 0.08);
+    --shadow-sm: 0 2px 4px rgba(0,0,0,0.2);
+    --shadow-md: 0 8px 24px rgba(0,0,0,0.4);
+    --shadow-lg: 0 16px 40px rgba(0,0,0,0.6);
+    --glass-bg: rgba(18, 24, 38, 0.75);
+    --glass-border: rgba(255, 255, 255, 0.06);
 }
 
 * {
@@ -117,7 +118,7 @@ html {
 
 body {
     font-family: 'Inter', 'Segoe UI Emoji', 'Apple Color Emoji', 'Segoe UI Symbol', 'Noto Color Emoji', sans-serif;
-    background-color: var(--bg-primary);
+    background: radial-gradient(circle at 50% 50%, #161d30 0%, #080a0f 100%);
     color: var(--text-primary);
     line-height: 1.6;
     overflow: hidden;
@@ -214,16 +215,23 @@ body {
 
 /* Navigation */
 .main-nav {
-    height: 80px;
-    background: rgba(22, 24, 33, 0.95);
+    height: 76px;
+    background: rgba(18, 24, 38, 0.75);
     display: flex;
     justify-content: space-around;
     align-items: center;
-    border-top: 1px solid var(--glass-border);
-    padding: 0 var(--spacing-sm);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
+    padding: 0 var(--spacing-md);
+    margin: 10px 20px 20px 20px; /* Floating Dock Margin */
     z-index: 100;
     backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.05);
     flex-shrink: 0;
+    max-width: 1200px;
+    width: calc(100% - 40px);
+    align-self: center;
 }
 
 .nav-item {
@@ -239,32 +247,40 @@ body {
     gap: 4px;
     flex: 1;
     position: relative;
+    padding: 8px 0;
+    border-radius: 12px;
 }
 
 .nav-item::before {
     content: '';
     position: absolute;
-    top: 0;
+    bottom: 2px;
     left: 50%;
     transform: translateX(-50%) scaleX(0);
-    width: 32px;
-    height: 3px;
+    width: 6px;
+    height: 6px;
     background: var(--accent-color);
-    border-radius: 0 0 4px 4px;
+    border-radius: 50%;
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 1px 8px var(--accent-glow);
+    box-shadow: 0 0 8px var(--accent-color);
 }
 
 .nav-item.active::before {
     transform: translateX(-50%) scaleX(1);
 }
 
-.nav-icon { font-size: 1.4rem; transition: transform 0.3s ease; }
-.nav-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; }
+.nav-icon { font-size: 1.45rem; transition: transform 0.3s ease; }
+.nav-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 500; }
 
-.nav-item:hover { color: var(--text-secondary); }
-.nav-item.active { color: var(--accent-color); }
-.nav-item.active .nav-icon { transform: translateY(-5px) scale(1.2); }
+.nav-item:hover { 
+    color: var(--text-primary); 
+    background: rgba(255, 255, 255, 0.03);
+}
+.nav-item.active { 
+    color: var(--accent-color); 
+    text-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
+}
+.nav-item.active .nav-icon { transform: translateY(-3px) scale(1.15); }
 
 .nav-item.nav-locked {
     opacity: 0.4;
@@ -342,23 +358,29 @@ body {
     border-radius: var(--radius-md);
     padding: var(--spacing-md);
     border: 1px solid var(--glass-border);
-    backdrop-filter: blur(10px);
-    box-shadow: var(--shadow-md);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.05);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    border-color: rgba(255, 255, 255, 0.12);
 }
 
 .card h3 {
     font-family: 'Outfit', 'Segoe UI Emoji', 'Apple Color Emoji', 'Segoe UI Symbol', 'Noto Color Emoji', sans-serif;
-    font-size: 1.15rem;
+    font-size: 1.1rem;
     font-weight: 700;
     margin-bottom: var(--spacing-md);
-    background: linear-gradient(135deg, #fff 0%, var(--accent-color) 100%);
+    background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 50%, var(--accent-color) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     text-transform: uppercase;
     letter-spacing: 1px;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
 }
 
 .card h3::after {
@@ -421,6 +443,21 @@ body {
     background: rgba(99, 102, 241, 0.15);
     border-color: var(--accent-color);
     box-shadow: inset 0 0 10px var(--accent-glow);
+}
+
+.list-item.pulse-highlight {
+    animation: pulse-highlight-glow 1s ease-in-out 2;
+}
+
+@keyframes pulse-highlight-glow {
+    0%, 100% {
+        border-color: var(--glass-border);
+        box-shadow: none;
+    }
+    50% {
+        border-color: #fbbf24;
+        box-shadow: 0 0 15px rgba(251, 191, 36, 0.5);
+    }
 }
 
 .list-item-header {

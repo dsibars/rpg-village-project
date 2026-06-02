@@ -97,4 +97,25 @@ export class BuildingsView extends BaseView {
             });
         }
     }
+
+    selectBuilding(buildingId) {
+        this.selectedBuildingId = buildingId;
+        
+        // Force immediate update if state is cached to reflect selection changes
+        if (this.ui && this.ui.lastState) {
+            this.update(this.ui.lastState);
+        }
+        
+        // Scroll target card into view and trigger highlight pulse
+        setTimeout(() => {
+            if (this.elements.list) {
+                const el = this.elements.list.querySelector(`[data-id="${buildingId}"]`);
+                if (el) {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    el.classList.add('pulse-highlight');
+                    setTimeout(() => el.classList.remove('pulse-highlight'), 2000);
+                }
+            }
+        }, 100);
+    }
 }

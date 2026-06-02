@@ -3,14 +3,19 @@ import { el, diffList } from '../../shared/utils/DOMUtils.js';
 /**
  * createConstructionItem - Creates a construction item DOM node.
  */
-function createConstructionItem(project, t) {
+function createConstructionItem(project, t, onClick) {
     const pct = ((project.duration - project.daysRemaining) / project.duration) * 100;
     const daysLabel = t('shared_uxelm_days');
     const lvlLabel = t('shared_uxelm_level');
     
     return el('div', {
         class: 'list-item construction-item',
-        dataId: project.buildingId
+        dataId: project.buildingId,
+        onClick: () => {
+            if (onClick) {
+                onClick(project.buildingId);
+            }
+        }
     }, [
         el('div', { class: 'list-item-header' }, [
             el('span', { class: 'list-item-title' }, [t('village_info_building_' + project.buildingId)]),
@@ -32,9 +37,10 @@ function createConstructionItem(project, t) {
  * ConstructionQueue - Manages the list of active construction projects.
  */
 export class ConstructionQueue {
-    constructor({ t, container }) {
+    constructor({ t, container, onItemClick }) {
         this.t = t;
         this.container = container;
+        this.onItemClick = onItemClick;
     }
 
     update(queue) {
@@ -48,7 +54,7 @@ export class ConstructionQueue {
             return;
         }
 
-        const newElements = queue.map(project => createConstructionItem(project, this.t));
+        const newElements = queue.map(project => createConstructionItem(project, this.t, this.onItemClick));
         diffList(this.container, newElements, 'data-id');
     }
 }

@@ -232,3 +232,146 @@
     from { opacity: 0; transform: translateY(4px); }
     to { opacity: 1; transform: translateY(0); }
 }
+
+/* Custom Scrollbars */
+#codex-features-container::-webkit-scrollbar,
+#codex-view .detail-pane::-webkit-scrollbar {
+    width: 6px;
+}
+
+#codex-features-container::-webkit-scrollbar-track,
+#codex-view .detail-pane::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.01);
+    border-radius: 3px;
+}
+
+#codex-features-container::-webkit-scrollbar-thumb,
+#codex-view .detail-pane::-webkit-scrollbar-thumb {
+    background: rgba(139, 92, 246, 0.25);
+    border-radius: 3px;
+    transition: background 0.2s ease;
+}
+
+#codex-features-container::-webkit-scrollbar-thumb:hover,
+#codex-view .detail-pane::-webkit-scrollbar-thumb:hover {
+    background: rgba(139, 92, 246, 0.45);
+}
+
+/* Empty detail alignment */
+#codex-detail-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    height: 100%;
+}
+
+/* Formatted content */
+.codex-explanation-content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.codex-paragraph {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin: 0;
+}
+
+.codex-section-subtitle {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--accent-secondary);
+    margin-top: var(--spacing-sm);
+    margin-bottom: -4px;
+    border-left: 3px solid var(--accent-secondary);
+    padding-left: 10px;
+    letter-spacing: 0.5px;
+}
+
+/* Styled Lists */
+.codex-styled-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.codex-list-item {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+
+.codex-list-item:hover {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(139, 92, 246, 0.25);
+    transform: translateY(-1px);
+}
+
+.list-item-title-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.list-item-bullet {
+    color: var(--accent-color);
+    font-size: 0.8rem;
+    text-shadow: 0 0 8px var(--accent-glow);
+}
+
+.list-item-title {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+}
+
+.list-item-desc {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    padding-left: 16px;
+}
+
+/* Tip cards styling */
+.codex-tip-card {
+    background: rgba(139, 92, 246, 0.04);
+    border: 1px solid rgba(139, 92, 246, 0.15);
+    border-radius: var(--radius-md);
+    padding: 14px 18px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-top: 6px;
+    box-shadow: inset 0 0 12px rgba(139, 92, 246, 0.05);
+}
+
+.codex-tip-card .tip-icon {
+    font-size: 1.4rem;
+    line-height: 1;
+}
+
+.codex-tip-card .tip-content {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.codex-tip-card .tip-content strong {
+    color: var(--accent-color);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+}
+

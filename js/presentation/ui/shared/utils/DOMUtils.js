@@ -1,5 +1,5 @@
 export function el(tag, props = {}, children = []) {
-    const isSvg = ['svg', 'path', 'g', 'circle', 'rect', 'line'].includes(tag);
+    const isSvg = ['svg', 'path', 'g', 'circle', 'rect', 'line', 'defs', 'linearGradient', 'stop', 'filter', 'feGaussianBlur', 'feMerge', 'feMergeNode', 'marker'].includes(tag);
     const element = isSvg 
         ? document.createElementNS('http://www.w3.org/2000/svg', tag) 
         : document.createElement(tag);

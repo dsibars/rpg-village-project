@@ -4,6 +4,8 @@
  */
 const DEBUG = false;
 
+import { PostDaySequencer } from '../ui/shared/PostDaySequencer.js';
+
 export class EngineAdapter {
     constructor(engine, ui) {
         this.engine = engine;
@@ -11,6 +13,7 @@ export class EngineAdapter {
         this.rafId = null;
         this.lastUpdateTime = 0;
         this.UPDATE_INTERVAL = 100; // Update UI every 100ms (10 FPS is enough for state, animations are handled by CSS)
+        this.postDaySequencer = new PostDaySequencer(ui, engine);
     }
 
     init() {
@@ -30,17 +33,17 @@ export class EngineAdapter {
                 if (report && report.expedition) {
                     if (report.expedition.status === 'battle_started') {
                         this.ui.openCombatOverlay(report.expedition, () => {
-                            this.forceUpdate();
+                            this.postDaySequencer.run(report);
                         });
                     } else if (report.expedition.combatLog) {
                         this.ui.playBattleLog(report.expedition.combatLog, () => {
-                            this.forceUpdate();
+                            this.postDaySequencer.run(report);
                         });
                     } else {
-                        this.forceUpdate();
+                        this.postDaySequencer.run(report);
                     }
                 } else {
-                    this.forceUpdate();
+                    this.postDaySequencer.run(report);
                 }
             });
         }

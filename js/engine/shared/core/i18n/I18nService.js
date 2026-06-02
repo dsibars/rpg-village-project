@@ -36,6 +36,10 @@ export class I18nService {
             text = text.replace(`{${p}}`, params[p]);
         });
 
+        if (typeof text === 'string') {
+            text = text.replace(/\\n/g, '\n');
+        }
+
         return text;
     }
 }

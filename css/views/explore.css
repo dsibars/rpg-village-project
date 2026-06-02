@@ -257,53 +257,99 @@
 }
 
 .tree-node {
-    width: 48px;
-    height: 48px;
+    width: 52px;
+    height: 52px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.3rem;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     border: 2px solid;
     position: relative;
-    z-index: 1;
-    background: var(--bg-primary);
+    z-index: 2;
+    background: #0f172a;
     user-select: none;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
 }
 .tree-node:hover {
-    transform: scale(1.15);
+    transform: scale(1.15) translateY(-2px);
+    z-index: 5;
 }
 .tree-node.selected {
-    box-shadow: 0 0 16px rgba(99, 102, 241, 0.6);
+    border-color: #ffffff !important;
+    box-shadow: 0 0 25px rgba(255, 255, 255, 0.45), inset 0 0 12px rgba(255, 255, 255, 0.25);
+    transform: scale(1.15);
 }
 
 /* Node states */
 .tree-node.available {
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.2) 0%, #0f172a 100%);
     border-color: var(--accent-color);
-    color: var(--accent-color);
-    animation: pulse-glow 2s infinite;
+    color: #a78bfa;
+    box-shadow: 0 0 12px rgba(139, 92, 246, 0.3), inset 0 0 8px rgba(139, 92, 246, 0.15);
+    animation: pulse-glow-avail 2s infinite alternate;
 }
 .tree-node.active {
-    border-color: #f1c40f;
-    color: #f1c40f;
-    animation: spin-border 3s linear infinite;
+    background: radial-gradient(circle, rgba(251, 191, 36, 0.25) 0%, #0f172a 100%);
+    border-color: #fbbf24;
+    color: #fbbf24;
+    box-shadow: 0 0 20px rgba(251, 191, 36, 0.5), inset 0 0 10px rgba(251, 191, 36, 0.3);
+    animation: pulse-glow-active 1.5s infinite alternate;
+}
+.tree-node.active::before {
+    content: '';
+    position: absolute;
+    inset: -5px;
+    border-radius: 50%;
+    border: 2px dashed #fbbf24;
+    animation: spin-cw 12s linear infinite;
+    pointer-events: none;
 }
 .tree-node.completed {
-    border-color: rgba(255,255,255,0.15);
-    color: rgba(255,255,255,0.3);
-    background: rgba(255,255,255,0.02);
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, #0f172a 100%);
+    border-color: var(--success);
+    color: var(--success);
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.25), inset 0 0 6px rgba(16, 185, 129, 0.1);
 }
 .tree-node.closed {
-    border-color: #f39c12;
-    color: #f39c12;
-    background: rgba(243, 156, 18, 0.1);
+    background: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, #0f172a 100%);
+    border-color: #f59e0b;
+    color: #f59e0b;
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.2);
 }
 .tree-node.locked {
-    border-color: rgba(255,255,255,0.08);
-    color: rgba(255,255,255,0.15);
+    background: #090d16;
+    border-color: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.12);
     font-size: 1rem;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* SVG Energy Connectors */
+.tree-connector-line {
+    stroke: rgba(255, 255, 255, 0.12);
+    stroke-width: 1.5;
+    transition: stroke 0.4s ease, stroke-width 0.4s ease;
+}
+.tree-connector-line.connector-completed {
+    stroke: rgba(16, 185, 129, 0.45);
+    stroke-width: 2.5;
+    filter: drop-shadow(0 0 2px rgba(16, 185, 129, 0.5));
+}
+.tree-connector-line.connector-active {
+    stroke: rgba(251, 191, 36, 0.65);
+    stroke-width: 2.5;
+    stroke-dasharray: 6 4;
+    animation: tree-line-flow 1.5s linear infinite;
+    filter: drop-shadow(0 0 3px rgba(251, 191, 36, 0.5));
+}
+.tree-connector-line.connector-locked {
+    stroke: rgba(255, 255, 255, 0.04);
+    stroke-width: 1;
+    stroke-dasharray: 3 3;
 }
 
 .tree-empty-state {
@@ -316,14 +362,20 @@
     color: var(--text-muted);
 }
 
-@keyframes pulse-glow {
-    0%, 100% { box-shadow: 0 0 4px rgba(99, 102, 241, 0.3); }
-    50% { box-shadow: 0 0 16px rgba(99, 102, 241, 0.6); }
+@keyframes pulse-glow-avail {
+    0% { box-shadow: 0 0 6px rgba(139, 92, 246, 0.2), inset 0 0 4px rgba(139, 92, 246, 0.1); }
+    100% { box-shadow: 0 0 16px rgba(139, 92, 246, 0.5), inset 0 0 10px rgba(139, 92, 246, 0.25); }
 }
-@keyframes spin-border {
-    0% { box-shadow: 0 0 0 0 rgba(241, 196, 15, 0.4); }
-    50% { box-shadow: 0 0 0 8px rgba(241, 196, 15, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(241, 196, 15, 0); }
+@keyframes pulse-glow-active {
+    0% { box-shadow: 0 0 10px rgba(251, 191, 36, 0.4), inset 0 0 6px rgba(251, 191, 36, 0.2); }
+    100% { box-shadow: 0 0 22px rgba(251, 191, 36, 0.85), inset 0 0 12px rgba(251, 191, 36, 0.4); }
+}
+@keyframes spin-cw {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+@keyframes tree-line-flow {
+    to { stroke-dashoffset: -20; }
 }
 
 /* Modal content overrides for expedition detail */

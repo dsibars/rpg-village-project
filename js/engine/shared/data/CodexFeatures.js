@@ -66,15 +66,6 @@ export const CODEX_FEATURES = [
         nameKey: 'codex_feature_stamina_skills',
         descKey: 'codex_feature_stamina_skills_desc',
         unlockHintKey: 'codex_feature_stamina_skills_unlock',
-        isUnlocked: (state) => (state.heroes || []).some(h => h.level >= 5)
-    },
-    {
-        id: 'feature_skills',
-        categoryId: 'combat',
-        icon: '🗡️',
-        nameKey: 'codex_feature_skills',
-        descKey: 'codex_feature_skills_desc',
-        unlockHintKey: 'codex_feature_skills_unlock',
         isUnlocked: (state) => true
     },
     {

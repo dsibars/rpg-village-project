@@ -37,7 +37,14 @@ export class VillageCanvas {
                 const iconEl = el('div', { class: 'village-tile-icon' }, [displayedIcon]);
                 const nameEl = el('div', { class: 'village-tile-name' }, [tile.name]);
                 const levelEl = el('div', { class: 'village-tile-level' }, [displayedLvl]);
-                const tileRoot = el('div', { class: `village-tile ${statusClass}` }, [
+                const tileRoot = el('div', {
+                    class: `village-tile ${statusClass}`,
+                    onClick: () => {
+                        if (this.onTileClick) {
+                            this.onTileClick(tile.id);
+                        }
+                    }
+                }, [
                     iconEl,
                     nameEl,
                     levelEl

@@ -126,6 +126,96 @@ export class CodexView extends BaseView {
         });
     }
 
+    formatDescription(text) {
+        if (!text) return '';
+        const cleanedText = text.replace(/\\n/g, '\n');
+        const blocks = cleanedText.split('\n\n');
+
+        return blocks.map(block => {
+            block = block.trim();
+            if (!block) return '';
+
+            // Check if it starts with tip: or similar
+            const lowerBlock = block.toLowerCase();
+            const isTip = lowerBlock.startsWith('tip:') || 
+                          lowerBlock.startsWith('consejo:') || 
+                          lowerBlock.startsWith('consello:') || 
+                          lowerBlock.startsWith('oharra:') || 
+                          lowerBlock.startsWith('consejo estratégico:') || 
+                          lowerBlock.startsWith('strategic tip:');
+            
+            if (isTip) {
+                const colonIndex = block.indexOf(':');
+                const label = block.substring(0, colonIndex + 1).trim();
+                const content = block.substring(colonIndex + 1).trim();
+                return `
+                    <div class="codex-tip-card">
+                        <span class="tip-icon">💡</span>
+                        <div class="tip-content">
+                            <strong>${label}</strong> ${content}
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Check if it's a list block
+            if (block.startsWith('- ') || block.includes('\n- ')) {
+                const lines = block.split('\n');
+                let headerHtml = '';
+
+                // If the first line doesn't start with a bullet point, it's a section header for this list block!
+                if (lines[0] && !lines[0].trim().startsWith('-')) {
+                    const headerText = lines.shift().trim();
+                    const cleanHeader = headerText.endsWith(':') ? headerText.slice(0, -1).trim() : headerText;
+                    if (headerText.endsWith(':') && headerText.length < 50) {
+                        headerHtml = `<h3 class="codex-section-subtitle">${cleanHeader}</h3>`;
+                    } else {
+                        headerHtml = `<p class="codex-paragraph" style="margin-bottom: 8px;">${cleanHeader}</p>`;
+                    }
+                }
+
+                const listItems = lines.map(line => {
+                    const cleanLine = line.replace(/^-\s*/, '').trim();
+                    if (!cleanLine) return '';
+
+                    const colonIndex = cleanLine.indexOf(':');
+                    if (colonIndex > 0) {
+                        const title = cleanLine.substring(0, colonIndex).trim();
+                        const desc = cleanLine.substring(colonIndex + 1).trim();
+                        return `
+                            <li class="codex-list-item">
+                                <div class="list-item-title-wrapper">
+                                    <span class="list-item-bullet">✦</span>
+                                    <strong class="list-item-title">${title}</strong>
+                                </div>
+                                <span class="list-item-desc">${desc}</span>
+                            </li>
+                        `;
+                    }
+                    return `
+                        <li class="codex-list-item">
+                            <div class="list-item-title-wrapper">
+                                <span class="list-item-bullet">✦</span>
+                                <span class="list-item-desc" style="padding-left: 0;">${cleanLine}</span>
+                            </div>
+                        </li>
+                    `;
+                }).filter(Boolean).join('');
+
+                return `${headerHtml}<ul class="codex-styled-list">${listItems}</ul>`;
+            }
+
+            // Check if this block is a section subtitle (ends with :)
+            if (block.endsWith(':')) {
+                const titleText = block.substring(0, block.length - 1).trim();
+                return `<h3 class="codex-section-subtitle">${titleText}</h3>`;
+            }
+
+            // Normal paragraph
+            return `<p class="codex-paragraph">${block}</p>`;
+        }).filter(Boolean).join('\n');
+    }
+
     renderDetails(state) {
         const container = this.elements.detailContent;
         if (!container) return;
@@ -167,14 +257,18 @@ export class CodexView extends BaseView {
                 </div>
                 <div class="codex-explanation-section">
                     <h4>${this.t('nav_codex')}</h4>
-                    <p class="codex-explanation-text" style="opacity: 0.5; font-style: italic;">${this.t('codex_locked_placeholder')}</p>
+                    <div class="codex-explanation-content" style="opacity: 0.5; font-style: italic;">
+                        ${this.formatDescription(this.t('codex_locked_placeholder'))}
+                    </div>
                 </div>
             `;
         } else {
             detailsHtml += `
                 <div class="codex-explanation-section">
                     <h4>${this.t('nav_codex')}</h4>
-                    <p class="codex-explanation-text">${this.t(feature.descKey)}</p>
+                    <div class="codex-explanation-content">
+                        ${this.formatDescription(this.t(feature.descKey))}
+                    </div>
                 </div>
             `;
         }
