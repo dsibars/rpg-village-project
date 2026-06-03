@@ -954,27 +954,27 @@ export const eu = {
     nar_tiny_cave_found_title: 'Beheko xuxurlak',
     nar_tiny_cave_found_lore: 'Esploratzaile batek pitzadura estu bat aurkitu zuen muinoetan, neurtzeko sakonegiegia eta mapatzeko ilunegiegia. Baina Arthurrek zerbait entzun zuen barruan: altzairuaren talka, harriaren ziztada. Zegoen zerbait gehiago hor behean.',
     nar_sir_valen_joins_title: 'Ezkutua Iluntasunean',
-    nar_sir_valen_joins_lore: 'Sir Valen has taken his post at the gate. His Guard origin steadies the whole party — they now take 10% less physical damage. Place him in the front line and let him hold.', // TODO: translate
+    nar_sir_valen_joins_lore: 'Sir Valen atean jarri du postua. Bere Guardia jatorriak talde osoa sendotzen du: orain %10eko kalte fisiko gutxiago jasotzen dute. Jarri aurreko lerroan eta utzi eusten.',
     nar_first_skill_slot_title: 'Esnatzea',
-    nar_first_skill_slot_lore: 'A hero has grown strong enough to learn a new technique family. Visit the Training Grounds to spend their Skill Point. Choose carefully — retraining costs gold and locks the hero for 3 days.', // TODO: translate
+    nar_first_skill_slot_lore: 'Heroi batek teknika familia berri bat ikasteko adina hazi da. Bisitatu Entrenamendu Eremuak Haien Trebetasun Puntua gastatzeko. Aukeratu arretaz: birsorkuntzak urrea kostatzen du eta heroia 3 egunez blokeatzen du.',
     nar_shop_unlocked_title: 'Dendariaren Itzulera',
     nar_shop_unlocked_lore: 'Gurdi bat agertu zen egunsantian, gidaria baino zaharragoa den mando batek tirata. Dendariak txapela kendu zuen. "Entzun dut txanponak irabaz daitezkeela ausartak odola isurtzen duten lekuan". Biltegiaren ondoan jarri zuen postua.',
     nar_tavern_built_title: 'Su Goxoa',
-    nar_tavern_built_lore: 'The Tavern doors are open. Heroes arrive automatically every 5–7 days. Manual recruitment is also available — but each new hero makes the next one more expensive.', // TODO: translate
+    nar_tavern_built_lore: 'Tabernako ateak irekita daude. Heroiak automatikoki iristen dira 5-7 egunero. Kontratazio eskuzkoa ere eskuragarri dago, baina heroi berri bakoitzak hurrengoa garestiagoa egiten du.',
     nar_dark_forest_found_title: 'Zuhaitzek Begiak Dituzte',
     nar_dark_forest_found_lore: 'Basoa ez zegoen soilik ilun: kontzientea zen. Hostroak haizearentzat gehiegi diren patroiekin xuxurlatzen ari ziren. Espedizioak argi fatuoez eta gauean mugitzen ziren erroez hitz eginez itzultzen ziren.',
     nar_elara_arrives_title: 'Lehen Sugarra',
-    nar_elara_arrives_lore: 'A mage has joined the roster. Arcane Initiates wield devastating magic, but their bodies are frail. Keep her behind your warriors. To unlock her circle, build an Arcane Sanctum.', // TODO: translate
+    nar_elara_arrives_lore: 'Mago bat zerrendara batu da. Arkano Iniziatoek magia suntsitzailea erabiltzen dute, baina haien gorputzak hauskorrak dira. Mantendu zure gerlarien atzean. Bere zirkulua desblokeatzeko, eraiki Santutegi Arkanoa.',
     nar_magic_circle_unlocked_title: 'Munduko Hizkuntza',
-    nar_magic_circle_unlocked_lore: 'The Sanctum is complete. Compose spells by placing a Core Glyph — Fire, Water, Wind, or Storm — in the center. The circle grows as Magic Tier rises. One slot now. Many later.', // TODO: translate
+    nar_magic_circle_unlocked_lore: 'Santutegia osatuta dago. Konpondu sorginkeria Glifo Nukleor bat jarriz — Sua, Ur, Haizea edo Ekaitza — erdian. Zirkuluak hazten du Magia Maila igotzen den heinean. Zirriborro bat orain. Askoz gehiago gero.',
     nar_witch_hut_built_title: 'Vela Desegiten Da',
-    nar_witch_hut_built_lore: 'The Witch offers one reading per hero per day. She speaks in riddles, but her words reveal how close a hero is to their next Magic Tier and which Glyphs are nearing mastery.', // TODO: translate
+    nar_witch_hut_built_lore: 'Sorginak irakurketa bat eskaintzen du heroiko bakoitzeko egunero. Asetan hitz egiten du, baina bere hitzek argitzen dute heroi bat bere hurrengo Magia Mailatik hurbil dagoen eta zein Glifok hurbiltzen diren maisutasunera.',
     nar_first_spell_composed_title: 'Izen Bat Sugarretan',
-    nar_first_spell_composed_lore: 'A spell has been inscribed to the Codex. Spells cost MP but ignore enemy defense. Balance your party — warriors for sustained stamina damage, mages for magical burst.', // TODO: translate
+    nar_first_spell_composed_lore: 'Sorginkeria bat Kodexean idatzi da. Sorginkeriek PM kostatzen dute baina etsaiaren defentsa alde batera utzitzen dute. Orekatu zure taldea: gerlariak iraunkorrerako kalteak, magoak eraso magikoak.',
     nar_defense_first_raid_title: 'Mailua Atean',
     nar_defense_first_raid_lore: 'Gauerdian iritsi ziren: ez eraso arruntak, ohar bat baizik. Herrixka ez zegoen jada ezkutuan. Egun honetatik aurrera, harresiek zaindariak beharko dituzte, eta zaindariek altzairua.',
     nar_explorer_guild_built_title: 'Mundua Zabaldu Da',
-    nar_explorer_guild_built_lore: 'New regions await. The Guild reduces expedition stages and unlocks advanced maps. Assign Scout villagers to shorten journeys — every two scouts remove one stage.', // TODO: translate
+    nar_explorer_guild_built_lore: 'Eskualde berriak zain daude. Gremioak espedizio etapak murrizten ditu eta mapa aurreratuak desblokeatzen ditu. Esleitu Esploratzaile herrikideak bidaiak laburtzeko: bi esploratzailek etapa bat kentzen dute.',
     nar_mystic_ruins_found_title: 'Magoen Ekoak',
     nar_mystic_ruins_found_lore: 'Ruina haiek antzinako erresuma baino zaharragoak ziren, zalantzarik gabe. Pilareetan grabatutako glifoak ez ziren Elarak irakatsitakoak. Zaharragoak ziren. Garbiagoak. Goseak.',
     nar_academy_unlocked_title: 'Sugarren Trukea',
@@ -1104,12 +1104,12 @@ export const eu = {
     pres_warm_fire: 'Su Goxoa',
     pres_discipline: 'Esnatzea',
     pres_first_spark: 'Lehen Sugarra',
-    pres_first_victory: 'The First Return', // TODO: translate
-    pres_first_defeat: 'The First Lesson', // TODO: translate
-    pres_first_equip: 'The First Edge', // TODO: translate
-    pres_first_spell_cast: 'The World Answers', // TODO: translate
-    pres_first_boss_defeated: 'The Greater Fall', // TODO: translate
-    pres_first_raid_victory: 'The Wall Holds', // TODO: translate
+    pres_first_victory: 'Lehen Itzulera',
+    pres_first_defeat: 'Lehen Ikaskuntza',
+    pres_first_equip: 'Lehen Ertza',
+    pres_first_spell_cast: 'Munduak Erantzuten Du',
+    pres_first_boss_defeated: 'Erorketa Handiagoa',
+    pres_first_raid_victory: 'Horma Eusten Du',
     pres_chapter1_finale: '1. Kapituluko Amaiera',
     pres_language_world: 'Munduko Hizkuntza',
     pres_name_flame: 'Izen Bat Sugarretan',
@@ -1120,39 +1120,39 @@ export const eu = {
     chronicle_chapter_2_title: '2. Kapitulua — Zirkulua',
 
     // New milestone presentations (Chapter I & II) — TODO: translate
-    pres_first_victory: 'The First Return', // TODO: translate
-    pres_first_victory_p1: 'The enemy broke. Not dramatically — they simply stopped fighting, turned, and ran. Arthur stood in the silence that followed, blood on his blade, breath short. The valley had given them their first victory. It would not be the last.', // TODO: translate
-    pres_first_defeat: 'The First Lesson', // TODO: translate
-    pres_first_defeat_p1: 'The retreat was not shameful — it was necessary. Arthur counted the wounded, reassigned the gear, and said nothing of blame. "We learned something today," he told them. "The valley teaches harshly, but it teaches."', // TODO: translate
-    pres_first_equip: 'The First Edge', // TODO: translate
-    pres_first_equip_p1: 'The hero tested the weight, adjusted the grip, and nodded. The difference between a fighter and a warrior is not skill — it is preparation. The forge had given them edges. Now they needed the will to use them.', // TODO: translate
-    pres_first_spell_cast: 'The World Answers', // TODO: translate
-    pres_first_spell_cast_p1: 'The spell left her hands like a held breath finally released. The enemy did not burn — it simply ceased, as if the world itself had remembered it should not exist. Elara swayed. "That," she whispered, "is why we study."', // TODO: translate
-    pres_first_boss_defeated: 'The Greater Fall', // TODO: translate
-    pres_first_boss_defeated_p1: 'The goblin king fell like a tree — slowly, then all at once. Its crown rolled into the dirt. Arthur picked it up, not as a trophy, but as proof. The village was no longer prey. It had become something the valley had never seen: a hunter.', // TODO: translate
-    pres_first_raid_victory: 'The Wall Holds', // TODO: translate
-    pres_first_raid_victory_p1: 'The raiders came at dawn, and by noon they were gone. Not defeated — discouraged. The defenders had stood as one, and the wall had held. Arthur walked the perimeter at dusk, counting the scars. "Tomorrow," he said, "we thicken it."', // TODO: translate
+    pres_first_victory: 'Lehen Itzulera',
+    pres_first_victory_p1: 'Etsaia hausten zen. Ez modu dramatikoan: borrokatzen utzi zuten, buelta eman eta ihesi ziren. Arthur isiltasunean geratu zen, odola bere ezpatan, arnasa labur. Haranak bere lehen garaipena eman zien. Ez zen azkena izango.',
+    pres_first_defeat: 'Lehen Ikaskuntza',
+    pres_first_defeat_p1: 'Ihesa ez zen lotsagarria: beharrezkoa zen. Arthur zaurituak zenbatu zituen, ekipamendua berrantolatu eta ez zuen errurik aipatu. "Gaur zerbait ikasi dugu", esan zien. "Harana gogor irakasten du, baina irakasten du."',
+    pres_first_equip: 'Lehen Ertza',
+    pres_first_equip_p1: 'Heroiak pisuaz probatu zuen, heldulekua doitzean eta burua makurtu zuen. Borrokalari eta gudariaren arteko ezberdintasuna ez da trebetasuna: prestakuntza da. Fragiak ertzak eman zizkien. Orain erabiltzeko borondatea behar zuten.',
+    pres_first_spell_cast: 'Munduak Erantzuten Du',
+    pres_first_spell_cast_p1: 'Sorginkeria bere eskutatik atera zen, eusten zen arnasa azkenean askatzen zen bezala. Etsaia ez zen erretzen: besterik gabe desagertu zen, munduak berak gogoratu balu bezala ez zela existitu behar. Elara kolokan jarri zen. "Horregatik", xuxurlatu zuen, "ikasten dugu."',
+    pres_first_boss_defeated: 'Erorketa Handiagoa',
+    pres_first_boss_defeated_p1: 'Goblin erregea zuhaitz bat bezala erori zen: poliki-poliki, eta gero bat-batean. Bere koroa lurrean erorri zen. Arthurrek jaso zuen, ez trofeo gisa, baizik froga gisa. Herrixka ez zen jada harrapakia. Haranak inoiz ikusi ez zuen zerbait bilakatu zen: ehiztaria.',
+    pres_first_raid_victory: 'Horma Eusten Du',
+    pres_first_raid_victory_p1: 'Erasotzaileak egunsentian iritsi ziren, eta eguerdian joan ziren. Ez garaituak: desanimatuak. Defentsakoek bat bezala eutsi zuten, eta hormak eutsi zuen. Arthur ilunabarrean perimetroan ibili zen, zauriak zenbatuz. "Bihar", esan zuen, "indartuko dugu."',
 
     // New ambient toast narratives (Chapter I & II) — TODO: translate
-    nar_first_building_title: 'The First Nail', // TODO: translate
-    nar_first_building_lore: 'The hammer fell, and something new stood where nothing had stood before. The villagers watched in silence. They had not built a structure — they had built a future.', // TODO: translate
-    nar_first_equip_title: 'The First Edge', // TODO: translate
-    nar_first_equip_lore: 'The hero tested the weight, adjusted the grip, and nodded. Wearing multiple pieces of the same material grants set bonuses at 2, 4, and 6 pieces. Plan your loadouts.', // TODO: translate
-    nar_shop_first_purchase_title: 'The First Sale', // TODO: translate
-    nar_shop_first_purchase_lore: 'The merchant counted the coins twice. "A village that buys is a village that sells," he muttered. Sell him raw grain, wood, or stone — but know that crafting and expeditions yield far more gold.', // TODO: translate
-    nar_blacksmith_built_title: 'The Forge Roars', // TODO: translate
-    nar_blacksmith_built_lore: 'The forge roared to life. The smith — a broad woman with soot for fingerprints — did not greet anyone. She only said: "Bring me ore. I will bring you edges." The Forge is now open.', // TODO: translate
-    nar_calmed_beach_found_title: 'The Tidemark', // TODO: translate
-    nar_calmed_beach_found_lore: 'The beach was not empty. Shells arranged in spirals. Footprints that ended at the tide line. The sea here is calm, but it is not silent. It is listening.', // TODO: translate
-    nar_dark_forest_first_clear_title: 'The Trees Step Aside', // TODO: translate
-    nar_dark_forest_first_clear_lore: 'The forest respects those who return. Your heroes brought back stories the villagers will tell for years. Some regions grant a permanent +2 Speed bonus on first clear — to every hero who fought.', // TODO: translate
-    nar_goblin_camp_found_title: 'The Ridge Smokes', // TODO: translate
-    nar_goblin_camp_found_lore: 'Smoke rose from the ridge — thick and greasy. Goblins do not farm. They take. And now they know where the village is.', // TODO: translate
-    nar_academy_first_lesson_title: 'The First Exchange', // TODO: translate
-    nar_academy_first_lesson_lore: 'One teacher. One student. One Glyph. The Academy takes 3–5 days, and neither can expedition during that time. But the student will carry that knowledge into every battle thereafter.', // TODO: translate
+    nar_first_building_title: 'Lehen Iltzea',
+    nar_first_building_lore: 'Mailuak jo zuen, eta zerbait berria altxatu zen aurretik ezer ez zegoen lekuan. Herrikideek isilik begiratu zuten. Egiturarik ez zuten eraiki: etorkizuna eraiki zuten.',
+    nar_first_equip_title: 'Lehen Ertza',
+    nar_first_equip_lore: 'Heroiak pisuaz probatu zuen, heldulekua doitzean eta burua makurtu zuen. Material berdineko pieza ugari eramateak 2, 4 eta 6 piezatan bonifikazioak ematen ditu. Planifikatu zure ekipamenduak.',
+    nar_shop_first_purchase_title: 'Lehen Salmenta',
+    nar_shop_first_purchase_lore: 'Merkatariak txanponak bi aldiz zenbatu zituen. "Erosten duen herrixka saltzen duen herrixka da", marmarrean esan zuen. Saldu zekalea, egurra edo harria — baina jakin artisautzak eta espedizioek urre gehiago ematen dutela.',
+    nar_blacksmith_built_title: 'Fragiak Oihukatzen Du',
+    nar_blacksmith_built_lore: 'Fragiak bizitzara oihukatu zuen. Harrobikaria, emakume zabala hatz-markak sutaz zituena, ez zuen inor agurtu. Honela esan zuen bakarrik: "Ekarri iezadakete mea. Ertzak ekarriko dizkizuet." Fragiak irekita dago.',
+    nar_calmed_beach_found_title: 'Maren Marka',
+    nar_calmed_beach_found_lore: 'Hondartza ez zen hutsik egon. Maskorrak espiraletan antolatuta. Marearen mugaraino iristen ziren oinatzak. Itsasoa lasai dago hemen, baina ez dago isilik. Entzuten ari da.',
+    nar_dark_forest_first_clear_title: 'Zuhaitzek Alde Batera Urten Dute',
+    nar_dark_forest_first_clear_lore: 'Basoak itzultzen direnak errespetatzen ditu. Zure heroiek kontakizunak ekarri zituzten herrikideek urteetan kontatuko dituztenak. Eskualde batzuek +2 Abiadura betiko ematen dute lehen garbiketan — borrokatu zuen heroia bakoitzari.',
+    nar_goblin_camp_found_title: 'Krestak Kea Bota',
+    nar_goblin_camp_found_lore: 'Kea krestatik goraka joan zen, lodi eta koipetsua. Goblinak ez dute landatzen. Hartzen dute. Eta orain badakite non dagoen herrixka.',
+    nar_academy_first_lesson_title: 'Lehen Trukea',
+    nar_academy_first_lesson_lore: 'Irakasle bat. Ikasle bat. Glif bat. Akademiak 3-5 egun behar ditu, eta inork ezin du espediziora joan denbora horretan. Baina ikasleak ezagutza hori eramango du hortik aurrera borroka bakoitzera.',
 
     // Discovery Log UI — TODO: translate
-    chronicle_discovery_title: 'Discovery Log', // TODO: translate
-    chronicle_discovery_empty: "No discoveries yet. Send heroes on expeditions and build your village to uncover the valley's secrets.", // TODO: translate
+    chronicle_discovery_title: 'Aurkikuntzen Erregistroa',
+    chronicle_discovery_empty: 'Oraindik ez dago aurkikuntzarik. Bidali heroia espedizioetara eta eraiki zure herrixka haranaren sekretuak argitzeko.',
 
 };

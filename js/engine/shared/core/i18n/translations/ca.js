@@ -954,27 +954,27 @@ export const ca = {
     nar_tiny_cave_found_title: 'Susurres des de l\'Abisme',
     nar_tiny_cave_found_lore: 'Un explorador va reportar una esquerda estreta a les colines, massa profunda per mesurar-la, massa fosca per mapejar-la. Però l\'Arthur va sentir alguna cosa des de dins: el tintineig de l\'acer, el gemec de la pedra. Hi havia quelcom més allà baix.',
     nar_sir_valen_joins_title: 'Un Escut en la Foscor',
-    nar_sir_valen_joins_lore: 'Sir Valen has taken his post at the gate. His Guard origin steadies the whole party — they now take 10% less physical damage. Place him in the front line and let him hold.', // TODO: translate
+    nar_sir_valen_joins_lore: 'Sir Valen ha pres el seu lloc a la porta. El seu origen de Guàrdia enforteix tot el grup: ara reben un 10% menys de dany físic. Col·loca\'l a la línia frontal i deixa\'l sostenir.',
     nar_first_skill_slot_title: 'Despertar',
-    nar_first_skill_slot_lore: 'A hero has grown strong enough to learn a new technique family. Visit the Training Grounds to spend their Skill Point. Choose carefully — retraining costs gold and locks the hero for 3 days.', // TODO: translate
+    nar_first_skill_slot_lore: 'Un heroi ha crescut prou per aprendre una nova família de tècniques. Visita els Camps d\'Entrenament per gastar el seu Punt d\'Habilitat. Tria amb cura: reentrenar costa or i bloqueja l\'heroi durant 3 dies.',
     nar_shop_unlocked_title: 'El Retorn del Mercader',
     nar_shop_unlocked_lore: 'Un carro va aparèixer a l\'alba, estirat per una mula més vella que el seu conductor. El comerciant es va treure el barret. "He sentit que hi havia monedes per guanyar on els valents sagnen". Va establir el seu lloc al costat del dipòsit.',
     nar_tavern_built_title: 'Un Foc Acollidor',
-    nar_tavern_built_lore: 'The Tavern doors are open. Heroes arrive automatically every 5–7 days. Manual recruitment is also available — but each new hero makes the next one more expensive.', // TODO: translate
+    nar_tavern_built_lore: 'Les portes de la Taverna estan obertes. Els herois arriben automàticament cada 5–7 dies. El reclutament manual també està disponible, però cada nou heroi fa que el següent sigui més car.',
     nar_dark_forest_found_title: 'Els Arbres Tenen Ulls',
     nar_dark_forest_found_lore: 'El bosc no estava simplement fosc: era conscient. Les fulles susurraven amb patrons massa deliberats per al vent. Les expedicions tornaven parlant de llums fàtues i arrels que es movien durant la nit.',
     nar_elara_arrives_title: 'La Primera Guspires',
-    nar_elara_arrives_lore: 'A mage has joined the roster. Arcane Initiates wield devastating magic, but their bodies are frail. Keep her behind your warriors. To unlock her circle, build an Arcane Sanctum.', // TODO: translate
+    nar_elara_arrives_lore: 'Una maga s\'ha unit a la llista. Els Iniciats Arcans manegen una màgia devastadora, però els seus cossos són fràgils. Manten-la darrere dels teus guerrers. Per desbloquejar el seu cercle, construeix un Santuari Arcà.',
     nar_magic_circle_unlocked_title: 'El Llenguatge del Món',
-    nar_magic_circle_unlocked_lore: 'The Sanctum is complete. Compose spells by placing a Core Glyph — Fire, Water, Wind, or Storm — in the center. The circle grows as Magic Tier rises. One slot now. Many later.', // TODO: translate
+    nar_magic_circle_unlocked_lore: 'El Santuari està complet. Compon encanteris col·locant un Glif Central — Foc, Aigua, Vent o Tempesta — al centre. El cercle creix a mesura que puja el Nivell de Màgia. Una ranura ara. Moltes després.',
     nar_witch_hut_built_title: 'El Vel es Desglaça',
-    nar_witch_hut_built_lore: 'The Witch offers one reading per hero per day. She speaks in riddles, but her words reveal how close a hero is to their next Magic Tier and which Glyphs are nearing mastery.', // TODO: translate
+    nar_witch_hut_built_lore: 'La Bruixa ofereix una lectura per heroi al dia. Parla en endevinalles, però les seves paraules revelen què tan a prop està un heroi del seu següent Nivell de Màgia i quins Glifs estan a punt del domini.',
     nar_first_spell_composed_title: 'Un Nom en Flames',
-    nar_first_spell_composed_lore: 'A spell has been inscribed to the Codex. Spells cost MP but ignore enemy defense. Balance your party — warriors for sustained stamina damage, mages for magical burst.', // TODO: translate
+    nar_first_spell_composed_lore: 'Un encanteri ha estat inscrit al Còdex. Els encanteris costen PM però ignoren la defensa de l\'enemic. Equilibra el teu grup: guerrers per dany sostingut d\'resistència, mags per ràfegues màgiques.',
     nar_defense_first_raid_title: 'El Martell a la Porta',
     nar_defense_first_raid_lore: 'Van arribar a mitjanit: no assaltants comuns, sinó una advertència. La vila ja no estava oculta. A partir d\'aquest dia, les muralles necessitarien vigilants, i els vigilants necessitarien acer.',
     nar_explorer_guild_built_title: 'El Món s\'Obre',
-    nar_explorer_guild_built_lore: 'New regions await. The Guild reduces expedition stages and unlocks advanced maps. Assign Scout villagers to shorten journeys — every two scouts remove one stage.', // TODO: translate
+    nar_explorer_guild_built_lore: 'Noves regions esperen. El Gremi redueix les etapes d\'expedició i desbloqueja mapes avançats. Assigna vilatans Exploradors per escurçar els viatges: cada dos exploradors eliminen una etapa.',
     nar_mystic_ruins_found_title: 'Ecos dels Mags',
     nar_mystic_ruins_found_lore: 'Les ruïnes eren anteriors a l\'antic regne, d\'això no hi havia dubte. Els glifs gravats en els seus pilars no eren els que ensenyava l\'Elara. Eren més antics. Més purs. Famolencs.',
     nar_academy_unlocked_title: 'L\'Intercanvi de Flames',
@@ -1104,12 +1104,12 @@ export const ca = {
     pres_warm_fire: 'Un Foc Acollidor',
     pres_discipline: 'Despertar',
     pres_first_spark: 'La Primera Guspires',
-    pres_first_victory: 'The First Return', // TODO: translate
-    pres_first_defeat: 'The First Lesson', // TODO: translate
-    pres_first_equip: 'The First Edge', // TODO: translate
-    pres_first_spell_cast: 'The World Answers', // TODO: translate
-    pres_first_boss_defeated: 'The Greater Fall', // TODO: translate
-    pres_first_raid_victory: 'The Wall Holds', // TODO: translate
+    pres_first_victory: 'El Primer Retorn',
+    pres_first_defeat: 'La Primera Lliçó',
+    pres_first_equip: 'El Primer Tall',
+    pres_first_spell_cast: 'El Món Respon',
+    pres_first_boss_defeated: 'La Caiguda Major',
+    pres_first_raid_victory: 'El Mur Aguanta',
     pres_chapter1_finale: 'Final del Capítol 1',
     pres_language_world: 'El Llenguatge del Món',
     pres_name_flame: 'Un Nom en Flames',
@@ -1120,39 +1120,39 @@ export const ca = {
     chronicle_chapter_2_title: 'Capítol 2 — El Cercle',
 
     // New milestone presentations (Chapter I & II) — TODO: translate
-    pres_first_victory: 'The First Return', // TODO: translate
-    pres_first_victory_p1: 'The enemy broke. Not dramatically — they simply stopped fighting, turned, and ran. Arthur stood in the silence that followed, blood on his blade, breath short. The valley had given them their first victory. It would not be the last.', // TODO: translate
-    pres_first_defeat: 'The First Lesson', // TODO: translate
-    pres_first_defeat_p1: 'The retreat was not shameful — it was necessary. Arthur counted the wounded, reassigned the gear, and said nothing of blame. "We learned something today," he told them. "The valley teaches harshly, but it teaches."', // TODO: translate
-    pres_first_equip: 'The First Edge', // TODO: translate
-    pres_first_equip_p1: 'The hero tested the weight, adjusted the grip, and nodded. The difference between a fighter and a warrior is not skill — it is preparation. The forge had given them edges. Now they needed the will to use them.', // TODO: translate
-    pres_first_spell_cast: 'The World Answers', // TODO: translate
-    pres_first_spell_cast_p1: 'The spell left her hands like a held breath finally released. The enemy did not burn — it simply ceased, as if the world itself had remembered it should not exist. Elara swayed. "That," she whispered, "is why we study."', // TODO: translate
-    pres_first_boss_defeated: 'The Greater Fall', // TODO: translate
-    pres_first_boss_defeated_p1: 'The goblin king fell like a tree — slowly, then all at once. Its crown rolled into the dirt. Arthur picked it up, not as a trophy, but as proof. The village was no longer prey. It had become something the valley had never seen: a hunter.', // TODO: translate
-    pres_first_raid_victory: 'The Wall Holds', // TODO: translate
-    pres_first_raid_victory_p1: 'The raiders came at dawn, and by noon they were gone. Not defeated — discouraged. The defenders had stood as one, and the wall had held. Arthur walked the perimeter at dusk, counting the scars. "Tomorrow," he said, "we thicken it."', // TODO: translate
+    pres_first_victory: 'El Primer Retorn',
+    pres_first_victory_p1: 'L\'enemic es va trencar. No de forma dramàtica: simplement van deixar de lluitar, es van girar i van fugir. Arthur es va quedar en el silenci que va seguir, sang a la seva espasa, alè curt. La vall els havia donat la seva primera victòria. No seria l\'última.',
+    pres_first_defeat: 'La Primera Lliçó',
+    pres_first_defeat_p1: 'La retirada no va ser vergonyosa: va ser necessària. Arthur va comptar els ferits, va reassignar l\'equipament i no va dir res de culpa. "Avui hem après alguna cosa", els va dir. "La vall ensenya amb duresa, però ensenya."',
+    pres_first_equip: 'El Primer Tall',
+    pres_first_equip_p1: 'L\'heroi va provar el pes, va ajustar el puny i va assentir. La diferència entre un lluitador i un guerrer no és l\'habilitat: és la preparació. La farga els havia donat talls. Ara necessitaven la voluntat d\'usar-los.',
+    pres_first_spell_cast: 'El Món Respon',
+    pres_first_spell_cast_p1: 'L\'encanteri va sortir de les seves mans com un alè retingut finalment alliberat. L\'enemic no es va cremar: simplement va cessar, com si el món mateix hagués recordat que no hauria d\'existir. Elara es va tambalejar. "Per això", va xiuxiuejar, "estudiem."',
+    pres_first_boss_defeated: 'La Caiguda Major',
+    pres_first_boss_defeated_p1: 'El rei goblin va caure com un arbre: lentament, i després de cop. La seva corona va rodar per la terra. Arthur la va recollir, no com a trofeu, sinó com a prova. La vila ja no era presa. S\'havia convertit en alguna cosa que la vall mai havia vist: un caçador.',
+    pres_first_raid_victory: 'El Mur Aguanta',
+    pres_first_raid_victory_p1: 'Els assaltants van arribar a l\'albada, i al migdia se n\'havien anat. No derrotats: desanimats. Els defensors havien resistit com un sol, i el mur havia aguantat. Arthur va caminar pel perímetre al capvespre, comptant les cicatrius. "Demà", va dir, "el reforçarem."',
 
     // New ambient toast narratives (Chapter I & II) — TODO: translate
-    nar_first_building_title: 'The First Nail', // TODO: translate
-    nar_first_building_lore: 'The hammer fell, and something new stood where nothing had stood before. The villagers watched in silence. They had not built a structure — they had built a future.', // TODO: translate
-    nar_first_equip_title: 'The First Edge', // TODO: translate
-    nar_first_equip_lore: 'The hero tested the weight, adjusted the grip, and nodded. Wearing multiple pieces of the same material grants set bonuses at 2, 4, and 6 pieces. Plan your loadouts.', // TODO: translate
-    nar_shop_first_purchase_title: 'The First Sale', // TODO: translate
-    nar_shop_first_purchase_lore: 'The merchant counted the coins twice. "A village that buys is a village that sells," he muttered. Sell him raw grain, wood, or stone — but know that crafting and expeditions yield far more gold.', // TODO: translate
-    nar_blacksmith_built_title: 'The Forge Roars', // TODO: translate
-    nar_blacksmith_built_lore: 'The forge roared to life. The smith — a broad woman with soot for fingerprints — did not greet anyone. She only said: "Bring me ore. I will bring you edges." The Forge is now open.', // TODO: translate
-    nar_calmed_beach_found_title: 'The Tidemark', // TODO: translate
-    nar_calmed_beach_found_lore: 'The beach was not empty. Shells arranged in spirals. Footprints that ended at the tide line. The sea here is calm, but it is not silent. It is listening.', // TODO: translate
-    nar_dark_forest_first_clear_title: 'The Trees Step Aside', // TODO: translate
-    nar_dark_forest_first_clear_lore: 'The forest respects those who return. Your heroes brought back stories the villagers will tell for years. Some regions grant a permanent +2 Speed bonus on first clear — to every hero who fought.', // TODO: translate
-    nar_goblin_camp_found_title: 'The Ridge Smokes', // TODO: translate
-    nar_goblin_camp_found_lore: 'Smoke rose from the ridge — thick and greasy. Goblins do not farm. They take. And now they know where the village is.', // TODO: translate
-    nar_academy_first_lesson_title: 'The First Exchange', // TODO: translate
-    nar_academy_first_lesson_lore: 'One teacher. One student. One Glyph. The Academy takes 3–5 days, and neither can expedition during that time. But the student will carry that knowledge into every battle thereafter.', // TODO: translate
+    nar_first_building_title: 'El Primer Clau',
+    nar_first_building_lore: 'El martell va caure, i alguna cosa nova es va alçar on abans no hi havia res. Els vilatans van observar en silenci. No havien construït una estructura: havien construït un futur.',
+    nar_first_equip_title: 'El Primer Tall',
+    nar_first_equip_lore: 'L\'heroi va provar el pes, va ajustar el puny i va assentir. Portar diverses peces del mateix material atorga bonificacions de conjunt amb 2, 4 i 6 peces. Planifica els teus equipaments.',
+    nar_shop_first_purchase_title: 'La Primera Venda',
+    nar_shop_first_purchase_lore: 'El mercader va comptar les monedes dos cops. "Una vila que compra és una vila que ven", va murmurar. Vén-li gra, fusta o pedra en brut, però saps que l\'artesania i les expedicions rendeixen molt més or.',
+    nar_blacksmith_built_title: 'La Farga Rugeix',
+    nar_blacksmith_built_lore: 'La farga va rugir en cobrar vida. La ferrera, una dona corpulenta amb sutge per empremtes dactilars, no va saludar ningú. Només va dir: "Porteu-me mineral. Jo us portaré talls." La Farga està oberta.',
+    nar_calmed_beach_found_title: 'La Marca de la Marea',
+    nar_calmed_beach_found_lore: 'La platja no estava buida. Petxines disposades en espirals. Petjades que terminaven a la línia de la marea. El mar aquí està en calma, però no està en silenci. Està escoltant.',
+    nar_dark_forest_first_clear_title: 'Els Arbres s\'Apart',
+    nar_dark_forest_first_clear_lore: 'El bosc respecta els que tornen. Els teus herois van portar històries que els vilatans explicaran durant anys. Algunes regions atorguen una bonificació permanent de +2 Velocitat al primer despeixat, a cada heroi que va lluitar.',
+    nar_goblin_camp_found_title: 'La Cresta Fumeja',
+    nar_goblin_camp_found_lore: 'El fum es va alçar des de la cresta, espès i greixós. Els goblins no cultiven. Se\'n van. I ara saben on és la vila.',
+    nar_academy_first_lesson_title: 'El Primer Intercanvi',
+    nar_academy_first_lesson_lore: 'Un mestre. Un estudiant. Un Glif. L\'Acadèmia porta 3–5 dies, i cap pot anar d\'expedició durant aquell temps. Però l\'estudiant portarà aquell coneixement a cada batalla d\'aquí endavant.',
 
     // Discovery Log UI — TODO: translate
-    chronicle_discovery_title: 'Discovery Log', // TODO: translate
-    chronicle_discovery_empty: "No discoveries yet. Send heroes on expeditions and build your village to uncover the valley's secrets.", // TODO: translate
+    chronicle_discovery_title: 'Registre de Descobriments',
+    chronicle_discovery_empty: 'Encara no hi ha descobriments. Envia herois d\'expedició i construeix la teva vila per desvelar els secrets de la vall.',
 
 };
