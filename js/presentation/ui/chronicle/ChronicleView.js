@@ -1,5 +1,6 @@
 import { BaseView } from '../BaseView.js';
 import { PRESENTATION_CATALOG } from '../../../engine/shared/data/PresentationCatalog.js';
+import { UNLOCK_NARRATIVES } from '../../../engine/shared/data/UnlockNarratives.js';
 
 export class ChronicleView extends BaseView {
     constructor(arg1, arg2, arg3, arg4) {
@@ -145,7 +146,7 @@ export class ChronicleView extends BaseView {
         if (!target) return;
 
         // Initialize template content if empty (helpful for unit tests)
-        if (!target.querySelector('.chronicle-list-container')) {
+        if (!target.querySelector('.chronicle-two-pane')) {
             target.innerHTML = `
                 <div class="category-sub-nav">
                     <button class="sub-nav-tab" data-subview="explore" data-i18n="shared_uxelm_nav_explore">${this.t('shared_uxelm_nav_explore')}</button>
@@ -160,7 +161,14 @@ export class ChronicleView extends BaseView {
                     <h3 data-i18n="chronicle_recently_unlocked">${this.t('chronicle_recently_unlocked')}</h3>
                     <div id="recently-unlocked-container" class="recently-unlocked-list"></div>
                 </div>
-                <div id="chronicle-list-container" class="chronicle-list-container"></div>
+                <div class="chronicle-two-pane">
+                    <div class="chronicle-main-pane">
+                        <div id="chronicle-list-container" class="chronicle-list-container"></div>
+                    </div>
+                    <div class="chronicle-discovery-pane">
+                        <div id="discovery-log-container"></div>
+                    </div>
+                </div>
             `;
         }
 
@@ -189,102 +197,16 @@ export class ChronicleView extends BaseView {
             }
         }
 
-        // Group milestones by chapter
-        const chapters = [1, 2];
+        // Render left pane — chapter sections
         const listContainer = target.querySelector('#chronicle-list-container');
-        
         if (listContainer) {
-            listContainer.innerHTML = chapters.map(chapterId => {
-                const progress = this._getChapterProgress(chapterId);
-                const isCollapsed = !this.chapterExpanded[chapterId];
-                
-                // Get all milestones for this chapter
-                const chapterMilestones = PRESENTATION_CATALOG.filter(p => p.chapter === chapterId);
-                
-                // Generate milestones HTML
-                const milestonesHtml = chapterMilestones.map(pres => {
-                    const status = this._getMilestoneStatus(pres);
-                    const isSeen = status === 'seen';
-                    const isPending = status === 'pending';
-                    const isLocked = status === 'locked';
-                    
-                    let title = '???';
-                    let dayHtml = '';
-                    let detailsHtml = '';
-                    let actionsHtml = '';
-                    let rowClass = 'state-locked';
-                    let badgeHtml = `<span class="milestone-badge badge-locked">${this.t('chronicle_locked')}</span>`;
+            listContainer.innerHTML = this._renderChapterSections();
+        }
 
-                    if (isSeen) {
-                        title = this.t(pres.id);
-                        rowClass = 'state-seen';
-                        badgeHtml = `<span class="milestone-badge badge-seen">${this.t('chronicle_seen')}</span>`;
-                        
-                        const day = this.engine.presentationService.getDaySeen(pres.id);
-                        dayHtml = `<span class="milestone-day">${this.t('chronicle_day_prefix')} ${day !== null ? day : this.t('chronicle_day_unknown')}</span>`;
-                        
-                        const firstPageKey = pres.pages[0]?.textKey;
-                        const excerpt = firstPageKey ? this.t(firstPageKey) : '';
-                        detailsHtml = `<div class="milestone-excerpt" title="${excerpt}">${excerpt}</div>`;
-                        
-                        actionsHtml = `
-                            <button class="btn btn-secondary btn-sm btn-replay" data-presentation-id="${pres.id}">
-                                <span class="icon">📖</span> <span>${this.t('chronicle_replay')}</span>
-                            </button>
-                        `;
-                    } else if (isPending) {
-                        title = this.t(pres.id);
-                        rowClass = 'state-pending';
-                        badgeHtml = `<span class="milestone-badge badge-pending">${this.t('chronicle_pending')}</span>`;
-                        
-                        dayHtml = `<span class="milestone-day">${this.t('chronicle_pending_hint')}</span>`;
-                        detailsHtml = `<div class="milestone-excerpt">${this.t('chronicle_pending_hint')}</div>`;
-                        
-                        actionsHtml = `
-                            <button class="btn btn-secondary btn-sm btn-replay" data-presentation-id="${pres.id}">
-                                <span class="icon">📖</span> <span>${this.t('chronicle_replay')}</span>
-                            </button>
-                        `;
-                    } else {
-                        // Locked
-                        const hint = this._getTriggerHint(pres);
-                        detailsHtml = `<div class="milestone-trigger-hint"><span class="hint-label">${this.t('chronicle_hint_prefix')}</span> ${hint.replace(this.t('chronicle_hint_prefix') + ' ', '')}</div>`;
-                    }
-
-                    return `
-                        <div class="milestone-row ${rowClass}" data-presentation-id="${pres.id}">
-                            <div class="milestone-main-info">
-                                <div class="milestone-header-line">
-                                    <span class="milestone-title">${title}</span>
-                                    ${badgeHtml}
-                                    ${dayHtml}
-                                </div>
-                                ${detailsHtml}
-                            </div>
-                            <div class="milestone-actions">
-                                ${actionsHtml}
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-
-                const chapterTitle = this.t(`chronicle_chapter_${chapterId}_title`);
-
-                return `
-                    <div class="chronicle-chapter-group" data-chapter="${chapterId}">
-                        <div class="chapter-header ${isCollapsed ? 'collapsed' : ''}" data-chapter="${chapterId}">
-                            <div class="chapter-header-left">
-                                <span class="chapter-toggle-icon">▼</span>
-                                <span class="chapter-title-text">${chapterTitle}</span>
-                            </div>
-                            <span class="chapter-progress-badge">${progress.seen} / ${progress.total}</span>
-                        </div>
-                        <div class="chapter-content" style="display: ${isCollapsed ? 'none' : 'flex'};">
-                            ${milestonesHtml}
-                        </div>
-                    </div>
-                `;
-            }).join('');
+        // Render right pane — discovery log
+        const discoveryContainer = target.querySelector('#discovery-log-container');
+        if (discoveryContainer) {
+            discoveryContainer.innerHTML = this._renderDiscoveryLog();
         }
 
         // Add event listeners for collapsibles
@@ -315,6 +237,15 @@ export class ChronicleView extends BaseView {
             });
         });
 
+        // Add event listeners for discovery rows
+        const discoveryRows = target.querySelectorAll('.discovery-row');
+        discoveryRows.forEach(row => {
+            row.addEventListener('click', () => {
+                const id = row.getAttribute('data-narrative-id');
+                this._openDiscoveryReplay(id);
+            });
+        });
+
         // Add event listeners for sub-nav tabs click (routing)
         const subNavTabs = target.querySelectorAll('.sub-nav-tab[data-subview]');
         subNavTabs.forEach(tab => {
@@ -325,5 +256,182 @@ export class ChronicleView extends BaseView {
                 }
             });
         });
+    }
+
+    _renderChapterSections() {
+        const chapters = [1, 2];
+        return chapters.map(chapterId => {
+            const progress = this._getChapterProgress(chapterId);
+            const isCollapsed = !this.chapterExpanded[chapterId];
+            
+            // Get all milestones for this chapter
+            const chapterMilestones = PRESENTATION_CATALOG.filter(p => p.chapter === chapterId);
+            
+            // Generate milestones HTML
+            const milestonesHtml = chapterMilestones.map(pres => {
+                const status = this._getMilestoneStatus(pres);
+                const isSeen = status === 'seen';
+                const isPending = status === 'pending';
+                const isLocked = status === 'locked';
+                
+                let title = '???';
+                let dayHtml = '';
+                let detailsHtml = '';
+                let actionsHtml = '';
+                let rowClass = 'state-locked';
+                let badgeHtml = `<span class="milestone-badge badge-locked">${this.t('chronicle_locked')}</span>`;
+
+                if (isSeen) {
+                    title = this.t(pres.id);
+                    rowClass = 'state-seen';
+                    badgeHtml = `<span class="milestone-badge badge-seen">${this.t('chronicle_seen')}</span>`;
+                    
+                    const day = this.engine.presentationService.getDaySeen(pres.id);
+                    dayHtml = `<span class="milestone-day">${this.t('chronicle_day_prefix')} ${day !== null ? day : this.t('chronicle_day_unknown')}</span>`;
+                    
+                    const firstPageKey = pres.pages[0]?.textKey;
+                    const excerpt = firstPageKey ? this.t(firstPageKey) : '';
+                    detailsHtml = `<div class="milestone-excerpt" title="${excerpt}">${excerpt}</div>`;
+                    
+                    actionsHtml = `
+                        <button class="btn btn-secondary btn-sm btn-replay" data-presentation-id="${pres.id}">
+                            <span class="icon">📖</span> <span>${this.t('chronicle_replay')}</span>
+                        </button>
+                    `;
+                } else if (isPending) {
+                    title = this.t(pres.id);
+                    rowClass = 'state-pending';
+                    badgeHtml = `<span class="milestone-badge badge-pending">${this.t('chronicle_pending')}</span>`;
+                    
+                    dayHtml = `<span class="milestone-day">${this.t('chronicle_pending_hint')}</span>`;
+                    detailsHtml = `<div class="milestone-excerpt">${this.t('chronicle_pending_hint')}</div>`;
+                    
+                    actionsHtml = `
+                        <button class="btn btn-secondary btn-sm btn-replay" data-presentation-id="${pres.id}">
+                            <span class="icon">📖</span> <span>${this.t('chronicle_replay')}</span>
+                        </button>
+                    `;
+                } else {
+                    // Locked
+                    const hint = this._getTriggerHint(pres);
+                    detailsHtml = `<div class="milestone-trigger-hint"><span class="hint-label">${this.t('chronicle_hint_prefix')}</span> ${hint.replace(this.t('chronicle_hint_prefix') + ' ', '')}</div>`;
+                }
+
+                return `
+                    <div class="milestone-row ${rowClass}" data-presentation-id="${pres.id}">
+                        <div class="milestone-main-info">
+                            <div class="milestone-header-line">
+                                <span class="milestone-title">${title}</span>
+                                ${badgeHtml}
+                                ${dayHtml}
+                            </div>
+                            ${detailsHtml}
+                        </div>
+                        <div class="milestone-actions">
+                            ${actionsHtml}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            const chapterTitle = this.t(`chronicle_chapter_${chapterId}_title`);
+
+            return `
+                <div class="chronicle-chapter-group" data-chapter="${chapterId}">
+                    <div class="chapter-header ${isCollapsed ? 'collapsed' : ''}" data-chapter="${chapterId}">
+                        <div class="chapter-header-left">
+                            <span class="chapter-toggle-icon">▼</span>
+                            <span class="chapter-title-text">${chapterTitle}</span>
+                        </div>
+                        <span class="chapter-progress-badge">${progress.seen} / ${progress.total}</span>
+                    </div>
+                    <div class="chapter-content" style="display: ${isCollapsed ? 'none' : 'flex'};">
+                        ${milestonesHtml}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    _renderDiscoveryLog() {
+        const shown = this.engine.unlockService?.getShownNarratives() || [];
+        
+        // Sort by daySeen desc (most recent first). Null daySeen sorts to bottom.
+        const sorted = [...shown].sort((a, b) => {
+            if (a.daySeen === null && b.daySeen === null) return 0;
+            if (a.daySeen === null) return 1;
+            if (b.daySeen === null) return -1;
+            return b.daySeen - a.daySeen;
+        });
+        
+        const totalNarratives = UNLOCK_NARRATIVES.length;
+        const foundCount = shown.length;
+        
+        const rows = sorted.map(entry => {
+            const narrative = UNLOCK_NARRATIVES.find(n => n.id === entry.id);
+            if (!narrative) return '';
+            const title = this.t(narrative.titleKey);
+            const day = entry.daySeen !== null ? `${this.t('chronicle_day_prefix')} ${entry.daySeen}` : '';
+            return `
+                <div class="discovery-row" data-narrative-id="${entry.id}">
+                    <span class="discovery-title">${title}</span>
+                    <span class="discovery-day">${day}</span>
+                </div>
+            `;
+        }).join('');
+        
+        const emptyMessage = foundCount === 0
+            ? `<div class="discovery-empty">${this.t('chronicle_discovery_empty')}</div>`
+            : '';
+        
+        return `
+            <div class="discovery-header">
+                <h3>${this.t('chronicle_discovery_title')}</h3>
+                <span class="discovery-count">${foundCount} / ${totalNarratives}</span>
+            </div>
+            <div class="discovery-list">
+                ${rows}
+                ${emptyMessage}
+            </div>
+        `;
+    }
+
+    _openDiscoveryReplay(narrativeId) {
+        const narrative = UNLOCK_NARRATIVES.find(n => n.id === narrativeId);
+        if (!narrative) return;
+
+        const title = this.t(narrative.titleKey);
+        const lore = this.t(narrative.loreKey);
+
+        // Create or reuse a lightweight modal overlay
+        let modal = document.getElementById('discovery-modal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'discovery-modal';
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content discovery-modal-content">
+                    <div class="modal-header">
+                        <h3 class="discovery-modal-title"></h3>
+                        <button class="modal-close">&times;</button>
+                    </div>
+                    <div class="modal-body discovery-modal-body">
+                        <p class="discovery-modal-lore"></p>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+
+            modal.querySelector('.modal-close').addEventListener('click', () => {
+                modal.classList.remove('active');
+            });
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) modal.classList.remove('active');
+            });
+        }
+
+        modal.querySelector('.discovery-modal-title').textContent = title;
+        modal.querySelector('.discovery-modal-lore').textContent = lore;
+        modal.classList.add('active');
     }
 }

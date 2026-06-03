@@ -22,15 +22,25 @@ export class UnlockService {
         this.state = this._load();
     }
 
+    setState(state) {
+        this.state = state;
+        this.save();
+    }
+
     _getDefaultState() {
         return {
-            unlockedNarratives: [],
+            unlockedNarratives: [],      // { id: string, daySeen: number | null }[]
             unlockedCodexFeatures: []
         };
     }
 
     _load() {
-        return persistence.load(STORAGE_KEY, this._getDefaultState());
+        const raw = persistence.load(STORAGE_KEY, this._getDefaultState());
+        // Migrate old string[] to new object[]
+        if (raw.unlockedNarratives && raw.unlockedNarratives.length > 0 && typeof raw.unlockedNarratives[0] === 'string') {
+            raw.unlockedNarratives = raw.unlockedNarratives.map(id => ({ id, daySeen: null }));
+        }
+        return raw;
     }
 
     save() {
@@ -45,7 +55,7 @@ export class UnlockService {
      * @returns {string[]} — array of newly triggered narrative IDs
      */
     checkAllUnlocks(state) {
-        const shown = new Set(this.state.unlockedNarratives);
+        const shown = new Set(this.state.unlockedNarratives.map(e => e.id));
         const newlyTriggered = [];
 
         for (const narrative of UNLOCK_NARRATIVES) {
@@ -85,10 +95,12 @@ export class UnlockService {
      * Marks a single narrative as shown so it never triggers again.
      *
      * @param {string} id — narrative ID to mark
+     * @param {number|null} day — day the narrative was seen (optional)
      */
-    markAsShown(id) {
-        if (!this.state.unlockedNarratives.includes(id)) {
-            this.state.unlockedNarratives.push(id);
+    markAsShown(id, day = null) {
+        const exists = this.state.unlockedNarratives.some(entry => entry.id === id);
+        if (!exists) {
+            this.state.unlockedNarratives.push({ id, daySeen: day });
             this.save();
         }
     }
@@ -97,12 +109,14 @@ export class UnlockService {
      * Marks multiple narratives as shown.
      *
      * @param {string[]} ids — array of narrative IDs
+     * @param {number|null} day — day the narratives were seen (optional)
      */
-    markAllAsShown(ids) {
+    markAllAsShown(ids, day = null) {
         let changed = false;
         for (const id of ids) {
-            if (!this.state.unlockedNarratives.includes(id)) {
-                this.state.unlockedNarratives.push(id);
+            const exists = this.state.unlockedNarratives.some(entry => entry.id === id);
+            if (!exists) {
+                this.state.unlockedNarratives.push({ id, daySeen: day });
                 changed = true;
             }
         }
@@ -112,8 +126,17 @@ export class UnlockService {
     }
 
     /**
-     * Returns the list of already-shown narrative IDs.
-     * @returns {string[]}
+     * Returns whether a narrative has already been shown.
+     * @param {string} id — narrative ID
+     * @returns {boolean}
+     */
+    isShown(id) {
+        return this.state.unlockedNarratives.some(entry => entry.id === id);
+    }
+
+    /**
+     * Returns the list of already-shown narratives.
+     * @returns {{id: string, daySeen: number|null}[]}
      */
     getShownNarratives() {
         return [...this.state.unlockedNarratives];

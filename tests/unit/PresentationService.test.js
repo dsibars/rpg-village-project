@@ -111,4 +111,25 @@ describe('PresentationService', () => {
         assert.strictEqual(pres.id, 'pres_prologue');
         assert.strictEqual(pres.pages.length, 3);
     });
+
+    it('first_event triggers new milestone presentations', () => {
+        const service = new PresentationService();
+        const victory = service.checkTriggers({ type: 'first_event', eventId: 'first_expedition_victory' });
+        assert.ok(victory.includes('pres_first_victory'));
+
+        const defeat = service.checkTriggers({ type: 'first_event', eventId: 'first_expedition_defeat' });
+        assert.ok(defeat.includes('pres_first_defeat'));
+
+        const equip = service.checkTriggers({ type: 'first_event', eventId: 'first_item_equipped' });
+        assert.ok(equip.includes('pres_first_equip'));
+
+        const spell = service.checkTriggers({ type: 'first_event', eventId: 'first_spell_cast_combat' });
+        assert.ok(spell.includes('pres_first_spell_cast'));
+
+        const boss = service.checkTriggers({ type: 'first_event', eventId: 'first_boss_defeated' });
+        assert.ok(boss.includes('pres_first_boss_defeated'));
+
+        const raid = service.checkTriggers({ type: 'first_event', eventId: 'first_raid_victory' });
+        assert.ok(raid.includes('pres_first_raid_victory'));
+    });
 });

@@ -57,10 +57,12 @@ export class GameEngine {
         );
         this.i18n = i18n;
         this.isNewGame = true;
+        this.stats = this._loadStats();
     }
 
     initialize() {
         // Hydrate all services from persistence (active slot prefix applies here)
+        this.stats = this._loadStats();
         this.inventoryService.load();
         this.villageService.load();
         this.heroService.load();
@@ -396,7 +398,16 @@ export class GameEngine {
     equipHeroItem(heroId, slot, equipmentId) {
         const check = this._assertHeroAvailable(heroId);
         if (!check.success) return check;
-        return this.heroService.equipItem(heroId, slot, equipmentId);
+        const result = this.heroService.equipItem(heroId, slot, equipmentId);
+        if (result.success) {
+            this.stats.itemsEquipped++;
+            this._saveStats();
+            if (!this.presentationService.isSeen('pres_first_equip')) {
+                this.presentationService.checkTriggers({ type: 'first_event', eventId: 'first_item_equipped' });
+                this._persistPresentationState();
+            }
+        }
+        return result;
     }
 
     unequipHeroItem(heroId, slot) {
@@ -435,6 +446,9 @@ export class GameEngine {
         } else {
             this.inventoryService.addEquipment(itemData);
         }
+
+        this.stats.shopPurchases++;
+        this._saveStats();
 
         return Result.ok();
     }
@@ -700,7 +714,12 @@ export class GameEngine {
         if (!actor) return Result.fail('combat_error_actor_none');
         const spell = actor.spellCodex?.[spellIndex];
         if (!spell) return Result.fail('combat_error_spell_not_found');
-        return this.battleService.castSpell(actor, spell, targetIndex);
+        const result = this.battleService.castSpell(actor, spell, targetIndex);
+        if (result.success && !this.presentationService.isSeen('pres_first_spell_cast')) {
+            this.presentationService.checkTriggers({ type: 'first_event', eventId: 'first_spell_cast_combat' });
+            this._persistPresentationState();
+        }
+        return result;
     }
 
     useBattleConsumable(consumableId, targetId = null) {
@@ -874,6 +893,11 @@ export class GameEngine {
             .find(e => e.day === villageState.day && e.type === 'raid');
         if (todayEvent) {
             raidResult = this.calendarService.resolveRaid(villageState.day);
+            // Trigger: first successful raid defense
+            if (raidResult && raidResult.success && raidResult.data && raidResult.data.defended && !this.presentationService.isSeen('pres_first_raid_victory')) {
+                this.presentationService.checkTriggers({ type: 'first_event', eventId: 'first_raid_victory' });
+                this._persistPresentationState();
+            }
         }
 
         const dailyReport = {
@@ -901,7 +925,7 @@ export class GameEngine {
         const newCodexFeatures = this.unlockService.checkNewCodexFeatures(unlockState);
 
         if (newNarratives.length > 0) {
-            this.unlockService.markAllAsShown(newNarratives);
+            this.unlockService.markAllAsShown(newNarratives, villageState.day);
         }
 
         dailyReport.newNarratives = newNarratives;
@@ -945,13 +969,38 @@ export class GameEngine {
     resolveBattle() {
         const result = this.expeditionService.resolveBattle();
 
-        // Trigger Point 3: Mission/Expedition Completion
-        if (result.success && result.data && result.data.status === 'completed') {
-            this.presentationService.checkTriggers({
-                type: 'mission_complete',
-                missionId: result.data.expId
-            });
-            this._persistPresentationState();
+        if (result.success && result.data) {
+            const combatLog = result.data.combatLog;
+
+            // Trigger: first expedition victory
+            if (combatLog && combatLog.isVictory && !this.presentationService.isSeen('pres_first_victory')) {
+                this.presentationService.checkTriggers({ type: 'first_event', eventId: 'first_expedition_victory' });
+                this._persistPresentationState();
+            }
+
+            // Trigger: first expedition defeat
+            if (combatLog && !combatLog.isVictory && !this.presentationService.isSeen('pres_first_defeat')) {
+                this.presentationService.checkTriggers({ type: 'first_event', eventId: 'first_expedition_defeat' });
+                this._persistPresentationState();
+            }
+
+            // Trigger: first boss defeated
+            if (combatLog && combatLog.isVictory && combatLog.enemies) {
+                const hadBoss = combatLog.enemies.some(e => e.isBoss);
+                if (hadBoss && !this.presentationService.isSeen('pres_first_boss_defeated')) {
+                    this.presentationService.checkTriggers({ type: 'first_event', eventId: 'first_boss_defeated' });
+                    this._persistPresentationState();
+                }
+            }
+
+            // Trigger Point 3: Mission/Expedition Completion
+            if (result.data.status === 'completed') {
+                this.presentationService.checkTriggers({
+                    type: 'mission_complete',
+                    missionId: result.data.expId
+                });
+                this._persistPresentationState();
+            }
         }
 
         return result;
@@ -1095,7 +1144,9 @@ export class GameEngine {
             village: this.villageService.getState(),
             completedExpeditions: this.expeditionService.getCompletedIds(),
             expeditionRegions: this.regionService.getRegions(),
-            calendar: this.calendarService.getState(currentDay)
+            calendar: this.calendarService.getState(currentDay),
+            stats: this.stats,
+            academy: { sessions: this.academyService.sessions || [] }
         };
     }
 
@@ -1201,6 +1252,14 @@ export class GameEngine {
 
     _persistPresentationState() {
         persistence.save('presentation_state', this.presentationService.getState());
+    }
+
+    _loadStats() {
+        return persistence.load('engine_stats', { itemsEquipped: 0, shopPurchases: 0 });
+    }
+
+    _saveStats() {
+        persistence.save('engine_stats', this.stats);
     }
 
     _evaluateChapterMilestones(chapter) {

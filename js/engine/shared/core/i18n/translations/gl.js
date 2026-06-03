@@ -954,27 +954,27 @@ export const gl = {
     nar_tiny_cave_found_title: 'Susurros desde o Abismo',
     nar_tiny_cave_found_lore: 'Un explorador reportou unha fenda estreita nas colinas, demasiado profunda para medila, demasiado escura para mapeala. Pero Arthur escoitou algo desde dentro: o tintineo do aceiro, o xemido da pedra. Había algo máis alí abaixo.',
     nar_sir_valen_joins_title: 'Un Escudo na Escuridade',
-    nar_sir_valen_joins_lore: 'O garda estaba medio sepultado baixo a runa, a súa armadura esquerdada, a súa espada aínda suxeita con ambas mans. Non falou de gratitude, só de deber. "Manterei a liña", dixo. E fíxoo.',
+    nar_sir_valen_joins_lore: 'Sir Valen has taken his post at the gate. His Guard origin steadies the whole party — they now take 10% less physical damage. Place him in the front line and let him hold.', // TODO: translate
     nar_first_skill_slot_title: 'Despertar',
-    nar_first_skill_slot_lore: 'Sucedeu durante un adestramento: unha claridade repentina, un cambio no equilibrio. Os golpes de Arthur xa non eran simples batacazos; eran técnicas de combate. O Campo de Adestramento cobrou sentido de súpeto.',
+    nar_first_skill_slot_lore: 'A hero has grown strong enough to learn a new technique family. Visit the Training Grounds to spend their Skill Point. Choose carefully — retraining costs gold and locks the hero for 3 days.', // TODO: translate
     nar_shop_unlocked_title: 'O Retorno do Mercador',
     nar_shop_unlocked_lore: 'Un carro apareceu ao amencer, tirado por unha mula máis vella que o seu condutor. O comerciante quitou o sombreiro. "Escoitei que había moedas para gañar onde os valentes sangran". Estableceu o seu posto ao lado do depósito.',
     nar_tavern_built_title: 'Un Lume Acolledor',
-    nar_tavern_built_lore: 'O primeiro barril abriuse antes de rematar o tellado. As noticias viaxan rápido en terras desesperadas: unha vila cunha taberna é unha vila que planea quedarse. Os heroes comezaron a chegar.',
+    nar_tavern_built_lore: 'The Tavern doors are open. Heroes arrive automatically every 5–7 days. Manual recruitment is also available — but each new hero makes the next one more expensive.', // TODO: translate
     nar_dark_forest_found_title: 'Os Árbores Teñen Ollos',
     nar_dark_forest_found_lore: 'O bosque non estaba simplemente escuro: era consciente. As follas susurraban con patróns demasiado deliberados para o vento. As expedicións volvían falando de luces fatuas e raíces que se movían durante a noite.',
     nar_elara_arrives_title: 'A Primeira Fagulha',
-    nar_elara_arrives_lore: 'Chegou ao crepúsculo, coas túnicas chamuscadas no bordo, os seus ollos reflectindo unha cousa que ninguén máis podía ver. "Podo ensinarte", díxolle a Arthur, "se me constrúes un círculo máxico".',
+    nar_elara_arrives_lore: 'A mage has joined the roster. Arcane Initiates wield devastating magic, but their bodies are frail. Keep her behind your warriors. To unlock her circle, build an Arcane Sanctum.', // TODO: translate
     nar_magic_circle_unlocked_title: 'A Linguaxe do Mundo',
-    nar_magic_circle_unlocked_lore: 'As pedras do sagrario brunziron cando se colocou o derradeiro ladrillo. Elara debuxou un símbolo no aire, lume, chamouno, e por un momento, o aire mesmo lembrou como queimar.',
+    nar_magic_circle_unlocked_lore: 'The Sanctum is complete. Compose spells by placing a Core Glyph — Fire, Water, Wind, or Storm — in the center. The circle grows as Magic Tier rises. One slot now. Many later.', // TODO: translate
     nar_witch_hut_built_title: 'O Velo Desfaise',
-    nar_witch_hut_built_lore: 'A bruxa non chamou á porta. Simplemente apareceu unha mañá na cabana a medio acabar, remexendo un caldeiro que non estivera alí a noite anterior. "Os teus magos brillan", dixo. "Eu leo brillos".',
+    nar_witch_hut_built_lore: 'The Witch offers one reading per hero per day. She speaks in riddles, but her words reveal how close a hero is to their next Magic Tier and which Glyphs are nearing mastery.', // TODO: translate
     nar_first_spell_composed_title: 'Un Nome en Chamas',
-    nar_first_spell_composed_lore: 'O círculo brillou, os glifos aliñáronse e, por primeira vez, existiu un conxuro que nunca antes existira. Elara sorriu, un feito estraño nela. "Escribiches a túa primeira palabra na linguaxe dos deuses".',
+    nar_first_spell_composed_lore: 'A spell has been inscribed to the Codex. Spells cost MP but ignore enemy defense. Balance your party — warriors for sustained stamina damage, mages for magical burst.', // TODO: translate
     nar_defense_first_raid_title: 'O Martelo á Porta',
     nar_defense_first_raid_lore: 'Chegaron a medianoite: non asaltantes comúns, senón unha advertencia. A vila xa non estaba oculta. A partir deste día, as murallas necesitarían vixiantes, e os vixiantes necesitarían aceiro.',
     nar_explorer_guild_built_title: 'O Mundo Ábrese',
-    nar_explorer_guild_built_lore: 'O estatuto do gremio asinouse con barro en lugar de cera, pero o significado era o mesmo: esta vila xa non se agochaba. Despregáronse mapas, encargáronse exploradores e o horizonte converteuse nun destino.',
+    nar_explorer_guild_built_lore: 'New regions await. The Guild reduces expedition stages and unlocks advanced maps. Assign Scout villagers to shorten journeys — every two scouts remove one stage.', // TODO: translate
     nar_mystic_ruins_found_title: 'Ecos dos Magos',
     nar_mystic_ruins_found_lore: 'As ruínas eran anteriores ao antigo reino, diso non había dúbida. Os glifos gravados nos seus piares non eran os que ensinaba Elara. Eran máis antigos. Máis puros. Famentos.',
     nar_academy_unlocked_title: 'O Intercambio de Chamas',
@@ -987,13 +987,6 @@ export const gl = {
     nar_astral_plane_found_lore: 'O Plano Astral no se descubriu. Gañouse. Só cando un heroe se converteu en espada e conxuro ao mesmo tempo, se puido manter aberta a fenda o suficiente tempo como para cruzala. O que había máis alá non estaba destinado a ollos mortais.',
     nar_undefended_raid_title: 'O Coste do Descoido',
     nar_undefended_raid_lore: 'Os asaltantes atoparon as portas sen vixilancia. Ao amencer, o depósito estaba baleiro, a tesouraría saqueada e os campos queimados. Os superviventes susurraron que o comandante fora advertido.',
-
-    nar_greenfields_first_clear_title: 'O Val Respira',
-    nar_greenfields_first_clear_lore: 'Os Greenfields eran máis mansos do que suxerían as historias, pero a terra mesma parecía suspirar de alivio. Nalgún lugar, un coello observaba desde o linde do bosque. A vila reclamara o seu primeiro terreo.',
-    nar_frozen_peaks_first_clear_title: 'O Xeo Lembra',
-    nar_frozen_peaks_first_clear_lore: 'A cumbre non cedeu facilmente. A xebra adhírese á armadura, e o vento leva voces que non teñen gorxa. Con todo, o camiño está aberto agora — e non se pechará a non ser que a vila esqueza como resistir.',
-    nar_rescue_mission_title: 'Un Escudo na Escuridade',
-    nar_rescue_mission_lore: 'O garda estaba medio sepultado baixo a runa, a súa armadura esquerdada, a súa espada aínda suxeita con ambas mans. Non falou de gratitude, só de deber. "Manterei a liña", dixo. E fíxoo.',
 
     // ═══ PRESENTATION UI ═══════════════════════════════════════════════════
     pres_ui_next: "Next", // TODO: translate
@@ -1111,6 +1104,12 @@ export const gl = {
     pres_warm_fire: 'Un Lume Acolledor',
     pres_discipline: 'Despertar',
     pres_first_spark: 'A Primeira Fagulha',
+    pres_first_victory: 'The First Return', // TODO: translate
+    pres_first_defeat: 'The First Lesson', // TODO: translate
+    pres_first_equip: 'The First Edge', // TODO: translate
+    pres_first_spell_cast: 'The World Answers', // TODO: translate
+    pres_first_boss_defeated: 'The Greater Fall', // TODO: translate
+    pres_first_raid_victory: 'The Wall Holds', // TODO: translate
     pres_chapter1_finale: 'Final do Capítulo 1',
     pres_language_world: 'A Linguaxe do Mundo',
     pres_name_flame: 'Un Nome en Chamas',
@@ -1119,4 +1118,41 @@ export const gl = {
     pres_chapter2_finale: 'Final do Capítulo 2',
     chronicle_chapter_1_title: 'Capítulo 1 — A Fagulha',
     chronicle_chapter_2_title: 'Capítulo 2 — O Círculo',
+
+    // New milestone presentations (Chapter I & II) — TODO: translate
+    pres_first_victory: 'The First Return', // TODO: translate
+    pres_first_victory_p1: 'The enemy broke. Not dramatically — they simply stopped fighting, turned, and ran. Arthur stood in the silence that followed, blood on his blade, breath short. The valley had given them their first victory. It would not be the last.', // TODO: translate
+    pres_first_defeat: 'The First Lesson', // TODO: translate
+    pres_first_defeat_p1: 'The retreat was not shameful — it was necessary. Arthur counted the wounded, reassigned the gear, and said nothing of blame. "We learned something today," he told them. "The valley teaches harshly, but it teaches."', // TODO: translate
+    pres_first_equip: 'The First Edge', // TODO: translate
+    pres_first_equip_p1: 'The hero tested the weight, adjusted the grip, and nodded. The difference between a fighter and a warrior is not skill — it is preparation. The forge had given them edges. Now they needed the will to use them.', // TODO: translate
+    pres_first_spell_cast: 'The World Answers', // TODO: translate
+    pres_first_spell_cast_p1: 'The spell left her hands like a held breath finally released. The enemy did not burn — it simply ceased, as if the world itself had remembered it should not exist. Elara swayed. "That," she whispered, "is why we study."', // TODO: translate
+    pres_first_boss_defeated: 'The Greater Fall', // TODO: translate
+    pres_first_boss_defeated_p1: 'The goblin king fell like a tree — slowly, then all at once. Its crown rolled into the dirt. Arthur picked it up, not as a trophy, but as proof. The village was no longer prey. It had become something the valley had never seen: a hunter.', // TODO: translate
+    pres_first_raid_victory: 'The Wall Holds', // TODO: translate
+    pres_first_raid_victory_p1: 'The raiders came at dawn, and by noon they were gone. Not defeated — discouraged. The defenders had stood as one, and the wall had held. Arthur walked the perimeter at dusk, counting the scars. "Tomorrow," he said, "we thicken it."', // TODO: translate
+
+    // New ambient toast narratives (Chapter I & II) — TODO: translate
+    nar_first_building_title: 'The First Nail', // TODO: translate
+    nar_first_building_lore: 'The hammer fell, and something new stood where nothing had stood before. The villagers watched in silence. They had not built a structure — they had built a future.', // TODO: translate
+    nar_first_equip_title: 'The First Edge', // TODO: translate
+    nar_first_equip_lore: 'The hero tested the weight, adjusted the grip, and nodded. Wearing multiple pieces of the same material grants set bonuses at 2, 4, and 6 pieces. Plan your loadouts.', // TODO: translate
+    nar_shop_first_purchase_title: 'The First Sale', // TODO: translate
+    nar_shop_first_purchase_lore: 'The merchant counted the coins twice. "A village that buys is a village that sells," he muttered. Sell him raw grain, wood, or stone — but know that crafting and expeditions yield far more gold.', // TODO: translate
+    nar_blacksmith_built_title: 'The Forge Roars', // TODO: translate
+    nar_blacksmith_built_lore: 'The forge roared to life. The smith — a broad woman with soot for fingerprints — did not greet anyone. She only said: "Bring me ore. I will bring you edges." The Forge is now open.', // TODO: translate
+    nar_calmed_beach_found_title: 'The Tidemark', // TODO: translate
+    nar_calmed_beach_found_lore: 'The beach was not empty. Shells arranged in spirals. Footprints that ended at the tide line. The sea here is calm, but it is not silent. It is listening.', // TODO: translate
+    nar_dark_forest_first_clear_title: 'The Trees Step Aside', // TODO: translate
+    nar_dark_forest_first_clear_lore: 'The forest respects those who return. Your heroes brought back stories the villagers will tell for years. Some regions grant a permanent +2 Speed bonus on first clear — to every hero who fought.', // TODO: translate
+    nar_goblin_camp_found_title: 'The Ridge Smokes', // TODO: translate
+    nar_goblin_camp_found_lore: 'Smoke rose from the ridge — thick and greasy. Goblins do not farm. They take. And now they know where the village is.', // TODO: translate
+    nar_academy_first_lesson_title: 'The First Exchange', // TODO: translate
+    nar_academy_first_lesson_lore: 'One teacher. One student. One Glyph. The Academy takes 3–5 days, and neither can expedition during that time. But the student will carry that knowledge into every battle thereafter.', // TODO: translate
+
+    // Discovery Log UI — TODO: translate
+    chronicle_discovery_title: 'Discovery Log', // TODO: translate
+    chronicle_discovery_empty: "No discoveries yet. Send heroes on expeditions and build your village to uncover the valley's secrets.", // TODO: translate
+
 };
