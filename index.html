@@ -32,6 +32,11 @@
                     title="Codex">
                     <span class="icon">📖</span> <span data-i18n="shared_uxelm_nav_codex" class="hide-mobile"></span>
                 </button>
+                <button id="btn-global-chronicle" class="btn btn-secondary btn-sm"
+                    style="padding: 6px 12px; font-size: 0.85rem; display: flex; align-items: center; gap: 4px;"
+                    title="Chronicle">
+                    <span class="icon">📜</span> <span data-i18n="nav_chronicle" class="hide-mobile"></span>
+                </button>
             </div>
             <div class="stats-bar">
                 <div class="stat-item" title="Gold">
@@ -107,6 +112,9 @@
     </template>
     <template id="tpl-codex">
         <include src="pages/codex.html"></include>
+    </template>
+    <template id="tpl-chronicle">
+        <include src="pages/chronicle.html"></include>
     </template>
 
     <!-- Application Entry Point -->

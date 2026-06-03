@@ -30,6 +30,7 @@ export class UIController {
             explore: 'adventure',
             bestiary: 'adventure',
             codex: 'adventure',
+            chronicle: 'adventure',
             shop: 'town',
             forge: 'town',
             inventory: 'town',
@@ -89,6 +90,13 @@ export class UIController {
         if (btnGlobalCodex) {
             btnGlobalCodex.addEventListener('click', () => {
                 this.switchView('codex');
+            });
+        }
+
+        const btnGlobalChronicle = document.getElementById('btn-global-chronicle');
+        if (btnGlobalChronicle) {
+            btnGlobalChronicle.addEventListener('click', () => {
+                this.switchView('chronicle');
             });
         }
     }

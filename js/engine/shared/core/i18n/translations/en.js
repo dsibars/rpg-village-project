@@ -1089,4 +1089,50 @@ export const en = {
     inventory_info_no_stats: "No stats modification.",
     shop_uxelm_stats: "Stats Bonus",
     shop_uxelm_cost: "Cost",
+
+    // Navigation
+    nav_chronicle: 'Chronicle',
+
+    // Page title
+    chronicle_title: 'Village Chronicle',
+    chronicle_recently_unlocked: 'Recently Unlocked',
+
+    // Milestone states
+    chronicle_seen: 'Seen',
+    chronicle_locked: 'Locked',
+    chronicle_pending: 'Pending',
+    chronicle_pending_hint: 'Will play next day',
+
+    // Actions
+    chronicle_replay: 'See Again',
+    chronicle_replay_badge: 'Replay',
+
+    // Trigger hints
+    chronicle_hint_prefix: 'Requires:',
+    chronicle_hint_newgame: 'Unlocked at the start of a new game',
+    chronicle_hint_building: 'Build {building} to Level {level}',
+    chronicle_hint_mission: 'Complete mission: {mission}',
+    chronicle_hint_hero: 'Recruit a hero with origin: {origin}',
+    chronicle_hint_event: 'Reach this milestone in gameplay',
+    chronicle_hint_finale: 'Complete enough Chapter {chapter} milestones',
+
+    // Day label
+    chronicle_day_prefix: 'Day',
+    chronicle_day_unknown: '—',
+
+    // Milestone titles
+    pres_prologue: 'Prologue',
+    pres_first_harvest: 'The First Harvest',
+    pres_shield_dark: 'A Shield in the Dark',
+    pres_warm_fire: 'A Warm Fire',
+    pres_discipline: 'Discipline',
+    pres_first_spark: 'The First Spark',
+    pres_chapter1_finale: 'Chapter 1 Finale',
+    pres_language_world: 'The Language of the World',
+    pres_name_flame: 'A Name in Flame',
+    pres_veil_thins: 'The Veil Thins',
+    pres_world_opens: 'The World Opens',
+    pres_chapter2_finale: 'Chapter 2 Finale',
+    chronicle_chapter_1_title: 'Chapter 1 — The Spark',
+    chronicle_chapter_2_title: 'Chapter 2 — The Circle',
 };

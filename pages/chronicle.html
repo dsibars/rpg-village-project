@@ -1,0 +1,25 @@
+<section id="chronicle-view" class="domain-view">
+    <div class="category-sub-nav">
+        <button class="sub-nav-tab" data-subview="explore" data-i18n="shared_uxelm_nav_explore"></button>
+        <button class="sub-nav-tab" data-subview="bestiary" data-i18n="shared_uxelm_nav_bestiary"></button>
+        <button class="sub-nav-tab" data-subview="codex" data-i18n="shared_uxelm_nav_codex"></button>
+        <button class="sub-nav-tab active" data-subview="chronicle" data-i18n="nav_chronicle"></button>
+    </div>
+
+    <div class="view-header">
+        <h2 data-i18n="chronicle_title"></h2>
+    </div>
+
+    <!-- Recently Unlocked Panel (Conditional) -->
+    <div id="chronicle-recently-unlocked" class="recently-unlocked-section card" style="display: none; margin-bottom: 20px;">
+        <h3 data-i18n="chronicle_recently_unlocked"></h3>
+        <div id="recently-unlocked-container" class="recently-unlocked-list">
+            <!-- Populated via render -->
+        </div>
+    </div>
+
+    <!-- Milestone List Panel -->
+    <div id="chronicle-list-container" class="chronicle-list-container">
+        <!-- Chapters and Milestones populated via render -->
+    </div>
+</section>

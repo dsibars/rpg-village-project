@@ -17,6 +17,7 @@ import { ShopView } from './presentation/ui/shop/ShopView.js';
 import { ForgeView } from './presentation/ui/forge/ForgeView.js';
 import { BestiaryView } from './presentation/ui/bestiary/BestiaryView.js';
 import { CodexView } from './presentation/ui/codex/CodexView.js';
+import { ChronicleView } from './presentation/ui/chronicle/ChronicleView.js';
 
 const DEBUG = false;
 
@@ -79,6 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ui.registerView('forge', new ForgeView());
         ui.registerView('bestiary', new BestiaryView());
         ui.registerView('codex', new CodexView());
+        ui.registerView('chronicle', new ChronicleView(engine, engine.i18n, ui.presentationModal));
 
         // Set initial view
         ui.switchView('village');
