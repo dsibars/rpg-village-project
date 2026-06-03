@@ -29,21 +29,43 @@ export class PostDaySequencer {
     }
 
     // ─── Step 1: Chapter Presentation Messages ───
-    // Placeholder for Chapter Presentation System (Idea 10b).
-    // When implemented, this will check engine.presentationService for pending
-    // chapter presentations and show them before anything else.
+    // Drains the PresentationService's pending queue. Each presentation is
+    // shown one at a time. When dismissed, the next one is shown. Only after
+    // all presentations have been shown does it proceed to expedition messages.
     _runStepChapterMessages() {
-        // TODO: When PresentationService is implemented (Plan 10),
-        // check for pending chapter presentations here and show them.
-        //
-        // const pendingChapters = this.engine.presentationService?.getPendingChapterPresentations();
-        // if (pendingChapters.length > 0) {
-        //     this._showChapterPresentation(pendingChapters[0], () => this._runStepExpeditionMessages());
-        //     return;
-        // }
+        const presentationService = this.engine.presentationService;
+        if (!presentationService || !presentationService.hasPendingPresentations()) {
+            this._runStepExpeditionMessages();
+            return;
+        }
 
-        // Skip to next step
-        this._runStepExpeditionMessages();
+        this._showNextPresentation();
+    }
+
+    _showNextPresentation() {
+        const presentationService = this.engine.presentationService;
+        const nextId = presentationService.popNextPresentation();
+
+        if (!nextId) {
+            // No more pending — proceed to expedition messages
+            this._runStepExpeditionMessages();
+            return;
+        }
+
+        const currentDay = this.engine.villageService?.getState()?.day ?? null;
+
+        this.ui.presentationModal.open(nextId, (completedId) => {
+            // Mark as seen and persist
+            presentationService.markAsSeen(completedId, currentDay);
+            this.engine._persistPresentationState();
+
+            // Check for more pending presentations
+            if (presentationService.hasPendingPresentations()) {
+                this._showNextPresentation();
+            } else {
+                this._runStepExpeditionMessages();
+            }
+        });
     }
 
     // ─── Step 2: Expedition Result Messages ───

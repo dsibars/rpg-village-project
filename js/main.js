@@ -65,6 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 3. Initialize UI Controller (The Components)
         const ui = new UIController(engine.i18n);
+        ui.engine = engine;
         window.ui = ui; // Expose for debugging/subagent
 
         // Register Domain Views

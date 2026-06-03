@@ -7,6 +7,7 @@ import { UnlockNarrativeView } from './unlocks/UnlockNarrativeView.js';
 import { MagicCircleView } from './magic_circle/MagicCircleView.js';
 import { GambitView } from './gambit/GambitView.js';
 import { EquipmentView } from './heroes/components/EquipmentView.js';
+import { PresentationModal } from './shared/components/PresentationModal.js';
 const DEBUG = false;
 
 export class UIController {
@@ -56,6 +57,7 @@ export class UIController {
         this.magicCircleView = new MagicCircleView({ i18n: this.i18n, ui: this });
         this.gambitView = new GambitView({ i18n: this.i18n, ui: this });
         this.equipmentView = new EquipmentView({ i18n: this.i18n, ui: this });
+        this.presentationModal = new PresentationModal(this.i18n);
         
         this.views = new Map(); // domainName -> BaseView instance
         this.activeView = null;
@@ -247,89 +249,10 @@ export class UIController {
         this.initCallback = callback;
     }
 
-    /**
-     * Displays the introductory narrative modal.
-     */
     showIntroDialog() {
-        const overlay = document.createElement('div');
-        overlay.className = 'modal-overlay';
-        document.body.appendChild(overlay);
-
-        const slides = [
-            {
-                image: 'assets/story/prologue_1.webp',
-                titleKey: 'prologue_title_1',
-                loreKey: 'prologue_lore_1'
-            },
-            {
-                image: 'assets/story/prologue_2.webp',
-                titleKey: 'prologue_title_2',
-                loreKey: 'prologue_lore_2'
-            },
-            {
-                image: 'assets/story/prologue_3.webp',
-                titleKey: 'prologue_title_3',
-                loreKey: 'prologue_lore_3'
-            }
-        ];
-
-        let currentSlide = 0;
-
-        const renderSlide = () => {
-            const slide = slides[currentSlide];
-            overlay.innerHTML = `
-                <div class="intro-modal story-slideshow">
-                    <div class="prologue-illustration-container">
-                        <img class="prologue-illustration-img" src="${slide.image}" alt="Prologue Illustration">
-                    </div>
-                    <div class="prologue-text-container">
-                        <h2 data-i18n="${slide.titleKey}">${this.t(slide.titleKey)}</h2>
-                        <p data-i18n="${slide.loreKey}">${this.t(slide.loreKey)}</p>
-                    </div>
-                    <div class="prologue-controls">
-                        <button class="btn btn-secondary btn-sm" id="btn-prologue-back" ${currentSlide === 0 ? 'style="visibility: hidden;"' : ''}>
-                            <span data-i18n="prologue_btn_back">${this.t('prologue_btn_back')}</span>
-                        </button>
-                        <div class="prologue-dots">
-                            ${slides.map((_, i) => `<span class="prologue-dot ${i === currentSlide ? 'active' : ''}"></span>`).join('')}
-                        </div>
-                        <button class="btn btn-primary btn-sm" id="btn-prologue-next">
-                            <span data-i18n="${currentSlide === slides.length - 1 ? 'intro_btn' : 'prologue_btn_next'}">
-                                ${currentSlide === slides.length - 1 ? this.t('intro_btn') : this.t('prologue_btn_next')}
-                            </span>
-                        </button>
-                    </div>
-                </div>
-            `;
-
-            // Bind events
-            const backBtn = overlay.querySelector('#btn-prologue-back');
-            if (backBtn && currentSlide > 0) {
-                backBtn.addEventListener('click', () => {
-                    currentSlide--;
-                    renderSlide();
-                });
-            }
-
-            const nextBtn = overlay.querySelector('#btn-prologue-next');
-            if (nextBtn) {
-                nextBtn.addEventListener('click', () => {
-                    if (currentSlide < slides.length - 1) {
-                        currentSlide++;
-                        renderSlide();
-                    } else {
-                        // End of prologue
-                        overlay.style.opacity = '0';
-                        overlay.style.transition = 'opacity 0.5s ease';
-                        setTimeout(() => {
-                            overlay.remove();
-                        }, 500);
-                    }
-                });
-            }
-        };
-
-        renderSlide();
+        this.presentationModal.open('pres_prologue', () => {
+            // Prologue finished — proceed with normal game init
+        });
     }
 
     /**

@@ -13,6 +13,7 @@ import { CalendarService } from './calendar/services/CalendarService.js';
 import { AcademyService } from './academy/AcademyService.js';
 import { TitleService } from './hall_of_fame/TitleService.js';
 import { UnlockService } from './shared/services/UnlockService.js';
+import { PresentationService } from './shared/services/PresentationService.js';
 import { SimulationRunner } from './gambit/SimulationRunner.js';
 import { GambitHealthService } from './gambit/GambitHealthService.js';
 import { persistence, globalPersistence } from './shared/core/Persistence.js';
@@ -51,6 +52,9 @@ export class GameEngine {
         this.calendarService = new CalendarService(this.villageService, this.heroService, { deferLoad: true });
         this.academyService = new AcademyService(this.heroService, this.villageService, { deferLoad: true });
         this.unlockService = new UnlockService({ deferLoad: true });
+        this.presentationService = new PresentationService(
+            persistence.load('presentation_state')
+        );
         this.i18n = i18n;
         this.isNewGame = true;
     }
@@ -101,6 +105,11 @@ export class GameEngine {
                 statPoints: 5
             });
         }
+
+        // Queue the prologue presentation for new games
+        this.presentationService = new PresentationService();
+        this.presentationService.checkTriggers({ type: 'new_game' });
+        this._persistPresentationState();
     }
 
     activateDeveloperCheat() {
@@ -206,6 +215,15 @@ export class GameEngine {
         if (result.success) {
             this.dailyObjectivesService.track('recruit_hero', 1);
             this.dailyObjectivesService.track('spend_gold', cost);
+
+            // Trigger Point 4: Hero Recruitment
+            this.presentationService.checkTriggers({
+                type: 'hero_recruited',
+                origin: result.data.origin,
+                heroName: result.data.name
+            });
+            this._persistPresentationState();
+
             return Result.ok({ hero: result.data, cost });
         }
         return result;
@@ -248,7 +266,15 @@ export class GameEngine {
     inscribeHeroSpell(heroId, spell) {
         const check = this._assertHeroAvailable(heroId);
         if (!check.success) return check;
-        return this.heroService.inscribeHeroSpell(heroId, spell);
+        const result = this.heroService.inscribeHeroSpell(heroId, spell);
+
+        // Trigger Point 6: First Spell Inscribed
+        if (result.success && !this.presentationService.isSeen('pres_name_flame')) {
+            this.presentationService.checkTriggers({ type: 'first_event', eventId: 'first_spell_inscribed' });
+            this._persistPresentationState();
+        }
+
+        return result;
     }
 
     eraseHeroBodyCircle(heroId) {
@@ -705,6 +731,19 @@ export class GameEngine {
         this.dailyObjectivesService.generateForDay(villageState.day);
 
         const villageReport = this.villageService.nextDay();
+
+        // Trigger Point 2: Building Completion
+        if (villageReport.completed && villageReport.completed.length > 0) {
+            for (const buildingId of villageReport.completed) {
+                const level = this.villageService.getState().infrastructure[buildingId] || 1;
+                this.presentationService.checkTriggers({
+                    type: 'building_complete',
+                    buildingId,
+                    level
+                });
+            }
+            this._persistPresentationState();
+        }
         
         // Check for region unlocks based on buildings (e.g., Explorer Guild)
         this.expeditionService.checkRegionUnlocks();
@@ -796,7 +835,36 @@ export class GameEngine {
             }
         }
 
-        // Tick meal buffs after any combat
+        // Trigger Point 5: First Hero Reaches Level 5
+        const hasLevel5EventFired = this.presentationService.isSeen('pres_discipline');
+        if (!hasLevel5EventFired) {
+            const anyHeroAtLevel5 = this.heroService.list().some(h => h.level >= 5);
+            if (anyHeroAtLevel5) {
+                this.presentationService.checkTriggers({ type: 'first_event', eventId: 'first_hero_level_5' });
+                this._persistPresentationState();
+            }
+        }
+
+        // Trigger Point 7: Chapter Milestones
+        const chapter1Milestones = this._evaluateChapterMilestones(1);
+        if (chapter1Milestones.met >= 3) {
+            this.presentationService.checkTriggers({
+                type: 'chapter_milestones',
+                chapter: 1,
+                met: chapter1Milestones.met
+            });
+        }
+        const chapter2Milestones = this._evaluateChapterMilestones(2);
+        if (chapter2Milestones.met >= 3) {
+            this.presentationService.checkTriggers({
+                type: 'chapter_milestones',
+                chapter: 2,
+                met: chapter2Milestones.met
+            });
+        }
+        this._persistPresentationState();
+
+         // Tick meal buffs after any combat
         this.heroService.tickAllMealBuffs();
 
         // --- Calendar & Defense Events ---
@@ -875,7 +943,18 @@ export class GameEngine {
     }
 
     resolveBattle() {
-        return this.expeditionService.resolveBattle();
+        const result = this.expeditionService.resolveBattle();
+
+        // Trigger Point 3: Mission/Expedition Completion
+        if (result.success && result.data && result.data.status === 'completed') {
+            this.presentationService.checkTriggers({
+                type: 'mission_complete',
+                missionId: result.data.expId
+            });
+            this._persistPresentationState();
+        }
+
+        return result;
     }
 
     // --- Explore Facade ---
@@ -1116,5 +1195,42 @@ export class GameEngine {
     wipeAllSlots() {
         persistence.clearAll();
         return Result.ok();
+    }
+
+    // --- Presentation Helpers ---
+
+    _persistPresentationState() {
+        persistence.save('presentation_state', this.presentationService.getState());
+    }
+
+    _evaluateChapterMilestones(chapter) {
+        const milestones = [];
+        if (chapter === 1) {
+            milestones.push((this.villageService.getState().infrastructure?.tavern || 0) >= 1);
+            milestones.push(this.heroService.list().length >= 3);
+            milestones.push(this.expeditionService.getCompletedIds().length >= 2);
+            milestones.push((this.calendarService.state.resolvedRaids || 0) >= 1);
+        } else if (chapter === 2) {
+            milestones.push((this.villageService.getState().infrastructure?.arcane_sanctum || 0) >= 2);
+            // Count unique spells across all heroes
+            const uniqueSpells = new Set();
+            this.heroService.list().forEach(h => {
+                if (h.spellCodex) {
+                    h.spellCodex.forEach(s => uniqueSpells.add(s.name));
+                }
+            });
+            milestones.push(uniqueSpells.size >= 3);
+            // Count unlocked regions
+            const regions = this.regionService.getRegions();
+            const unlockedCount = Object.values(regions).filter(r => r.unlocked).length;
+            milestones.push(unlockedCount >= 5);
+            // Highest magic tier across heroes
+            const highestMagicTier = Math.max(0, ...this.heroService.list().map(h => h.magicTier || 0));
+            milestones.push(highestMagicTier >= 4);
+            // Defeated boss count (via bestiary or expedition stats)
+            const totalBossDefeats = Object.values(regions).reduce((sum, r) => sum + (r.stats?.clears || 0), 0);
+            milestones.push(totalBossDefeats >= 1);
+        }
+        return { met: milestones.filter(Boolean).length, total: milestones.length };
     }
 }

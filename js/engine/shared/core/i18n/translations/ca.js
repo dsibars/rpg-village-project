@@ -995,6 +995,53 @@ export const ca = {
     nar_rescue_mission_title: 'Un Escut en la Foscor',
     nar_rescue_mission_lore: 'El guàrdia estava mig sepultat sota la runa, la seva armadura esquerdada, la seva espasa encara subjecta amb ambdues mans. No va parlar de gratitud, només de deure. "Mantindré la línia", va dir. I ho ha fet.',
 
+    // ═══ PRESENTATION UI ═══════════════════════════════════════════════════
+    pres_ui_next: "Next", // TODO: translate
+    pres_ui_back: "Back", // TODO: translate
+    pres_ui_finish: "Continue", // TODO: translate
+    pres_ui_skip: "Skip", // TODO: translate
+    pres_ui_replay: "Replay", // TODO: translate
+
+    // ═══ PRESENTATION NARRATIVES ═══════════════════════════════════════════
+    pres_prologue_p1: "In a world consumed by the flames of eternal war, a small group of survivors has fled the chaos. Led by a brave hero, they seek a remote valley to build a sanctuary of peace. The journey has been long, and resources are scarce, but hope remains.", // TODO: translate
+    pres_prologue_p2: "Arthur did not choose to lead. He chose to protect. When the walls of the old kingdom fell, he gathered who he could — two villagers, a handful of grain, and the memory of a valley his grandmother once spoke of.", // TODO: translate
+    pres_prologue_p3: "They found it at dawn. The valley was not on any map. It was not supposed to exist. But here it was — green, hidden, and waiting. Arthur drove the first stake into the earth. The village began with that sound.", // TODO: translate
+
+    pres_first_harvest_p1: "The first seeds were planted before the walls were up. Hunger does not wait for architecture. Now, with the farm complete, the villagers no longer measure their days by the shrinking grain sack. There is bread on the horizon — but bread attracts mouths, and mouths require more bread. The cycle has begun.", // TODO: translate
+
+    pres_shield_dark_p1: "The guard was half-buried under rubble, his armor cracked, his sword still clutched in both hands. He did not speak of gratitude — only duty. \"I will hold the line,\" he said. And he has.", // TODO: translate
+    pres_shield_dark_p2: "Two swords are not an army. But they are a beginning. Valen speaks little of where he came from, and Arthur does not ask. In wartime, a man's past is his own. What matters is that he stands when the enemy comes.", // TODO: translate
+
+    pres_warm_fire_p1: "The first keg was tapped before the roof was finished. Word travels fast in desperate lands — a village with a tavern is a village that plans to stay. Heroes began to arrive. Some seeking coin. Some seeking purpose. Some seeking only a place where the war had not yet reached.", // TODO: translate
+    pres_warm_fire_p2: "A tavern is not just a building. It is a promise. To the road-weary, it says: rest here. To the hopeful, it says: build here. To the village, it says: you are no longer alone. The first stranger walked through the door on the third night. He asked for work. Arthur gave him a chair.", // TODO: translate
+
+    pres_discipline_p1: "The hero did not notice it at first. A feint that would have worked yesterday failed today. A blow that should have landed was dodged. Something had changed — not in their muscles, but in their eyes. They were seeing the fight before it happened.", // TODO: translate
+    pres_discipline_p2: "\"You are not swinging harder,\" Arthur said. \"You are swinging smarter.\" The hero had developed what the old texts call gambits — premeditated responses to the chaos of battle. One rule was instinct. Two rules was discipline. The village now had a fighter who could think.", // TODO: translate
+
+    pres_first_spark_p1: "She arrived at twilight, her robes singed at the hem, her eyes still reflecting something no one else could see. She did not ask for a room. She asked for a circle. \"I can teach you,\" she said to Arthur, \"if you build me a circle.\"", // TODO: translate
+    pres_first_spark_p2: "The word she used was not \"magic.\" It was \"weave.\" She spoke of threads beneath the world, of symbols that remember how to burn, of a language older than swords. Arthur did not understand. But he recognized the look in her eyes — it was the same look he had when he first saw the valley.", // TODO: translate
+    pres_first_spark_p3: "That night, the villagers whispered about the light in Elara's window. It was not candlelight. It moved. It breathed. It wrote shapes on the walls that no one could read — except Elara, who smiled for the first time since her arrival. \"Tomorrow,\" she said to the dark, \"we begin.\"", // TODO: translate
+
+    pres_chapter1_finale_p1: "The village has survived its first trials. Fires burn in hearths. Steel rings in the forge. Strangers have become neighbors. The valley, once a hiding place, is becoming a home. But valleys do not exist in isolation — and this one has been waiting a very long time for someone to listen.", // TODO: translate
+    pres_chapter1_finale_p2: "Elara's light no longer frightens the villagers. They have begun to leave offerings at her door — bread, herbs, questions she answers with riddles. She speaks of a sanctum. Of stones that hum. Of a language written in flame. The village has learned to survive. Now, it must learn to wonder.", // TODO: translate
+
+    // Chapter 2 presentations
+    pres_language_world_p1: "The stones of the sanctum hummed when the final brick was laid. Not a sound the ears could hear — a sound the bones could feel. Elara traced a symbol in the air — fire, she called it — and for a moment, the air itself remembered how to burn.", // TODO: translate
+    pres_language_world_p2: "\"This is not magic,\" Elara said, pressing Arthur's finger to the stone. \"This is memory. The world has already burned. We are merely reminding it.\" The symbol left a mark on his skin — not a burn, but a warmth that did not fade for three days.", // TODO: translate
+    pres_language_world_p3: "The circle was small. One slot. One symbol. One breath of power. But Elara looked at it as a smith looks at ore — not with reverence, but with anticipation. \"Every spell begins here,\" she said. \"Every spell ends here. What happens between is your story.\"", // TODO: translate
+
+    pres_name_flame_p1: "The circle flared, the glyphs aligned, and for the first time, a spell existed that had never existed before. Elara smiled — rare for her. \"You have written your first word in the language of gods,\" she said. \"It is a small word. But it is yours, and no one can unwrite it.\"", // TODO: translate
+    pres_name_flame_p2: "The hero stared at their hands for an hour afterward. They expected to feel different. Heavier. Older. Instead, they felt only a quiet certainty, like the moment after a door closes and before the lock clicks. Something had changed. Something was still changing.", // TODO: translate
+
+    pres_veil_thins_p1: "The witch did not knock. She simply appeared one morning in the half-finished hut, stirring a cauldron that had not been there the night before. \"Your mages glow,\" she said. \"I read glows.\" She did not offer a name. She offered only readings — cryptic, poetic, and always true.", // TODO: translate
+    pres_veil_thins_p2: "\"The threads are weaving,\" she told one hero. \"The pattern is there, but faint. Cast more. Feel more. The circle will widen when it is ready.\" The hero asked how much longer. The witch laughed — a sound like dry leaves. \"Ready is the word. You are not ready. But you are becoming.\"", // TODO: translate
+
+    pres_world_opens_p1: "The guild charter was signed with mud instead of wax, but the meaning was the same: this village no longer hid. Maps were unrolled, scouts were commissioned, and the horizon became a destination. The valley had been a sanctuary. Now it was a base.", // TODO: translate
+    pres_world_opens_p2: "Arthur stared at the map for a long time. He had walked every inch of the valley, but the map showed paths he had never seen. \"The valley is larger than it looks,\" the head scout said. Arthur placed a stone on the map — a marker, a promise, a warning. \"Here,\" he said. \"We go here next.\"", // TODO: translate
+
+    pres_chapter2_finale_p1: "The village no longer sleeps in darkness. Windows glow with colors that have no names in the old tongue. The smith and the mage argue at the tavern — not with anger, but with the joy of people who have finally found something worth disagreeing about.", // TODO: translate
+    pres_chapter2_finale_p2: "But the valley is not the only thing listening. On the night the third spell was inscribed, a scout reported a light in the high peaks — not starlight, not moonlight, something that moved when it should not move. \"The circle is no longer a toy,\" Elara said. \"It is a weapon. And weapons attract attention.\"", // TODO: translate
+
     // ═══ MISC UXELM ═══════════════════════════════════════════════════════
     shared_uxelm_add: "Afegir",
     shared_uxelm_overwrite: "Sobrescriure",
