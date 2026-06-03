@@ -260,6 +260,13 @@ export class UIController {
     showIntroDialog() {
         this.presentationModal.open('pres_prologue', () => {
             // Prologue finished — proceed with normal game init
+            if (this.engine && this.engine.presentationService) {
+                const currentDay = this.engine.villageService?.getState()?.day ?? 1;
+                this.engine.presentationService.markAsSeen('pres_prologue', currentDay);
+                this.engine._persistPresentationState();
+                // Trigger a UI update to refresh any active views
+                this.update(this.engine.getState());
+            }
         });
     }
 
