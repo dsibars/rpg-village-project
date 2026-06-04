@@ -14,9 +14,9 @@ export const reg_whispering_forest = {
     },
     lootProfile: {
         materials: [
-            { id: 'material_wood', min: 4, max: 8, chance: 1.0 },
-            { id: 'material_herb', min: 2, max: 4, chance: 0.6 },
-            { id: 'material_stone', min: 1, max: 2, chance: 0.3 }
+            { id: 'material_wood', min: 6, max: 12, chance: 1.0 },
+            { id: 'material_herb', min: 2, max: 5, chance: 0.6 },
+            { id: 'material_stone', min: 2, max: 4, chance: 0.4 }
         ],
         goldBase: 40,
         goldPerClear: 8

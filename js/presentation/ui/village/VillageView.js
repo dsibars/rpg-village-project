@@ -17,6 +17,30 @@ export class VillageView extends BaseView {
         this.lastReportState = null;
     }
 
+    /**
+     * VillageView displays data from multiple state domains (village, calendar,
+     * heroes, inventory, dailyObjectives). Override diffing to include them all.
+     */
+    update(state) {
+        const village = state.village;
+        if (!village) return;
+
+        const stateString = JSON.stringify({
+            village,
+            calendar: state.calendar,
+            heroes: state.heroes,
+            dailyObjectives: state.dailyObjectives,
+            inventory: state.inventory?.totalUsed
+        });
+
+        if (this.lastRenderedState === stateString) {
+            return;
+        }
+
+        this.onUpdate(state);
+        this.lastRenderedState = stateString;
+    }
+
     onMount() {
         this.elements = {
             storageText: this.$('#village-storage-text'),

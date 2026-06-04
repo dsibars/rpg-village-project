@@ -50,7 +50,7 @@ test('RegionService: greenfields loot drops configured materials', () => {
     const node = regionService.generateExpedition('reg_greenfields', 0);
     const items = node.reward.items;
     assert.ok(items.material_wood, 'Should drop wood');
-    assert.ok(items.material_wood >= 3 && items.material_wood <= 6, 'Wood qty in configured range');
+    assert.ok(items.material_wood >= 5 && items.material_wood <= 10, 'Wood qty in configured range');
 });
 
 test('RegionService: tiny_cave loot drops stone and ore', () => {

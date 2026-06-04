@@ -153,7 +153,7 @@ export class VillageService {
         let minerYield = { wood: 0, stone: 0 };
         if (roles.miner > 0) {
             for (let i = 0; i < roles.miner; i++) {
-                if (Math.random() < 0.20) {
+                if (Math.random() < 0.35) {
                     if (Math.random() < 0.5) {
                         minerYield.wood++;
                     } else {
