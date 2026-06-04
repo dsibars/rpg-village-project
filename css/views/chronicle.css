@@ -356,29 +356,6 @@
     text-align: center;
 }
 
-/* Discovery modal */
-.discovery-modal-content {
-    max-width: 480px;
-}
-
-.discovery-modal-title {
-    font-family: 'Outfit', sans-serif;
-    font-size: 1.2rem;
-    color: var(--text-primary);
-    margin: 0;
-}
-
-.discovery-modal-body {
-    padding: 20px;
-}
-
-.discovery-modal-lore {
-    color: var(--text-secondary);
-    line-height: 1.6;
-    font-size: 0.95rem;
-    margin: 0;
-}
-
 /* Mobile: stack vertically, discovery log below */
 @media (max-width: 767px) {
     .chronicle-two-pane {

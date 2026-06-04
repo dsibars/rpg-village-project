@@ -1170,4 +1170,9 @@ export const en = {
     pres_chapter2_finale: 'Chapter 2 Finale',
     chronicle_chapter_1_title: 'Chapter 1 — The Spark',
     chronicle_chapter_2_title: 'Chapter 2 — The Circle',
+
+    // Advisory / Defense warnings
+    shared_uxelm_advisory_title: 'Defense Advisory',
+    advisory_raid_tomorrow: 'Raid imminent! Assigning these heroes will leave the village undefended on day {raidDay} (they return on day {returnDay}). Proceed?',
+    advisory_undefended: 'Warning: The next raid is on day {raidDay} ({daysUntilRaid} days away), and your heroes will not return until day {returnDay}. The village will be undefended. Proceed?',
 };

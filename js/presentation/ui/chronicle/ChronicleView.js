@@ -403,35 +403,41 @@ export class ChronicleView extends BaseView {
         const title = this.t(narrative.titleKey);
         const lore = this.t(narrative.loreKey);
 
-        // Create or reuse a lightweight modal overlay
-        let modal = document.getElementById('discovery-modal');
-        if (!modal) {
-            modal = document.createElement('div');
-            modal.id = 'discovery-modal';
-            modal.className = 'modal-overlay';
-            modal.innerHTML = `
-                <div class="modal-content discovery-modal-content">
-                    <div class="modal-header">
-                        <h3 class="discovery-modal-title"></h3>
-                        <button class="modal-close">&times;</button>
-                    </div>
-                    <div class="modal-body discovery-modal-body">
-                        <p class="discovery-modal-lore"></p>
-                    </div>
+        const overlay = document.createElement('div');
+        overlay.className = 'modal-overlay';
+        overlay.style.zIndex = '2000';
+
+        overlay.innerHTML = `
+            <div class="modal-body" style="max-width: 480px; display: flex; flex-direction: column;">
+                <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--glass-border); padding-bottom: 10px;">
+                    <h3 style="margin: 0; font-size: 1.1rem; color: var(--accent-color);">${title}</h3>
+                    <button class="btn btn-secondary btn-sm btn-close-modal" style="padding: 4px 8px; font-size: 0.8rem;">❌</button>
                 </div>
-            `;
-            document.body.appendChild(modal);
+                <div style="flex: 1; overflow-y: auto; padding-right: 5px;">
+                    <p style="color: var(--text-secondary); line-height: 1.6; margin: 0;">${lore}</p>
+                </div>
+            </div>
+        `;
 
-            modal.querySelector('.modal-close').addEventListener('click', () => {
-                modal.classList.remove('active');
-            });
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) modal.classList.remove('active');
-            });
-        }
+        document.body.appendChild(overlay);
 
-        modal.querySelector('.discovery-modal-title').textContent = title;
-        modal.querySelector('.discovery-modal-lore').textContent = lore;
-        modal.classList.add('active');
+        const close = () => {
+            if (overlay.parentNode) {
+                overlay.style.opacity = '0';
+                overlay.style.transition = 'opacity 0.3s ease';
+                setTimeout(() => {
+                    if (overlay.parentNode) {
+                        overlay.remove();
+                    }
+                }, 300);
+            }
+        };
+
+        overlay.querySelector('.btn-close-modal').addEventListener('click', close);
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                close();
+            }
+        });
     }
 }

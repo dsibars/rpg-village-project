@@ -1155,4 +1155,9 @@ export const eu = {
     chronicle_discovery_title: 'Aurkikuntzen Erregistroa',
     chronicle_discovery_empty: 'Oraindik ez dago aurkikuntzarik. Bidali heroia espedizioetara eta eraiki zure herrixka haranaren sekretuak argitzeko.',
 
+    // Advisory / Defense warnings
+    shared_uxelm_advisory_title: 'Defentsa Abisua',
+    advisory_raid_tomorrow: 'Eraso etorri da! Heroi hauek esleitzeak herrixka defendatu gabe utziko du {raidDay} egunean ({returnDay} egunean itzultzen dira). Jarraitu?',
+    advisory_undefended: 'Abisua: hurrengo erasoan {raidDay} egunean da ({daysUntilRaid} egunetan barru), eta zure heroiek ez dira {returnDay} egun arte itzuliko. Herrixka defendatu gabe geratuko da. Jarraitu?',
+
 };

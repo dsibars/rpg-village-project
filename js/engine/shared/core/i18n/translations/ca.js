@@ -1155,4 +1155,9 @@ export const ca = {
     chronicle_discovery_title: 'Registre de Descobriments',
     chronicle_discovery_empty: 'Encara no hi ha descobriments. Envia herois d\'expedició i construeix la teva vila per desvelar els secrets de la vall.',
 
+    // Advisory / Defense warnings
+    shared_uxelm_advisory_title: 'Avís de Defensa',
+    advisory_raid_tomorrow: 'Assalt imminent! Assignar aquests herois deixarà la vila indefensa el dia {raidDay} (tornen el dia {returnDay}). Continuar?',
+    advisory_undefended: 'Advertència: el proper assalt és el dia {raidDay} (dintre de {daysUntilRaid} dies), i els teus herois no tornaran fins al dia {returnDay}. La vila quedarà indefensa. Continuar?',
+
 };

@@ -1155,4 +1155,9 @@ export const gl = {
     chronicle_discovery_title: 'Rexistro de Descubrimentos',
     chronicle_discovery_empty: 'Aínda non hai descubrimentos. Envia heroes de expedición e constrúe a túa aldea para desvelar os segredos do val.',
 
+    // Advisory / Defense warnings
+    shared_uxelm_advisory_title: 'Aviso de Defensa',
+    advisory_raid_tomorrow: 'Asalto inminente! Asignar a estes heroes deixará a aldea indefensa o día {raidDay} (volven o día {returnDay}). Continuar?',
+    advisory_undefended: 'Advertencia: o próximo asalto é o día {raidDay} (dentro de {daysUntilRaid} días), e os teus heroes non volverán ata o día {returnDay}. A aldea quedará indefensa. Continuar?',
+
 };
