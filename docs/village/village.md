@@ -50,7 +50,7 @@ Villagers can be assigned specialized roles via the Village UI. Each role provid
   - **Production Phase**: Farms generate food based on their level (+4 `food_raw_grain` per level), scaled by Farmer count.
   - **Miner Phase**: Miners have a 20% chance each to produce 1 Wood or Stone.
   - Progresses construction.
-  - **Recovery Phase**: Heroes recover a base 20% of their maximum HP. The `infirmary` building increases this healing percentage and the number of heroes healed simultaneously.
+  - **Recovery Phase**: All idle heroes recover a base **2 HP** per day. The `infirmary` building adds percentage-based healing on top of this base for a limited number of heroes, and increases the number of heroes that receive the bonus simultaneously.
 - **Over-capacity**: If `storage.current > storage.max`, you cannot gather new resources or buy items.
 
 ## Daily Objectives

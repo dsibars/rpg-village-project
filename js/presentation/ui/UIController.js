@@ -8,6 +8,7 @@ import { MagicCircleView } from './magic_circle/MagicCircleView.js';
 import { GambitView } from './gambit/GambitView.js';
 import { EquipmentView } from './heroes/components/EquipmentView.js';
 import { PresentationModal } from './shared/components/PresentationModal.js';
+import { DailyReportModal } from './village/components/DailyReportModal.js';
 const DEBUG = false;
 
 export class UIController {
@@ -63,6 +64,19 @@ export class UIController {
         this.views = new Map(); // domainName -> BaseView instance
         this.activeView = null;
         this.activeDomain = null;
+        
+        // Global Daily Report overlay (shown regardless of active tab)
+        this.dismissedReportDay = null;
+        this._lastRenderedReportDay = null;
+        this.dailyReportContainer = document.createElement('div');
+        this.dailyReportContainer.id = 'global-daily-report-container';
+        this.dailyReportContainer.style.display = 'none';
+        document.body.appendChild(this.dailyReportContainer);
+        this.dailyReportModal = new DailyReportModal({
+            t: (key, params) => this.i18n.t(key, params),
+            container: this.dailyReportContainer,
+            onAcknowledge: () => this.dismissDailyReport()
+        });
         
         this.setupEventListeners();
         this.translateView(document.body); // Translate the shell
@@ -249,6 +263,60 @@ export class UIController {
         // Update Active View
         if (this.activeView) {
             this.activeView.update(state);
+        }
+
+        // Global Daily Report (shown regardless of active tab)
+        this._updateDailyReport(state);
+    }
+
+    /**
+     * Shows or hides the global daily report modal.
+     * Guards against 10 FPS re-renders from the game loop.
+     */
+    _updateDailyReport(state) {
+        const report = state.village?.lastDailyReport;
+        if (!report) return;
+
+        // If report has been dismissed for the day, hide it
+        if (this.dismissedReportDay === report.day) {
+            this.dailyReportContainer.style.display = 'none';
+            this.dailyReportContainer.classList.remove('daily-report-overlay');
+            return;
+        }
+
+        // Only re-render if the report day changed (avoid infinite flicker)
+        if (this._lastRenderedReportDay === report.day && this.dailyReportContainer.style.display === 'flex') {
+            return;
+        }
+
+        this._lastRenderedReportDay = report.day;
+        this.dailyReportModal.update(report, this.dismissedReportDay);
+    }
+
+    /**
+     * Dismisses the current daily report.
+     */
+    dismissDailyReport() {
+        const report = this.lastState?.village?.lastDailyReport;
+        if (report) {
+            this.dismissedReportDay = report.day;
+        }
+        this.dailyReportContainer.style.display = 'none';
+        this.dailyReportContainer.classList.remove('daily-report-overlay');
+        // Refresh active view so recall button visibility updates
+        if (this.activeView) {
+            this.activeView.update(this.lastState);
+        }
+    }
+
+    /**
+     * Re-opens a dismissed daily report.
+     */
+    showDailyReport() {
+        this.dismissedReportDay = null;
+        this._lastRenderedReportDay = null;
+        if (this.lastState) {
+            this._updateDailyReport(this.lastState);
         }
     }
 

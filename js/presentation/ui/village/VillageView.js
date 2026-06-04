@@ -5,7 +5,6 @@ import { ConstructionQueue } from './components/ConstructionQueue.js';
 import { DailyObjectives } from './components/DailyObjectives.js';
 import { VillageCalendar } from './components/VillageCalendar.js';
 import { VillageDefense } from './components/VillageDefense.js';
-import { DailyReportModal } from './components/DailyReportModal.js';
 
 /**
  * VillageView - Manages the main village dashboard.
@@ -13,8 +12,6 @@ import { DailyReportModal } from './components/DailyReportModal.js';
 export class VillageView extends BaseView {
     constructor() {
         super('village');
-        this.dismissedReportDay = null;
-        this.lastReportState = null;
     }
 
     /**
@@ -58,8 +55,7 @@ export class VillageView extends BaseView {
             // New UI Elements
             townhallLevel: this.$('#village-townhall-level'),
             laborPoolStatus: this.$('#labor-pool-status'),
-            btnRecallReport: this.$('#btn-recall-report'),
-            dailyReportContainer: this.$('#daily-report-container')
+            btnRecallReport: this.$('#btn-recall-report')
         };
 
         // Initialize subcomponents
@@ -116,17 +112,6 @@ export class VillageView extends BaseView {
             assignmentsContainer: this.elements.defenseAssignmentsList
         });
 
-        this.dailyReportModal = new DailyReportModal({
-            t: this.t.bind(this),
-            container: this.elements.dailyReportContainer,
-            onAcknowledge: () => {
-                if (this.lastReportState) {
-                    this.dismissedReportDay = this.lastReportState.day;
-                    this.updateDailyReportVisibility(this.lastReportState);
-                }
-            }
-        });
-
         // Sub-view navigation (Village / Buildings)
         this.root.addEventListener('click', (e) => {
             const subviewBtn = e.target.closest('[data-subview]');
@@ -166,23 +151,11 @@ export class VillageView extends BaseView {
             });
         }
 
-        // Listen for Daily Report dismiss and recall actions
+        // Daily Report recall button (delegates to global UIController modal)
         this.root.addEventListener('click', (e) => {
-            const dismissBtn = e.target.closest('[data-action="dismiss-report"]');
-            if (dismissBtn) {
-                if (this.lastReportState) {
-                    this.dismissedReportDay = this.lastReportState.day;
-                    this.updateDailyReportVisibility(this.lastReportState);
-                }
-                return;
-            }
-
             const recallBtn = e.target.closest('#btn-recall-report');
-            if (recallBtn) {
-                this.dismissedReportDay = null;
-                if (this.lastReportState) {
-                    this.updateDailyReportVisibility(this.lastReportState);
-                }
+            if (recallBtn && this.ui) {
+                this.ui.showDailyReport();
                 return;
             }
         });
@@ -211,9 +184,6 @@ export class VillageView extends BaseView {
             }
         }
 
-        // Store last report state for overlay actions
-        this.lastReportState = village.lastDailyReport;
-
         // Render Canvas Visuals
         this.villageCanvas.update(village);
 
@@ -233,18 +203,16 @@ export class VillageView extends BaseView {
         this.villageCalendar.update(state.calendar);
         this.villageDefense.update(state.calendar, state.heroes);
 
-        // Daily Report (Modal Overlay)
-        this.updateDailyReportVisibility(village.lastDailyReport);
-    }
-
-    updateDailyReportVisibility(report) {
+        // Daily Report recall button visibility
         const recallBtn = this.elements.btnRecallReport || this.$('#btn-recall-report');
-        this.dailyReportModal.update(report, this.dismissedReportDay);
-
-        if (report && this.dismissedReportDay === report.day) {
-            if (recallBtn) recallBtn.style.display = 'inline-flex';
-        } else {
-            if (recallBtn) recallBtn.style.display = 'none';
+        const report = village.lastDailyReport;
+        const dismissedDay = this.ui ? this.ui.dismissedReportDay : null;
+        if (recallBtn) {
+            if (report && dismissedDay === report.day) {
+                recallBtn.style.display = 'inline-flex';
+            } else {
+                recallBtn.style.display = 'none';
+            }
         }
     }
 }
