@@ -59,7 +59,7 @@ describe('Defense/Raid Mutual Exclusion', () => {
         assert.ok(!engine.calendarService.state.defenseAssigned.includes(arthur.id));
     });
 
-    it('first raid is delayed until 2+ heroes exist', () => {
+    it('first raid is delayed until 4+ heroes exist', () => {
         
         const engine = new GameEngine();
         engine.initialize();
@@ -76,11 +76,23 @@ describe('Defense/Raid Mutual Exclusion', () => {
         const raids = engine.calendarService.state.events.filter(e => e.type === 'raid');
         assert.strictEqual(raids.length, 0, 'No raids should spawn with only 1 hero');
         
-        // Add a second hero
-        engine.heroService.add({ name: 'TestHero', origin: 'origin_warrior', level: 1 });
-        assert.strictEqual(engine.heroService.list().length, 2);
+        // Add heroes up to 3 — still no raids
+        engine.heroService.add({ name: 'TestHero2', origin: 'origin_warrior', level: 1 });
+        engine.heroService.add({ name: 'TestHero3', origin: 'origin_guard', level: 1 });
+        assert.strictEqual(engine.heroService.list().length, 3);
         
-        // Now generate events again
+        engine.calendarService.state.events = []; // clear old events
+        for (let day = 1; day <= 30; day++) {
+            engine.calendarService.generateEvents(day);
+        }
+        
+        const raidsWith3 = engine.calendarService.state.events.filter(e => e.type === 'raid');
+        assert.strictEqual(raidsWith3.length, 0, 'No raids should spawn with only 3 heroes');
+        
+        // Add a 4th hero — now raids can spawn
+        engine.heroService.add({ name: 'TestHero4', origin: 'origin_thief', level: 1 });
+        assert.strictEqual(engine.heroService.list().length, 4);
+        
         engine.calendarService.state.events = []; // clear old events
         for (let day = 1; day <= 30; day++) {
             engine.calendarService.generateEvents(day);
@@ -88,7 +100,7 @@ describe('Defense/Raid Mutual Exclusion', () => {
         
         // Raids should now be possible
         const raidsAfter = engine.calendarService.state.events.filter(e => e.type === 'raid');
-        assert.ok(raidsAfter.length > 0, 'Raids should spawn after 2+ heroes');
+        assert.ok(raidsAfter.length > 0, 'Raids should spawn after 4+ heroes');
     });
 
     it('0-defender raid causes severe penalty', () => {

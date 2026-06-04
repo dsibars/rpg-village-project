@@ -57,14 +57,16 @@ export class VillageDefense {
             const newChips = assigned.map(heroId => {
                 const hero = (heroes || []).find(h => h.id === heroId);
                 const heroName = hero ? hero.name : heroId;
-                return el('span', { class: 'defender-chip', dataId: heroId }, [
+                return el('span', {
+                    class: 'defender-chip',
+                    dataId: heroId,
+                    dataDefenseAction: 'unassign',
+                    dataHeroId: heroId,
+                    title: this.t('shared_uxelm_remove'),
+                    style: { cursor: 'pointer' }
+                }, [
                     heroName,
-                    el('button', {
-                        class: 'remove-btn',
-                        dataDefenseAction: 'unassign',
-                        dataHeroId: heroId,
-                        title: this.t('shared_uxelm_remove')
-                    }, ['×'])
+                    el('span', { class: 'remove-btn' }, ['×'])
                 ]);
             });
             diffList(defendersRow, newChips, 'data-id');

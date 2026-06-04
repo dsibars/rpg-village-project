@@ -20,7 +20,7 @@ The Calendar & Defense system adds a seasonal cycle and periodic raid events tha
 
 ### Generation
 - First raid occurs no earlier than Day 7
-- **First raid is delayed until the player has at least 2 heroes** (new player protection)
+- **First raid is delayed until the player has at least 4 heroes** (new player protection)
 - Subsequent raids occur every 7-14 days (pseudo-random, deterministic per day seed)
 - Events are generated 14 days in advance
 - Old resolved events are cleaned up automatically

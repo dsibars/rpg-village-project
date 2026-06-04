@@ -154,6 +154,10 @@ export class GameEngine {
             if (activityInfo.type === 'expedition') {
                 dto.activityTargetId = activityInfo.expeditionId;
             }
+            // Defense assignment takes precedence over idle (but not over expedition)
+            if (dto.activity === 'idle' && this.calendarService.getDefenseAssigned().includes(hero.id)) {
+                dto.activity = 'defense';
+            }
             return dto;
         });
 
@@ -893,8 +897,8 @@ export class GameEngine {
             .find(e => e.day === villageState.day && e.type === 'raid');
         if (todayEvent) {
             raidResult = this.calendarService.resolveRaid(villageState.day);
-            // Trigger: first successful raid defense
-            if (raidResult && raidResult.success && raidResult.data && raidResult.data.defended && !this.presentationService.isSeen('pres_first_raid_victory')) {
+            // Trigger: first successful raid defense (at least 1 defender present)
+            if (raidResult && raidResult.isVictory && raidResult.defenders && raidResult.defenders.length > 0 && !this.presentationService.isSeen('pres_first_raid_victory')) {
                 this.presentationService.checkTriggers({ type: 'first_event', eventId: 'first_raid_victory' });
                 this._persistPresentationState();
             }

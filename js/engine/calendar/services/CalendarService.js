@@ -92,11 +92,11 @@ export class CalendarService {
     _isRaidDay(day) {
         if (day < 7) return false;
         
-        // First raid is delayed until the player has at least 2 heroes
-        // This gives new players time to rescue Sir Valen and learn the system
+        // First raid is delayed until the player has at least 4 heroes
+        // This gives new players time to build up a roster and learn the systems
         const heroCount = this.heroService.list().length;
         const totalRaids = this.state.events.filter(e => e.type === 'raid').length;
-        if (totalRaids === 0 && heroCount < 2) return false;
+        if (totalRaids === 0 && heroCount < 4) return false;
         
         // Use a deterministic pseudo-random based on day + seed
         const seed = day * 1337 + 42;
