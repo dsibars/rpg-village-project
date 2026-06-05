@@ -1,0 +1,706 @@
+Loading translations...
+Languages found: [ 'ca', 'en', 'es', 'eu', 'gl' ]
+Translation keys count: { ca: 1003, en: 1007, es: 1003, eu: 1003, gl: 1003 }
+
+Scanning Vue components...
+Found 69 Vue files.
+
+=== RESULTS ===
+
+1. Missing Translation Keys Used in Vue Components: 30 files
+
+File: ux/features/adventure/components/BestiaryTab.vue
+  - Key "nav_bestiary" is missing in language "ca"
+  - Key "nav_bestiary" is missing in language "en"
+  - Key "nav_bestiary" is missing in language "es"
+  - Key "nav_bestiary" is missing in language "eu"
+  - Key "nav_bestiary" is missing in language "gl"
+
+File: ux/features/adventure/components/ChronicleTab.vue
+  - Key "chronicle_chapter_${chapterId}_title" is missing in language "ca"
+  - Key "chronicle_chapter_${chapterId}_title" is missing in language "en"
+  - Key "chronicle_chapter_${chapterId}_title" is missing in language "es"
+  - Key "chronicle_chapter_${chapterId}_title" is missing in language "eu"
+  - Key "chronicle_chapter_${chapterId}_title" is missing in language "gl"
+  - Key "chronicle_" is missing in language "ca"
+  - Key "chronicle_" is missing in language "en"
+  - Key "chronicle_" is missing in language "es"
+  - Key "chronicle_" is missing in language "eu"
+  - Key "chronicle_" is missing in language "gl"
+
+File: ux/features/adventure/components/CodexTab.vue
+  - Key "shared_uxelm_all" is missing in language "ca"
+  - Key "shared_uxelm_all" is missing in language "en"
+  - Key "shared_uxelm_all" is missing in language "es"
+  - Key "shared_uxelm_all" is missing in language "eu"
+  - Key "shared_uxelm_all" is missing in language "gl"
+
+File: ux/features/adventure/components/ExploreTab.vue
+  - Key "explore_uxelm_tree_view" is missing in language "ca"
+  - Key "explore_uxelm_tree_view" is missing in language "en"
+  - Key "explore_uxelm_tree_view" is missing in language "es"
+  - Key "explore_uxelm_tree_view" is missing in language "eu"
+  - Key "explore_uxelm_tree_view" is missing in language "gl"
+  - Key "explore_uxelm_list_view" is missing in language "ca"
+  - Key "explore_uxelm_list_view" is missing in language "en"
+  - Key "explore_uxelm_list_view" is missing in language "es"
+  - Key "explore_uxelm_list_view" is missing in language "eu"
+  - Key "explore_uxelm_list_view" is missing in language "gl"
+  - Key "explore_info_" is missing in language "ca"
+  - Key "explore_info_" is missing in language "en"
+  - Key "explore_info_" is missing in language "es"
+  - Key "explore_info_" is missing in language "eu"
+  - Key "explore_info_" is missing in language "gl"
+  - Key "explore_uxelm_recommended_level" is missing in language "ca"
+  - Key "explore_uxelm_recommended_level" is missing in language "en"
+  - Key "explore_uxelm_recommended_level" is missing in language "es"
+  - Key "explore_uxelm_recommended_level" is missing in language "eu"
+  - Key "explore_uxelm_recommended_level" is missing in language "gl"
+  - Key "explore_uxelm_start" is missing in language "ca"
+  - Key "explore_uxelm_start" is missing in language "en"
+  - Key "explore_uxelm_start" is missing in language "es"
+  - Key "explore_uxelm_start" is missing in language "eu"
+  - Key "explore_uxelm_start" is missing in language "gl"
+  - Key "explore_uxelm_max_concurrent" is missing in language "ca"
+  - Key "explore_uxelm_max_concurrent" is missing in language "en"
+  - Key "explore_uxelm_max_concurrent" is missing in language "es"
+  - Key "explore_uxelm_max_concurrent" is missing in language "eu"
+  - Key "explore_uxelm_max_concurrent" is missing in language "gl"
+  - Key "explore_uxelm_assigned_heroes" is missing in language "ca"
+  - Key "explore_uxelm_assigned_heroes" is missing in language "en"
+  - Key "explore_uxelm_assigned_heroes" is missing in language "es"
+  - Key "explore_uxelm_assigned_heroes" is missing in language "eu"
+  - Key "explore_uxelm_assigned_heroes" is missing in language "gl"
+
+File: ux/features/combat/components/CombatActionPanel.vue
+  - Key "combat_uxelm_defend" is missing in language "ca"
+  - Key "combat_uxelm_defend" is missing in language "en"
+  - Key "combat_uxelm_defend" is missing in language "es"
+  - Key "combat_uxelm_defend" is missing in language "eu"
+  - Key "combat_uxelm_defend" is missing in language "gl"
+  - Key "heroes_info_family_" is missing in language "ca"
+  - Key "heroes_info_family_" is missing in language "en"
+  - Key "heroes_info_family_" is missing in language "es"
+  - Key "heroes_info_family_" is missing in language "eu"
+  - Key "heroes_info_family_" is missing in language "gl"
+
+File: ux/features/combat/components/CombatActorGrid.vue
+  - Key "shared_uxelm_heroes" is missing in language "ca"
+  - Key "shared_uxelm_heroes" is missing in language "en"
+  - Key "shared_uxelm_heroes" is missing in language "es"
+  - Key "shared_uxelm_heroes" is missing in language "eu"
+  - Key "shared_uxelm_heroes" is missing in language "gl"
+  - Key "combat_uxelm_current_turn" is missing in language "ca"
+  - Key "combat_uxelm_current_turn" is missing in language "en"
+  - Key "combat_uxelm_current_turn" is missing in language "es"
+  - Key "combat_uxelm_current_turn" is missing in language "eu"
+  - Key "combat_uxelm_current_turn" is missing in language "gl"
+  - Key "combat_uxelm_awaiting" is missing in language "ca"
+  - Key "combat_uxelm_awaiting" is missing in language "en"
+  - Key "combat_uxelm_awaiting" is missing in language "es"
+  - Key "combat_uxelm_awaiting" is missing in language "eu"
+  - Key "combat_uxelm_awaiting" is missing in language "gl"
+
+File: ux/features/gambit/components/GambitForm.vue
+  - Key "gambit_target_${target}" is missing in language "ca"
+  - Key "gambit_target_${target}" is missing in language "en"
+  - Key "gambit_target_${target}" is missing in language "es"
+  - Key "gambit_target_${target}" is missing in language "eu"
+  - Key "gambit_target_${target}" is missing in language "gl"
+
+File: ux/features/gambit/components/GambitRow.vue
+  - Key "gambit_cond_${cond.type}" is missing in language "ca"
+  - Key "gambit_cond_${cond.type}" is missing in language "en"
+  - Key "gambit_cond_${cond.type}" is missing in language "es"
+  - Key "gambit_cond_${cond.type}" is missing in language "eu"
+  - Key "gambit_cond_${cond.type}" is missing in language "gl"
+  - Key "gambit_target_${target}" is missing in language "ca"
+  - Key "gambit_target_${target}" is missing in language "en"
+  - Key "gambit_target_${target}" is missing in language "es"
+  - Key "gambit_target_${target}" is missing in language "eu"
+  - Key "gambit_target_${target}" is missing in language "gl"
+
+File: ux/features/gambit/components/GambitTestResults.vue
+  - Key "gambit_msg_score_${rating}" is missing in language "ca"
+  - Key "gambit_msg_score_${rating}" is missing in language "en"
+  - Key "gambit_msg_score_${rating}" is missing in language "es"
+  - Key "gambit_msg_score_${rating}" is missing in language "eu"
+  - Key "gambit_msg_score_${rating}" is missing in language "gl"
+
+File: ux/features/heroes/HeroesPage.vue
+  - Key "shared_uxelm_dismiss" is missing in language "ca"
+  - Key "shared_uxelm_dismiss" is missing in language "en"
+  - Key "shared_uxelm_dismiss" is missing in language "es"
+  - Key "shared_uxelm_dismiss" is missing in language "eu"
+  - Key "shared_uxelm_dismiss" is missing in language "gl"
+
+File: ux/features/heroes/components/HeroProfile.vue
+  - Key "heroes_info_origin_${originKey.value}" is missing in language "ca"
+  - Key "heroes_info_origin_${originKey.value}" is missing in language "en"
+  - Key "heroes_info_origin_${originKey.value}" is missing in language "es"
+  - Key "heroes_info_origin_${originKey.value}" is missing in language "eu"
+  - Key "heroes_info_origin_${originKey.value}" is missing in language "gl"
+  - Key "heroes_info_origin_${originKey.value}_desc" is missing in language "ca"
+  - Key "heroes_info_origin_${originKey.value}_desc" is missing in language "en"
+  - Key "heroes_info_origin_${originKey.value}_desc" is missing in language "es"
+  - Key "heroes_info_origin_${originKey.value}_desc" is missing in language "eu"
+  - Key "heroes_info_origin_${originKey.value}_desc" is missing in language "gl"
+
+File: ux/features/heroes/components/modals/HeroConsumablesModal.vue
+  - Key "item_" is missing in language "ca"
+  - Key "item_" is missing in language "en"
+  - Key "item_" is missing in language "es"
+  - Key "item_" is missing in language "eu"
+  - Key "item_" is missing in language "gl"
+
+File: ux/features/heroes/components/modals/HeroEquipmentModal.vue
+  - Key "inventory_info_slot_" is missing in language "ca"
+  - Key "inventory_info_slot_" is missing in language "en"
+  - Key "inventory_info_slot_" is missing in language "es"
+  - Key "inventory_info_slot_" is missing in language "eu"
+  - Key "inventory_info_slot_" is missing in language "gl"
+  - Key "inventory_info_tier_" is missing in language "ca"
+  - Key "inventory_info_tier_" is missing in language "en"
+  - Key "inventory_info_tier_" is missing in language "es"
+  - Key "inventory_info_tier_" is missing in language "eu"
+  - Key "inventory_info_tier_" is missing in language "gl"
+  - Key "inventory_info_family_" is missing in language "ca"
+  - Key "inventory_info_family_" is missing in language "en"
+  - Key "inventory_info_family_" is missing in language "es"
+  - Key "inventory_info_family_" is missing in language "eu"
+  - Key "inventory_info_family_" is missing in language "gl"
+  - Key "inventory_info_archetype_" is missing in language "ca"
+  - Key "inventory_info_archetype_" is missing in language "en"
+  - Key "inventory_info_archetype_" is missing in language "es"
+  - Key "inventory_info_archetype_" is missing in language "eu"
+  - Key "inventory_info_archetype_" is missing in language "gl"
+
+File: ux/features/heroes/components/modals/HeroInscriptionModal.vue
+  - Key "magic_circle_info_" is missing in language "ca"
+  - Key "magic_circle_info_" is missing in language "en"
+  - Key "magic_circle_info_" is missing in language "es"
+  - Key "magic_circle_info_" is missing in language "eu"
+  - Key "magic_circle_info_" is missing in language "gl"
+
+File: ux/features/heroes/components/modals/HeroSkillsModal.vue
+  - Key "heroes_info_family_" is missing in language "ca"
+  - Key "heroes_info_family_" is missing in language "en"
+  - Key "heroes_info_family_" is missing in language "es"
+  - Key "heroes_info_family_" is missing in language "eu"
+  - Key "heroes_info_family_" is missing in language "gl"
+
+File: ux/features/magic_circle/components/GlyphPalette.vue
+  - Key "magic_circle_uxelm_slot_title" is missing in language "ca"
+  - Key "magic_circle_uxelm_slot_title" is missing in language "en"
+  - Key "magic_circle_uxelm_slot_title" is missing in language "es"
+  - Key "magic_circle_uxelm_slot_title" is missing in language "eu"
+  - Key "magic_circle_uxelm_slot_title" is missing in language "gl"
+  - Key "magic_circle_uxelm_palette_title" is missing in language "ca"
+  - Key "magic_circle_uxelm_palette_title" is missing in language "en"
+  - Key "magic_circle_uxelm_palette_title" is missing in language "es"
+  - Key "magic_circle_uxelm_palette_title" is missing in language "eu"
+  - Key "magic_circle_uxelm_palette_title" is missing in language "gl"
+  - Key "magic_circle_info_" is missing in language "ca"
+  - Key "magic_circle_info_" is missing in language "en"
+  - Key "magic_circle_info_" is missing in language "es"
+  - Key "magic_circle_info_" is missing in language "eu"
+  - Key "magic_circle_info_" is missing in language "gl"
+
+File: ux/features/settings/SettingsPage.vue
+  - Key "settings_uxelm_save_management" is missing in language "ca"
+  - Key "settings_uxelm_save_management" is missing in language "en"
+  - Key "settings_uxelm_save_management" is missing in language "es"
+  - Key "settings_uxelm_save_management" is missing in language "eu"
+  - Key "settings_uxelm_save_management" is missing in language "gl"
+  - Key "settings_uxelm_developer" is missing in language "ca"
+  - Key "settings_uxelm_developer" is missing in language "en"
+  - Key "settings_uxelm_developer" is missing in language "es"
+  - Key "settings_uxelm_developer" is missing in language "eu"
+  - Key "settings_uxelm_developer" is missing in language "gl"
+
+File: ux/features/shared/ExpeditionResultModal.vue
+  - Key "item_" is missing in language "ca"
+  - Key "item_" is missing in language "en"
+  - Key "item_" is missing in language "es"
+  - Key "item_" is missing in language "eu"
+  - Key "item_" is missing in language "gl"
+
+File: ux/features/shared/IntroDialog.vue
+  - Key "intro_uxelm_title" is missing in language "ca"
+  - Key "intro_uxelm_title" is missing in language "en"
+  - Key "intro_uxelm_title" is missing in language "es"
+  - Key "intro_uxelm_title" is missing in language "eu"
+  - Key "intro_uxelm_title" is missing in language "gl"
+  - Key "intro_uxelm_era" is missing in language "ca"
+  - Key "intro_uxelm_era" is missing in language "en"
+  - Key "intro_uxelm_era" is missing in language "es"
+  - Key "intro_uxelm_era" is missing in language "eu"
+  - Key "intro_uxelm_era" is missing in language "gl"
+  - Key "intro_uxelm_text" is missing in language "ca"
+  - Key "intro_uxelm_text" is missing in language "en"
+  - Key "intro_uxelm_text" is missing in language "es"
+  - Key "intro_uxelm_text" is missing in language "eu"
+  - Key "intro_uxelm_text" is missing in language "gl"
+
+File: ux/features/shared/PresentationModal.vue
+  - Key "shared_uxelm_story" is missing in language "ca"
+  - Key "shared_uxelm_story" is missing in language "en"
+  - Key "shared_uxelm_story" is missing in language "es"
+  - Key "shared_uxelm_story" is missing in language "eu"
+  - Key "shared_uxelm_story" is missing in language "gl"
+  - Key "shared_uxelm_next" is missing in language "ca"
+  - Key "shared_uxelm_next" is missing in language "en"
+  - Key "shared_uxelm_next" is missing in language "es"
+  - Key "shared_uxelm_next" is missing in language "eu"
+  - Key "shared_uxelm_next" is missing in language "gl"
+
+File: ux/features/town/components/BuildingsTab.vue
+  - Key "buildings_uxelm_current_effects" is missing in language "ca"
+  - Key "buildings_uxelm_current_effects" is missing in language "en"
+  - Key "buildings_uxelm_current_effects" is missing in language "es"
+  - Key "buildings_uxelm_current_effects" is missing in language "eu"
+  - Key "buildings_uxelm_current_effects" is missing in language "gl"
+  - Key "buildings_uxelm_next_level" is missing in language "ca"
+  - Key "buildings_uxelm_next_level" is missing in language "en"
+  - Key "buildings_uxelm_next_level" is missing in language "es"
+  - Key "buildings_uxelm_next_level" is missing in language "eu"
+  - Key "buildings_uxelm_next_level" is missing in language "gl"
+  - Key "buildings_uxelm_cost" is missing in language "ca"
+  - Key "buildings_uxelm_cost" is missing in language "en"
+  - Key "buildings_uxelm_cost" is missing in language "es"
+  - Key "buildings_uxelm_cost" is missing in language "eu"
+  - Key "buildings_uxelm_cost" is missing in language "gl"
+  - Key "buildings_uxelm_build" is missing in language "ca"
+  - Key "buildings_uxelm_build" is missing in language "en"
+  - Key "buildings_uxelm_build" is missing in language "es"
+  - Key "buildings_uxelm_build" is missing in language "eu"
+  - Key "buildings_uxelm_build" is missing in language "gl"
+  - Key "buildings_uxelm_upgrade" is missing in language "ca"
+  - Key "buildings_uxelm_upgrade" is missing in language "en"
+  - Key "buildings_uxelm_upgrade" is missing in language "es"
+  - Key "buildings_uxelm_upgrade" is missing in language "eu"
+  - Key "buildings_uxelm_upgrade" is missing in language "gl"
+  - Key "buildings_uxelm_select" is missing in language "ca"
+  - Key "buildings_uxelm_select" is missing in language "en"
+  - Key "buildings_uxelm_select" is missing in language "es"
+  - Key "buildings_uxelm_select" is missing in language "eu"
+  - Key "buildings_uxelm_select" is missing in language "gl"
+  - Key "village_info_building_" is missing in language "ca"
+  - Key "village_info_building_" is missing in language "en"
+  - Key "village_info_building_" is missing in language "es"
+  - Key "village_info_building_" is missing in language "eu"
+  - Key "village_info_building_" is missing in language "gl"
+  - Key "buildings_effect_" is missing in language "ca"
+  - Key "buildings_effect_" is missing in language "en"
+  - Key "buildings_effect_" is missing in language "es"
+  - Key "buildings_effect_" is missing in language "eu"
+  - Key "buildings_effect_" is missing in language "gl"
+
+File: ux/features/town/components/ForgeTab.vue
+  - Key "forge_uxelm_refinement_cost" is missing in language "ca"
+  - Key "forge_uxelm_refinement_cost" is missing in language "en"
+  - Key "forge_uxelm_refinement_cost" is missing in language "es"
+  - Key "forge_uxelm_refinement_cost" is missing in language "eu"
+  - Key "forge_uxelm_refinement_cost" is missing in language "gl"
+
+File: ux/features/town/components/InventoryTab.vue
+  - Key "inventory_uxelm_count" is missing in language "ca"
+  - Key "inventory_uxelm_count" is missing in language "en"
+  - Key "inventory_uxelm_count" is missing in language "es"
+  - Key "inventory_uxelm_count" is missing in language "eu"
+  - Key "inventory_uxelm_count" is missing in language "gl"
+  - Key "inventory_uxelm_consume" is missing in language "ca"
+  - Key "inventory_uxelm_consume" is missing in language "en"
+  - Key "inventory_uxelm_consume" is missing in language "es"
+  - Key "inventory_uxelm_consume" is missing in language "eu"
+  - Key "inventory_uxelm_consume" is missing in language "gl"
+  - Key "inventory_uxelm_teach" is missing in language "ca"
+  - Key "inventory_uxelm_teach" is missing in language "en"
+  - Key "inventory_uxelm_teach" is missing in language "es"
+  - Key "inventory_uxelm_teach" is missing in language "eu"
+  - Key "inventory_uxelm_teach" is missing in language "gl"
+  - Key "inventory_uxelm_teach_glyph" is missing in language "ca"
+  - Key "inventory_uxelm_teach_glyph" is missing in language "en"
+  - Key "inventory_uxelm_teach_glyph" is missing in language "es"
+  - Key "inventory_uxelm_teach_glyph" is missing in language "eu"
+  - Key "inventory_uxelm_teach_glyph" is missing in language "gl"
+  - Key "inventory_uxelm_select_hero" is missing in language "ca"
+  - Key "inventory_uxelm_select_hero" is missing in language "en"
+  - Key "inventory_uxelm_select_hero" is missing in language "es"
+  - Key "inventory_uxelm_select_hero" is missing in language "eu"
+  - Key "inventory_uxelm_select_hero" is missing in language "gl"
+  - Key "inventory_filter_all" is missing in language "ca"
+  - Key "inventory_filter_all" is missing in language "en"
+  - Key "inventory_filter_all" is missing in language "es"
+  - Key "inventory_filter_all" is missing in language "eu"
+  - Key "inventory_filter_all" is missing in language "gl"
+  - Key "inventory_filter_materials" is missing in language "ca"
+  - Key "inventory_filter_materials" is missing in language "en"
+  - Key "inventory_filter_materials" is missing in language "es"
+  - Key "inventory_filter_materials" is missing in language "eu"
+  - Key "inventory_filter_materials" is missing in language "gl"
+  - Key "inventory_filter_food" is missing in language "ca"
+  - Key "inventory_filter_food" is missing in language "en"
+  - Key "inventory_filter_food" is missing in language "es"
+  - Key "inventory_filter_food" is missing in language "eu"
+  - Key "inventory_filter_food" is missing in language "gl"
+  - Key "inventory_filter_consumables" is missing in language "ca"
+  - Key "inventory_filter_consumables" is missing in language "en"
+  - Key "inventory_filter_consumables" is missing in language "es"
+  - Key "inventory_filter_consumables" is missing in language "eu"
+  - Key "inventory_filter_consumables" is missing in language "gl"
+  - Key "inventory_filter_equipment" is missing in language "ca"
+  - Key "inventory_filter_equipment" is missing in language "en"
+  - Key "inventory_filter_equipment" is missing in language "es"
+  - Key "inventory_filter_equipment" is missing in language "eu"
+  - Key "inventory_filter_equipment" is missing in language "gl"
+
+File: ux/features/town/components/ShopTab.vue
+  - Key "shop_uxelm_tab_buy" is missing in language "ca"
+  - Key "shop_uxelm_tab_buy" is missing in language "en"
+  - Key "shop_uxelm_tab_buy" is missing in language "es"
+  - Key "shop_uxelm_tab_buy" is missing in language "eu"
+  - Key "shop_uxelm_tab_buy" is missing in language "gl"
+  - Key "shop_uxelm_tab_sell" is missing in language "ca"
+  - Key "shop_uxelm_tab_sell" is missing in language "en"
+  - Key "shop_uxelm_tab_sell" is missing in language "es"
+  - Key "shop_uxelm_tab_sell" is missing in language "eu"
+  - Key "shop_uxelm_tab_sell" is missing in language "gl"
+  - Key "shop_uxelm_tab_resources" is missing in language "ca"
+  - Key "shop_uxelm_tab_resources" is missing in language "en"
+  - Key "shop_uxelm_tab_resources" is missing in language "es"
+  - Key "shop_uxelm_tab_resources" is missing in language "eu"
+  - Key "shop_uxelm_tab_resources" is missing in language "gl"
+  - Key "shop_uxelm_storage_warning" is missing in language "ca"
+  - Key "shop_uxelm_storage_warning" is missing in language "en"
+  - Key "shop_uxelm_storage_warning" is missing in language "es"
+  - Key "shop_uxelm_storage_warning" is missing in language "eu"
+  - Key "shop_uxelm_storage_warning" is missing in language "gl"
+  - Key "shop_uxelm_no_items" is missing in language "ca"
+  - Key "shop_uxelm_no_items" is missing in language "en"
+  - Key "shop_uxelm_no_items" is missing in language "es"
+  - Key "shop_uxelm_no_items" is missing in language "eu"
+  - Key "shop_uxelm_no_items" is missing in language "gl"
+
+File: ux/features/village/components/ConstructionQueue.vue
+  - Key "village_uxelm_projects" is missing in language "ca"
+  - Key "village_uxelm_projects" is missing in language "en"
+  - Key "village_uxelm_projects" is missing in language "es"
+  - Key "village_uxelm_projects" is missing in language "eu"
+  - Key "village_uxelm_projects" is missing in language "gl"
+  - Key "village_info_building_" is missing in language "ca"
+  - Key "village_info_building_" is missing in language "en"
+  - Key "village_info_building_" is missing in language "es"
+  - Key "village_info_building_" is missing in language "eu"
+  - Key "village_info_building_" is missing in language "gl"
+
+File: ux/features/village/components/DailyObjectives.vue
+  - Key "daily_uxelm_objectives_title" is missing in language "ca"
+  - Key "daily_uxelm_objectives_title" is missing in language "en"
+  - Key "daily_uxelm_objectives_title" is missing in language "es"
+  - Key "daily_uxelm_objectives_title" is missing in language "eu"
+  - Key "daily_uxelm_objectives_title" is missing in language "gl"
+
+File: ux/features/village/components/LaborPool.vue
+  - Key "village_uxelm_workers" is missing in language "ca"
+  - Key "village_uxelm_workers" is missing in language "en"
+  - Key "village_uxelm_workers" is missing in language "es"
+  - Key "village_uxelm_workers" is missing in language "eu"
+  - Key "village_uxelm_workers" is missing in language "gl"
+  - Key "village_info_role_" is missing in language "ca"
+  - Key "village_info_role_" is missing in language "en"
+  - Key "village_info_role_" is missing in language "es"
+  - Key "village_info_role_" is missing in language "eu"
+  - Key "village_info_role_" is missing in language "gl"
+
+File: ux/features/village/components/VillageCalendar.vue
+  - Key "calendar_info_day" is missing in language "ca"
+  - Key "calendar_info_day" is missing in language "en"
+  - Key "calendar_info_day" is missing in language "es"
+  - Key "calendar_info_day" is missing in language "eu"
+  - Key "calendar_info_day" is missing in language "gl"
+  - Key "calendar_uxelm_upcoming" is missing in language "ca"
+  - Key "calendar_uxelm_upcoming" is missing in language "en"
+  - Key "calendar_uxelm_upcoming" is missing in language "es"
+  - Key "calendar_uxelm_upcoming" is missing in language "eu"
+  - Key "calendar_uxelm_upcoming" is missing in language "gl"
+  - Key "calendar_info_season_" is missing in language "ca"
+  - Key "calendar_info_season_" is missing in language "en"
+  - Key "calendar_info_season_" is missing in language "es"
+  - Key "calendar_info_season_" is missing in language "eu"
+  - Key "calendar_info_season_" is missing in language "gl"
+
+File: ux/features/village/components/VillageDefense.vue
+  - Key "village_uxelm_defense" is missing in language "ca"
+  - Key "village_uxelm_defense" is missing in language "en"
+  - Key "village_uxelm_defense" is missing in language "es"
+  - Key "village_uxelm_defense" is missing in language "eu"
+  - Key "village_uxelm_defense" is missing in language "gl"
+
+File: ux/features/village/components/modals/DailyReportModal.vue
+  - Key "daily_report_uxelm_title" is missing in language "ca"
+  - Key "daily_report_uxelm_title" is missing in language "en"
+  - Key "daily_report_uxelm_title" is missing in language "es"
+  - Key "daily_report_uxelm_title" is missing in language "eu"
+  - Key "daily_report_uxelm_title" is missing in language "gl"
+  - Key "daily_report_uxelm_none" is missing in language "ca"
+  - Key "daily_report_uxelm_none" is missing in language "en"
+  - Key "daily_report_uxelm_none" is missing in language "es"
+  - Key "daily_report_uxelm_none" is missing in language "eu"
+  - Key "daily_report_uxelm_none" is missing in language "gl"
+  - Key "daily_report_uxelm_summary" is missing in language "ca"
+  - Key "daily_report_uxelm_summary" is missing in language "en"
+  - Key "daily_report_uxelm_summary" is missing in language "es"
+  - Key "daily_report_uxelm_summary" is missing in language "eu"
+  - Key "daily_report_uxelm_summary" is missing in language "gl"
+  - Key "daily_report_uxelm_income" is missing in language "ca"
+  - Key "daily_report_uxelm_income" is missing in language "en"
+  - Key "daily_report_uxelm_income" is missing in language "es"
+  - Key "daily_report_uxelm_income" is missing in language "eu"
+  - Key "daily_report_uxelm_income" is missing in language "gl"
+  - Key "daily_report_uxelm_expenses" is missing in language "ca"
+  - Key "daily_report_uxelm_expenses" is missing in language "en"
+  - Key "daily_report_uxelm_expenses" is missing in language "es"
+  - Key "daily_report_uxelm_expenses" is missing in language "eu"
+  - Key "daily_report_uxelm_expenses" is missing in language "gl"
+  - Key "daily_report_uxelm_net" is missing in language "ca"
+  - Key "daily_report_uxelm_net" is missing in language "en"
+  - Key "daily_report_uxelm_net" is missing in language "es"
+  - Key "daily_report_uxelm_net" is missing in language "eu"
+  - Key "daily_report_uxelm_net" is missing in language "gl"
+  - Key "daily_report_uxelm_events" is missing in language "ca"
+  - Key "daily_report_uxelm_events" is missing in language "en"
+  - Key "daily_report_uxelm_events" is missing in language "es"
+  - Key "daily_report_uxelm_events" is missing in language "eu"
+  - Key "daily_report_uxelm_events" is missing in language "gl"
+
+2. Cross-Language Key Mismatches (Defined in some files but missing in others): 4 keys
+  - Key "ui_skip" is missing in: ca, es, eu, gl
+  - Key "ui_next" is missing in: ca, es, eu, gl
+  - Key "ui_finish" is missing in: ca, es, eu, gl
+  - Key "ui_back" is missing in: ca, es, eu, gl
+
+3. Hardcoded English Texts in Templates: 49 files
+
+File: ux/App.vue
+  - Line ~2: Hardcoded attribute "label" = "t('shared_uxelm_nav_main')"
+
+File: ux/components/CloseButton.vue
+  - Line ~2: Hardcoded attribute "label" = "Close"
+
+File: ux/components/HelloWorld.vue
+  - Line ~4: Hardcoded text node: "Vue version:"
+  - Line ~5: Hardcoded text node: "Clicked times"
+
+File: ux/components/ToastContainer.vue
+  - Line ~13: Hardcoded text node: "Era"
+  - Line ~16: Hardcoded text node: "Click to dismiss"
+
+File: ux/components/TopBar.vue
+  - Line ~3: Hardcoded text node: "RPG Village"
+
+File: ux/features/adventure/components/BestiaryTab.vue
+  - Line ~23: Hardcoded text node: "HP:"
+  - Line ~27: Hardcoded text node: "STR:"
+  - Line ~31: Hardcoded text node: "DEF:"
+  - Line ~35: Hardcoded text node: "SPD:"
+
+File: ux/features/adventure/components/ChronicleTab.vue
+  - Line ~4: Hardcoded text node: "0" class="recent-section">"
+  - Line ~16: Hardcoded attribute "title" = "t('chronicle_replay')"
+  - Line ~71: Hardcoded attribute "title" = "milestone.excerpt"
+  - Line ~113: Hardcoded attribute "title" = "selectedLore.title"
+
+File: ux/features/adventure/components/CodexTab.vue
+  - Line ~76: Hardcoded attribute "title" = "t(selectedFeature.nameKey)"
+
+File: ux/features/adventure/components/ExploreTab.vue
+  - Line ~10: Hardcoded text node: "\u{1F333}"
+  - Line ~18: Hardcoded text node: "\u{1F4CB}"
+  - Line ~48: Hardcoded text node: "• Lv."
+  - Line ~89: Hardcoded text node: "(Lv.)"
+  - Line ~118: Hardcoded attribute "title" = "t('shared_uxelm_advisory_title')"
+
+File: ux/features/combat/components/CombatActionPanel.vue
+  - Line ~26: Hardcoded text node: "ὒE"
+  - Line ~55: Hardcoded text node: "(Tier · STA"
+  - Line ~55: Hardcoded text node: "+ MP"
+  - Line ~75: Hardcoded text node: "Tier"
+  - Line ~77: Hardcoded text node: "( STA"
+  - Line ~77: Hardcoded text node: "+ MP"
+  - Line ~99: Hardcoded text node: "( MP)"
+  - Line ~118: Hardcoded text node: "x"
+
+File: ux/features/combat/components/CombatActorCard.vue
+  - Line ~16: Hardcoded text node: "Lv."
+
+File: ux/features/combat/components/CombatResolutionPane.vue
+  - Line ~5: Hardcoded text node: "0" class="summary-box">"
+  - Line ~8: Hardcoded text node: "0" class="hp-lost">- HP"
+  - Line ~9: Hardcoded text node: "+ HP"
+  - Line ~11: Hardcoded text node: "+ EXP"
+  - Line ~12: Hardcoded text node: "(LEVEL UP!)"
+  - Line ~16: Hardcoded text node: "0" class="rewards-box">"
+
+File: ux/features/gambit/components/GambitForm.vue
+  - Line ~20: Hardcoded attribute "label" = "t('gambit_uxelm_techniques')"
+  - Line ~25: Hardcoded attribute "label" = "t('gambit_uxelm_spells')"
+  - Line ~37: Hardcoded text node: "Tier"
+
+File: ux/features/gambit/components/GambitList.vue
+  - Line ~13: Hardcoded text node: "$emit('move', id, dir)" @toggle="$emit('toggle', $event)" @remove="$emit('remove', $event)" />"
+
+File: ux/features/gambit/components/GambitRow.vue
+  - Line ~8: Hardcoded attribute "label" = "Move up"
+  - Line ~14: Hardcoded attribute "label" = "Move down"
+  - Line ~24: Hardcoded attribute "label" = "Remove gambit"
+
+File: ux/features/gambit/components/GambitTestResults.vue
+  - Line ~2: Hardcoded attribute "title" = "t('gambit_uxelm_test_results_title')"
+  - Line ~27: Hardcoded text node: "0" class="log-section">"
+
+File: ux/features/gambit/components/GambitTestSetup.vue
+  - Line ~2: Hardcoded attribute "title" = "t('gambit_uxelm_test_setup_title')"
+  - Line ~19: Hardcoded text node: "0" class="party-section">"
+
+File: ux/features/heroes/HeroesPage.vue
+  - Line ~14: Hardcoded attribute "title" = "recruitTitle"
+  - Line ~21: Hardcoded text node: "(g)"
+  - Line ~40: Hardcoded text node: "\u{2190}"
+
+File: ux/features/heroes/components/HeroActionBar.vue
+  - Line ~2: Hardcoded attribute "label" = "t('heroes_uxelm_skills')"
+
+File: ux/features/heroes/components/HeroEmptyState.vue
+  - Line ~3: Hardcoded text node: "\u{1F9CD}"
+
+File: ux/features/heroes/components/HeroList.vue
+  - Line ~2: Hardcoded attribute "label" = "t('heroes_uxelm_list_title')"
+
+File: ux/features/heroes/components/HeroListItem.vue
+  - Line ~14: Hardcoded attribute "title" = "activityTitle"
+  - Line ~18: Hardcoded attribute "title" = "t('heroes_status_meal_buff')"
+  - Line ~22: Hardcoded text node: "\u{1F356}"
+  - Line ~25: Hardcoded attribute "title" = "t('heroes_uxelm_stat_point_available', { amount: hero.statPoints })"
+
+File: ux/features/heroes/components/HeroProfile.vue
+  - Line ~4: Hardcoded text node: "\u{1F9B8}"
+  - Line ~14: Hardcoded attribute "title" = "activityTitle"
+  - Line ~22: Hardcoded text node: "XP"
+  - Line ~25: Hardcoded text node: "0" class="alert skill-alert">"
+
+File: ux/features/heroes/components/HeroStatsGrid.vue
+  - Line ~11: Hardcoded attribute "label" = "`${t('heroes_uxelm_skill_learn')} ${stat.label}`"
+
+File: ux/features/heroes/components/modals/AcademyModal.vue
+  - Line ~2: Hardcoded attribute "title" = "t('academy_uxelm_title')"
+  - Line ~22: Hardcoded text node: "— glyphs, MP"
+
+File: ux/features/heroes/components/modals/HallOfFameModal.vue
+  - Line ~2: Hardcoded attribute "title" = "t('hall_of_fame_uxelm_title')"
+
+File: ux/features/heroes/components/modals/HeroConsumablesModal.vue
+  - Line ~2: Hardcoded attribute "title" = "t('heroes_uxelm_consumables_title', { name: hero.name })"
+
+File: ux/features/heroes/components/modals/HeroEquipmentModal.vue
+  - Line ~2: Hardcoded attribute "title" = "`${t('inventory_uxelm_equipment')} — ${hero.name}`"
+
+File: ux/features/heroes/components/modals/HeroInscriptionModal.vue
+  - Line ~2: Hardcoded attribute "title" = "`${t('heroes_uxelm_inscription_title')} — ${hero.name}`"
+  - Line ~10: Hardcoded text node: "\u{23F3} :"
+  - Line ~43: Hardcoded text node: "\u{2715}"
+  - Line ~49: Hardcoded text node: "Available Glyphs"
+
+File: ux/features/heroes/components/modals/HeroSkillsModal.vue
+  - Line ~2: Hardcoded attribute "title" = "t('heroes_uxelm_skill_title', { name: hero.name })"
+  - Line ~22: Hardcoded text node: "\u{2726}"
+  - Line ~24: Hardcoded text node: "STA"
+  - Line ~35: Hardcoded text node: "Tier"
+  - Line ~42: Hardcoded text node: "\u{1F512}"
+  - Line ~43: Hardcoded text node: "STA"
+
+File: ux/features/heroes/components/modals/TrainerModal.vue
+  - Line ~2: Hardcoded attribute "title" = "t('trainer_uxelm_title')"
+
+File: ux/features/heroes/components/modals/WitchModal.vue
+  - Line ~2: Hardcoded attribute "title" = "t('witch_uxelm_title')"
+  - Line ~17: Hardcoded text node: "(Tier )"
+  - Line ~34: Hardcoded text node: "0" class="mastery-hint">"
+
+File: ux/features/magic_circle/MagicCircleEditor.vue
+  - Line ~3: Hardcoded text node: "\u{1F52E}"
+
+File: ux/features/magic_circle/components/GlyphPalette.vue
+  - Line ~7: Hardcoded text node: "\u{2715}"
+
+File: ux/features/magic_circle/components/MandalaGrid.vue
+  - Line ~27: Hardcoded text node: "= maxSlots, 'focused': focusedSlotIndex === i - 1, 'filled': getSlotGlyph(i - 1) }" :style="getSlotStyle(i - 1)" :disabled="i - 1 >= maxSlots" :title="i - 1 >= maxSlots ? t('magic_circle_uxelm_slot_locked', { tier: i }) : ''" @click="$emit('focus', i - 1)" >"
+  - Line ~36: Hardcoded text node: "= maxSlots">"
+  - Line ~37: Hardcoded text node: "\u{1F512}"
+
+File: ux/features/magic_circle/components/McActionPanel.vue
+  - Line ~22: Hardcoded attribute "placeholder" = "t('shared_uxelm_spell_name_placeholder')"
+
+File: ux/features/saveSlots/SaveSlotPage.vue
+  - Line ~4: Hardcoded text node: "Select a slot to continue, or choose an empty slot to start a new game."
+
+File: ux/features/settings/SettingsPage.vue
+  - Line ~8: Hardcoded text node: "English"
+  - Line ~9: Hardcoded text node: "Español"
+  - Line ~10: Hardcoded text node: "Français"
+  - Line ~45: Hardcoded text node: "\u{1F52E}"
+  - Line ~52: Hardcoded attribute "title" = "t(confirmDialog.titleKey)"
+
+File: ux/features/shared/ExpeditionResultModal.vue
+  - Line ~2: Hardcoded attribute "title" = "titleText"
+
+File: ux/features/shared/IntroDialog.vue
+  - Line ~2: Hardcoded attribute "title" = "t('intro_uxelm_title')"
+
+File: ux/features/town/components/BuildingsTab.vue
+  - Line ~38: Hardcoded text node: "\u{1F4B0} g"
+  - Line ~42: Hardcoded text node: "\u{23F3}"
+  - Line ~54: Hardcoded attribute "title" = "t('buildings_uxelm_select')"
+
+File: ux/features/town/components/ForgeTab.vue
+  - Line ~5: Hardcoded attribute "title" = "t('forge_uxelm_locked')"
+  - Line ~19: Hardcoded text node: "\u{2699}"
+  - Line ~37: Hardcoded text node: "\u{1F4B0} g"
+  - Line ~51: Hardcoded attribute "title" = "t('forge_uxelm_select_item')"
+
+File: ux/features/town/components/InventoryTab.vue
+  - Line ~8: Hardcoded text node: "75, danger: storagePercent > 90 }" :style="{ width: `${storagePercent}%` }" />"
+  - Line ~39: Hardcoded text node: "x"
+  - Line ~78: Hardcoded attribute "title" = "t('inventory_uxelm_select_item')"
+  - Line ~82: Hardcoded attribute "title" = "t('inventory_uxelm_teach_glyph')"
+  - Line ~96: Hardcoded text node: "(Lv.)"
+
+File: ux/features/town/components/ShopTab.vue
+  - Line ~5: Hardcoded attribute "title" = "t('shop_uxelm_locked')"
+  - Line ~58: Hardcoded text node: "g"
+  - Line ~67: Hardcoded text node: "\u{1F4B0} g"
+  - Line ~82: Hardcoded text node: "(g)"
+  - Line ~96: Hardcoded attribute "title" = "t('shop_uxelm_select_item')"
+
+File: ux/features/village/VillagePage.vue
+  - Line ~8: Hardcoded text node: "75, danger: storagePercent > 90 }" :style="{ width: `${storagePercent}%` }" />"
+  - Line ~21: Hardcoded text node: "Lv."
+
+File: ux/features/village/components/ConstructionQueue.vue
+  - Line ~21: Hardcoded text node: "\u{23F3}"
+
+File: ux/features/village/components/DailyObjectives.vue
+  - Line ~31: Hardcoded text node: "\u{1F389}"
+
+File: ux/features/village/components/VillageDefense.vue
+  - Line ~14: Hardcoded text node: "0" class="defenders-row">"
+  - Line ~15: Hardcoded attribute "title" = "t('shared_uxelm_remove')"
+  - Line ~23: Hardcoded text node: "\u{2715}"
+  - Line ~28: Hardcoded text node: "0 && canAssign" class="assign-section">"
+
+File: ux/features/village/components/modals/DailyReportModal.vue
+  - Line ~2: Hardcoded attribute "title" = "t('daily_report_uxelm_title', { day: report?.day || 0 })"
+  - Line ~19: Hardcoded text node: "+g"
+  - Line ~23: Hardcoded text node: "-g"
+  - Line ~27: Hardcoded text node: "g"
+  - Line ~33: Hardcoded text node: "0" class="report-section">"

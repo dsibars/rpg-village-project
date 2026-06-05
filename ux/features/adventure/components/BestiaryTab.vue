@@ -1,7 +1,7 @@
 <template>
   <div class="bestiary-tab">
     <div class="bestiary-header">
-      <span class="bestiary-count">{{ t('nav_bestiary') }}: {{ discoveredCount }} / {{ totalCount }}</span>
+      <span class="bestiary-count">{{ t('shared_uxelm_nav_bestiary') }}: {{ discoveredCount }} / {{ totalCount }}</span>
     </div>
 
     <div v-if="totalCount === 0" class="bestiary-empty">
@@ -20,19 +20,19 @@
         
         <div class="enemy-stats">
           <div class="stat-row">
-            <span class="stat-label">HP:</span>
+            <span class="stat-label">{{ t('shared_uxelm_stat_hp') }}:</span>
             <span class="stat-value">{{ enemy.isDiscovered ? enemy.maxHp : '?' }}</span>
           </div>
           <div class="stat-row">
-            <span class="stat-label">STR:</span>
+            <span class="stat-label">{{ t('shared_uxelm_stat_str') }}:</span>
             <span class="stat-value">{{ enemy.isDiscovered ? enemy.strength : '?' }}</span>
           </div>
           <div class="stat-row">
-            <span class="stat-label">DEF:</span>
+            <span class="stat-label">{{ t('shared_uxelm_stat_def') }}:</span>
             <span class="stat-value">{{ enemy.isDiscovered ? enemy.defense : '?' }}</span>
           </div>
           <div class="stat-row">
-            <span class="stat-label">SPD:</span>
+            <span class="stat-label">{{ t('shared_uxelm_stat_spd') }}:</span>
             <span class="stat-value">{{ enemy.isDiscovered ? enemy.speed : '?' }}</span>
           </div>
         </div>

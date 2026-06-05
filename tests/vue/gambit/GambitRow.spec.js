@@ -24,7 +24,7 @@ describe('GambitRow.vue', () => {
       props: { gambit: mockGambit, index: 0, isFirst: true, isLast: false },
       global: { provide: { i18n: { t: (k) => k }, currentLanguage: { value: 'en' } } }
     })
-    expect(wrapper.find('[aria-label="Move up"]').attributes('disabled')).toBeDefined()
+    expect(wrapper.find('[aria-label="shared_aria_move_up"]').attributes('disabled')).toBeDefined()
   })
 
   it('emits remove on click', async () => {
@@ -32,7 +32,7 @@ describe('GambitRow.vue', () => {
       props: { gambit: mockGambit, index: 0, isFirst: false, isLast: false },
       global: { provide: { i18n: { t: (k) => k }, currentLanguage: { value: 'en' } } }
     })
-    await wrapper.find('[aria-label="Remove gambit"]').trigger('click')
+    await wrapper.find('[aria-label="shared_aria_remove"]').trigger('click')
     expect(wrapper.emitted('remove')).toBeTruthy()
     expect(wrapper.emitted('remove')[0]).toEqual(['g1'])
   })

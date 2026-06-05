@@ -31,7 +31,7 @@
         <span v-if="battle?.itemUsedThisTurn" class="hint">({{ t('shared_uxelm_once_per_turn') }})</span>
       </Button>
       <Button variant="secondary" @click="executeDefend">
-        Ὦ1 {{ t('combat_uxelm_defend') }}
+        Ὦ1 {{ t('gambit_uxelm_defend') }}
       </Button>
     </div>
 

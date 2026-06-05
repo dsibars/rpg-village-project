@@ -10,10 +10,10 @@
       >
         <!-- Narrative unlock toast -->
         <template v-if="toast.type === 'narrative' && toast.data?.narrative">
-          <div class="narrative-era">Era {{ toast.data.narrative.era }}</div>
+          <div class="narrative-era">{{ t('shared_uxelm_era') }} {{ toast.data.narrative.era }}</div>
           <h4 class="narrative-title">{{ t(toast.data.narrative.titleKey) }}</h4>
           <p class="narrative-lore">{{ t(toast.data.narrative.loreKey) }}</p>
-          <span class="narrative-hint">Click to dismiss</span>
+          <span class="narrative-hint">{{ t('shared_uxelm_click_dismiss') }}</span>
         </template>
         <!-- Standard toast -->
         <template v-else>

@@ -22,7 +22,7 @@
               <span v-if="isInscribed" class="inscribed-mark">\u{2726}</span>
             </span>
             <span class="skill-meta">
-              {{ effectLabel(family) }}{{ effectLabel(family) ? ' · ' : '' }}{{ staminaCost(family) }} STA
+              {{ effectLabel(family) }}{{ effectLabel(family) ? ' · ' : '' }}{{ staminaCost(family) }} {{ t('shared_uxelm_stat_sta') }}
             </span>
             <div class="tier-progress">
               <div class="tier-progress-header">
@@ -32,7 +32,7 @@
               <div class="tier-bar"><div class="tier-bar-fill" :style="{ width: `${tierProgress(family)}%` }" /></div>
             </div>
           </div>
-          <span class="tier-badge">Tier {{ familyTier(family) }}</span>
+          <span class="tier-badge">{{ t('shared_uxelm_tier') }} {{ familyTier(family) }}</span>
         </div>
 
         <div v-if="lockedList.length" class="locked-divider">{{ t('heroes_uxelm_skill_locked_section') }}</div>
@@ -41,7 +41,7 @@
           <div class="skill-info">
             <span class="skill-name">\u{1F512} {{ familyName(family.id) }}</span>
             <span class="skill-meta">
-              {{ effectLabel(family, 1) }}{{ effectLabel(family, 1) ? ' · ' : '' }}{{ family.staminaCostBase }} STA
+              {{ effectLabel(family, 1) }}{{ effectLabel(family, 1) ? ' · ' : '' }}{{ family.staminaCostBase }} {{ t('shared_uxelm_stat_sta') }}
             </span>
           </div>
           <div class="skill-actions">

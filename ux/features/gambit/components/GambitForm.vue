@@ -34,7 +34,7 @@
     <div v-if="showTierSelect" class="form-group">
       <label>{{ t('gambit_uxelm_skill_tier') }}</label>
       <select v-model="form.tier">
-        <option v-for="tier in availableTiers" :key="tier" :value="tier">Tier {{ tier }}</option>
+        <option v-for="tier in availableTiers" :key="tier" :value="tier">{{ t('shared_uxelm_tier') }} {{ tier }}</option>
       </select>
     </div>
 

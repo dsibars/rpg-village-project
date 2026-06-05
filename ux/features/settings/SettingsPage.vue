@@ -29,7 +29,7 @@
     </div>
 
     <div class="settings-section">
-      <h3>{{ t('settings_uxelm_developer') }}</h3>
+      <h3>{{ t('settings_uxelm_dev_options') }}</h3>
       <div class="setting-actions">
         <Button
           variant="secondary"

@@ -86,6 +86,7 @@ export const es = {
     combat_uxelm_battle_log: "Registro de Batalla",
     combat_uxelm_battle_title: "Batalla",
     combat_uxelm_enemies: "Enemigos",
+    combat_uxelm_awaiting: "Esperando turno...",
     combat_uxelm_heroes: "Héroes",
     combat_uxelm_items: "Objetos",
     combat_uxelm_log: "Registro de Combate",
@@ -160,6 +161,12 @@ export const es = {
     explore_uxelm_active: "activa",
     explore_uxelm_active_expeditions: "Expediciones Activas",
     explore_uxelm_assign_heroes: "Asignar Héroes",
+    explore_uxelm_assigned_heroes: "Héroes Asignados",
+    explore_uxelm_list_view: "Vista de Lista",
+    explore_uxelm_max_concurrent: "Límite máximo de expediciones simultáneas alcanzado",
+    explore_uxelm_recommended_level: "Nivel Recomendado",
+    explore_uxelm_start: "Iniciar",
+    explore_uxelm_tree_view: "Vista de Árbol",
     explore_uxelm_assigned_expedition: "Expedición Asignada",
     explore_uxelm_base_reward: "Recompensa Base",
     explore_uxelm_clears: "completados",
@@ -570,6 +577,8 @@ export const es = {
     magic_circle_uxelm_inscribe: "Inscribir Hechizo",
     magic_circle_uxelm_inscribe_disabled: "Inscribir (Simulador)",
     magic_circle_uxelm_slot_empty: "Vacío",
+    magic_circle_uxelm_palette_title: "Paleta de Glifos",
+    magic_circle_uxelm_slot_title: "Ranura {slot}",
     magic_circle_uxelm_slot_locked: "Se desbloquea al Rango {tier}",
     magic_circle_uxelm_slot_remove_prompt: "Haz clic de nuevo para quitar.",
     magic_circle_uxelm_slot_select_prompt: "Selecciona un glifo para engarzar aquí.",
@@ -578,6 +587,9 @@ export const es = {
     // ═══ SHARED ARIA ════════════════════════════════════════════════════
     shared_aria_close_log: "Cerrar Registro",
     shared_aria_expand_log: "Expandir Registro",
+    shared_aria_move_up: "Mover arriba",
+    shared_aria_move_down: "Mover abajo",
+    shared_aria_remove: "Eliminar",
 
     // ═══ SHARED UXELM ════════════════════════════════════════════════════
     shared_uxelm_about: "Acerca de",
@@ -586,6 +598,8 @@ export const es = {
     shared_uxelm_auto_combat: "Combate Auto",
     shared_uxelm_auto_combat_running: "Ejecutando Combate Automático...",
     shared_uxelm_available: "Disponible",
+    shared_uxelm_all: "Todos",
+    shared_uxelm_dismiss: "Descartar",
     shared_uxelm_back: "Atrás",
     shared_uxelm_built_with: "Creado con ❤️ y Specs.",
     shared_uxelm_choose_target: "Elegir Objetivo",
@@ -995,11 +1009,11 @@ export const es = {
     nar_undefended_raid_lore: 'Los asaltantes encontraron las puertas sin vigilancia. Al amanecer, el depósito estaba vacío, la tesorería saqueada y los campos quemados. Los supervivientes susurraron que el comandante había sido advertido.',
 
     // ═══ PRESENTATION UI ═══════════════════════════════════════════════════
-    pres_ui_next: "Next", // TODO: translate
-    pres_ui_back: "Back", // TODO: translate
-    pres_ui_finish: "Continue", // TODO: translate
-    pres_ui_skip: "Skip", // TODO: translate
-    pres_ui_replay: "Replay", // TODO: translate
+    pres_ui_next: "Siguiente",
+    pres_ui_back: "Atrás",
+    pres_ui_finish: "Continuar",
+    pres_ui_skip: "Omitir",
+    pres_ui_replay: "Repetir",
 
     // ═══ PRESENTATION NARRATIVES ═══════════════════════════════════════════
     pres_prologue_p1: "In a world consumed by the flames of eternal war, a small group of survivors has fled the chaos. Led by a brave hero, they seek a remote valley to build a sanctuary of peace. The journey has been long, and resources are scarce, but hope remains.", // TODO: translate
@@ -1166,4 +1180,49 @@ export const es = {
     advisory_raid_tomorrow: '¡Asalto inminente! Asignar a estos héroes dejará la aldea indefensa el día {raidDay} (regresan el día {returnDay}). ¿Continuar?',
     advisory_undefended: 'Advertencia: el próximo asalto es el día {raidDay} (dentro de {daysUntilRaid} días), y tus héroes no regresarán hasta el día {returnDay}. La aldea quedará indefensa. ¿Continuar?',
 
+    // Added during UX audit
+    settings_uxelm_save_management: "Gestión de Partidas",
+    intro_uxelm_title: "Un Nuevo Santuario",
+    intro_uxelm_era: "Era del Santuario",
+    intro_uxelm_text: "Has descubierto un valle remoto lejos de las tierras devastadas por la guerra. Aquí sentarás las bases de una nueva aldea, reunirás héroes y defenderás a tu gente. Que la esperanza guíe tu camino.",
+    shared_uxelm_story: "Historia",
+    shared_uxelm_next: "Siguiente",
+    buildings_uxelm_current_effects: "Efectos Actuales",
+    buildings_uxelm_next_level: "Siguiente Nivel",
+    buildings_uxelm_cost: "Coste de Construcción/Mejora",
+    buildings_uxelm_build: "Construir",
+    buildings_uxelm_upgrade: "Mejorar",
+    buildings_uxelm_select: "Selecciona un edificio para ver los detalles",
+    forge_uxelm_refinement_cost: "Coste de Refinamiento",
+    inventory_uxelm_count: "Cantidad",
+    inventory_uxelm_consume: "Consumir",
+    inventory_uxelm_teach: "Enseñar Hechizo",
+    inventory_uxelm_teach_glyph: "Enseñar Glifo",
+    inventory_uxelm_select_hero: "Seleccionar Héroe",
+    shop_uxelm_tab_buy: "Comprar",
+    shop_uxelm_tab_sell: "Vender",
+    shop_uxelm_tab_resources: "Recursos",
+    shop_uxelm_storage_warning: "¡Advertencia: Tu almacén está lleno o casi lleno!",
+    shop_uxelm_no_items: "No hay objetos disponibles en la tienda.",
+    village_uxelm_projects: "Proyectos Activos",
+    daily_uxelm_objectives_title: "Objetivos Diarios",
+    village_uxelm_workers: "Asignación de Trabajadores",
+    calendar_info_day: "Día {day}",
+    calendar_uxelm_upcoming: "Próximos Eventos",
+    village_uxelm_defense: "Defensa de la Aldea",
+    daily_report_uxelm_title: "Resumen del Día {day}",
+    daily_report_uxelm_none: "No se registraron transacciones financieras ni eventos.",
+    daily_report_uxelm_summary: "Informe Diario",
+    daily_report_uxelm_income: "Ingresos",
+    daily_report_uxelm_expenses: "Gastos",
+    daily_report_uxelm_net: "Balance Neto",
+    daily_report_uxelm_events: "Eventos y Descubrimientos",
+    shared_uxelm_click_dismiss: "Haz clic para descartar",
+    shared_uxelm_era: "Era",
+    heroes_uxelm_inscription_available: "Glifos Disponibles",
+    shared_uxelm_stat_hp: "PV",
+    shared_uxelm_stat_str: "FUE",
+    shared_uxelm_stat_def: "DEF",
+    shared_uxelm_stat_spd: "VEL",
+    shared_uxelm_stat_sta: "EST",
 };

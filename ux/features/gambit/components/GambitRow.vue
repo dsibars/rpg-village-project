@@ -9,13 +9,13 @@
         class="btn-move"
         :disabled="isFirst"
         @click="$emit('move', gambit.id, -1)"
-        aria-label="Move up"
+        :aria-label="t('shared_aria_move_up')"
       >▲</button>
       <button
         class="btn-move"
         :disabled="isLast"
         @click="$emit('move', gambit.id, 1)"
-        aria-label="Move down"
+        :aria-label="t('shared_aria_move_down')"
       >▼</button>
       <button
         class="btn-toggle"
@@ -24,7 +24,7 @@
       <button
         class="btn-remove"
         @click="$emit('remove', gambit.id)"
-        aria-label="Remove gambit"
+        :aria-label="t('shared_aria_remove')"
       >×</button>
     </div>
   </div>

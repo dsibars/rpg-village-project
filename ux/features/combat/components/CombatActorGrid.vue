@@ -2,7 +2,7 @@
   <div class="combat-grid">
     <!-- Heroes Column -->
     <div class="combat-column">
-      <div class="column-title">{{ t('shared_uxelm_heroes') }}</div>
+      <div class="column-title">{{ t('combat_uxelm_heroes') }}</div>
       <CombatActorCard
         v-for="(hero, index) in heroes"
         :key="hero.id"
@@ -18,7 +18,7 @@
     <!-- Action Column -->
     <div class="combat-action-column">
       <div class="turn-banner">
-        <span v-if="currentActor">{{ t('combat_uxelm_current_turn', { name: currentActorName }) }}</span>
+        <span v-if="currentActor">{{ t('shared_uxelm_turn', { name: currentActorName }) }}</span>
         <span v-else>{{ t('combat_uxelm_awaiting') }}</span>
       </div>
       <slot name="action-panel" />

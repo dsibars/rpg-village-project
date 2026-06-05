@@ -86,6 +86,7 @@ export const ca = {
     combat_uxelm_battle_log: "Registre de Batalla",
     combat_uxelm_battle_title: "Batalla",
     combat_uxelm_enemies: "Enemics",
+    combat_uxelm_awaiting: "Esperant torn...",
     combat_uxelm_heroes: "Herois",
     combat_uxelm_items: "Objectes",
     combat_uxelm_log: "Registre de Combat",
@@ -160,6 +161,12 @@ export const ca = {
     explore_uxelm_active: "activa",
     explore_uxelm_active_expeditions: "Expedicions Actives",
     explore_uxelm_assign_heroes: "Assignar Herois",
+    explore_uxelm_assigned_heroes: "Herois Assignats",
+    explore_uxelm_list_view: "Vista de Llista",
+    explore_uxelm_max_concurrent: "S'ha assolit el límit d'expedicions simultànies",
+    explore_uxelm_recommended_level: "Nivell Recomanat",
+    explore_uxelm_start: "Iniciar",
+    explore_uxelm_tree_view: "Vista d'Arbre",
     explore_uxelm_assigned_expedition: "Expedició Assignada",
     explore_uxelm_base_reward: "Recompensa Base",
     explore_uxelm_clears: "completats",
@@ -570,6 +577,8 @@ export const ca = {
     magic_circle_uxelm_inscribe: "Inscriure Conjur",
     magic_circle_uxelm_inscribe_disabled: "Inscriure (Simulador)",
     magic_circle_uxelm_slot_empty: "Buit",
+    magic_circle_uxelm_palette_title: "Paleta de Glifs",
+    magic_circle_uxelm_slot_title: "Ranura {slot}",
     magic_circle_uxelm_slot_locked: "Es desbloqueja al Rang {tier}",
     magic_circle_uxelm_slot_remove_prompt: "Fes clic de nou per treure.",
     magic_circle_uxelm_slot_select_prompt: "Selecciona un glif per encastar aquí.",
@@ -578,6 +587,9 @@ export const ca = {
     // ═══ SHARED ARIA ════════════════════════════════════════════════════
     shared_aria_close_log: "Tancar Registre",
     shared_aria_expand_log: "Expandir Registre",
+    shared_aria_move_up: "Moure amunt",
+    shared_aria_move_down: "Moure avall",
+    shared_aria_remove: "Eliminar",
 
     // ═══ SHARED UXELM ════════════════════════════════════════════════════
     shared_uxelm_about: "Quant a",
@@ -586,6 +598,8 @@ export const ca = {
     shared_uxelm_auto_combat: "Combat Auto",
     shared_uxelm_auto_combat_running: "Executant Combat Automàtic...",
     shared_uxelm_available: "Disponible",
+    shared_uxelm_all: "Tots",
+    shared_uxelm_dismiss: "Descartar",
     shared_uxelm_back: "Enrere",
     shared_uxelm_built_with: "Creat amb ❤️ i Specs.",
     shared_uxelm_choose_target: "Triar Objectiu",
@@ -995,11 +1009,11 @@ export const ca = {
     nar_undefended_raid_lore: 'Els assaltants van trobar les portes sense vigilància. A l\'alba, el dipòsit estava buit, la tresoreria saquejada i els camps cremats. Els supervivents van susurrar que el comandant havia estat advertit.',
 
     // ═══ PRESENTATION UI ═══════════════════════════════════════════════════
-    pres_ui_next: "Next", // TODO: translate
-    pres_ui_back: "Back", // TODO: translate
-    pres_ui_finish: "Continue", // TODO: translate
-    pres_ui_skip: "Skip", // TODO: translate
-    pres_ui_replay: "Replay", // TODO: translate
+    pres_ui_next: "Següent",
+    pres_ui_back: "Enrere",
+    pres_ui_finish: "Continuar",
+    pres_ui_skip: "Ometre",
+    pres_ui_replay: "Repetir",
 
     // ═══ PRESENTATION NARRATIVES ═══════════════════════════════════════════
     pres_prologue_p1: "In a world consumed by the flames of eternal war, a small group of survivors has fled the chaos. Led by a brave hero, they seek a remote valley to build a sanctuary of peace. The journey has been long, and resources are scarce, but hope remains.", // TODO: translate
@@ -1166,4 +1180,49 @@ export const ca = {
     advisory_raid_tomorrow: 'Assalt imminent! Assignar aquests herois deixarà la vila indefensa el dia {raidDay} (tornen el dia {returnDay}). Continuar?',
     advisory_undefended: 'Advertència: el proper assalt és el dia {raidDay} (dintre de {daysUntilRaid} dies), i els teus herois no tornaran fins al dia {returnDay}. La vila quedarà indefensa. Continuar?',
 
+    // Added during UX audit
+    settings_uxelm_save_management: "Gestió de Partides",
+    intro_uxelm_title: "Un Nou Santuari",
+    intro_uxelm_era: "Era del Santuari",
+    intro_uxelm_text: "Heu descobert una vall remota lluny de les terres assolades per la guerra. Aquí posareu els ciments d'un nou poble, reunireu herois i defensareu la vostra gent. Que l'esperança us guiï el camí.",
+    shared_uxelm_story: "Història",
+    shared_uxelm_next: "Següent",
+    buildings_uxelm_current_effects: "Efectes Actuals",
+    buildings_uxelm_next_level: "Següent Nivell",
+    buildings_uxelm_cost: "Cost de Construcció/Millora",
+    buildings_uxelm_build: "Construir",
+    buildings_uxelm_upgrade: "Millorar",
+    buildings_uxelm_select: "Selecciona un edifici per veure els detalls",
+    forge_uxelm_refinement_cost: "Cost de Refinament",
+    inventory_uxelm_count: "Quantitat",
+    inventory_uxelm_consume: "Consumir",
+    inventory_uxelm_teach: "Ensenyar Arcà",
+    inventory_uxelm_teach_glyph: "Ensenyar Glif",
+    inventory_uxelm_select_hero: "Seleccionar Heroi",
+    shop_uxelm_tab_buy: "Comprar",
+    shop_uxelm_tab_sell: "Vendre",
+    shop_uxelm_tab_resources: "Recursos",
+    shop_uxelm_storage_warning: "Atenció: El magatzem està ple o gairebé ple!",
+    shop_uxelm_no_items: "No hi ha objectes disponibles a la botiga.",
+    village_uxelm_projects: "Projectes Actius",
+    daily_uxelm_objectives_title: "Objectius Diaris",
+    village_uxelm_workers: "Assignació de Treballadors",
+    calendar_info_day: "Dia {day}",
+    calendar_uxelm_upcoming: "Pròxims Esdeveniments",
+    village_uxelm_defense: "Defensa de l'Aldea",
+    daily_report_uxelm_title: "Resum del Dia {day}",
+    daily_report_uxelm_none: "No s'han registrat transaccions financeres ni esdeveniments.",
+    daily_report_uxelm_summary: "Informe Diari",
+    daily_report_uxelm_income: "Ingressos",
+    daily_report_uxelm_expenses: "Despeses",
+    daily_report_uxelm_net: "Balanç Net",
+    daily_report_uxelm_events: "Esdeveniments i Descobriments",
+    shared_uxelm_click_dismiss: "Fes clic per descartar",
+    shared_uxelm_era: "Era",
+    heroes_uxelm_inscription_available: "Glifs Disponibles",
+    shared_uxelm_stat_hp: "PV",
+    shared_uxelm_stat_str: "FOR",
+    shared_uxelm_stat_def: "DEF",
+    shared_uxelm_stat_spd: "VEL",
+    shared_uxelm_stat_sta: "EST",
 };

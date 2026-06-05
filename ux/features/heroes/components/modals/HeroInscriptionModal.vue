@@ -46,7 +46,7 @@
       </div>
 
       <div v-if="!isInscribing" class="glyph-picker">
-        <div class="section-header">Available Glyphs</div>
+        <div class="section-header">{{ t('heroes_uxelm_inscription_available') }}</div>
         <div v-if="knownGlyphsList.length === 0" class="empty-glyphs">
           {{ t('heroes_uxelm_inscription_not_learned') }}
         </div>

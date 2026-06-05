@@ -125,11 +125,11 @@ const storageMax = computed(() => gameState.value.village?.maxStorage || 100)
 const storagePercent = computed(() => Math.min(100, (storageUsed.value / storageMax.value) * 100))
 
 const filters = computed(() => [
-  { id: 'all', label: t('inventory_filter_all') },
-  { id: 'materials', label: t('inventory_filter_materials') },
-  { id: 'food', label: t('inventory_filter_food') },
-  { id: 'consumables', label: t('inventory_filter_consumables') },
-  { id: 'equipment', label: t('inventory_filter_equipment') }
+  { id: 'all', label: t('inventory_uxelm_filter_all') },
+  { id: 'materials', label: t('inventory_uxelm_filter_materials') },
+  { id: 'food', label: t('inventory_uxelm_filter_food') },
+  { id: 'consumables', label: t('inventory_uxelm_filter_consumables') },
+  { id: 'equipment', label: t('inventory_uxelm_filter_equipment') }
 ])
 
 const allItems = computed(() => {

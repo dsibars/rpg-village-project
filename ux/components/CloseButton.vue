@@ -1,8 +1,10 @@
 <template>
-  <button class="btn-close" @click="$emit('close')" aria-label="Close">✕</button>
+  <button class="btn-close" @click="$emit('close')" :aria-label="t('shared_uxelm_close')">✕</button>
 </template>
 
 <script setup>
+import { useI18n } from '@/core/composables/useI18n.js'
+const { t } = useI18n()
 defineEmits(['close'])
 </script>
 

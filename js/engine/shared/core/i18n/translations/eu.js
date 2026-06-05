@@ -86,6 +86,7 @@ export const eu = {
     combat_uxelm_battle_log: "Borrokaren Erregistroa",
     combat_uxelm_battle_title: "Borroka",
     combat_uxelm_enemies: "Etsaiak",
+    combat_uxelm_awaiting: "Txanda zain...",
     combat_uxelm_heroes: "Heroiak",
     combat_uxelm_items: "Objektuak",
     combat_uxelm_log: "Borrokaren Erregistroa",
@@ -160,6 +161,12 @@ export const eu = {
     explore_uxelm_active: "aktiboa",
     explore_uxelm_active_expeditions: "Espedizio Aktiboak",
     explore_uxelm_assign_heroes: "Esleitu Heroiak",
+    explore_uxelm_assigned_heroes: "Esleitutako Heroiak",
+    explore_uxelm_list_view: "Zerrenda Ikuspegia",
+    explore_uxelm_max_concurrent: "Aldi bereko gehieneko espedizio kopurua iritsi da",
+    explore_uxelm_recommended_level: "Gomendatutako Maila",
+    explore_uxelm_start: "Hasi",
+    explore_uxelm_tree_view: "Zuhaitz Ikuspegia",
     explore_uxelm_assigned_expedition: "Esleitutako Espedizioa",
     explore_uxelm_base_reward: "Oinarrizko Saria",
     explore_uxelm_clears: "osatuta",
@@ -570,6 +577,8 @@ export const eu = {
     magic_circle_uxelm_inscribe: "Idatzi Sorginkeria",
     magic_circle_uxelm_inscribe_disabled: "Idatzi (Simulagailua)",
     magic_circle_uxelm_slot_empty: "Hutsik",
+    magic_circle_uxelm_palette_title: "Glifo Paleta",
+    magic_circle_uxelm_slot_title: "{slot}. Zirrikittua",
     magic_circle_uxelm_slot_locked: "{tier}. Mailan desblokeatzen da",
     magic_circle_uxelm_slot_remove_prompt: "Egin klik berriro kentzeko.",
     magic_circle_uxelm_slot_select_prompt: "Hautatu glifo bat hemen ezartzeko.",
@@ -578,6 +587,9 @@ export const eu = {
     // ═══ SHARED ARIA ════════════════════════════════════════════════════
     shared_aria_close_log: "Itxi Erregistroa",
     shared_aria_expand_log: "Zabaldu Erregistroa",
+    shared_aria_move_up: "Gora mugitu",
+    shared_aria_move_down: "Behera mugitu",
+    shared_aria_remove: "Kendu",
 
     // ═══ SHARED UXELM ════════════════════════════════════════════════════
     shared_uxelm_about: "Honi buruz",
@@ -586,6 +598,8 @@ export const eu = {
     shared_uxelm_auto_combat: "Borroka Autoa",
     shared_uxelm_auto_combat_running: "Borroka Automatikoa Exekutatzen...",
     shared_uxelm_available: "Eskuragarri",
+    shared_uxelm_all: "Guztiak",
+    shared_uxelm_dismiss: "Baztertu",
     shared_uxelm_back: "Atzera",
     shared_uxelm_built_with: "❤️ eta Zehaztapenekin eraikia.",
     shared_uxelm_choose_target: "Hautatu Helburua",
@@ -995,11 +1009,11 @@ export const eu = {
     nar_undefended_raid_lore: 'Erasotzaileek ateak zaindu gabe aurkitu zituzten. Egunsantirako, biltegia hutsik zegoen, altxortegia saileztatuta eta soroak erretakoan. Bizirik atera zirenek xuxurlatu zuten komandanteari abisua eman ziotela.',
 
     // ═══ PRESENTATION UI ═══════════════════════════════════════════════════
-    pres_ui_next: "Next", // TODO: translate
-    pres_ui_back: "Back", // TODO: translate
-    pres_ui_finish: "Continue", // TODO: translate
-    pres_ui_skip: "Skip", // TODO: translate
-    pres_ui_replay: "Replay", // TODO: translate
+    pres_ui_next: "Hurrengoa",
+    pres_ui_back: "Atzera",
+    pres_ui_finish: "Jarraitu",
+    pres_ui_skip: "Saltatu",
+    pres_ui_replay: "Berriro ikusi",
 
     // ═══ PRESENTATION NARRATIVES ═══════════════════════════════════════════
     pres_prologue_p1: "In a world consumed by the flames of eternal war, a small group of survivors has fled the chaos. Led by a brave hero, they seek a remote valley to build a sanctuary of peace. The journey has been long, and resources are scarce, but hope remains.", // TODO: translate
@@ -1166,4 +1180,49 @@ export const eu = {
     advisory_raid_tomorrow: 'Eraso etorri da! Heroi hauek esleitzeak herrixka defendatu gabe utziko du {raidDay} egunean ({returnDay} egunean itzultzen dira). Jarraitu?',
     advisory_undefended: 'Abisua: hurrengo erasoan {raidDay} egunean da ({daysUntilRaid} egunetan barru), eta zure heroiek ez dira {returnDay} egun arte itzuliko. Herrixka defendatu gabe geratuko da. Jarraitu?',
 
+    // Added during UX audit
+    settings_uxelm_save_management: "Partiden Kudeaketa",
+    intro_uxelm_title: "Santutegi Berri Bat",
+    intro_uxelm_era: "Santutegiko Aroa",
+    intro_uxelm_text: "Gerratik urrun dagoen haran galdu bat aurkitu duzu. Hemen herrixka berri baten oinarriak ezarriko dituzu, heroiak bilduko dituzu eta zure jendea defendatuko duzu. Itxaropenak gidatuko ahal zaitu.",
+    shared_uxelm_story: "Istorioa",
+    shared_uxelm_next: "Hurrengoa",
+    buildings_uxelm_current_effects: "Oraingo Efektuak",
+    buildings_uxelm_next_level: "Hurrengo Maila",
+    buildings_uxelm_cost: "Eraikitzeko/Hobetzeko Kostua",
+    buildings_uxelm_build: "Eraiki",
+    buildings_uxelm_upgrade: "Hobetu",
+    buildings_uxelm_select: "Hautatu eraikin bat xehetasunak ikusteko",
+    forge_uxelm_refinement_cost: "Fintze Kostua",
+    inventory_uxelm_count: "Kopurua",
+    inventory_uxelm_consume: "Kontsumitu",
+    inventory_uxelm_teach: "Sorginkeria Irakatsi",
+    inventory_uxelm_teach_glyph: "Glifoa Irakatsi",
+    inventory_uxelm_select_hero: "Hautatu Heroia",
+    shop_uxelm_tab_buy: "Erosi",
+    shop_uxelm_tab_sell: "Saldu",
+    shop_uxelm_tab_resources: "Baliabideak",
+    shop_uxelm_storage_warning: "Abisua: Zure biltegia beteta edo ia beteta dago!",
+    shop_uxelm_no_items: "Ez dago objekturik salgai dendan.",
+    village_uxelm_projects: "Proiektu Aktiboak",
+    daily_uxelm_objectives_title: "Eguneroko Helburuak",
+    village_uxelm_workers: "Langileen Esleipena",
+    calendar_info_day: "{day}. Eguna",
+    calendar_uxelm_upcoming: "Hurrengo Gertaerak",
+    village_uxelm_defense: "Herri Defentsa",
+    daily_report_uxelm_title: "{day}. Eguneko Laburpena",
+    daily_report_uxelm_none: "Ez da finantza-eragiketarik edo gertaerarik erregistratu.",
+    daily_report_uxelm_summary: "Eguneroko Txostena",
+    daily_report_uxelm_income: "Diru-sarrerak",
+    daily_report_uxelm_expenses: "Gastuak",
+    daily_report_uxelm_net: "Balantze Garbia",
+    daily_report_uxelm_events: "Gertaerak eta Aurkikuntzak",
+    shared_uxelm_click_dismiss: "Klikatu baztertzeko",
+    shared_uxelm_era: "Aroa",
+    heroes_uxelm_inscription_available: "Glifo Eskuragarriak",
+    shared_uxelm_stat_hp: "BP",
+    shared_uxelm_stat_str: "IND",
+    shared_uxelm_stat_def: "DEF",
+    shared_uxelm_stat_spd: "ABI",
+    shared_uxelm_stat_sta: "EST",
 };
