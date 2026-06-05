@@ -83,7 +83,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useI18n } from '@/core/composables/useI18n.js'
-import { GLYPH_DATA, GLYPH_TIER_QUALITY } from '../../../../../js/engine/shared/data/MagicCircleData.js'
+import { GLYPH_DATA, GLYPH_TIER_QUALITY } from '@/core/data/index.js'
 import ModalFrame from '@/components/ModalFrame.vue'
 import Button from '@/components/Button.vue'
 

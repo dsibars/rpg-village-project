@@ -115,7 +115,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useI18n } from '@/core/composables/useI18n.js'
 import { useGameState } from '@/core/composables/useGameState.js'
-import { CODEX_FEATURES, CODEX_CATEGORIES } from '../../../../js/engine/shared/data/CodexFeatures.js'
+import { CODEX_FEATURES, CODEX_CATEGORIES } from '@/core/data/index.js'
 import ModalFrame from '@/components/ModalFrame.vue'
 
 const { t } = useI18n()

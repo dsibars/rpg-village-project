@@ -37,7 +37,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useI18n } from '@/core/composables/useI18n.js'
-import { CONSUMABLES_DATA } from '../../../../../js/engine/shared/data/InventoryData.js'
+import { CONSUMABLES_DATA } from '@/core/data/index.js'
 import ModalFrame from '@/components/ModalFrame.vue'
 import Button from '@/components/Button.vue'
 

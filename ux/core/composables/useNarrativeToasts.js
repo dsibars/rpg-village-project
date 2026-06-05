@@ -1,5 +1,5 @@
 import { watch, inject } from 'vue'
-import { UNLOCK_NARRATIVES } from '../../../js/engine/shared/data/UnlockNarratives.js'
+import { UNLOCK_NARRATIVES } from '../data/index.js'
 import { queueNarrative, clearNarrativeQueue } from '../toast.js'
 
 /**

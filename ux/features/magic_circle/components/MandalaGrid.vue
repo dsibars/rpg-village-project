@@ -52,7 +52,7 @@
 import { computed } from 'vue'
 import { useI18n } from '@/core/composables/useI18n.js'
 import { getSlotCoords, isAdjacent, getGlyphIcon, getGlyphAbbreviation } from '../composables/useMagicCircle.js'
-import { GLYPH_DATA } from '../../../../js/engine/shared/data/MagicCircleData.js'
+import { GLYPH_DATA } from '@/core/data/index.js'
 
 const props = defineProps({
   maxSlots: { type: Number, default: 25 },

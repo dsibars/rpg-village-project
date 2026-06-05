@@ -78,7 +78,7 @@ import {
   getMaxSelectableTier,
   getGlyphDescription
 } from '../composables/useMagicCircle.js'
-import { GLYPH_DATA } from '../../../../js/engine/shared/data/MagicCircleData.js'
+import { GLYPH_DATA } from '@/core/data/index.js'
 
 const props = defineProps({
   focusedSlotIndex: { type: Number, default: null },
