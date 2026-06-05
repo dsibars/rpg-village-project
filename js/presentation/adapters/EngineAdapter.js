@@ -252,6 +252,17 @@ export class EngineAdapter {
                     }
                     this.forceUpdate();
                 });
+                view.on('useConsumable', (data) => {
+                    const result = this.engine.useHeroConsumable(data.heroId, data.consumableId);
+                    if (!result.success) {
+                        this.ui.showToast(this.engine.i18n.t(result.error));
+                    } else {
+                        const { hero, amountRestored, type } = result.data;
+                        const statLabel = type === 'HEAL_HP' ? 'HP' : 'MP';
+                        this.ui.showToast(`${hero.name} +${amountRestored} ${statLabel}`);
+                    }
+                    this.forceUpdate();
+                });
             }
 
             if (domain === 'shop') {

@@ -334,6 +334,12 @@ export const ca = {
     heroes_uxelm_skill_tier_progress: "Progrés de Rang",
     heroes_uxelm_skill_title: "Tècniques de {name}",
     heroes_uxelm_skills: "Tècniques",
+    heroes_uxelm_consumables: "Usar objecte",
+    heroes_uxelm_consumables_title: "Usar objecte en {name}",
+    heroes_uxelm_consumable_empty: "No hi ha objectes consumibles usables a l'inventari.",
+    heroes_uxelm_consumable_full_hp: "Els PV ja estan al màxim",
+    heroes_uxelm_consumable_full_mp: "Els PM ja estan al màxim",
+    heroes_uxelm_use: "Usar",
     heroes_uxelm_stat_point_available: "Punts d'Atribut Lliures: {amount}",
     heroes_uxelm_stat_point_busy: "Punts d'Atribut Lliures: {amount} (No assignables en expedició)",
 

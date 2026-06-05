@@ -4,6 +4,7 @@ import { TECHNIQUE_FAMILIES } from '../../../engine/shared/data/CombatData.js';
 import { HeroSkillsModal } from './components/HeroSkillsModal.js';
 import { TrainerModal, WitchModal, AcademyModal, HallOfFameModal } from './components/HeroTrainingModals.js';
 import { HeroInscriptionModal } from './components/HeroInscriptionModal.js';
+import { HeroConsumablesModal } from './components/HeroConsumablesModal.js';
 import { GambitView } from '../gambit/GambitView.js';
 import { createHeroMiniCard } from '../shared/components/HeroMiniCard.js';
 import { createHeroProfilePane } from './components/HeroProfilePane.js';
@@ -66,6 +67,9 @@ export class HeroesView extends BaseView {
             },
             onOpenSkills: () => {
                 this._openSkillsModal();
+            },
+            onOpenConsumables: () => {
+                this._openConsumablesModal();
             },
             onBack: () => {
                 this.selectedHeroId = null;
@@ -224,6 +228,15 @@ export class HeroesView extends BaseView {
         const hero = this.lastRawState?.heroes?.find(h => h.id === this.selectedHeroId);
         HeroSkillsModal.show(hero, this.t.bind(this), (familyId) => {
             this.emit('learnFamily', { heroId: this.selectedHeroId, familyId });
+        });
+    }
+
+    _openConsumablesModal() {
+        const hero = this.lastRawState?.heroes?.find(h => h.id === this.selectedHeroId);
+        if (!hero) return;
+        const consumables = this.lastRawState?.inventory?.consumables || {};
+        HeroConsumablesModal.show(hero, consumables, this.t.bind(this), (consumableId) => {
+            this.emit('useConsumable', { heroId: this.selectedHeroId, consumableId });
         });
     }
 

@@ -9,6 +9,7 @@ import { HeroInscriptionModal } from '../../js/presentation/ui/heroes/components
 import { HeroSkillsModal } from '../../js/presentation/ui/heroes/components/HeroSkillsModal.js';
 import { TrainerModal, WitchModal, AcademyModal, HallOfFameModal } from '../../js/presentation/ui/heroes/components/HeroTrainingModals.js';
 import { EquipmentView } from '../../js/presentation/ui/heroes/components/EquipmentView.js';
+import { HeroConsumablesModal } from '../../js/presentation/ui/heroes/components/HeroConsumablesModal.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const heroesHtmlPath = path.resolve(__dirname, '../../pages/heroes.html');
@@ -333,6 +334,80 @@ test('HeroesView DOM Refactor', async (t) => {
             assert.ok(overlay);
             assert.ok(overlay.textContent.includes('hall_of_fame_uxelm_title'));
             overlay.remove();
+        } finally {
+            const overlay = document.body.querySelector('.modal-overlay');
+            if (overlay) overlay.remove();
+        }
+    });
+
+    await t.test('HeroConsumablesModal renders consumables and clicking Use triggers callback', () => {
+        const hero = {
+            id: 'hero_1',
+            name: 'Arthur',
+            hp: 50,
+            maxHp: 100,
+            mp: 20,
+            maxMp: 40
+        };
+        const consumables = { tiny_hp_potion: 3, tiny_mp_potion: 2 };
+        const tFunc = (k) => k;
+        const emitted = [];
+        const onUse = (consumableId) => emitted.push(consumableId);
+
+        try {
+            HeroConsumablesModal.show(hero, consumables, tFunc, onUse);
+
+            const overlay = document.body.querySelector('.modal-overlay');
+            assert.ok(overlay, 'Modal overlay should exist');
+            assert.ok(overlay.textContent.includes('heroes_uxelm_consumables_title'), 'Title should be present');
+            assert.ok(overlay.textContent.includes('item_tiny_hp_potion'), 'HP potion should be listed');
+            assert.ok(overlay.textContent.includes('item_tiny_mp_potion'), 'MP potion should be listed');
+
+            // Find and click the Use button for the HP potion
+            const buttons = Array.from(overlay.querySelectorAll('button'));
+            const useButtons = buttons.filter(b => b.textContent.includes('heroes_uxelm_use'));
+            assert.strictEqual(useButtons.length, 2, 'Should have 2 Use buttons');
+
+            // First button should be for HP potion (first in the list)
+            const hpUseBtn = useButtons[0];
+            assert.ok(!hpUseBtn.disabled, 'HP potion Use button should be enabled');
+            hpUseBtn.dispatchEvent(new Event('click'));
+
+            assert.strictEqual(emitted.length, 1, 'Callback should have been called once');
+            assert.strictEqual(emitted[0], 'tiny_hp_potion', 'Should emit tiny_hp_potion');
+        } finally {
+            const overlay = document.body.querySelector('.modal-overlay');
+            if (overlay) overlay.remove();
+        }
+    });
+
+    await t.test('HeroConsumablesModal disables button when HP/MP is full', () => {
+        const hero = {
+            id: 'hero_1',
+            name: 'Arthur',
+            hp: 100,
+            maxHp: 100,
+            mp: 40,
+            maxMp: 40
+        };
+        const consumables = { tiny_hp_potion: 3, tiny_mp_potion: 2 };
+        const tFunc = (k) => k;
+        const emitted = [];
+        const onUse = (consumableId) => emitted.push(consumableId);
+
+        try {
+            HeroConsumablesModal.show(hero, consumables, tFunc, onUse);
+
+            const overlay = document.body.querySelector('.modal-overlay');
+            assert.ok(overlay);
+
+            const buttons = Array.from(overlay.querySelectorAll('button'));
+            const useButtons = buttons.filter(b => b.textContent.includes('heroes_uxelm_use'));
+            assert.strictEqual(useButtons.length, 2);
+
+            // Both should be disabled because HP and MP are full
+            assert.ok(useButtons[0].disabled, 'HP potion button should be disabled when HP full');
+            assert.ok(useButtons[1].disabled, 'MP potion button should be disabled when MP full');
         } finally {
             const overlay = document.body.querySelector('.modal-overlay');
             if (overlay) overlay.remove();

@@ -259,6 +259,31 @@ export class GameEngine {
         return this.heroService.learnHeroFamily(heroId, familyId);
     }
 
+    useHeroConsumable(heroId, consumableId) {
+        const hero = this.heroService.get(heroId);
+        if (!hero) return Result.fail('heroes_error_hero_not_found');
+
+        const data = CONSUMABLES_DATA[consumableId];
+        if (!data) return Result.fail('combat_error_consumable_invalid');
+
+        const useResult = this.inventoryService.useItem(consumableId, 1);
+        if (!useResult.success) return useResult;
+
+        let amountRestored = 0;
+        if (data.type === 'HEAL_HP') {
+            amountRestored = Math.floor(hero.maxHp * data.amount);
+            hero.hp = Math.min(hero.maxHp, hero.hp + amountRestored);
+        } else if (data.type === 'HEAL_MP') {
+            amountRestored = Math.floor(hero.maxMp * data.amount);
+            hero.mp = Math.min(hero.maxMp, hero.mp + amountRestored);
+        } else {
+            return Result.fail('combat_error_consumable_invalid');
+        }
+
+        this.heroService.saveAll();
+        return Result.ok({ hero, amountRestored, type: data.type });
+    }
+
     inscribeHeroBodyCircle(heroId, glyphIds, glyphTiers) {
         const check = this._assertHeroAvailable(heroId);
         if (!check.success) return check;

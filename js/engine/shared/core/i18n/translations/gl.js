@@ -334,6 +334,12 @@ export const gl = {
     heroes_uxelm_skill_tier_progress: "Progreso de Rango",
     heroes_uxelm_skill_title: "Técnicas de {name}",
     heroes_uxelm_skills: "Técnicas",
+    heroes_uxelm_consumables: "Usar obxecto",
+    heroes_uxelm_consumables_title: "Usar obxecto en {name}",
+    heroes_uxelm_consumable_empty: "Non hai obxectos consumibles usables no inventario.",
+    heroes_uxelm_consumable_full_hp: "Os PV xa están ao máximo",
+    heroes_uxelm_consumable_full_mp: "Os PM xa están ao máximo",
+    heroes_uxelm_use: "Usar",
     heroes_uxelm_stat_point_available: "Puntos de Atributo Libres: {amount}",
     heroes_uxelm_stat_point_busy: "Puntos de Atributo Libres: {amount} (Non asignables en expedición)",
 

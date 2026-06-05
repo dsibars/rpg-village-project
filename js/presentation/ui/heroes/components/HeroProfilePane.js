@@ -23,6 +23,7 @@ export function createHeroProfilePane({
     onOpenGambits,
     onOpenEquipment,
     onOpenSkills,
+    onOpenConsumables,
     onBack,
     t
 }) {
@@ -58,9 +59,10 @@ export function createHeroProfilePane({
     const gambitBtn = el('button', { class: 'btn btn-secondary btn-sm', onClick: onOpenGambits }, ['🎲 ' + t('gambit_uxelm_title')]);
     const equipmentBtn = el('button', { class: 'btn btn-secondary btn-sm', onClick: onOpenEquipment }, ['🛡️ ' + t('inventory_uxelm_equipment')]);
     const skillsBtn = el('button', { class: 'btn btn-secondary btn-sm', onClick: onOpenSkills }, ['⚔️ ' + t('heroes_uxelm_skills')]);
+    const consumablesBtn = el('button', { class: 'btn btn-secondary btn-sm', onClick: onOpenConsumables }, ['🧪 ' + t('heroes_uxelm_consumables')]);
 
     const buttonsContainer = el('div', { class: 'hero-quick-links' }, [
-        trainerBtn, magicCircleBtn, witchBtn, academyBtn, hallBtn, inscribeBtn, gambitBtn, equipmentBtn, skillsBtn
+        trainerBtn, magicCircleBtn, witchBtn, academyBtn, hallBtn, inscribeBtn, gambitBtn, equipmentBtn, skillsBtn, consumablesBtn
     ]);
 
     // Stats Grid

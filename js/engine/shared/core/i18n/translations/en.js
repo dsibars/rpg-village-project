@@ -334,6 +334,12 @@ export const en = {
     heroes_uxelm_skill_tier_progress: "Tier Progress",
     heroes_uxelm_skill_title: "{name}'s Skills",
     heroes_uxelm_skills: "Skills",
+    heroes_uxelm_consumables: "Use Item",
+    heroes_uxelm_consumables_title: "Use Item on {name}",
+    heroes_uxelm_consumable_empty: "No usable consumables in inventory.",
+    heroes_uxelm_consumable_full_hp: "HP is already full",
+    heroes_uxelm_consumable_full_mp: "MP is already full",
+    heroes_uxelm_use: "Use",
     heroes_uxelm_stat_point_available: "Unassigned Stat Points: {amount}",
     heroes_uxelm_stat_point_busy: "Unassigned Stat Points: {amount} (Cannot assign on expedition)",
 

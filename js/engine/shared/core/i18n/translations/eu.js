@@ -334,6 +334,12 @@ export const eu = {
     heroes_uxelm_skill_tier_progress: "Maila Aurrerapena",
     heroes_uxelm_skill_title: "{name}-(r)en Teknikak",
     heroes_uxelm_skills: "Teknikak",
+    heroes_uxelm_consumables: "Erabili objektua",
+    heroes_uxelm_consumables_title: "Erabili objektua {name}-(e)n",
+    heroes_uxelm_consumable_empty: "Ez dago erabil daitezkeen objektu kontsumigarririk inbentarioan.",
+    heroes_uxelm_consumable_full_hp: "BP-ak jada maximoa dira",
+    heroes_uxelm_consumable_full_mp: "MP-ak jada maximoa dira",
+    heroes_uxelm_use: "Erabili",
     heroes_uxelm_stat_point_available: "Esleitu Gabeko Atributu Puntuak: {amount}",
     heroes_uxelm_stat_point_busy: "Esleitu Gabeko Atributu Puntuak: {amount} (Ezin dira esleitu espedizioan)",
 
