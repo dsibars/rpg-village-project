@@ -46,13 +46,33 @@
       v-if="showCombatOverlay"
       @close="showCombatOverlay = false"
     />
+
+    <IntroDialog
+      v-if="showIntro"
+      @close="showIntro = false"
+    />
+
+    <DailyReportModal
+      v-if="showDailyReport"
+      :report="dailyReport"
+      @close="showDailyReport = false"
+    />
+
+    <PresentationModal
+      v-if="showPresentation"
+      :open="showPresentation"
+      :presentation="currentPresentation"
+      @complete="onPresentationComplete"
+      @close="showPresentation = false"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref, computed, shallowRef, onErrorCaptured } from 'vue'
+import { ref, computed, shallowRef, onErrorCaptured, watch } from 'vue'
 import { useI18n } from './core/composables/useI18n.js'
 import { useGameState } from './core/composables/useGameState.js'
+import { useNarrativeToasts } from './core/composables/useNarrativeToasts.js'
 import TopBar from './components/TopBar.vue'
 import FooterNav from './components/FooterNav.vue'
 import ToastContainer from './components/ToastContainer.vue'
@@ -63,6 +83,10 @@ import AdventurePage from './features/adventure/AdventurePage.vue'
 import TownPage from './features/town/TownPage.vue'
 import SettingsPage from './features/settings/SettingsPage.vue'
 import CombatOverlay from './features/combat/CombatOverlay.vue'
+import IntroDialog from './features/shared/IntroDialog.vue'
+import DailyReportModal from './features/village/components/modals/DailyReportModal.vue'
+import PresentationModal from './features/shared/PresentationModal.vue'
+import { useAdapter } from './core/composables/useAdapter.js'
 
 const props = defineProps({
   engine: { type: Object, default: null },
@@ -71,12 +95,39 @@ const props = defineProps({
 })
 
 const { t } = useI18n()
-const { day, village } = useGameState()
+const { gameState, day, village, activeBattle } = useGameState()
+const { dispatch } = useAdapter()
+useNarrativeToasts()
 
 const currentPage = ref('village')
 const showCombatOverlay = ref(false)
+const showIntro = ref(false)
+const showDailyReport = ref(false)
 const pageError = shallowRef(null)
 const saveSlots = ref([])
+
+// Presentation queue (PostDaySequencer Step 1)
+const presentationQueue = ref([])
+const currentPresentation = ref(null)
+const showPresentation = ref(false)
+const presentationsDone = ref(true)
+
+// Auto-show combat overlay when battle starts
+watch(activeBattle, (battle) => {
+  if (battle && !battle.isOver) {
+    showCombatOverlay.value = true
+  }
+}, { immediate: true })
+
+// Daily report watcher — gated behind presentation completion
+const dailyReport = computed(() => gameState.value.village?.lastDailyReport || null)
+const dismissedReportDay = ref(null)
+
+watch(dailyReport, (report) => {
+  if (report && report.day !== dismissedReportDay.value && presentationsDone.value) {
+    showDailyReport.value = true
+  }
+})
 
 const hasSlotSelected = computed(() => props.persistence?.slotIndex !== null)
 
@@ -130,8 +181,66 @@ function onDeleteSlot(index) {
   refreshSaveSlots()
 }
 
+function showNextPresentation() {
+  if (presentationQueue.value.length === 0) {
+    currentPresentation.value = null
+    showPresentation.value = false
+    presentationsDone.value = true
+    // Now allow daily report to show
+    if (dailyReport.value && dailyReport.value.day !== dismissedReportDay.value) {
+      showDailyReport.value = true
+    }
+    return
+  }
+  const pres = presentationQueue.value.shift()
+  currentPresentation.value = pres
+  showPresentation.value = true
+}
+
+function onPresentationComplete() {
+  // Mark as seen
+  if (currentPresentation.value?.id) {
+    dispatch('presentation', 'markAsSeen', { presentationId: currentPresentation.value.id })
+  }
+  showPresentation.value = false
+  // Small delay before next presentation
+  setTimeout(showNextPresentation, 300)
+}
+
 function onNextDay() {
-  props.engine?.advanceDay?.()
+  if (!props.engine) return
+
+  // Run the day
+  const report = props.engine.nextDay()
+  presentationsDone.value = false
+
+  // Check for expedition battle
+  if (report?.expedition?.status === 'battle_started') {
+    // Combat overlay will auto-open via activeBattle watcher
+    // After combat, presentations and daily report will proceed
+    presentationsDone.value = true
+    return
+  }
+
+  // Check for expedition with combat log (auto-resolved)
+  if (report?.expedition?.combatLog) {
+    // Battle was auto-resolved; just proceed to post-day
+  }
+
+  // Check for pending presentations (PostDaySequencer Step 1)
+  const ps = props.engine.presentationService
+  const pendingIds = ps?.state?.pendingPresentations || []
+  if (pendingIds.length > 0) {
+    presentationQueue.value = pendingIds
+      .map(id => ps?.replayPresentation?.(id))
+      .filter(Boolean)
+    showNextPresentation()
+  } else {
+    presentationsDone.value = true
+    if (report) {
+      showDailyReport.value = true
+    }
+  }
 }
 
 function clearPageError() {

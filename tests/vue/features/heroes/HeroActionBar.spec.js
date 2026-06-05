@@ -17,9 +17,9 @@ function mountWithProviders(props) {
 }
 
 describe('HeroActionBar', () => {
-  it('renders four action buttons', () => {
+  it('renders default action buttons', () => {
     const wrapper = mountWithProviders({ hero: { id: 'h1' } })
-    expect(wrapper.findAll('.action-btn').length).toBe(4)
+    expect(wrapper.findAll('.action-btn').length).toBe(5)
   })
 
   it('emits action id when clicked', async () => {

@@ -156,18 +156,33 @@ function handleSuggestPreset() {
 
 function handleTestStart(enemies) {
   showTestSetup.value = false
-  emit('action', 'testGambits', { heroId: props.hero.id, enemies })
-  // Mock results for PoC — real wiring will use engine.testHeroGambits()
-  setTimeout(() => {
+  const result = emit('action', 'testGambits', { heroId: props.hero.id, enemies })
+  // The adapter dispatches to engine and returns the result.
+  // If the parent (HeroesPage) calls dispatch and returns the result,
+  // we can use it directly. Otherwise we show results on next state update.
+  // For now, we rely on the action result being passed back.
+  if (result && typeof result === 'object') {
     testResult.value = {
-      runs: 10, victories: 7, defeats: 3,
-      avgHpRemaining: 45, avgMpRemaining: 30,
-      log: ['Mock combat log entry 1', 'Mock combat log entry 2']
+      runs: result.runs || 0,
+      victories: result.victories || 0,
+      defeats: result.defeats || 0,
+      avgHpRemaining: result.avgHpRemaining || 0,
+      avgMpRemaining: result.avgMpRemaining || 0,
+      log: result.log || []
     }
-    testHealthScore.value = 72
-    testRating.value = 'functional'
+    const winRate = result.runs > 0 ? result.victories / result.runs : 0
+    testHealthScore.value = Math.round((result.avgHpRemaining / (props.hero.maxHp || 100)) * 100)
+    testRating.value = winRate >= 0.8 ? 'robust' : winRate >= 0.5 ? 'functional' : 'fragile'
     showTestResults.value = true
-  }, 500)
+  } else {
+    // Fallback: wait a tick then show basic results
+    setTimeout(() => {
+      testResult.value = { runs: 10, victories: 0, defeats: 0, avgHpRemaining: 0, avgMpRemaining: 0, log: [] }
+      testHealthScore.value = 0
+      testRating.value = 'untested'
+      showTestResults.value = true
+    }, 500)
+  }
 }
 </script>
 

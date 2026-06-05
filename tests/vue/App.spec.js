@@ -79,8 +79,8 @@ describe('App.vue', () => {
 
   it('emits nextDay when top bar button is clicked', async () => {
     const persistence = { slotIndex: 0 }
-    const advanceDay = vi.fn()
-    const engine = { advanceDay }
+    const nextDay = vi.fn(() => ({}))
+    const engine = { nextDay, presentationService: { state: { pendingPresentations: [] } } }
 
     const wrapper = mount(App, {
       props: { engine, persistence, saveSlotManager: { listSlots: vi.fn() } },
@@ -88,7 +88,7 @@ describe('App.vue', () => {
     })
 
     await wrapper.find('.btn-next-day').trigger('click')
-    expect(advanceDay).toHaveBeenCalled()
+    expect(nextDay).toHaveBeenCalled()
   })
 
   it('selects a save slot and initialises the engine', async () => {

@@ -1,5 +1,12 @@
 <template>
   <div class="heroes-page">
+    <div v-if="pageError" class="page-error-banner" role="alert">
+      <p>{{ pageError }}</p>
+      <Button size="sm" variant="secondary" @click="pageError = null">
+        {{ t('shared_uxelm_dismiss') }}
+      </Button>
+    </div>
+
     <div class="heroes-layout" :class="{ 'detail-active': selectedHeroId }">
       <aside class="heroes-list-panel">
         <header class="list-header">
@@ -117,11 +124,18 @@
       @action="handleGambitAction"
       @close="activeModal = null"
     />
+
+    <MagicCircleEditor
+      v-if="selectedHero && activeModal === 'magicCircle'"
+      :hero="selectedHero"
+      @close="activeModal = null"
+      @inscribe="handleInscribeSpell"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onErrorCaptured } from 'vue'
 import { useI18n } from '@/core/composables/useI18n.js'
 import { useGameState, useBestiary } from '@/core/composables/useGameState.js'
 import { useAdapter } from '@/core/composables/useAdapter.js'
@@ -138,6 +152,7 @@ import WitchModal from './components/modals/WitchModal.vue'
 import AcademyModal from './components/modals/AcademyModal.vue'
 import HallOfFameModal from './components/modals/HallOfFameModal.vue'
 import GambitEditor from '../gambit/GambitEditor.vue'
+import MagicCircleEditor from '../magic_circle/MagicCircleEditor.vue'
 
 const { t } = useI18n()
 const { heroes, village, inventory } = useGameState()
@@ -146,6 +161,13 @@ const { dispatch } = useAdapter()
 
 const selectedHeroId = ref(null)
 const activeModal = ref(null)
+const pageError = ref(null)
+
+onErrorCaptured((err, instance, info) => {
+  console.error('HeroesPage error:', err, info)
+  pageError.value = err?.message || 'An error occurred in the Heroes page.'
+  return false
+})
 
 const selectedHero = computed(() =>
   heroes.value.find((h) => h.id === selectedHeroId.value) || null
@@ -177,7 +199,7 @@ function allocateStat(statId) {
 function openAction(actionId) {
   const knownModals = [
     'skills', 'consumables', 'equipment', 'inscription',
-    'trainer', 'witch', 'academy', 'hallOfFame', 'gambits'
+    'trainer', 'witch', 'academy', 'hallOfFame', 'gambits', 'magicCircle'
   ]
   if (knownModals.includes(actionId)) {
     activeModal.value = actionId
@@ -186,6 +208,14 @@ function openAction(actionId) {
 
 function handleGambitAction(actionType, payload) {
   dispatch('gambit', actionType, payload)
+}
+
+function handleInscribeSpell({ glyphIds, glyphTiers, name }) {
+  if (!selectedHeroId.value) return
+  dispatch('hero', 'inscribeSpell', {
+    heroId: selectedHeroId.value,
+    spell: { glyphIds, glyphTiers, name }
+  })
 }
 
 function learnFamily(familyId) {
@@ -261,6 +291,23 @@ function inscribeBodyCircle({ glyphIds, glyphTiers }) {
 .mobile-back {
   display: none;
   margin-bottom: var(--spacing-md);
+}
+
+.page-error-banner {
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.page-error-banner p {
+  margin: 0;
 }
 
 @media (max-width: 768px) {

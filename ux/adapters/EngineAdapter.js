@@ -1,4 +1,5 @@
 import { showToast } from '../core/toast.js'
+import { getPresentationById } from '../../js/engine/shared/data/PresentationCatalog.js'
 
 const ACTION_MAP = {
   hero: {
@@ -52,6 +53,34 @@ const ACTION_MAP = {
   },
   settings: {
     devCheatActivate: (engine) => engine.activateDeveloperCheat()
+  },
+  presentation: {
+    getNext: (engine) => {
+      const ps = engine?.presentationService
+      if (!ps) return { success: false, error: 'no_presentation_service' }
+      const id = ps.popNextPresentation()
+      if (!id) return { success: false, error: 'no_pending_presentations' }
+      const pres = getPresentationById(id)
+      return { success: true, data: { id, presentation: pres } }
+    },
+    hasPending: (engine) => {
+      const ps = engine?.presentationService
+      return { success: true, data: ps?.hasPendingPresentations?.() || false }
+    },
+    markAsSeen: (engine, p) => {
+      const ps = engine?.presentationService
+      if (!ps) return { success: false, error: 'no_presentation_service' }
+      const day = engine?.villageService?.getState?.()?.day ?? null
+      ps.markAsSeen(p.presentationId, day)
+      engine?._persistPresentationState?.()
+      return { success: true }
+    },
+    replay: (engine, p) => {
+      const ps = engine?.presentationService
+      if (!ps) return { success: false, error: 'no_presentation_service' }
+      const pres = ps.replayPresentation(p.presentationId)
+      return { success: !!pres, data: pres }
+    }
   }
 }
 

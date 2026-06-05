@@ -9,7 +9,8 @@ function mountWithProviders(component) {
       provide: {
         gameState: shallowRef({}),
         i18n: { t: (k) => k },
-        currentLanguage: { value: 'en' }
+        currentLanguage: { value: 'en' },
+        adapter: { dispatch: () => ({ success: true }) }
       }
     }
   })
@@ -18,7 +19,7 @@ function mountWithProviders(component) {
 describe('VillagePage', () => {
   it('renders heading and placeholder', () => {
     const wrapper = mountWithProviders(VillagePage)
-    expect(wrapper.text()).toContain('shared_uxelm_nav_village')
-    expect(wrapper.text()).toContain('Village overview')
+    expect(wrapper.text()).toContain('shared_uxelm_storage')
+    expect(wrapper.text()).toContain('village_info_building_townhall')
   })
 })

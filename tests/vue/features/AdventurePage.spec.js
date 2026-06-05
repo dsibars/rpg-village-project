@@ -9,7 +9,8 @@ function mountWithProviders(component) {
       provide: {
         gameState: shallowRef({}),
         i18n: { t: (k) => k },
-        currentLanguage: { value: 'en' }
+        currentLanguage: { value: 'en' },
+        adapter: { dispatch: () => ({ success: true }) }
       }
     }
   })
@@ -18,7 +19,7 @@ function mountWithProviders(component) {
 describe('AdventurePage', () => {
   it('renders heading and tab navigation', () => {
     const wrapper = mountWithProviders(AdventurePage)
-    expect(wrapper.text()).toContain('shared_uxelm_nav_adventure')
+    expect(wrapper.text()).toContain('shared_uxelm_nav_explore')
     expect(wrapper.find('.tab-nav').exists()).toBe(true)
   })
 

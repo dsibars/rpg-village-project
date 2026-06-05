@@ -9,7 +9,8 @@ function mountWithProviders(component) {
       provide: {
         gameState: shallowRef({}),
         i18n: { t: (k) => k },
-        currentLanguage: { value: 'en' }
+        currentLanguage: { value: 'en' },
+        adapter: { dispatch: () => ({ success: true }) }
       }
     }
   })

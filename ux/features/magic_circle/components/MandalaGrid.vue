@@ -56,7 +56,7 @@ import { GLYPH_DATA } from '../../../../js/engine/shared/data/MagicCircleData.js
 
 const props = defineProps({
   maxSlots: { type: Number, default: 25 },
-  focusedSlotIndex: { type: Number, default: null },
+  focusedSlotIndex: { type: Number, default: null},
   composition: { type: Array, default: () => [] }
 })
 

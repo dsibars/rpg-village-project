@@ -32,7 +32,7 @@ const emit = defineEmits(['action'])
 const allActions = computed(() => [
   { id: 'skills', icon: '\u{2694}', label: t('heroes_uxelm_skills') },
   { id: 'equipment', icon: '\u{1F6E1}', label: t('inventory_uxelm_equipment') },
-  { id: 'inscription', icon: '\u{2726}', label: t('heroes_uxelm_inscription_title'), visible: props.hero.isInscriptionEligible },
+  { id: 'inscription', icon: '\u{2726}', label: t('heroes_uxelm_inscription_title'), visible: !!props.hero.isInscriptionEligible },
   { id: 'consumables', icon: '\u{1F9EA}', label: t('heroes_uxelm_consumables') },
   { id: 'trainer', icon: '\u{1F4AA}', label: t('trainer_uxelm_title') },
   { id: 'magicCircle', icon: '\u{1F52E}', label: t('magic_circle_uxelm_title'), visible: (props.infrastructure.arcane_sanctum || 0) >= 1 },
