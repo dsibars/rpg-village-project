@@ -1,30 +1,65 @@
-import { createApp } from 'vue'
+import { createApp, shallowRef, ref } from 'vue'
 import App from './App.vue'
+import { createEngineAdapter } from './adapters/EngineAdapter.js'
 import './core/theme.css'
 
 /**
- * Mounts the Vue application.
- * This function is called by js/main.js on switch day.
- * For now, it exists only to prove the pipeline works.
+ * Creates and mounts the Vue application shell.
  *
- * On switch day, this will:
- * 1. Receive the engine instance
- * 2. Provide engine, adapter, and i18n via Vue's provide/inject
- * 3. Mount the Vue app
+ * This function is the bridge between the legacy engine and the new Vue UI.
+ * It receives the engine instance and persistence managers from js/main.js
+ * on switch day, wires up reactive state, starts the throttled game loop,
+ * and returns the mounted app instance.
+ *
+ * @param {Object} options
+ * @param {Object} options.engine - Legacy game engine instance
+ * @param {Object} options.persistence - Slot-aware Persistence instance
+ * @param {Object} options.saveSlotManager - SaveSlotManager instance
+ * @param {Element} options.container - DOM element to mount the app into
+ * @returns {import('vue').App}
  */
-export function createVueApp({ engine, container }) {
-  const app = createApp(App, { engine })
+export function createVueApp({ engine, persistence, saveSlotManager, container }) {
+  const gameState = shallowRef(engine?.update() || {})
+  const currentLanguage = ref(engine?.i18n?.getCurrentLanguage?.() || 'en')
+  const adapter = createEngineAdapter(engine, gameState)
 
-  // On switch day, these provides enable composables:
-  // const gameState = shallowRef(engine.update())
-  // const currentLanguage = ref(engine.i18n.getCurrentLanguage?.() || 'en')
-  // app.provide('engine', engine)
-  // app.provide('gameState', gameState)
-  // app.provide('adapter', createAdapter(engine, gameState))
-  // app.provide('i18n', engine.i18n)
-  // app.provide('currentLanguage', currentLanguage)
-  // app.config.errorHandler = (err, instance, info) => { ... }
+  const app = createApp(App, { engine, persistence, saveSlotManager })
+
+  app.provide('engine', engine)
+  app.provide('gameState', gameState)
+  app.provide('adapter', adapter)
+  app.provide('i18n', engine?.i18n)
+  app.provide('currentLanguage', currentLanguage)
+
+  app.config.errorHandler = (err, instance, info) => {
+    console.error('Global Vue error:', err, info)
+  }
 
   app.mount(container)
+
+  // Throttled game loop: update reactive gameState at 10 FPS.
+  // Higher-frequency updates can be enabled later for combat animations.
+  let lastUpdate = 0
+  const GAME_LOOP_INTERVAL = 100
+  let frameId = null
+
+  function gameLoop(timestamp) {
+    if (timestamp - lastUpdate >= GAME_LOOP_INTERVAL) {
+      gameState.value = engine?.update() || {}
+      lastUpdate = timestamp
+    }
+    frameId = requestAnimationFrame(gameLoop)
+  }
+
+  if (engine) {
+    frameId = requestAnimationFrame(gameLoop)
+  }
+
+  // Expose a clean unmount path for tests and hot-reload scenarios.
+  app._rpgvillageUnmount = () => {
+    if (frameId) cancelAnimationFrame(frameId)
+    app.unmount()
+  }
+
   return app
 }

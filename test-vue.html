@@ -17,11 +17,47 @@
 <body>
   <div id="vue-app"></div>
   <script type="module">
-    import { createApp } from 'vue'
-    import App from './ux/App.vue'
+    import { createVueApp } from './ux/main.js'
 
-    const app = createApp(App, { engine: null })
-    app.mount('#vue-app')
+    // Lightweight mock engine for manual visual testing.
+    const mockEngine = {
+      update: () => ({
+        village: { day: 12, gold: 340, population: 5, wood: 80 },
+        heroes: [{ id: 'h1', name: 'Elena' }, { id: 'h2', name: 'Bran' }],
+        inventory: {},
+        expeditions: []
+      }),
+      initialize: () => {},
+      advanceDay: () => {},
+      i18n: {
+        t: (key) => key,
+        setLanguage: () => true,
+        getCurrentLanguage: () => 'en'
+      }
+    }
+
+    const mockPersistence = {
+      slotIndex: 0,
+      setSlot: (index) => { mockPersistence.slotIndex = index },
+      clearSlot: () => { mockPersistence.slotIndex = null }
+    }
+
+    const mockSaveSlotManager = {
+      listSlots: () => [
+        { index: 0, exists: true, day: 12, lastPlayedAt: new Date().toISOString() },
+        { index: 1, exists: false },
+        { index: 2, exists: false }
+      ],
+      createSlot: () => {},
+      deleteSlot: () => {}
+    }
+
+    createVueApp({
+      engine: mockEngine,
+      persistence: mockPersistence,
+      saveSlotManager: mockSaveSlotManager,
+      container: document.getElementById('vue-app')
+    })
   </script>
 </body>
 </html>
