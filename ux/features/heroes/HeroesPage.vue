@@ -37,6 +37,8 @@
         <HeroProfile
           v-if="selectedHero"
           :hero="selectedHero"
+          :infrastructure="village.infrastructure || {}"
+          :heroes="heroes"
           @allocate-stat="allocateStat"
           @open-action="openAction"
         />
@@ -78,13 +80,50 @@
       @close="activeModal = null"
       @inscribe="inscribeBodyCircle"
     />
+
+    <TrainerModal
+      v-if="selectedHero && activeModal === 'trainer'"
+      :hero="selectedHero"
+      :open="true"
+      @close="activeModal = null"
+    />
+
+    <WitchModal
+      v-if="selectedHero && activeModal === 'witch'"
+      :heroes="heroes"
+      :selected-hero="selectedHero"
+      :open="true"
+      @close="activeModal = null"
+    />
+
+    <AcademyModal
+      v-if="selectedHero && activeModal === 'academy'"
+      :open="true"
+      @close="activeModal = null"
+    />
+
+    <HallOfFameModal
+      v-if="selectedHero && activeModal === 'hallOfFame'"
+      :hero="selectedHero"
+      :open="true"
+      @close="activeModal = null"
+    />
+
+    <GambitEditor
+      v-if="selectedHero && activeModal === 'gambits'"
+      :hero="selectedHero"
+      :bestiary="bestiary"
+      :enemy-templates="enemyTemplates"
+      @action="handleGambitAction"
+      @close="activeModal = null"
+    />
   </div>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue'
 import { useI18n } from '@/core/composables/useI18n.js'
-import { useGameState } from '@/core/composables/useGameState.js'
+import { useGameState, useBestiary } from '@/core/composables/useGameState.js'
 import { useAdapter } from '@/core/composables/useAdapter.js'
 import Button from '@/components/Button.vue'
 import HeroList from './components/HeroList.vue'
@@ -94,9 +133,15 @@ import HeroSkillsModal from './components/modals/HeroSkillsModal.vue'
 import HeroConsumablesModal from './components/modals/HeroConsumablesModal.vue'
 import HeroEquipmentModal from './components/modals/HeroEquipmentModal.vue'
 import HeroInscriptionModal from './components/modals/HeroInscriptionModal.vue'
+import TrainerModal from './components/modals/TrainerModal.vue'
+import WitchModal from './components/modals/WitchModal.vue'
+import AcademyModal from './components/modals/AcademyModal.vue'
+import HallOfFameModal from './components/modals/HallOfFameModal.vue'
+import GambitEditor from '../gambit/GambitEditor.vue'
 
 const { t } = useI18n()
 const { heroes, village, inventory } = useGameState()
+const { bestiary, enemyTemplates } = useBestiary()
 const { dispatch } = useAdapter()
 
 const selectedHeroId = ref(null)
@@ -130,9 +175,17 @@ function allocateStat(statId) {
 }
 
 function openAction(actionId) {
-  if (['skills', 'consumables', 'equipment', 'inscription'].includes(actionId)) {
+  const knownModals = [
+    'skills', 'consumables', 'equipment', 'inscription',
+    'trainer', 'witch', 'academy', 'hallOfFame', 'gambits'
+  ]
+  if (knownModals.includes(actionId)) {
     activeModal.value = actionId
   }
+}
+
+function handleGambitAction(actionType, payload) {
+  dispatch('gambit', actionType, payload)
 }
 
 function learnFamily(familyId) {

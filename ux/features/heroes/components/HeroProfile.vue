@@ -35,7 +35,12 @@
           </strong>
         </div>
 
-        <HeroActionBar :hero="hero" @action="$emit('openAction', $event)" />
+        <HeroActionBar
+          :hero="hero"
+          :infrastructure="infrastructure"
+          :heroes="heroes"
+          @action="$emit('openAction', $event)"
+        />
       </div>
     </div>
 
@@ -52,7 +57,9 @@ import HeroActionBar from './HeroActionBar.vue'
 import HeroStatsGrid from './HeroStatsGrid.vue'
 
 const props = defineProps({
-  hero: { type: Object, required: true }
+  hero: { type: Object, required: true },
+  infrastructure: { type: Object, default: () => ({}) },
+  heroes: { type: Array, default: () => [] }
 })
 
 defineEmits(['allocateStat', 'openAction'])
