@@ -1,430 +1,1197 @@
-# Migration Sequencing Roadmap
+# Migration Sequencing Roadmap — Vue 3 Presentation Layer
 
-> **Status:** Idea / Strategic Reference
->
 > **Companion Document:** [Core Initiative: Component-Based UI Architecture with Vue 3](./core_initiative_component_based_ui.md)
 >
-> **Purpose:** This document provides a high-level sequencing strategy for migrating the presentation layer to the Vue 3 component-based architecture defined in the core initiative. It does **not** contain implementation details, file-level edits, or test plans — those belong in per-phase implementation plans.
+> **Purpose:** This is the canonical work plan. It is updated after every migration session. A fresh agent session can read this file, find the first unchecked step, and continue without asking questions.
 
 ---
 
-## 1. Guiding Principles for Sequencing
+## 📋 How to Resume Migration (READ THIS FIRST ON EVERY SESSION)
 
-### 1.1 Parallel Build, Single Cutover
+1. **Read this file** completely. It contains the ground truth of what is done vs. remaining.
+2. **Check current state:** Run `git status` and `git diff --stat` to see what files are modified/uncommitted from the last session.
+3. **Find the next step:** Scroll to the "Remaining Steps" section. The first unchecked box is your target.
+4. **Read legacy source files:** Every step lists the exact legacy files to study before writing Vue equivalents.
+5. **Read existing Vue files:** Every step lists related `ux/` files that already exist and may need modification.
+6. **Implement the step.** Follow the contract defined in the core initiative (§4, §10).
+7. **Verify:** Run `npm run build` and the test commands listed in the step.
+8. **Update this file:** Check off the completed step. If work was partially done, add a note in the step's "Status" field.
+9. **Commit:** `git add -A && git commit -m "migration: <step-name>"`
 
-The new presentation layer (`ux/`) is built entirely in isolation. The old presentation layer (`js/presentation/`, `pages/`, `css/`) is **frozen** — no edits, no bug fixes, no new features during migration. When the new layer is complete, a single commit changes `js/main.js` to mount the Vue app instead of the old UI controller. The old code is then deleted.
-
-This eliminates:
-- Temporary compatibility code
-- Dual-system maintenance
-- Feature flags or runtime toggles
-- Risk of breaking the running game
-
-**Coexistence bridge for development:** During Phase 3, developers may need to compare Vue components against legacy views. A documented bridge pattern (see §6.4 in the core initiative) allows mounting legacy views inside Vue pages for side-by-side verification. This bridge is **not for production** — it is a development aid only.
-
-### 1.2 Validate Before Scale
-
-The component contract (Vue SFC with `<script setup>`) is new to this codebase. We must prove it works with a real, player-visible feature before applying it to all domains.
-
-### 1.3 Infrastructure Before Features
-
-Shared infrastructure (composables, common UI primitives, theme tokens, path aliases) must exist before domain components depend on it. Building `GambitRow` before `Button` and `ModalFrame` means `GambitRow` invents its own button patterns, creating debt.
-
-### 1.4 Adapter Simplification Enables Domain Work
-
-The current `EngineAdapter.js` uses a manual per-event switch statement (`if (domain === 'heroes') { view.on('increaseStat', ...) }`). The new adapter uses a generic dispatcher (`adapter.dispatch('hero', 'increaseStat', payload)`). Building the new adapter early ensures all domain components use the uniform interface from day one.
-
-### 1.5 Player-Visible Features First
-
-Domains that players interact with most (Heroes, Gambits, Combat) should be prioritized over background systems (Settings, Chronicle, Codex). This ensures the migration delivers user-facing value continuously.
+**Critical rules while migrating:**
+- The legacy presentation layer (`js/presentation/`, `pages/`, `css/views/`) is **FROZEN** — never edit it.
+- Every new component is a `.vue` SFC with `<template>`, `<script setup>`, `<style scoped>`.
+- Feature components use composables (`useI18n()`, `useGameState()`, `useAdapter()`). Primitives do not.
+- Do not rename translation keys. Use `useI18n()` — never pass `t` as a prop.
+- The engine (`js/engine/`) is untouched. All engine access goes through `ux/adapters/EngineAdapter.js`.
+- If you discover a missing engine action in the adapter, add it to `ACTION_MAP` in `ux/adapters/EngineAdapter.js`.
 
 ---
 
-## 2. Phase Overview
+## ✅ State Tracker
 
-| Phase | Name | Goal | Approximate Scope |
-|-------|------|------|-------------------|
-| **0** | The Setup | Add Vue 3 to the project, configure Vite, create `ux/` directory, verify build pipeline | `package.json`, `vite.config.js`, `ux/` skeleton |
-| **1** | Proof of Concept | Validate the Vue architecture with one self-contained, player-visible feature | `TrainingGrounds.vue`, `GambitEditor.vue` decomposition |
-| **2** | Shared Infrastructure | Build common primitives and composables that all domains will use | `ux/components/`, `ux/core/composables/`, `ux/core/theme.css` |
-| **3** | Domain Refactors | Componentize each domain page-by-page | `features/heroes/`, `features/combat/`, `features/village/`, etc. |
-| **4** | The Switch & Cleanup | Change `main.js` to mount Vue app, delete old presentation code | `js/main.js`, `js/presentation/`, `pages/`, `css/` |
+Update this section after every session. A checked box means **fully implemented, tested, and wired**.
+
+### Phase 0 — Setup (COMPLETE)
+- [x] Vue 3 + Vite plugin configured (`vite.config.js`, `package.json`)
+- [x] `ux/` directory skeleton created
+- [x] Build pipeline verified (`npm run build` succeeds)
+- [x] Path alias `@/` → `ux/` works
+
+### Phase 1 — Proof of Concept (COMPLETE)
+- [x] GambitEditor.vue + 6 sub-components (`ux/features/gambit/`)
+- [x] All gambit components render with real engine data
+- [x] Gambit test mode UI exists (but still returns **mock** results — see Step 3.7.5)
+
+### Phase 2 — Shared Infrastructure (COMPLETE)
+- [x] Design tokens (`ux/core/theme.css`)
+- [x] Composables: `useI18n.js`, `useGameState.js`, `useAdapter.js`
+- [x] UI primitives: `Button.vue`, `ModalFrame.vue`, `FullViewOverlay.vue`, `TabNav.vue`, `ResourceBar.vue`, `ToastContainer.vue`, `TopBar.vue`, `FooterNav.vue`, `EmptyState.vue`, `LoadingSpinner.vue`, `Icon.vue`, `CloseButton.vue`
+- [x] New EngineAdapter.js with generic `dispatch()` and comprehensive `ACTION_MAP`
+- [x] Toast system (`ux/core/toast.js`)
+
+### Phase 3 — Domain Refactors (IN PROGRESS)
+
+#### 3.1 Heroes Domain (PARTIALLY COMPLETE)
+- [x] HeroesPage.vue shell (master-detail layout, recruit button)
+- [x] HeroList.vue, HeroListItem.vue, HeroEmptyState.vue
+- [x] HeroProfile.vue, HeroStatsGrid.vue, HeroActionBar.vue
+- [x] HeroSkillsModal.vue
+- [x] HeroConsumablesModal.vue
+- [x] HeroEquipmentModal.vue
+- [x] HeroInscriptionModal.vue
+- [ ] TrainerModal.vue
+- [ ] WitchModal.vue
+- [ ] AcademyModal.vue
+- [ ] HallOfFameModal.vue
+- [ ] MagicCircleEditor.vue (global overlay)
+- [ ] Wire GambitEditor into HeroesPage
+- [ ] Wire all remaining hero actions into HeroesPage action bar
+- [ ] Heroes domain integration polish
+
+#### 3.2 Combat Domain (NOT STARTED)
+- [ ] CombatHeader.vue + CombatActorGrid.vue
+- [ ] CombatActionPanel.vue + targeting system
+- [ ] CombatLogConsole.vue
+- [ ] CombatResolutionPane.vue
+- [ ] Wire CombatOverlay.vue in App.vue with real battle state
+
+#### 3.3 Village Domain (NOT STARTED)
+- [ ] VillageCanvas.vue (visual building map)
+- [ ] LaborPool.vue (worker role assignment)
+- [ ] ConstructionQueue.vue
+- [ ] DailyObjectives.vue
+- [ ] VillageCalendar.vue
+- [ ] VillageDefense.vue
+- [ ] VillagePage.vue composer + daily report recall
+
+#### 3.4 Adventure Domain (NOT STARTED)
+- [ ] ExploreTab.vue (expedition list, region map, hero assignment)
+- [ ] ExpeditionDetailPane.vue
+- [ ] ExpeditionTree.vue
+- [ ] BestiaryTab.vue
+- [ ] CodexTab.vue
+- [ ] ChronicleTab.vue
+
+#### 3.5 Town Domain (NOT STARTED)
+- [ ] BuildingsTab.vue
+- [ ] ShopTab.vue
+- [ ] ForgeTab.vue
+- [ ] InventoryTab.vue
+
+#### 3.6 Settings Domain (NOT STARTED)
+- [ ] SettingsPage.vue (language, audio, cheats, save management)
+
+#### 3.7 Global / Cross-Cutting Features (NOT STARTED)
+- [ ] DailyReportModal.vue
+- [ ] UnlockNarrative toast system (replace UnlockNarrativeView.js)
+- [ ] PostDaySequencer integration
+- [ ] ConfirmDialog primitive + IntroDialog
+- [ ] Fix GambitEditor test mode to use real engine results
+- [ ] Add `test:vue` npm script + ensure all Vue tests pass
+
+### Phase 4 — The Switch & Cleanup (NOT STARTED)
+- [ ] Create `index-vue.html` entry point (or modify `index.html`)
+- [ ] Rewrite `js/main.js` to bootstrap Vue app
+- [ ] Delete legacy presentation layer (`js/presentation/`, `pages/`, `css/`)
+- [ ] Final build verification & Electron packaging test
 
 ---
 
-## 3. Phase Details
+## 🔍 Remaining Steps (Atomic)
 
-### Phase 0: The Setup
-
-**Objective:** Add Vue 3 to the project, configure the build pipeline, create the `ux/` directory structure, and prove that Vue components compile correctly without touching the running game.
-
-**Deliverables:**
-
-1. **Dependencies**
-   - `npm install vue`
-   - `npm install -D @vitejs/plugin-vue`
-
-2. **Vite Configuration**
-   - Add `@vitejs/plugin-vue` to `vite.config.js`
-   - Add path alias `@/` → `ux/` for clean imports
-   - Verify `viteSingleFile()` still inlines Vue-compiled assets correctly
-
-3. **`ux/` Directory Structure**
-   ```
-   ux/
-   ├── main.js              # Vue app bootstrap (not yet wired to game)
-   ├── App.vue              # Root shell placeholder
-   ├── core/
-   │   ├── composables/     # Empty, ready for shared logic
-   │   └── theme.css        # Design tokens (empty or minimal)
-   ├── components/          # Empty, ready for primitives
-   ├── features/            # Empty, ready for domains
-   └── adapters/
-       └── EngineAdapter.js # New adapter placeholder
-   ```
-
-4. **Build Verification**
-   - Create a minimal `HelloWorld.vue` in `ux/components/`
-   - Create a minimal `App.vue` that renders it
-   - Verify `npm run build` succeeds and outputs a valid `dist/index.html`
-   - The old game still runs normally because `main.js` has not changed
-
-**Exit Criteria:**
-- `npm run build` succeeds with Vue plugin enabled
-- A Vue component renders correctly in the build output
-- The existing game (old presentation layer) is untouched and still playable
-
-**Dependencies:** None. This phase is purely additive.
-
-**Risk:** Very low. No player-facing changes. If the build breaks, revert `vite.config.js` and `package.json`.
-
-**Implementation Plan:** See [Implementation Plan 0: The Setup](../implementation_plans/0_the_setup.md)
+Each step below is designed to be completable in a single focused session. Steps are ordered by dependency: earlier steps must be done before later ones that import them.
 
 ---
 
-### Phase 1: Proof of Concept
+### Step 3.1.1 — TrainerModal.vue
 
-**Objective:** Prove the Vue architecture works in a real, complex, player-visible feature. Choose features that are self-contained (minimal cross-domain dependencies) and clearly painful in the current architecture.
+**Goal:** Migrate the trainer dialogue modal from legacy to Vue.
 
-**Selected Features:**
+**Legacy source files to study:**
+- `js/presentation/ui/heroes/components/HeroTrainingModals.js` (first ~80 lines — trainer modal)
+- `js/presentation/ui/heroes/HeroesView.js` (search `_openTrainerModal`)
 
-1. **TrainingGrounds.vue**
-   - Currently scattered across `HeroProfilePane.js`, `HeroesView.js`, `HeroTrainingModals.js`, and `EngineAdapter.js`
-   - Target: A single `TrainingGrounds.vue` component that receives a hero and infrastructure, emits actions, and conditionally renders buttons
-   - Validates: Props/emits pattern, conditional rendering (`v-if`), scoped styles, event forwarding
+**New files to create:**
+- `ux/features/heroes/components/modals/TrainerModal.vue`
 
-2. **GambitEditor.vue + Sub-components**
-   - Currently a 962-line `GambitView.js` god class
-   - Target: `GambitEditor.vue` composed of `GambitList.vue`, `GambitRow.vue`, `GambitForm.vue`, `GambitFallbackRow.vue`
-   - Validates: List rendering (`v-for` with `:key`), form handling, two-way data flow, modal composition
+**Files to modify:**
+- `ux/features/heroes/HeroesPage.vue` — add modal import, wire `openAction('trainer')`
+- `ux/features/heroes/components/HeroActionBar.vue` — add trainer button (gated by infrastructure)
 
-**Deliverables:**
-- `ux/features/heroes/components/TrainingGrounds.vue`
+**What to port:**
+- Trainer greeting dialogue with hero name
+- Stat training options (STR, SPD, DEF, MAG) with gold cost display
+- Training confirmation and result toast
+- Infrastructure gating (training grounds building level)
+
+**Verification:**
+- Modal renders inside `ModalFrame`
+- Trainer button appears only when training grounds exist
+- Training action dispatches correctly via adapter
+- Run `npm run build` — zero errors
+
+---
+
+### Step 3.1.2 — WitchModal.vue
+
+**Goal:** Migrate the witch visit/prophecy modal.
+
+**Legacy source files to study:**
+- `js/presentation/ui/heroes/components/HeroTrainingModals.js` (witch section)
+- `js/presentation/ui/heroes/HeroesView.js` (search `_openWitchModal`)
+
+**New files to create:**
+- `ux/features/heroes/components/modals/WitchModal.vue`
+
+**Files to modify:**
+- `ux/features/heroes/HeroesPage.vue`
+- `ux/features/heroes/components/HeroActionBar.vue`
+
+**What to port:**
+- Witch visit status (active/inactive)
+- Prophecy text display
+- Buff/debuff indicators if applicable
+- Infrastructure gating (witch's hut)
+
+**Verification:**
+- Modal renders correctly
+- Witch button gated by witch's hut level
+
+---
+
+### Step 3.1.3 — AcademyModal.vue
+
+**Goal:** Migrate the academy spell design modal.
+
+**Legacy source files to study:**
+- `js/presentation/ui/heroes/components/HeroTrainingModals.js` (academy section)
+- `js/presentation/ui/heroes/HeroesView.js` (search `_openAcademyModal`)
+
+**New files to create:**
+- `ux/features/heroes/components/modals/AcademyModal.vue`
+
+**Files to modify:**
+- `ux/features/heroes/HeroesPage.vue`
+- `ux/features/heroes/components/HeroActionBar.vue`
+
+**What to port:**
+- Spell design interface (if any)
+- Available spell families/tiers
+- Infrastructure gating (academy building)
+
+---
+
+### Step 3.1.4 — HallOfFameModal.vue
+
+**Goal:** Migrate the Hall of Fame modal.
+
+**Legacy source files to study:**
+- `js/presentation/ui/heroes/HeroesView.js` (search `_openHallOfFameModal`)
+- `docs/shared/hall_of_fame.md` for spec reference
+
+**New files to create:**
+- `ux/features/heroes/components/modals/HallOfFameModal.vue`
+
+**Files to modify:**
+- `ux/features/heroes/HeroesPage.vue`
+- `ux/features/heroes/components/HeroActionBar.vue`
+
+**What to port:**
+- List of retired/fallen heroes
+- Stats summary for each entry
+- Infrastructure gating (hall of fame building)
+
+---
+
+### Step 3.1.5 — Wire GambitEditor into HeroesPage
+
+**Goal:** Connect the existing GambitEditor.vue to the hero action bar.
+
+**Existing files to use:**
+- `ux/features/gambit/GambitEditor.vue` (already complete)
+- `ux/features/heroes/HeroesPage.vue`
+
+**Files to modify:**
+- `ux/features/heroes/HeroesPage.vue` — import GambitEditor, add `v-if="activeModal === 'gambits'"` block
+- `ux/features/heroes/components/HeroActionBar.vue` — add gambits button
+
+**What to do:**
+- HeroActionBar gets a "🎲 Gambits" button
+- HeroesPage opens GambitEditor as a FullViewOverlay when clicked
+- Pass the selected hero's gambits and fallback action as props
+- Wire add/move/toggle/remove/preset/test events to adapter dispatch
+- The editor already exists — this step is purely about **wiring**
+
+**Verification:**
+- Gambit button opens the full-screen editor
+- All gambit mutations work and update state
+- Close button returns to HeroesPage
+
+---
+
+### Step 3.1.6 — MagicCircleEditor.vue (Part A: Shell + Glyph Palette)
+
+**Goal:** Begin migrating the 712-line MagicCircleView.js. Part A builds the container shell and glyph palette.
+
+**Legacy source files to study:**
+- `js/presentation/ui/magic_circle/MagicCircleView.js` (read fully — understand structure)
+- `js/presentation/ui/magic_circle/MagicCircleHelper.js`
+- `js/presentation/ui/heroes/HeroesView.js` (search `_openMagicCircleModal`)
+- `js/engine/shared/data/MagicCircleData.js`
+
+**New files to create:**
+- `ux/features/magic_circle/MagicCircleEditor.vue` (shell + palette)
+- `ux/features/magic_circle/components/GlyphPalette.vue`
+- `ux/features/magic_circle/components/TierDial.vue`
+
+**Files to modify:**
+- `ux/App.vue` — add global overlay trigger (or keep as page-level for now)
+- `ux/features/heroes/HeroesPage.vue` — wire magic circle button
+- `ux/features/heroes/components/HeroActionBar.vue` — add magic circle button (gated by arcane sanctum)
+
+**What to port (Part A only):**
+- FullViewOverlay container with title "Magic Circle"
+- Glyph palette drawer with all glyphs from `GLYPH_DATA`
+- Tier dial (1–7 tiers)
+- Close/Escape handling
+- Simulator mode flag (when opened from Settings)
+
+**Do NOT port yet (Part B):**
+- SVG mandala grid
+- Slot interactions
+- Real-time spell composition
+
+**Verification:**
+- Overlay opens from hero action bar
+- Glyph palette renders all glyphs with correct icons
+- Tier dial changes selected tier
+- Escape key closes overlay
+
+---
+
+### Step 3.1.7 — MagicCircleEditor.vue (Part B: Mandala Grid + Slot Interactions)
+
+**Goal:** Build the 25-slot concentric mandala and slot interaction logic.
+
+**Legacy source files to study:**
+- `js/presentation/ui/magic_circle/MagicCircleView.js` (focus on `_createMandala`, slot click handlers)
+
+**New files to create:**
+- `ux/features/magic_circle/components/MandalaGrid.vue`
+- `ux/features/magic_circle/components/MandalaSlot.vue`
+
+**Files to modify:**
+- `ux/features/magic_circle/MagicCircleEditor.vue` — integrate grid + slot components
+
+**What to port:**
+- 25 slots arranged in concentric rings (1 core + 24 ring)
+- Slot click to focus + open palette
+- Glyph placement with adjacency rules
+- Keyboard support (Escape to unfocus)
+- Visual feedback for filled/empty slots
+
+**Verification:**
+- Clicking a slot focuses it
+- Selecting a glyph from palette places it in the focused slot
+- Adjacency rules enforced (disable invalid placements)
+- Escape unfocuses slot, then closes overlay
+
+---
+
+### Step 3.1.8 — MagicCircleEditor.vue (Part C: Spell Preview + Composition)
+
+**Goal:** Wire real-time spell composition and preview panel.
+
+**Legacy source files to study:**
+- `js/presentation/ui/magic_circle/MagicCircleView.js` (spell preview, budget, composition)
+
+**New files to create:**
+- `ux/features/magic_circle/components/SpellPreview.vue`
+- `ux/features/magic_circle/components/BudgetBar.vue`
+
+**Files to modify:**
+- `ux/features/magic_circle/MagicCircleEditor.vue`
+
+**What to port:**
+- `engine.composeSpell()` calls on every slot change
+- Spell element, power, MP cost display
+- Budget bar with color-coded MP usage
+- Polarity display (element vs support)
+- Target count
+- Effect chips
+- Custom spell name input
+- Inscribe button (disabled in simulator mode)
+- Theme color bleed based on element polarity
+
+**Verification:**
+- Placing glyphs updates spell preview in real time
+- Budget bar reflects MP cost vs hero max MP
+- Inscribe button dispatches `hero.inscribeSpell` via adapter
+- Simulator mode disables inscription
+
+---
+
+### Step 3.1.9 — Heroes Domain Integration Polish
+
+**Goal:** Ensure the HeroesPage is fully functional and all edge cases are handled.
+
+**Files to modify:**
+- `ux/features/heroes/HeroesPage.vue`
+- `ux/features/heroes/components/HeroActionBar.vue`
+- `ux/features/heroes/components/HeroProfile.vue`
+
+**What to do:**
+- Add infrastructure gating to ALL action bar buttons (check building levels)
+- Handle hero portrait (currently hardcoded 🦸 — check if engine has per-hero portraits)
+- Add conditional stat increment buttons based on `hero.statPoints > 0 && hero.activity === 'idle'`
+- Ensure recruit button dynamically updates cost
+- Test master-detail mobile responsiveness
+- Add `onErrorCaptured` to HeroesPage
+
+**Verification:**
+- All 8–10 action buttons show/hide correctly based on buildings
+- Mobile layout switches to single-column
+- No console errors when rapidly switching heroes
+- Run existing Vue hero tests: `npx vitest run tests/vue/features/heroes/`
+
+---
+
+### Step 3.2.1 — CombatHeader.vue + CombatActorGrid.vue
+
+**Goal:** Migrate the top portion of combat: turn banner, hero cards, enemy cards.
+
+**Legacy source files to study:**
+- `js/presentation/ui/combat/CombatView.js` (first 400 lines — header, card creation)
+- `js/presentation/ui/combat/components/CombatHeader.js`
+- `js/presentation/ui/combat/components/CombatActorCard.js`
+
+**New files to create:**
+- `ux/features/combat/components/CombatHeader.vue`
+- `ux/features/combat/components/CombatActorGrid.vue`
+- `ux/features/combat/components/CombatActorCard.vue`
+
+**Files to modify:**
+- `ux/features/combat/CombatOverlay.vue` — replace stub with real components
+
+**What to port:**
+- Turn banner with current actor name
+- Hero grid: HP/MP/Stamina bars, status effects (poison, burn, regen, haste, sleep, stun)
+- Enemy grid: same stats + intent indicators
+- Actor selection highlighting
+- Death/knockout visual state
+
+**Verification:**
+- CombatOverlay renders actors from `useActiveBattle()`
+- HP bars update as battle progresses
+- Status effect icons appear with correct tooltips
+
+---
+
+### Step 3.2.2 — CombatActionPanel.vue + Targeting System
+
+**Goal:** Migrate the combat control panel: action buttons, skill menus, targeting.
+
+**Legacy source files to study:**
+- `js/presentation/ui/combat/CombatView.js` (lines 400–800 — control panel, targeting)
+- `js/presentation/ui/combat/components/CombatActionPanel.js`
+
+**New files to create:**
+- `ux/features/combat/components/CombatActionPanel.vue`
+- `ux/features/combat/components/SkillMenu.vue`
+- `ux/features/combat/components/SpellMenu.vue`
+- `ux/features/combat/components/ItemMenu.vue`
+
+**Files to modify:**
+- `ux/features/combat/CombatOverlay.vue`
+
+**What to port:**
+- Main action buttons: Attack, Skills, Magic, Items, Defend, Flee
+- Skills submenu with technique families and tiers
+- Magic submenu with inscribed spells
+- Items submenu with usable consumables
+- Targeting mode: click on actor grid to select target
+- Friendly vs enemy targeting based on skill target type
+- Auto-combat toggle button
+- Skip battle button (for non-interactive battles)
+
+**Verification:**
+- Each menu opens/closes correctly
+- Targeting highlights valid targets
+- Selecting a target dispatches `combat.action` via adapter
+- Auto-combat toggle works
+
+---
+
+### Step 3.2.3 — CombatLogConsole.vue
+
+**Goal:** Migrate the expandable combat log.
+
+**Legacy source files to study:**
+- `js/presentation/ui/combat/CombatView.js` (log rendering, animation)
+- `js/presentation/ui/combat/components/CombatLogConsole.js`
+
+**New files to create:**
+- `ux/features/combat/components/CombatLogConsole.vue`
+
+**Files to modify:**
+- `ux/features/combat/CombatOverlay.vue`
+
+**What to port:**
+- Log entries with event formatting (damage, spell damage, heals, stun, sleep, technique evolution, status ticks, consumable use)
+- Expandable/collapsible panel
+- Scroll-to-bottom on new entries
+- Animation for new log lines
+
+**Verification:**
+- Log displays battle events in real time
+- Expand/collapse works
+- Auto-scrolls to latest entry
+
+---
+
+### Step 3.2.4 — CombatResolutionPane.vue
+
+**Goal:** Migrate the battle end screen.
+
+**Legacy source files to study:**
+- `js/presentation/ui/combat/CombatView.js` (resolution pane, rewards)
+- `js/presentation/ui/combat/components/CombatResolutionPane.js`
+
+**New files to create:**
+- `ux/features/combat/components/CombatResolutionPane.vue`
+
+**Files to modify:**
+- `ux/features/combat/CombatOverlay.vue`
+
+**What to port:**
+- Victory/defeat banner
+- Battle summary (turns taken, damage dealt)
+- Rewards list (gold, items, XP)
+- Hero level-up notifications
+- Continue/return button
+
+**Verification:**
+- Resolution pane shows when battle ends
+- Rewards displayed correctly
+- Continue button closes overlay
+
+---
+
+### Step 3.2.5 — Wire CombatOverlay in App.vue
+
+**Goal:** Connect the fully-built CombatOverlay to real battle state.
+
+**Files to modify:**
+- `ux/App.vue` — replace stub combat trigger with reactive `useActiveBattle()`
+- `ux/features/combat/CombatOverlay.vue` — ensure it reads battle state and emits close
+
+**What to do:**
+- `App.vue` watches for active battle via `useActiveBattle()` composable
+- When battle starts, `showCombatOverlay` becomes true
+- When battle ends (victory/defeat), overlay stays open showing resolution
+- Player manually closes overlay after resolution
+- Test both interactive and non-interactive (auto-resolved) battles
+
+**Verification:**
+- Starting combat opens overlay automatically
+- Battle progresses with real-time updates
+- Overlay survives page navigation (it's global in App.vue)
+- After victory, resolution pane shows; close button works
+
+---
+
+### Step 3.3.1 — VillageCanvas.vue + LaborPool.vue
+
+**Goal:** Migrate the visual village map and worker assignment controls.
+
+**Legacy source files to study:**
+- `js/presentation/ui/village/VillageView.js`
+- `js/presentation/ui/village/components/VillageCanvas.js`
+- `js/presentation/ui/village/components/LaborPool.js`
+
+**New files to create:**
+- `ux/features/village/components/VillageCanvas.vue`
+- `ux/features/village/components/LaborPool.vue`
+
+**Files to modify:**
+- `ux/features/village/VillagePage.vue` — replace stub with real components
+
+**What to port:**
+- VillageCanvas: building tiles with icons, click-to-navigate-to-buildings
+- LaborPool: worker role assignment with +/- buttons (farmers, lumberjacks, miners, builders)
+- Role counts with max limits based on population
+- Visual feedback on role changes
+
+**Verification:**
+- Canvas renders all built buildings
+- Clicking a building emits `navigate` event to Town/Buildings tab
+- Labor pool +/- buttons dispatch `village.setWorkerRole`
+- Worker counts respect population limits
+
+---
+
+### Step 3.3.2 — ConstructionQueue.vue + DailyObjectives.vue
+
+**Goal:** Migrate construction queue and daily objectives display.
+
+**Legacy source files to study:**
+- `js/presentation/ui/village/components/ConstructionQueue.js`
+- `js/presentation/ui/village/components/DailyObjectives.js`
+
+**New files to create:**
+- `ux/features/village/components/ConstructionQueue.vue`
+- `ux/features/village/components/DailyObjectives.vue`
+
+**Files to modify:**
+- `ux/features/village/VillagePage.vue`
+
+**What to port:**
+- ConstructionQueue: list of active projects with progress bars, days remaining, click-to-navigate
+- DailyObjectives: 3 daily goals with checkmarks, rewards preview
+
+**Verification:**
+- Queue shows active projects with accurate progress
+- Objectives show completion state
+- Both update when game state changes
+
+---
+
+### Step 3.3.3 — VillageCalendar.vue + VillageDefense.vue
+
+**Goal:** Migrate calendar display and defense assignment.
+
+**Legacy source files to study:**
+- `js/presentation/ui/village/components/VillageCalendar.js`
+- `js/presentation/ui/village/components/VillageDefense.js`
+
+**New files to create:**
+- `ux/features/village/components/VillageCalendar.vue`
+- `ux/features/village/components/VillageDefense.vue`
+
+**Files to modify:**
+- `ux/features/village/VillagePage.vue`
+
+**What to port:**
+- Calendar: season, day, upcoming events
+- Defense: assignment count, hero assignment/unassignment buttons
+- Defense advisory warning
+
+**Verification:**
+- Calendar shows correct season and day
+- Defense shows assigned heroes
+- Assign/unassign dispatches correctly
+
+---
+
+### Step 3.3.4 — VillagePage.vue Composer + Daily Report
+
+**Goal:** Assemble all village sub-components and wire daily report recall.
+
+**Files to modify:**
+- `ux/features/village/VillagePage.vue` — compose all sub-components into dashboard layout
+
+**What to do:**
+- Layout: Top row = Canvas + Calendar + Defense
+- Middle row = Labor Pool + Construction Queue
+- Bottom row = Daily Objectives
+- Daily report recall button (dispatches to show report modal)
+- Town Hall level display
+- Storage usage bar
+- Error boundary
+
+**Verification:**
+- Full village dashboard renders
+- All sub-components receive correct props
+- Mobile layout stacks vertically
+- Daily report button works
+
+---
+
+### Step 3.4.1 — ExploreTab.vue
+
+**Goal:** Migrate expedition list, region map, and hero assignment.
+
+**Legacy source files to study:**
+- `js/presentation/ui/explore/ExploreView.js`
+- `js/presentation/ui/explore/components/ExpeditionList.js`
+- `js/presentation/ui/explore/components/ExpeditionTree.js`
+- `js/presentation/ui/explore/components/ExpeditionDetailPane.js`
+
+**New files to create:**
+- `ux/features/adventure/components/ExploreTab.vue`
+- `ux/features/adventure/components/ExpeditionList.vue`
+- `ux/features/adventure/components/ExpeditionTree.vue`
+- `ux/features/adventure/components/ExpeditionDetailPane.vue`
+
+**Files to modify:**
+- `ux/features/adventure/AdventurePage.vue` — replace Explore stub
+
+**What to port:**
+- Active expedition status banner
+- Region list with clear counts and active counts
+- Tree view vs list view toggle (persist in localStorage)
+- Expedition detail: description, rewards, hero assignment dropdown
+- Retire expedition button
+- Defense advisory confirmation before starting
+- Completed expedition rewards modal
+
+**Verification:**
+- Expeditions list correctly
+- Tree/list toggle persists
+- Assigning heroes checks defense advisory
+- Retire button works
+
+---
+
+### Step 3.4.2 — BestiaryTab.vue
+
+**Goal:** Migrate enemy discovery grid.
+
+**Legacy source files to study:**
+- `js/presentation/ui/bestiary/BestiaryView.js`
+- `pages/bestiary.html`
+
+**New files to create:**
+- `ux/features/adventure/components/BestiaryTab.vue`
+- `ux/features/adventure/components/BestiaryCard.vue`
+
+**Files to modify:**
+- `ux/features/adventure/AdventurePage.vue`
+
+**What to port:**
+- Grid of enemy cards
+- Discovered vs undiscovered states (silhouette for undiscovered)
+- Type icons, element colors
+- Stats: HP, STR, DEF, SPD
+- Enemy name translation
+
+**Verification:**
+- Grid renders all enemies from `useBestiary()`
+- Undiscovered enemies show placeholder
+- Discovered enemies show full stats
+
+---
+
+### Step 3.4.3 — CodexTab.vue
+
+**Goal:** Migrate game guide/encyclopedia.
+
+**Legacy source files to study:**
+- `js/presentation/ui/codex/CodexView.js`
+
+**New files to create:**
+- `ux/features/adventure/components/CodexTab.vue`
+- `ux/features/adventure/components/CodexEntry.vue`
+
+**Files to modify:**
+- `ux/features/adventure/AdventurePage.vue`
+
+**What to port:**
+- Categorized feature list
+- Lock/unlock states
+- Feature detail with rich formatted descriptions
+- Custom description formatter (tips 💡, bullet lists, subtitles)
+
+**Verification:**
+- Categories render
+- Locked entries show lock icon
+- Unlocked entries show full descriptions with formatting
+
+---
+
+### Step 3.4.4 — ChronicleTab.vue
+
+**Goal:** Migrate story milestones and discovery log.
+
+**Legacy source files to study:**
+- `js/presentation/ui/chronicle/ChronicleView.js`
+
+**New files to create:**
+- `ux/features/adventure/components/ChronicleTab.vue`
+- `ux/features/adventure/components/ChronicleChapter.vue`
+- `ux/features/adventure/components/ChronicleMilestone.vue`
+
+**Files to modify:**
+- `ux/features/adventure/AdventurePage.vue`
+
+**What to port:**
+- Chapter-based milestone tracking (Ch. 1 & 2)
+- Collapsible chapter headers with progress
+- Milestone rows: seen/pending/locked states
+- Replay buttons for narrative unlocks
+- Discovery log section
+- Sub-nav routing to explore/bestiary/codex
+
+**Verification:**
+- Chapters expand/collapse
+- Milestones show correct state
+- Replay button triggers narrative modal
+
+---
+
+### Step 3.5.1 — BuildingsTab.vue
+
+**Goal:** Migrate building management.
+
+**Legacy source files to study:**
+- `js/presentation/ui/buildings/BuildingsView.js`
+- `js/presentation/ui/buildings/components/BuildingList.js`
+- `js/presentation/ui/buildings/components/BuildingDetailPane.js`
+
+**New files to create:**
+- `ux/features/town/components/BuildingsTab.vue`
+- `ux/features/town/components/BuildingList.vue`
+- `ux/features/town/components/BuildingDetailPane.vue`
+
+**Files to modify:**
+- `ux/features/town/TownPage.vue` — replace Buildings stub
+
+**What to port:**
+- Building list with icons and levels
+- Building detail: description, current effects, next level effects
+- Upgrade/build action with cost display (gold + materials)
+- Construction time display
+- Highlight animation when navigated from VillageCanvas
+
+**Verification:**
+- List shows all buildings
+- Detail pane shows correct costs
+- Upgrade button dispatches `buildings.startProject`
+- Highlight works when selected externally
+
+---
+
+### Step 3.5.2 — ShopTab.vue
+
+**Goal:** Migrate shop buy/sell/resources.
+
+**Legacy source files to study:**
+- `js/presentation/ui/shop/ShopView.js`
+- `js/presentation/ui/shop/components/ShopTabs.js`
+- `js/presentation/ui/shop/components/ShopCatalogList.js`
+- `js/presentation/ui/shop/components/ShopDetailPane.js`
+- `js/presentation/ui/shop/utils/ShopUtils.js`
+
+**New files to create:**
+- `ux/features/town/components/ShopTab.vue`
+- `ux/features/town/components/ShopCatalog.vue`
+- `ux/features/town/components/ShopDetailPane.vue`
+
+**Files to modify:**
+- `ux/features/town/TownPage.vue`
+
+**What to port:**
+- Buy tab: consumables, weapons, helmets, armors, legwear, shields
+- Blacksmith tier gating for equipment
+- Sell tab: inventory items with dynamic sell prices
+- Resources tab: grain, wood, stone buying
+- Storage nearly-full warnings
+- Just-bought/sold visual feedback (flash animation)
+- Shop lock overlay until tutorial cave completed
+
+**Verification:**
+- Buy catalog filters by category
+- Equipment gated by blacksmith level
+- Sell prices computed from engine
+- Resource purchases work
+- Storage warning appears when near capacity
+
+---
+
+### Step 3.5.3 — ForgeTab.vue
+
+**Goal:** Migrate equipment refinement.
+
+**Legacy source files to study:**
+- `js/presentation/ui/forge/ForgeView.js`
+- `js/presentation/ui/forge/components/ForgeItemList.js`
+- `js/presentation/ui/forge/components/ForgeDetailPane.js`
+
+**New files to create:**
+- `ux/features/town/components/ForgeTab.vue`
+- `ux/features/town/components/ForgeItemList.vue`
+- `ux/features/town/components/ForgeDetailPane.vue`
+
+**Files to modify:**
+- `ux/features/town/TownPage.vue`
+
+**What to port:**
+- Forge lock overlay until blacksmith level ≥ 1
+- Equipment list merging inventory + equipped items from all heroes
+- `equippedOn` label for hero-worn items
+- Refinement action with material cost and success chance
+- Result feedback
+
+**Verification:**
+- List includes all forgeable items
+- Equipped items show owner hero
+- Refinement dispatches `forge.refineItem`
+- Lock overlay shows when blacksmith < 1
+
+---
+
+### Step 3.5.4 — InventoryTab.vue
+
+**Goal:** Migrate inventory grid and item management.
+
+**Legacy source files to study:**
+- `js/presentation/ui/inventory/InventoryView.js`
+- `js/presentation/ui/inventory/components/InventoryGrid.js`
+- `js/presentation/ui/inventory/components/InventoryDetailPane.js`
+
+**New files to create:**
+- `ux/features/town/components/InventoryTab.vue`
+- `ux/features/town/components/InventoryGrid.vue`
+- `ux/features/town/components/InventoryDetailPane.vue`
+- `ux/features/town/components/TeachGlyphModal.vue` (for glyph tablet teaching)
+
+**Files to modify:**
+- `ux/features/town/TownPage.vue`
+
+**What to port:**
+- Storage bar
+- Filter tabs: all, materials, food, consumables, equipment
+- Item grid with icons and quantities
+- Detail pane with actions: cook meal, consume meal, equip, teach glyph
+- Teach glyph modal: hero selection list with teach/learned states
+- Equipment name formatting via `getEquipmentName`
+
+**Verification:**
+- Grid filters correctly
+- Detail pane shows correct actions per item type
+- Cook meal dispatches `inventory.cookMeal`
+- Teach glyph modal shows eligible heroes
+
+---
+
+### Step 3.6.1 — SettingsPage.vue
+
+**Goal:** Migrate settings page with full functionality.
+
+**Legacy source files to study:**
+- `js/presentation/ui/settings/SettingsView.js`
+
+**New files to create:**
+- No new files — modify existing `ux/features/settings/SettingsPage.vue`
+- Possibly: `ux/features/settings/components/LanguageSelector.vue`
+
+**Files to modify:**
+- `ux/features/settings/SettingsPage.vue` — replace stub
+
+**What to port:**
+- Language selector dropdown
+- Current save slot label
+- Return to save slots button
+- Wipe current slot (with confirm)
+- Wipe all slots (with confirm)
+- Developer cheat activation
+- Magic circle simulator button (opens MagicCircleEditor in simulator mode)
+- Volume controls (if engine supports them)
+
+**Verification:**
+- Language change updates UI immediately
+- Wipe actions show confirm dialog
+- Dev cheat works
+- Magic simulator opens editor without inscription
+
+---
+
+### Step 3.7.1 — DailyReportModal.vue
+
+**Goal:** Migrate the post-day report modal.
+
+**Legacy source files to study:**
+- `js/presentation/ui/village/components/DailyReportModal.js`
+
+**New files to create:**
+- `ux/features/village/components/modals/DailyReportModal.vue`
+
+**Files to modify:**
+- `ux/App.vue` — add DailyReportModal as global overlay triggered after day advance
+- `ux/features/village/VillagePage.vue` — add recall button
+
+**What to port:**
+- Day summary: income, expenses, resource changes
+- Event list (construction completed, heroes returned, etc.)
+- Dismiss button
+- Auto-show after `engine.advanceDay()`
+
+**Verification:**
+- Modal auto-shows after next-day button
+- Shows accurate day summary
+- Dismiss button works
+- Recall button reopens modal
+
+---
+
+### Step 3.7.2 — UnlockNarrative Toast System
+
+**Goal:** Replace UnlockNarrativeView.js with Vue toast-based system.
+
+**Legacy source files to study:**
+- `js/presentation/ui/unlocks/UnlockNarrativeView.js`
+- `js/presentation/ui/shared/PostDaySequencer.js`
+
+**New files to create:**
+- No new files — use existing `ToastContainer.vue`
+- Possibly: `ux/core/composables/useUnlocks.js`
+
+**Files to modify:**
+- `ux/App.vue` — watch for unlock narratives and push to toast queue
+- `ux/core/toast.js` — ensure toast system supports rich content (title + lore text)
+
+**What to port:**
+- Queue system for multiple unlocks
+- Narrative display: era, title, lore text
+- Auto-dismiss after 8 seconds
+- Click to dismiss
+- Post-day sequencer integration (trigger after daily report)
+
+**Verification:**
+- Unlocking a feature shows narrative toast
+- Multiple unlocks queue correctly
+- Toasts auto-dismiss
+
+---
+
+### Step 3.7.3 — ConfirmDialog Primitive + IntroDialog
+
+**Goal:** Build reusable confirm dialog and intro/prologue dialog.
+
+**Legacy source files to study:**
+- `js/presentation/ui/UIController.js` (`showConfirmDialog`, `showIntroDialog`)
+- `js/presentation/ui/shared/components/PresentationModal.js`
+
+**New files to create:**
+- `ux/components/ConfirmDialog.vue`
+- `ux/features/shared/IntroDialog.vue`
+
+**Files to modify:**
+- `ux/App.vue` — integrate confirm dialog and intro dialog
+
+**What to port:**
+- ConfirmDialog: title, message, confirm/cancel buttons, callback on confirm
+- IntroDialog: prologue text, era header, continue button
+- Intro auto-shows on new game
+
+**Verification:**
+- Confirm dialog used by wipe actions in Settings
+- Intro dialog shows on first launch
+- Both trap focus and close on Escape
+
+---
+
+### Step 3.7.4 — Fix GambitEditor Test Mode
+
+**Goal:** Replace mock test results with real engine simulation.
+
+**Files to modify:**
 - `ux/features/gambit/GambitEditor.vue`
-- `ux/features/gambit/components/GambitList.vue`
-- `ux/features/gambit/components/GambitRow.vue`
-- `ux/features/gambit/components/GambitForm.vue`
-- `ux/features/gambit/components/GambitFallbackRow.vue`
-- Corresponding scoped styles in each `.vue` file
 
-**Exit Criteria:**
-- Each `.vue` file is ≤ 250 lines (template + script + style)
-- Components render correctly in isolation (mount in a test container with mock props)
-- Code review confirms no imperative DOM creation (`document.createElement`, `innerHTML` for structure)
-- Scoped styles work: a `.btn` in `GambitRow.vue` does not leak to `GambitForm.vue`
+**What to do:**
+- Remove the hardcoded `setTimeout` mock in `handleTestStart()`
+- Wire the real `testGambits` engine action result to `testResult`
+- The adapter already has `testGambits` mapped — ensure it returns the correct shape
+- Handle loading state during simulation
 
-**Dependencies:** Phase 0 (Vue pipeline must work).
-
-**Risk:** Low-Medium. These components are not yet wired to the game. They exist only in `ux/` and are tested in isolation. No player-facing impact.
+**Verification:**
+- Test mode runs real simulation
+- Results reflect actual gambit performance
+- Loading spinner shows during test
 
 ---
 
-### Phase 2: Shared Infrastructure
+### Step 3.7.5 — Add `test:vue` NPM Script
 
-**Objective:** Build the common primitives and shared utilities that all domain components will depend on. This prevents each domain from inventing its own button, modal, or formatting logic.
+**Goal:** Make Vue tests runnable from package.json.
 
-**Deliverables:**
+**Files to modify:**
+- `package.json`
 
-1. **Design Tokens (`ux/core/theme.css`)**
-   - CSS custom properties for colors, fonts, spacing, borders, radii
-   - Imported globally in `main.js` or `App.vue`
+**What to do:**
+- Add `"test:vue": "vitest run tests/vue/"` to scripts
+- Add `"test:vue:watch": "vitest tests/vue/"` for development
+- Verify all existing Vue tests pass: `npm run test:vue`
+- Fix any failing tests (likely path/alias issues)
 
-2. **Composables (`ux/core/composables/`)**
-   - `useEngine.js` — provides reactive access to engine state
-   - `useI18n.js` — provides the `t()` translation function reactively
-   - `useAdapter.js` — provides the generic action dispatcher
-
-3. **Common UI Primitives (`ux/components/`)**
-   - `Button.vue` — variants: primary, secondary, danger, ghost; sizes: sm, md, lg; states: disabled, loading
-   - `ModalFrame.vue` — header, close button, content slot, footer slot
-   - `ResourceBar.vue` — gold, wood, population display
-   - `Icon.vue` — standardized icon wrapper with size and color props
-   - `EmptyState.vue` — reusable empty/placeholder view
-   - `LoadingSpinner.vue` — standardized loading indicator
-
-4. **New Engine Adapter (`ux/adapters/EngineAdapter.js`)**
-   - Generic `dispatch(domain, action, payload)` method
-   - Replaces the manual per-event switch in `js/presentation/adapters/EngineAdapter.js`
-   - Thin: delegates to `engine.dispatchDomainAction()` or equivalent
-   - Returns `{ success, error }` and triggers toast on failure
-
-**Exit Criteria:**
-- All primitives render correctly in a storybook-style test page
-- `Button.vue` supports all required variants without leaking styles
-- `ModalFrame.vue` traps focus and closes on Escape key
-- Composables (`useI18n()`, `useGameState()`, `useAdapter()`) provide reactive data that updates when engine state changes
-- Adapter correctly translates generic actions to engine calls (tested with mock engine)
-
-**Dependencies:** Phase 0 (Vue pipeline), Phase 1 (PoC validates component patterns).
-
-**Risk:** Low. Additive only. No player-facing changes.
+**Verification:**
+- `npm run test:vue` passes with 0 failures
+- All 35+ spec files execute
 
 ---
 
-### Phase 3: Domain Refactors
+### Step 4.1 — Create `index-vue.html` Entry Point
 
-**Objective:** Apply the Vue component model to all remaining domain pages. Each domain becomes a folder in `ux/features/<domain>/` containing its page, sub-components, modals, and scoped styles.
+**Goal:** Prepare an HTML entry point that boots the Vue app instead of the legacy UI.
 
-**Recommended Order:**
+**Files to create:**
+- `index-vue.html` (copy of `index.html` but simplified)
 
-| Order | Domain | Rationale |
-|-------|--------|-----------|
-| 3.1 | **Heroes** | Already partially decomposed in old code. Phase 1's `TrainingGrounds` is part of this domain. Low-hanging fruit. |
-| 3.2 | **Combat** | High player visibility. `CombatView.js` is 1,094 lines — the biggest god view. Decomposing it proves Vue scales to the most complex UI. |
-| 3.3 | **Village** | Contains multiple concerns (calendar, defense, labor pool, construction queue). Good test of composing many small components on one page. |
-| 3.4 | **Explore** | Expedition list/detail/tree pattern. Similar complexity to Heroes. |
-| 3.5 | **Buildings** | Simpler domain. Good for refining the pattern after learning from harder domains. |
-| 3.6 | **Shop & Forge** | Both are catalog + detail patterns. Can share `CatalogGrid` and `DetailPane` components. |
-| 3.7 | **Inventory** | Grid + detail pattern. Can share components with Shop/Forge. |
-| 3.8 | **Bestiary, Codex, Chronicle, Settings** | Low player interaction frequency. Refactored quickly once the pattern is mature. |
-| 3.9 | **Save Slots** | Pre-game screen. Currently vanilla. Migrate to Vue for consistency. |
+**What to do:**
+- Remove all `<include src="pages/...">` template tags
+- Remove all legacy `id="tpl-..."` templates
+- Keep only: `<div id="app"></div>` and the Vue app script
+- Keep font/CSS links if needed, or rely on Vue-scoped styles
+- Import `ux/main.js` instead of `js/main.js`
 
-**Deliverables per Domain:**
-- `<Domain>Page.vue`: Thin composer page (replaces `<Domain>View.js`)
-- `components/`: All UI sub-components extracted from the old view
-- `components/modals/`: Any overlay content extracted from static methods
-- Scoped styles in each `.vue` file
-
-**Exit Criteria (per domain):**
-- Old `<Domain>View.js` is deleted from `js/presentation/ui/` (it is already frozen; we simply stop porting its logic)
-- All new `.vue` files satisfy the contract: props, emits, scoped styles, ≤250 lines
-- Feature components use composables for cross-cutting concerns (i18n, adapter, state). Primitives remain pure props/emits.
-- No cross-domain imports (shared code lives in `components/` or `core/`)
-- No imperative DOM creation
-- No inline styles except truly dynamic values
-
-**Dependencies:** Phase 0 (Vue pipeline), Phase 1 (pattern validated), Phase 2 (primitives and adapter available).
-
-**Risk:** Medium per domain, but mitigated by domain isolation. A bug in `Combat` does not affect `Shop`.
-
-**Parallelization Potential:** Once Phase 2 is complete, domains 3.5–3.8 can be parallelized across sessions because they are independent. Domains 3.1–3.4 should be sequential because they establish patterns that downstream domains follow.
+**Verification:**
+- `npx vite build --outDir dist-vue` (or point rollup to `index-vue.html`) succeeds
+- Output is a clean single-file HTML with inlined Vue app
 
 ---
 
-### Phase 4: The Switch & Cleanup
+### Step 4.2 — Rewrite `js/main.js` for Vue Bootstrap
 
-**Objective:** Connect the Vue app to the game engine, mount it in place of the old UI, and delete all legacy presentation code.
+**Goal:** Switch the production entry point to mount the Vue app.
 
-**The Switch (Bootstrap Rewrite):**
+**Files to modify:**
+- `js/main.js`
 
-```js
-// js/main.js — BEFORE (current)
-import { UIController } from './presentation/ui/UIController.js'
-import { EngineAdapter } from './presentation/adapters/EngineAdapter.js'
+**What to do:**
+- Replace all legacy view imports and UIController bootstrap with:
+  ```js
+  import { createVueApp } from '../ux/main.js'
+  // ... setup engine, persistence, saveSlotManager
+  createVueApp({ engine, persistence, saveSlotManager, container: document.getElementById('app') })
+  ```
+- Handle two-stage bootstrap: save slot selection → game UI (Vue `App.vue` already handles this)
+- Remove all legacy view instantiation
+- Keep `window.engine = engine` for debugging
 
-const ui = new UIController(i18n)
-const adapter = new EngineAdapter(engine, ui)
+**Verification:**
+- `npm run build` succeeds
+- Game loads to save slot screen
+- Selecting a slot loads the Vue game UI
 
-// Register all domain views
-ui.registerView('village', new VillageView())
-ui.registerView('heroes', new HeroesView())
-// ... 9 more views
+---
 
-adapter.init()
-```
+### Step 4.3 — Delete Legacy Presentation Layer
 
-```js
-// js/main.js — AFTER (switch day)
-import { createVueApp } from '../ux/main.js'
+**Goal:** Remove all old presentation code.
 
-// Vue app bootstraps itself, provides services, mounts into #app
-const app = createVueApp({ 
-  engine, 
-  container: document.getElementById('app') 
-})
-```
+**Files/directories to delete:**
+- `js/presentation/` (entire directory)
+- `pages/` (entire directory)
+- `css/` (entire directory — but verify no global styles are still needed)
 
-**This is NOT one import change.** It is a full bootstrap rewrite. `js/main.js` goes from ~80 lines of view registration + adapter wiring to ~10 lines of Vue app creation.
+**Files to modify:**
+- `index.html` — replace with `index-vue.html` content, or keep `index-vue.html` as the canonical entry
 
-**Save Slot Screen:**
+**What to check before deleting:**
+- Are there any CSS rules in `css/style.css` that are NOT view-specific? (e.g., font imports, global reset)
+- If yes, port them to `ux/core/theme.css` or `ux/main.js` global import first.
 
-`js/main.js` has a two-stage bootstrap:
-1. **Pre-game:** Save slot selection (`SaveSlotView.js`) — runs BEFORE engine boots
-2. **In-game:** Game UI — runs AFTER engine boots
-
-Both are migrated to Vue. `SaveSlotView` becomes `features/saveSlots/SaveSlotPage.vue` in Phase 3.9. On switch day, `js/main.js` mounts the appropriate Vue page:
-
-```js
-// js/main.js (switch day)
-import { createVueApp } from '../ux/main.js'
-
-// Vue app handles both save slot screen and game UI internally
-// based on whether a slot is selected
-const app = createVueApp({ engine, container: document.getElementById('app') })
-```
-
-The Vue `App.vue` checks `persistence.hasSlotSelected()` and renders either `SaveSlotPage` or the game shell.
-
-**Cleanup Deliverables:**
-
-1. **Delete Old Presentation Code**
-   - `js/presentation/` — entire directory
-   - `pages/` — entire directory (if all templates are replaced by Vue components)
-   - `css/` — entire directory (styles are now in `.vue` files and `ux/core/theme.css`)
-
-2. **Verify Game Functionality**
-   - All domains render correctly
-   - All user interactions work (buttons, modals, forms, navigation)
-   - Game loop runs at 10 FPS without re-render issues
-   - Save/load compatibility preserved
-   - i18n works in all supported languages
-   - Mobile responsiveness maintained
-   - **Save slot screen still works**
-   - **Electron package builds correctly**
-
-3. **Final Directory State**
-   ```
-   js/
-   ├── engine/              ← untouched
-   ├── main.js              ← mounts ux/main.js
-   └── (presentation/ deleted)
-   
-   ux/                      ← new presentation layer
-   ├── main.js
-   ├── App.vue
-   ├── core/
-   ├── components/
-   ├── features/
-   └── adapters/
-   ```
-
-**Exit Criteria:**
-- The game builds and runs identically to the pre-migration version
-- All player-facing functionality is preserved
-- No references to deleted files remain in imports
+**Verification:**
 - `npm run build` succeeds with zero warnings
-
-**Dependencies:** All Phase 3 domains complete.
-
-**Risk:** Medium-High. This is the only moment where player-facing changes occur. Mitigation: thorough testing before merge. The switch is one commit — revertible with `git revert`.
+- No import errors
+- Game looks correct
 
 ---
 
-## 4. Cross-Cutting Concerns
+### Step 4.4 — Final Verification
 
-These concerns span all phases and must be addressed continuously.
+**Goal:** Ensure the migrated game is fully functional.
 
-### 4.1 i18n Preservation
+**Checklist:**
+- [ ] All 4 nav categories work: Village, Heroes, Adventure, Town
+- [ ] All tabs within Adventure and Town work
+- [ ] Heroes: list, profile, recruit, all modals (skills, equipment, consumables, inscription, trainer, witch, academy, hall of fame, gambits, magic circle)
+- [ ] Combat: starts automatically, renders actors, actions work, log updates, resolution shows
+- [ ] Village: canvas, labor pool, construction, objectives, calendar, defense
+- [ ] Explore: expeditions, bestiary, codex, chronicle
+- [ ] Town: buildings, shop, forge, inventory
+- [ ] Settings: language, wipes, dev cheat, magic simulator
+- [ ] Save/load works across sessions
+- [ ] i18n works in all supported languages
+- [ ] Mobile responsive layout works
+- [ ] Electron package builds: `npm run electron:make`
+- [ ] `npm run test:vue` passes
+- [ ] `npm run build` produces valid `dist/index.html`
 
-- Do not rename, delete, or restructure translation keys during any phase unless explicitly required.
-- **Never pass `t` as a prop.** This creates prop drilling through every component layer. Use the `useI18n()` composable in feature components instead.
-- Primitives (`components/`) that display text receive translated strings via props (`:label="t('key')"` from the parent), or use slots.
-- Vue's reactivity means `t()` calls update automatically when language changes.
-- The `useI18n()` composable wraps the engine's existing `i18n` service. No new translation system is built.
-
-### 4.2 Mobile Responsiveness
-
-- The existing responsive patterns (master-detail layouts, adaptive grids) must be preserved.
-- Components should not assume desktop-only layouts.
-- Use CSS Grid and Flexbox with breakpoints defined in `theme.css`.
-
-### 4.3 Accessibility (a11y)
-
-- Buttons must remain `<button>` elements, not `<div>` click handlers.
-- Modals must trap focus and support `Escape` key closing.
-- Images must have `alt` text.
-- Color contrast must meet existing standards.
-- Vue's template syntax makes a11y easier: `@keydown.escape="close"` is declarative and readable.
-
-### 4.4 Save/Load Compatibility
-
-- The presentation layer must not change the shape of save data.
-- Vue components emit the same action payloads that the old views emitted.
-- The adapter translates these to the same engine calls.
-
-### 4.5 CSS
-
-- **There is no CSS migration.** Old `css/` is frozen and deleted in Phase 4.
-- Each new component writes its own scoped CSS in its `.vue` file.
-- Shared styles (like `.btn` base styles) live in `components/Button.vue`'s `<style scoped>` and are composed via CSS custom properties from `theme.css`.
-- Cross-component shared layout patterns (e.g., master-detail grid) can use a shared CSS file in `features/<domain>/shared/` if multiple components need it.
-
-### 4.6 Performance Budget
-
-- The migration must not degrade the game's 10 FPS UI update loop.
-- **Use `shallowRef()` for game state**, not `ref()`. Deep reactivity would create thousands of proxies per frame. `shallowRef()` replaces the top-level reference only — exactly what we need for immutable state snapshots.
-- The game loop is throttled to 100ms (10 FPS). `engine.update()` is **not idempotent** — calling it faster would advance simulation incorrectly.
-- Vue's reactivity is efficient, but we must avoid unnecessary re-renders:
-  - Use `computed()` for derived state
-  - Use `:key` on `v-for` lists
-  - Avoid deep watchers
-- The final build size must not increase significantly. Vue 3 is ~22KB gzipped. The old `js/presentation/` code will be deleted, offsetting much of this.
-
-### 4.7 Error Boundaries
-
-- Every page-level component uses `onErrorCaptured` to catch and handle child component errors.
-- `app.config.errorHandler` is set in `ux/main.js` for global error reporting.
-- Errors in one domain page must not crash the entire app.
-
-### 4.8 AI-Agent Maintainability
-
-- Vue is well-documented. Future AI sessions can reference official docs.
-- The component contract is standard: `.vue` file with `<template>`, `<script setup>`, `<style scoped>`.
-- No custom conventions to learn beyond the directory structure.
+**If anything fails:** Create a bug-fix step, apply it, and re-verify.
 
 ---
 
-## 5. What This Roadmap Does NOT Cover
+## 📁 File Mapping Reference
 
-This document intentionally excludes:
+Use this table to quickly find the legacy source for any domain.
 
-- **Specific file renames and line-by-line edits** → Implementation plans
-- **Test case specifications** → Implementation plans
-- **Exact timelines or deadlines** → Sprint/iteration planning
-- **Rollback procedures** → Risk management in implementation plans
-- **Feature additions or game design changes** → This is a refactor; no new mechanics
-
----
-
-## 6. Decision Log
-
-| Decision | Rationale | Reversible? |
-|----------|-----------|-------------|
-| **Vue 3 with `<script setup>`** | Proven reactivity, scoped styles, backend-dev-friendly syntax, excellent docs. Eliminates custom diffing bugs. | No. Once adopted, components depend on Vue's reactivity. Reverting would require another full rewrite. |
-| **Parallel build in `ux/` folder** | Old code stays untouched and playable. No compatibility code. Single cutover at the end. | Yes. If Vue fails, delete `ux/` and old code still works. |
-| **Old code frozen during migration** | Prevents drift. Ensures the switch is a clean replacement, not a merge. | Yes, but unfreezing creates merge conflicts between old and new. |
-| **Adapter simplified in Phase 2** | New components need generic dispatch from day one. Waiting until Phase 4 forces dual patterns. | Yes, can keep manual wiring if generic dispatch is problematic. |
-| **Combat before Village in Phase 3** | Combat is the hardest domain. Doing it early surfaces architectural gaps while focus is strong. | Yes, order can be swapped. |
-| **`.vue` SFC instead of separate HTML/JS/CSS files** | Vue SFC is the standard. `<template>` is at the top — satisfies "HTML is entry point." Scoped styles are automatic. | Partially. Vue supports `src` attributes for external files if needed later. |
-
----
-
-## 7. Summary
-
-The migration proceeds in five phases, all within the isolated `ux/` folder:
-
-1. **The Setup** — Add Vue 3, configure Vite, create `ux/` skeleton, verify build
-2. **Proof of Concept** — Build `TrainingGrounds.vue` and `GambitEditor.vue` to validate the pattern
-3. **Shared Infrastructure** — Build common primitives (`Button.vue`, `ModalFrame.vue`), composables, and the generic adapter
-4. **Domain Refactors** — Componentize every domain: Heroes, Combat, Village, Explore, Shop, Forge, Inventory, etc.
-5. **The Switch & Cleanup** — Change `main.js` to mount Vue, delete old presentation code
-
-Each phase keeps the game playable. The old presentation layer is frozen. The new layer is built in isolation. The switch is one commit.
+| Domain | Legacy View(s) | Legacy Components | Target Vue Page |
+|--------|---------------|-------------------|-----------------|
+| Shell | `UIController.js` | — | `App.vue` |
+| Adapter | `js/presentation/adapters/EngineAdapter.js` | — | `ux/adapters/EngineAdapter.js` |
+| Save Slots | `SaveSlotView.js` | — | `features/saveSlots/SaveSlotPage.vue` |
+| Village | `village/VillageView.js` | `VillageCanvas`, `LaborPool`, `ConstructionQueue`, `DailyObjectives`, `VillageCalendar`, `VillageDefense`, `DailyReportModal` | `features/village/VillagePage.vue` |
+| Heroes | `heroes/HeroesView.js` | `HeroProfilePane`, `HeroMiniCard`, `HeroSkillsModal`, `HeroTrainingModals`, `HeroInscriptionModal`, `HeroConsumablesModal`, `EquipmentView` | `features/heroes/HeroesPage.vue` |
+| Gambit | `gambit/GambitView.js` | — | `features/gambit/GambitEditor.vue` |
+| Magic Circle | `magic_circle/MagicCircleView.js` | `MagicCircleHelper` | `features/magic_circle/MagicCircleEditor.vue` |
+| Combat | `combat/CombatView.js` | `CombatHeader`, `CombatActorCard`, `CombatActionPanel`, `CombatLogConsole`, `CombatResolutionPane` | `features/combat/CombatOverlay.vue` |
+| Explore | `explore/ExploreView.js` | `ExpeditionList`, `ExpeditionTree`, `ExpeditionDetailPane`, `BaseModal` | `features/adventure/components/ExploreTab.vue` |
+| Bestiary | `bestiary/BestiaryView.js` | — | `features/adventure/components/BestiaryTab.vue` |
+| Codex | `codex/CodexView.js` | — | `features/adventure/components/CodexTab.vue` |
+| Chronicle | `chronicle/ChronicleView.js` | — | `features/adventure/components/ChronicleTab.vue` |
+| Buildings | `buildings/BuildingsView.js` | `BuildingList`, `BuildingDetailPane` | `features/town/components/BuildingsTab.vue` |
+| Shop | `shop/ShopView.js` | `ShopTabs`, `ShopCatalogList`, `ShopDetailPane` | `features/town/components/ShopTab.vue` |
+| Forge | `forge/ForgeView.js` | `ForgeItemList`, `ForgeDetailPane` | `features/town/components/ForgeTab.vue` |
+| Inventory | `inventory/InventoryView.js` | `InventoryGrid`, `InventoryDetailPane` | `features/town/components/InventoryTab.vue` |
+| Settings | `settings/SettingsView.js` | — | `features/settings/SettingsPage.vue` |
+| Shared Modals | — | `BaseModal`, `PresentationModal`, `ExpeditionResultModal` | `components/ModalFrame.vue`, `components/ConfirmDialog.vue` |
+| Toasts | `unlocks/UnlockNarrativeView.js` | `PostDaySequencer` | `components/ToastContainer.vue` |
 
 ---
 
-*Document Version: 2.1 (Vue 3 — Reviewed)*
-*Created: 2026-06-05*
-*Reviewed: 2026-06-05*
-*Status: Awaiting Review*
+## 🧪 Test Strategy Per Step
+
+Every step that creates or modifies Vue files should include tests:
+
+1. **Component tests** in `tests/vue/` using `@vue/test-utils` + `jsdom`
+2. **Mount with mocked provides** for composables:
+   ```js
+   mount(MyComponent, {
+     global: { provide: { gameState: shallowRef(mockState), i18n: mockI18n, adapter: mockAdapter } }
+   })
+   ```
+3. **Prop-driven primitive tests** — no mocked provides needed for `components/*.vue`
+4. **Adapter action tests** — verify `ACTION_MAP` entries in `tests/vue/adapters/EngineAdapter.spec.js`
+
+Run tests after each step: `npm run test:vue`
+
+---
+
+## 📝 Decision Log (Append-Only)
+
+| Date | Decision | Reason |
+|------|----------|--------|
+| 2026-06-05 | MagicCircleEditor split into 3 parts (A/B/C) | 712-line legacy view is too large for one session; SVG geometry deserves focused attention |
+| 2026-06-05 | Combat split into 4 parts + wiring | 1094-line legacy view is the largest; targeting system is complex |
+| 2026-06-05 | Heroes modals done individually | Each modal is self-contained; parallelizable if multiple agents |
+| 2026-06-05 | `index-vue.html` created before deleting legacy | Allows side-by-side comparison during final verification |
+| 2026-06-05 | No CSS migration — each component writes scoped styles from scratch | Per core initiative §8.1; old CSS is frozen and deleted in Phase 4 |
+
+---
+
+*Document Version: 3.0 (Atomic Steps — Resume-Ready)*
+*Last Updated: 2026-06-05*
+*Status: Active — Being Executed*
 *Companion To: core_initiative_component_based_ui.md*
