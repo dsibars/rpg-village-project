@@ -1,0 +1,42 @@
+/* Design Tokens — CSS Custom Properties
+ * These are the ONLY global styles in the new architecture.
+ * Components use var(--token-name) for colors, spacing, fonts.
+ */
+
+:root {
+  /* Colors */
+  --color-primary: #6366f1;
+  --color-primary-light: #818cf8;
+  --color-danger: #ff6b6b;
+  --color-success: #10ac84;
+  --color-warning: #f59e0b;
+
+  /* Text */
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+
+  /* Backgrounds */
+  --bg-base: #0f172a;
+  --bg-card: rgba(30, 41, 59, 0.7);
+  --bg-overlay: rgba(0, 0, 0, 0.85);
+
+  /* Borders */
+  --glass-border: rgba(255, 255, 255, 0.1);
+
+  /* Typography */
+  --font-heading: 'Outfit', sans-serif;
+  --font-body: 'Inter', sans-serif;
+
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+
+  /* Radii */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 12px;
+}

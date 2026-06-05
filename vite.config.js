@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { defineConfig } from 'vite';
 import { viteSingleFile } from 'vite-plugin-singlefile';
+import vue from '@vitejs/plugin-vue';
 
 // Simple custom plugin to inject HTML partials natively at build-time
 function htmlPartials() {
@@ -27,15 +28,19 @@ export default defineConfig(({ mode }) => {
 
   return {
     root: '.',
-    plugins: [htmlPartials(), viteSingleFile()],
+    plugins: [htmlPartials(), vue(), viteSingleFile()],
+    resolve: {
+      alias: {
+        '@': path.resolve(process.cwd(), 'ux')
+      }
+    },
     build: {
       outDir: 'dist',
       emptyOutDir: true,
       minify: isDebug ? false : 'esbuild',
       cssMinify: isDebug ? false : 'esbuild',
-      rollupOptions: {
-        input: path.resolve(process.cwd(), 'index.html'),
-      }
+      // rollupOptions.input defaults to index.html at project root
+      // Do not hardcode — allows alternate entry points (e.g., test-vue.html)
     }
   };
 });
