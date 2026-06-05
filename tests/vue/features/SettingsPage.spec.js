@@ -10,7 +10,8 @@ function mountWithProviders(component) {
         gameState: shallowRef({}),
         i18n: { t: (k) => k },
         currentLanguage: { value: 'en' },
-        adapter: { dispatch: () => ({ success: true }) }
+        adapter: { dispatch: () => ({ success: true }) },
+        engine: { getCurrentSlotIndex: () => 0 }
       }
     }
   })

@@ -5,7 +5,12 @@ import App from '../../ux/App.vue'
 
 function createMockProviders(overrides = {}) {
   const gameState = shallowRef(overrides.gameState || {
-    village: { day: 5, gold: 100, population: 4, wood: 20 },
+    village: {
+      day: 5,
+      gold: 100,
+      population: { total: 4, builders: 4, roles: { builder: 4, farmer: 0, miner: 0, scout: 0 } },
+      wood: 20
+    },
     heroes: []
   })
   const currentLanguage = ref('en')

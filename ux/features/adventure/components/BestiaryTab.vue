@@ -1,22 +1,44 @@
 <template>
   <div class="bestiary-tab">
-    <div class="bestiary-grid">
+    <div class="bestiary-header">
+      <span class="bestiary-count">{{ t('nav_bestiary') }}: {{ discoveredCount }} / {{ totalCount }}</span>
+    </div>
+
+    <div v-if="totalCount === 0" class="bestiary-empty">
+      {{ t('bestiary_uxelm_empty') }}
+    </div>
+
+    <div v-else class="bestiary-grid">
       <div
-        v-for="enemy in bestiary"
-        :key="enemy.templateId"
+        v-for="enemy in enemyList"
+        :key="enemy.id"
         class="enemy-card"
-        :class="{ discovered: enemy.discovered, undiscovered: !enemy.discovered }"
+        :class="{ discovered: enemy.isDiscovered, undiscovered: !enemy.isDiscovered }"
       >
-        <div class="enemy-icon">{{ enemy.discovered ? typeIcon(enemy.type) : '\u{2753}' }}</div>
-        <div class="enemy-name">{{ enemy.discovered ? displayName(enemy) : '???' }}</div>
-        <div v-if="enemy.discovered" class="enemy-stats">
-          <span>HP: {{ enemy.maxHp }}</span>
-          <span>STR: {{ enemy.str }}</span>
-          <span>DEF: {{ enemy.def }}</span>
-          <span>SPD: {{ enemy.spd }}</span>
+        <div class="enemy-type-badge">{{ enemy.isDiscovered ? typeIcon(enemy.type) : '❓' }}</div>
+        <div class="enemy-name">{{ enemy.isDiscovered ? enemy.name : '???' }}</div>
+        
+        <div class="enemy-stats">
+          <div class="stat-row">
+            <span class="stat-label">HP:</span>
+            <span class="stat-value">{{ enemy.isDiscovered ? enemy.maxHp : '?' }}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">STR:</span>
+            <span class="stat-value">{{ enemy.isDiscovered ? enemy.strength : '?' }}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">DEF:</span>
+            <span class="stat-value">{{ enemy.isDiscovered ? enemy.defense : '?' }}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">SPD:</span>
+            <span class="stat-value">{{ enemy.isDiscovered ? enemy.speed : '?' }}</span>
+          </div>
         </div>
-        <div v-if="enemy.discovered" class="enemy-element" :style="{ color: elementColor(enemy.element) }">
-          {{ enemy.element }}
+
+        <div v-if="enemy.isDiscovered" class="enemy-element" :style="{ color: elementColor(enemy.element) }">
+          <span class="element-bullet">●</span> {{ translateElement(enemy.element) }}
         </div>
       </div>
     </div>
@@ -31,33 +53,109 @@ import { useGameState } from '@/core/composables/useGameState.js'
 const { t } = useI18n()
 const { gameState } = useGameState()
 
-const bestiary = computed(() => gameState.value.bestiary || [])
+const discoveredList = computed(() => gameState.value.bestiary || [])
+const templates = computed(() => gameState.value.enemyTemplates || {})
 
-function displayName(enemy) {
-  const key = 'combat_info_' + enemy.templateId
-  const translated = t(key)
-  return translated !== key ? translated : enemy.name
-}
+const enemyList = computed(() => {
+  const tplObj = templates.value
+  const disc = discoveredList.value
+  
+  return Object.entries(tplObj).map(([id, tpl]) => {
+    const isDiscovered = disc.includes(id)
+    
+    // Translate name
+    let name = tpl.name || id
+    if (isDiscovered) {
+      const translationKey = 'combat_info_' + id
+      const translated = t(translationKey)
+      name = translated !== translationKey ? translated : name
+    }
+
+    return {
+      id,
+      name,
+      isDiscovered,
+      type: tpl.type,
+      maxHp: tpl.maxHp,
+      strength: tpl.strength,
+      defense: tpl.defense,
+      speed: tpl.speed,
+      element: tpl.element
+    }
+  })
+})
+
+const discoveredCount = computed(() => {
+  return enemyList.value.filter(e => e.isDiscovered).length
+})
+
+const totalCount = computed(() => {
+  return enemyList.value.length
+})
 
 function typeIcon(type) {
-  const map = { beast: '\u{1F43A}', humanoid: '\u{1F9D9}', undead: '\u{1F480}', elemental: '\u{1F525}' }
-  return map[type] || '\u{1F47E}'
+  const map = {
+    beast: '🐺',
+    humanoid: '👺',
+    elemental: '💧',
+    undead: '💀',
+    dragon: '🐉'
+  }
+  return map[type] || '❓'
 }
 
 function elementColor(element) {
-  const map = { fire: '#ef4444', water: '#3b82f6', wind: '#10b981', storm: '#f59e0b', earth: '#84cc16', dark: '#a855f7', light: '#fbbf24' }
-  return map[element] || '#94a3b8'
+  const map = {
+    fire: '#ff6b6b',
+    water: '#4dabf7',
+    earth: '#8ce99a',
+    wind: '#74c0fc',
+    neutral: '#adb5bd'
+  }
+  return map[element] || map.neutral
+}
+
+function translateElement(element) {
+  if (!element) return ''
+  const key = 'shared_info_element_' + element
+  const translated = t(key)
+  return translated !== key ? translated : element
 }
 </script>
 
 <style scoped>
 .bestiary-tab {
   padding: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.bestiary-header {
+  display: flex;
+  justify-content: flex-end;
+  padding-bottom: var(--spacing-xs);
+}
+
+.bestiary-count {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.bestiary-empty {
+  padding: var(--spacing-xl);
+  text-align: center;
+  color: var(--text-muted);
+  font-style: italic;
+  background: var(--bg-card);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
 }
 
 .bestiary-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: var(--spacing-sm);
 }
 
@@ -71,34 +169,65 @@ function elementColor(element) {
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-md);
   text-align: center;
+  transition: transform 0.15s ease, border-color 0.15s ease;
 }
 
 .enemy-card.undiscovered {
-  opacity: 0.5;
+  opacity: 0.45;
   filter: grayscale(0.8);
 }
 
-.enemy-icon {
+.enemy-card.discovered:hover {
+  border-color: var(--color-primary-light);
+  transform: translateY(-2px);
+}
+
+.enemy-type-badge {
   font-size: 2rem;
 }
 
 .enemy-name {
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: var(--text-primary);
+  margin-top: 4px;
 }
 
 .enemy-stats {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 2px;
-  font-size: 0.7rem;
+  gap: var(--spacing-xs);
+  width: 100%;
+  margin: var(--spacing-xs) 0;
+  padding-top: var(--spacing-xs);
+  border-top: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+}
+
+.stat-label {
   color: var(--text-muted);
+}
+
+.stat-value {
+  color: var(--text-primary);
+  font-weight: 500;
 }
 
 .enemy-element {
   font-size: 0.75rem;
-  text-transform: capitalize;
   font-weight: 600;
+  text-transform: capitalize;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.element-bullet {
+  font-size: 0.6rem;
 }
 </style>

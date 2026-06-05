@@ -1,25 +1,39 @@
 <template>
   <header class="top-bar">
     <div class="top-bar-brand">RPG Village</div>
-    <div class="top-bar-day">Day {{ day }}</div>
+    <div class="top-bar-day">{{ t('shared_uxelm_day') }} {{ day }}</div>
     <div class="top-bar-stats">
       <span class="stat">🪙 {{ gold }}</span>
-      <span class="stat">👥 {{ population }}</span>
+      <span class="stat">👥 {{ populationDisplay }}</span>
       <span class="stat">🪵 {{ wood }}</span>
     </div>
-    <button class="btn-next-day" @click="$emit('nextDay')">Next Day</button>
+    <button class="btn-next-day" @click="$emit('nextDay')">
+      ☀️ {{ t('shared_uxelm_next_day') }}
+    </button>
   </header>
 </template>
 
 <script setup>
-defineProps({
+import { computed } from 'vue'
+import { useI18n } from '../core/composables/useI18n.js'
+
+const props = defineProps({
   day: { type: Number, default: 1 },
   gold: { type: Number, default: 0 },
-  population: { type: Number, default: 0 },
+  population: { type: [Number, Object], default: 0 },
   wood: { type: Number, default: 0 }
 })
 
 defineEmits(['nextDay'])
+
+const { t } = useI18n()
+
+const populationDisplay = computed(() => {
+  if (typeof props.population === 'object' && props.population !== null) {
+    return props.population.total || 0
+  }
+  return props.population
+})
 </script>
 
 <style scoped>

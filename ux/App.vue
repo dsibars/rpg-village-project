@@ -49,13 +49,21 @@
 
     <IntroDialog
       v-if="showIntro"
+      :open="true"
       @close="showIntro = false"
     />
 
     <DailyReportModal
       v-if="showDailyReport"
+      :open="true"
       :report="dailyReport"
       @close="showDailyReport = false"
+    />
+
+    <ExpeditionResultModal
+      v-if="showExpeditionResult"
+      :expedition="expeditionResultReport"
+      @close="onCloseExpeditionResult"
     />
 
     <PresentationModal
@@ -86,6 +94,7 @@ import CombatOverlay from './features/combat/CombatOverlay.vue'
 import IntroDialog from './features/shared/IntroDialog.vue'
 import DailyReportModal from './features/village/components/modals/DailyReportModal.vue'
 import PresentationModal from './features/shared/PresentationModal.vue'
+import ExpeditionResultModal from './features/shared/ExpeditionResultModal.vue'
 import { useAdapter } from './core/composables/useAdapter.js'
 
 const props = defineProps({
@@ -112,6 +121,12 @@ const currentPresentation = ref(null)
 const showPresentation = ref(false)
 const presentationsDone = ref(true)
 
+// Post-day sequencing state
+const pendingReport = ref(null)
+const pendingPostCombatReport = ref(null)
+const expeditionResultReport = ref(null)
+const showExpeditionResult = ref(false)
+
 // Auto-show combat overlay when battle starts
 watch(activeBattle, (battle) => {
   if (battle && !battle.isOver) {
@@ -119,12 +134,21 @@ watch(activeBattle, (battle) => {
   }
 }, { immediate: true })
 
+// Watch combat overlay closing to resume post-day sequences
+watch(showCombatOverlay, (newVal, oldVal) => {
+  if (!newVal && oldVal && pendingPostCombatReport.value) {
+    const report = pendingPostCombatReport.value
+    pendingPostCombatReport.value = null
+    runPostDaySequence(report)
+  }
+})
+
 // Daily report watcher — gated behind presentation completion
 const dailyReport = computed(() => gameState.value.village?.lastDailyReport || null)
 const dismissedReportDay = ref(null)
 
 watch(dailyReport, (report) => {
-  if (report && report.day !== dismissedReportDay.value && presentationsDone.value) {
+  if (report && report.day !== dismissedReportDay.value && presentationsDone.value && !showExpeditionResult.value) {
     showDailyReport.value = true
   }
 })
@@ -172,6 +196,9 @@ function onSelectSlot(index) {
   }
 
   props.engine?.initialize?.()
+  if (props.engine?.isNewGame) {
+    showIntro.value = true
+  }
   refreshSaveSlots()
 }
 
@@ -216,19 +243,34 @@ function onNextDay() {
 
   // Check for expedition battle
   if (report?.expedition?.status === 'battle_started') {
-    // Combat overlay will auto-open via activeBattle watcher
-    // After combat, presentations and daily report will proceed
-    presentationsDone.value = true
+    pendingPostCombatReport.value = report
     return
   }
 
-  // Check for expedition with combat log (auto-resolved)
-  if (report?.expedition?.combatLog) {
-    // Battle was auto-resolved; just proceed to post-day
+  runPostDaySequence(report)
+}
+
+function runPostDaySequence(report) {
+  pendingReport.value = report
+
+  // Step 1: Expedition result modal
+  if (report?.expedition && report.expedition.status !== 'battle_started') {
+    expeditionResultReport.value = report.expedition
+    showExpeditionResult.value = true
+    return
   }
 
-  // Check for pending presentations (PostDaySequencer Step 1)
-  const ps = props.engine.presentationService
+  proceedToPresentations()
+}
+
+function onCloseExpeditionResult() {
+  showExpeditionResult.value = false
+  expeditionResultReport.value = null
+  proceedToPresentations()
+}
+
+function proceedToPresentations() {
+  const ps = props.engine?.presentationService
   const pendingIds = ps?.state?.pendingPresentations || []
   if (pendingIds.length > 0) {
     presentationQueue.value = pendingIds
@@ -237,7 +279,7 @@ function onNextDay() {
     showNextPresentation()
   } else {
     presentationsDone.value = true
-    if (report) {
+    if (pendingReport.value) {
       showDailyReport.value = true
     }
   }
