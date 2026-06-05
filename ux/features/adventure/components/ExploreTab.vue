@@ -113,19 +113,40 @@
         </Button>
       </div>
     </div>
+
+    <!-- Defense Advisory Modal -->
+    <ModalFrame
+      v-if="defenseWarning"
+      :title="t('shared_uxelm_advisory_title')"
+      @close="defenseWarning = null"
+    >
+      <div class="advisory-modal-content">
+        <p class="warning-text">{{ defenseWarning.message }}</p>
+        <div class="advisory-actions">
+          <Button variant="danger" size="sm" @click="confirmStartExpedition">
+            {{ t('shared_uxelm_confirm') }}
+          </Button>
+          <Button variant="secondary" size="sm" @click="defenseWarning = null">
+            {{ t('shared_uxelm_cancel') }}
+          </Button>
+        </div>
+      </div>
+    </ModalFrame>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, inject } from 'vue'
 import { useI18n } from '@/core/composables/useI18n.js'
 import { useGameState } from '@/core/composables/useGameState.js'
 import { useAdapter } from '@/core/composables/useAdapter.js'
 import Button from '@/components/Button.vue'
+import ModalFrame from '@/components/ModalFrame.vue'
 
 const { t } = useI18n()
 const { gameState, heroes } = useGameState()
 const { dispatch } = useAdapter()
+const engine = inject('engine')
 
 const viewMode = ref(localStorage.getItem('explore_view_mode') || 'tree')
 const selectedRegion = ref(null)
@@ -191,13 +212,38 @@ function toggleHero(heroId) {
   }
 }
 
+const defenseWarning = ref(null)
+
 function startExpedition() {
   if (!selectedExp.value || selectedHeroIds.value.length === 0) return
+
+  if (engine) {
+    const advisory = engine.getDefenseAdvisory(selectedExp.value.id, [...selectedHeroIds.value])
+    if (advisory && advisory.hasWarning) {
+      const currentDay = gameState.value.village?.day || 1
+      const daysUntilRaid = advisory.nextRaidDay - currentDay
+      
+      const message = t(advisory.warningKey, {
+        raidDay: advisory.nextRaidDay,
+        returnDay: advisory.expeditionReturnDay,
+        daysUntilRaid
+      })
+      
+      defenseWarning.value = { message }
+      return
+    }
+  }
+
+  confirmStartExpedition()
+}
+
+function confirmStartExpedition() {
   dispatch('explore', 'assignExpedition', {
     expId: selectedExp.value.id,
     heroIds: [...selectedHeroIds.value]
   })
   selectedHeroIds.value = []
+  defenseWarning.value = null
 }
 
 function retireExpedition() {
@@ -420,5 +466,24 @@ function nodeIcon(exp) {
   background: var(--color-primary);
   border-radius: 4px;
   transition: width 0.3s ease;
+}
+
+.advisory-modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  max-width: 400px;
+}
+
+.warning-text {
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+.advisory-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-sm);
 }
 </style>

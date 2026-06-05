@@ -35,17 +35,25 @@
       />
 
       <!-- Combat Log -->
-      <div class="combat-log-section">
+      <div class="combat-log-section" :class="{ expanded: isLogExpanded }" @click="!isLogExpanded && (isLogExpanded = true)">
         <div class="log-badge">{{ logEvents.length }}</div>
+        <div v-if="isLogExpanded" class="combat-log-expanded-header">
+          <h3>{{ t('combat_uxelm_battle_log') }}</h3>
+          <button class="btn-log-close" @click.stop="isLogExpanded = false">✕</button>
+        </div>
         <div class="log-console" ref="logConsole">
           <div
             v-for="(entry, idx) in visibleLog"
             :key="idx"
             class="log-entry"
+            :style="{ color: entry.color }"
           >
-            {{ formatLogEntry(entry) }}
+            <span class="log-text">{{ entry.text }}</span>
+            <span v-if="entry.hpInfo" class="log-hp-info"> {{ entry.hpInfo }}</span>
+            <span v-if="entry.defeatedInfo" class="log-defeated-info"> {{ entry.defeatedInfo }}</span>
           </div>
         </div>
+        <button v-if="!isLogExpanded" class="btn-log-toggle" @click.stop="isLogExpanded = true">↗</button>
       </div>
     </div>
   </FullViewOverlay>
@@ -130,19 +138,135 @@ const validTargetIndices = computed(() => {
     .filter(i => i >= 0)
 })
 
+const isLogExpanded = ref(false)
 const logEvents = computed(() => battle.value?.log?.events || [])
 
-const visibleLog = computed(() => {
-  return logEvents.value.slice(-50).map((entry) => {
-    if (typeof entry === 'string') return entry
-    return entry.message || JSON.stringify(entry)
-  })
-})
+function translateEnemyName({ name, templateId, isElite, eliteTier }) {
+  if (!templateId) return name
+  const transKey = 'combat_info_' + templateId
+  let baseName = t(transKey)
+  if (baseName === transKey) {
+    baseName = name
+  }
+  if (isElite) {
+    const tierSuffix = eliteTier > 1 ? ` +${eliteTier - 1}` : ''
+    return `★ ${baseName}${tierSuffix}`
+  }
+  return baseName
+}
 
 function formatLogEntry(entry) {
-  if (typeof entry === 'string') return entry
-  return entry.message || JSON.stringify(entry)
+  if (typeof entry === 'string') {
+    return { text: entry, color: '#aaa' }
+  }
+
+  const ev = { ...entry }
+
+  if (ev.actorName && !ev.actorIsHero && ev.actorTemplateId) {
+    ev.actorName = translateEnemyName({
+      name: ev.actorName,
+      templateId: ev.actorTemplateId,
+      isElite: ev.actorIsElite,
+      eliteTier: ev.actorEliteTier
+    })
+  }
+  if (ev.targetName && !ev.targetIsHero && ev.targetTemplateId) {
+    ev.targetName = translateEnemyName({
+      name: ev.targetName,
+      templateId: ev.targetTemplateId,
+      isElite: ev.targetIsElite,
+      eliteTier: ev.targetEliteTier
+    })
+  }
+
+  let text = ''
+  let color = '#aaa'
+  let hpInfo = ''
+  let defeatedInfo = ''
+
+  if (ev.type === 'DAMAGE') {
+    if (ev.isMiss) {
+      text = t('combat_log_miss', { attacker: ev.actorName, target: ev.targetName })
+      color = '#ffcc00'
+    } else {
+      const familyKey = 'heroes_info_family_' + ev.skillId
+      const translatedFamily = t(familyKey)
+      const skillLabel = ev.skillId && translatedFamily !== familyKey
+        ? `[${translatedFamily}${ev.effectiveTier ? ' T' + ev.effectiveTier : ''}] `
+        : ''
+      text = skillLabel + t('combat_log_attack', { attacker: ev.actorName, target: ev.targetName, damage: ev.amount })
+      color = ev.actorIsHero ? '#4caf50' : '#f44336'
+      if (ev.isCrit) text = '🔥 ' + text
+      if (ev.targetDefeated) {
+        const defeatedText = t('combat_log_target_defeated') ? t('combat_log_target_defeated').replace('{target}', '') : 'DEAD'
+        defeatedInfo = `(${defeatedText} 💀)`
+      }
+    }
+  } else if (ev.type === 'SPELL_DAMAGE') {
+    text = t('combat_log_spell_damage', { attacker: ev.actorName, spell: ev.spellName || t('shared_uxelm_magic'), target: ev.targetName, damage: ev.amount })
+    color = ev.actorIsHero ? '#9c27b0' : '#f44336'
+    if (ev.targetDefeated) {
+      const defeatedText = t('combat_log_target_defeated') ? t('combat_log_target_defeated').replace('{target}', '') : 'DEAD'
+      defeatedInfo = `(${defeatedText} 💀)`
+    }
+  } else if (ev.type === 'STUN_SKIP') {
+    text = t('combat_log_stun_skip', { actor: ev.actorName })
+    color = '#ffcc00'
+  } else if (ev.type === 'SLEEP_SKIP') {
+    text = t('combat_log_sleep_skip', { actor: ev.actorName })
+    color = '#9c27b0'
+  } else if (ev.type === 'MAGIC_TIER_UP') {
+    text = t('combat_log_magic_tier_up', { actor: ev.actorName, fromTier: ev.fromTier, toTier: ev.toTier })
+    color = '#9c27b0'
+  } else if (ev.type === 'TECHNIQUE_EVOLVED') {
+    const familyKey = 'heroes_info_family_' + ev.family
+    const translatedFamily = t(familyKey)
+    text = t('combat_log_evolved', { actor: ev.actorName, family: translatedFamily !== familyKey ? translatedFamily : ev.family, tier: ev.tier })
+    color = '#ff9800'
+  } else if (ev.type === 'HEAL') {
+    text = t('combat_log_heal', { attacker: ev.actorName, target: ev.targetName, amount: ev.amount })
+    color = '#03a9f4'
+  } else if (ev.type === 'VAMP') {
+    text = t('combat_log_vamp', { actor: ev.actorName, amount: ev.amount })
+    color = '#8bc34a'
+  } else if (ev.type === 'TRAIT_REGEN') {
+    text = t('combat_log_regen', { target: ev.targetName, amount: ev.amount })
+    color = '#8bc34a'
+  } else if (ev.type === 'STATUS_TICK') {
+    if (ev.effectType === 'poison') {
+      text = t('combat_log_poison', { target: ev.targetName, damage: ev.damage })
+      color = '#9c27b0'
+    } else if (ev.effectType === 'burn') {
+      text = t('combat_log_burn', { target: ev.targetName, damage: ev.damage })
+      color = '#ff9800'
+    }
+  } else if (ev.type === 'STATUS_EXPIRED') {
+    text = t('combat_log_status_expired', { target: ev.targetName, effect: ev.effectType })
+    color = '#888'
+  } else if (ev.type === 'USE_CONSUMABLE') {
+    const itemName = t(ev.consumableId)
+    const stat = ev.healType === 'HEAL_MP' ? 'MP' : 'HP'
+    text = t('combat_log_use_consumable', { attacker: ev.actorName, item: itemName, target: ev.targetName, amount: ev.amount, stat })
+    color = '#00bcd4'
+  } else if (ev.type === 'STAMINA_REGEN') {
+    text = `${ev.actorName} regenerates ${ev.amount} Stamina`
+    color = '#4caf50'
+  } else {
+    text = `[${ev.type}]`
+  }
+
+  if (ev.targetHp !== undefined && ev.targetMaxHp !== undefined && !ev.targetDefeated) {
+    hpInfo = `(HP: ${ev.targetHp}/${ev.targetMaxHp})`
+  }
+
+  return { text, color, hpInfo, defeatedInfo }
 }
+
+const visibleLog = computed(() => {
+  return logEvents.value.slice(-100).map((entry) => {
+    return formatLogEntry(entry)
+  })
+})
 
 watch(logEvents, () => {
   if (logEvents.value.length !== lastLogLength.value) {
@@ -241,18 +365,67 @@ onErrorCaptured((err, instance, info) => {
   max-height: 160px;
   background: var(--bg-card);
   border-top: 1px solid var(--glass-border);
+  transition: max-height 0.2s ease;
+}
+
+.combat-log-section.expanded {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  top: 0;
+  max-height: 100%;
+  z-index: 100;
+}
+
+.combat-log-expanded-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-bottom: 1px solid var(--glass-border);
+  background: var(--bg-card);
+}
+
+.combat-log-expanded-header h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-primary-light);
+}
+
+.btn-log-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.btn-log-toggle {
+  position: absolute;
+  top: 8px;
+  right: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  padding: 2px 6px;
+  font-size: 0.75rem;
 }
 
 .log-badge {
   position: absolute;
   top: -10px;
-  right: 16px;
+  right: 48px;
   padding: 2px 8px;
   background: var(--color-primary);
   color: white;
   border-radius: var(--radius-sm);
   font-size: 0.75rem;
   font-weight: 600;
+  z-index: 10;
 }
 
 .log-console {
@@ -266,5 +439,20 @@ onErrorCaptured((err, instance, info) => {
 .log-entry {
   padding: 2px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.log-hp-info {
+  color: var(--text-muted);
+  font-size: 0.85em;
+  margin-left: var(--spacing-xs);
+}
+
+.log-defeated-info {
+  color: var(--color-danger);
+  font-weight: bold;
+  margin-left: var(--spacing-xs);
 }
 </style>
