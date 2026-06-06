@@ -1,23 +1,19 @@
 <template>
-  <div class="hero-action-bar" role="group" :aria-label="t('heroes_uxelm_skills')">
-    <Button
+  <div class="hero-quick-links" role="group" :aria-label="t('heroes_uxelm_skills')">
+    <button
       v-for="action in visibleActions"
       :key="action.id"
-      variant="secondary"
-      size="sm"
-      class="action-btn"
+      class="btn btn-secondary btn-sm"
       @click="$emit('action', action.id)"
     >
-      <span class="action-icon">{{ action.icon }}</span>
-      <span class="action-label">{{ action.label }}</span>
-    </Button>
+      {{ action.icon }} {{ action.label }}
+    </button>
   </div>
 </template>
 
 <script setup>
 import { computed } from 'vue'
 import { useI18n } from '@/core/composables/useI18n.js'
-import Button from '@/components/Button.vue'
 
 const { t } = useI18n()
 
@@ -30,16 +26,16 @@ const props = defineProps({
 const emit = defineEmits(['action'])
 
 const allActions = computed(() => [
-  { id: 'skills', icon: '⚔', label: t('heroes_uxelm_skills') },
-  { id: 'equipment', icon: '🛡', label: t('inventory_uxelm_equipment') },
-  { id: 'inscription', icon: '✦', label: t('heroes_uxelm_inscription_title'), visible: !!props.hero.isInscriptionEligible },
-  { id: 'consumables', icon: '🧪', label: t('heroes_uxelm_consumables') },
   { id: 'trainer', icon: '💪', label: t('trainer_uxelm_title') },
   { id: 'magicCircle', icon: '🔮', label: t('magic_circle_uxelm_title'), visible: (props.infrastructure.arcane_sanctum || 0) >= 1 },
   { id: 'witch', icon: '🌙', label: t('witch_uxelm_title'), visible: (props.infrastructure.witchs_hut || 0) >= 1 },
   { id: 'academy', icon: '📚', label: t('academy_uxelm_title'), visible: (props.infrastructure.arcane_sanctum || 0) >= 2 },
   { id: 'hallOfFame', icon: '🏆', label: t('hall_of_fame_uxelm_title') },
-  { id: 'gambits', icon: '🎲', label: t('gambit_uxelm_title'), visible: props.heroes.some((h) => h.level >= 5) }
+  { id: 'inscription', icon: '✦', label: t('heroes_uxelm_inscription_title'), visible: !!props.hero.isInscriptionEligible },
+  { id: 'gambits', icon: '🎲', label: t('gambit_uxelm_title'), visible: props.heroes.some((h) => h.level >= 5) },
+  { id: 'equipment', icon: '🛡️', label: t('inventory_uxelm_equipment') },
+  { id: 'skills', icon: '⚔️', label: t('heroes_uxelm_skills') },
+  { id: 'consumables', icon: '🧪', label: t('heroes_uxelm_consumables') }
 ])
 
 const visibleActions = computed(() =>
@@ -48,31 +44,6 @@ const visibleActions = computed(() =>
 </script>
 
 <style scoped>
-.hero-action-bar {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--spacing-sm);
-}
-
-.action-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-xs) var(--spacing-sm);
-}
-
-.action-icon {
-  font-size: 1rem;
-}
-
-.action-label {
-  font-size: 0.75rem;
-}
-
-@media (max-width: 768px) {
-  .hero-action-bar {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
+/* No extra styles needed; uses global .hero-quick-links and .btn styles from heroes.css/style.css */
 </style>
+

@@ -76,7 +76,7 @@
     <div v-if="selectedExp" class="detail-pane">
       <div class="detail-header">
         <h3>{{ selectedExp.name }}</h3>
-        <span class="detail-badge">{{ detailMode }}</span>
+        <span class="detail-badge">{{ selectedExp?.isStory ? t('explore_uxelm_story') : t('explore_uxelm_exploration') }}</span>
       </div>
 
       <div class="detail-stats">

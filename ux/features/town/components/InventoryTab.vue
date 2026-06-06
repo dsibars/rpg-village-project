@@ -2,7 +2,7 @@
   <div class="inventory-tab">
     <!-- Storage bar -->
     <div class="storage-bar">
-      <span class="storage-label">{{ t('inventory_uxelm_storage') }}</span>
+      <span class="storage-label">{{ t('shared_uxelm_storage') }}</span>
       <div class="storage-track">
         <div
           class="storage-fill"

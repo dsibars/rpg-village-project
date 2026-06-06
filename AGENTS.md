@@ -43,10 +43,6 @@ Welcome, Agent. This document defines the architectural principles, documentatio
 - **App Description**: [App Description](./docs/app_description.md)
 - **Doc Review**: [DOC_REVIEW_REPORT.md](./docs/DOC_REVIEW_REPORT.md) — lists known issues and fixes applied
 
-### Roadmap & Drafts
-- **Roadmap**: [Roadmap](./docs/roadmap.md)
-- **Drafts**: [Drafts & Ideas](./docs/drafts/roadmap.md)
-
 ## 4. Directory Structure
 - `/` (project root)
   - `docs/`: Master design and mechanics. Structured by domain.

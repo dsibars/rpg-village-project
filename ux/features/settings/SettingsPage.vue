@@ -20,7 +20,7 @@
 
         <!-- Choose Save Slot -->
         <div class="settings-card">
-          <h3>{{ t('settings_uxelm_choose_slot') }}</h3>
+          <h3>{{ t('shared_uxelm_save_slot_title') }}</h3>
           <p class="slot-label">{{ t('settings_uxelm_current_slot', { index: currentSlotIndex + 1 }) }}</p>
           <Button variant="secondary" class="full-width-btn" @click="returnToSlots">
             <span class="btn-icon">💾</span>
@@ -31,7 +31,7 @@
         <!-- Developer Options -->
         <div class="settings-card">
           <h3>{{ t('settings_uxelm_dev_options') }}</h3>
-          <p class="card-desc">{{ t('settings_uxelm_dev_desc') }}</p>
+          <p class="card-desc">{{ t('settings_uxelm_dev_cheat_desc') }}</p>
           <div class="dev-actions">
             <Button
               variant="primary"

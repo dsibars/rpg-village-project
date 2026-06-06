@@ -1,5 +1,5 @@
 <template>
-  <div class="hero-stats-grid">
+  <div class="stats-grid">
     <div
       v-for="stat in stats"
       :key="stat.id"
@@ -12,16 +12,14 @@
       </div>
       <div class="stat-value-group">
         <span class="stat-value">{{ stat.value }}</span>
-        <Button
+        <button
           v-if="canAllocate && stat.key"
-          variant="primary"
-          size="sm"
-          class="stat-add-btn"
+          class="btn-assign-stat"
           :aria-label="`${t('heroes_uxelm_skill_learn')} ${stat.label}`"
           @click="$emit('allocate', stat.key)"
         >
           +
-        </Button>
+        </button>
       </div>
     </div>
   </div>
@@ -30,7 +28,6 @@
 <script setup>
 import { computed } from 'vue'
 import { useI18n } from '@/core/composables/useI18n.js'
-import Button from '@/components/Button.vue'
 
 const props = defineProps({
   hero: { type: Object, required: true }
@@ -65,55 +62,6 @@ const stats = computed(() => {
 </script>
 
 <style scoped>
-.hero-stats-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--spacing-sm);
-}
-
-.stat-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-md);
-  padding: var(--spacing-sm) var(--spacing-md);
-  background: var(--bg-card);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-md);
-}
-
-.stat-info {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.stat-name {
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-}
-
-.stat-desc {
-  font-size: 0.8rem;
-  font-style: italic;
-  color: var(--text-muted);
-}
-
-.stat-value-group {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.stat-value {
-  color: var(--text-primary);
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-}
-
-.stat-add-btn {
-  min-width: 32px;
-  padding: var(--spacing-xs) var(--spacing-sm);
-  font-weight: 700;
-}
+/* No extra styles needed; uses global .stats-grid, .stat-row, .stat-info, etc. from heroes.css */
 </style>
+
