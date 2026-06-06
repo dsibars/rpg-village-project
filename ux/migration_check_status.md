@@ -37,6 +37,84 @@ Both screenshots of the same page must share the same suffix. Example:
 
 ---
 
+## Automated Screenshot Procedure
+
+Any agent can generate screenshots automatically — no manual browser interaction required.
+
+### Prerequisites
+
+| Tool | Purpose | Install |
+|------|---------|---------|
+| Node.js + npm | Build & run | Already in project |
+| Playwright | Browser automation | `npm install --save-dev playwright` |
+| Chromium (via Playwright) | Headless browser | `npx playwright install chromium` |
+
+### Step 1: Build Both Versions
+
+Build **v1 first** (it clears `dist/`), then **v2** (it adds alongside without clearing):
+
+```bash
+npx vite build                              # v1 → dist/index.html
+npx vite build --config vite.v2.config.js   # v2 → dist/index_v2.html
+```
+
+### Step 2: Run the Screenshot Script
+
+```bash
+node scripts/take-screenshots.mjs [v1|v2|both]
+```
+
+- `v1` — screenshots only the vanilla (reference) version
+- `v2` — screenshots only the migrated (target) version
+- `both` — screenshots both (default)
+
+### What the Script Does
+
+1. Starts a local static file server on `localhost:8765`
+2. Opens a headless Chromium browser (1600×1300 viewport)
+3. **Clears localStorage** to ensure a clean new-game state
+4. Navigates to the app's save-slot screen
+5. Clicks the first empty slot → starts new game
+6. Waits for the intro dialog (`PresentationModal`) to appear
+7. Takes **001 screenshot** (intro dialog)
+8. Clicks **Skip** to dismiss the intro
+9. Waits for the village main screen
+10. Takes **002 screenshot** (village main screen)
+
+### Output Location
+
+Screenshots are saved to `ux/_migration_screenshots/`:
+
+```
+ux/_migration_screenshots/
+├── v1_start_new_game_001.png   # v1 intro dialog
+├── v1_start_new_game_002.png   # v1 village screen
+├── v2_start_new_game_001.png   # v2 intro dialog
+└── v2_start_new_game_002.png   # v2 village screen
+```
+
+### Extending the Script for New Flows
+
+The script (`scripts/take-screenshots.mjs`) uses **CSS selectors** to find and interact with UI elements. To add a new flow (e.g., Heroes page, Shop page):
+
+1. Add a new `async function` that navigates to the desired page
+2. Use Playwright selectors (`page.$`, `page.click`, `page.waitForSelector`) to interact
+3. Call `page.screenshot({ path: '...' })` at the right moment
+4. Add the new screenshot filenames to the naming convention table above
+
+Key selectors for v1 vs v2:
+
+| Element | v1 Selector | v2 Selector |
+|---------|-------------|-------------|
+| Save slot screen | `.save-slots-screen` | `.save-slot-page` |
+| Empty slot | `.save-slot-card.empty` | `.slot-card.empty` |
+| Intro overlay | `.presentation-overlay` | `.presentation-overlay` |
+| Skip button | `.presentation-skip` | `.presentation-skip` |
+| Next button | `.presentation-next` | `.presentation-next` |
+| Village page | `.village-dashboard-grid` | `.village-page` |
+
+---
+
 ## Reviewed Pages
 
 | Page / Screen | v1 Screenshot | v2 Screenshot | Status | Findings |
