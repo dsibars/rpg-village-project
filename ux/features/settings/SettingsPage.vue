@@ -7,7 +7,9 @@
       <select v-model="selectedLanguage" class="language-select" @change="changeLanguage">
         <option value="en">English</option>
         <option value="es">Español</option>
-        <option value="fr">Français</option>
+        <option value="ca">Català</option>
+        <option value="eu">Euskara</option>
+        <option value="gl">Galego</option>
       </select>
     </div>
 

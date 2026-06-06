@@ -634,6 +634,7 @@ export const en = {
     shared_uxelm_once_per_turn: "1/Turn",
     shared_uxelm_remove: "Remove",
     shared_uxelm_save_slot_title: "Choose Save Slot",
+    shared_uxelm_save_slot_subtitle: "Select a slot to continue, or choose an empty slot to start a new game.",
     shared_uxelm_skip_combat: "Skip Battle",
     shared_uxelm_skills: "Skills",
     shared_uxelm_spell_name_placeholder: "Custom spell name...",

@@ -83,6 +83,8 @@ const { t } = useI18n()
 const { gameState, heroes } = useGameState()
 const { dispatch } = useAdapter()
 
+const emit = defineEmits(['navigate'])
+
 const village = computed(() => gameState.value.village || {})
 const infrastructure = computed(() => village.value.infrastructure || {})
 const population = computed(() => village.value.population || {})
@@ -111,9 +113,7 @@ function unassignDefense(heroId) {
 }
 
 function navigateToBuildings(buildingId) {
-  // Emit to parent App.vue to switch to town/buildings tab
-  // For now, just log — full navigation requires App.vue cooperation
-  console.log('Navigate to building:', buildingId)
+  emit('navigate', { page: 'town', tab: 'buildings' })
 }
 </script>
 

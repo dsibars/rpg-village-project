@@ -634,6 +634,7 @@ export const es = {
     shared_uxelm_once_per_turn: "1/Turno",
     shared_uxelm_remove: "Quitar",
     shared_uxelm_save_slot_title: "Elige Ranura de Guardado",
+    shared_uxelm_save_slot_subtitle: "Selecciona una ranura para continuar, o elige una vacía para empezar una nueva partida.",
     shared_uxelm_skip_combat: "Saltar Batalla",
     shared_uxelm_skills: "Técnicas",
     shared_uxelm_spell_name_placeholder: "Nombre del hechizo...",

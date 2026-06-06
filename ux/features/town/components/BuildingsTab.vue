@@ -36,9 +36,8 @@
         <div v-if="upgradeCost" class="upgrade-cost">
           <h4>{{ t('buildings_uxelm_cost') }}</h4>
           <p>\u{1F4B0} {{ upgradeCost.gold }}g</p>
-          <p v-for="(amount, mat) in upgradeCost.materials" :key="mat">
-            {{ mat }}: {{ amount }}
-          </p>
+          <p v-if="upgradeCost.wood">\u{1FAB5} {{ upgradeCost.wood }} Wood</p>
+          <p v-if="upgradeCost.stone">\u{1FAA8} {{ upgradeCost.stone }} Stone</p>
           <p>\u{23F3} {{ upgradeCost.duration }} {{ t('shared_uxelm_days') }}</p>
         </div>
 
@@ -74,6 +73,7 @@ const village = computed(() => gameState.value.village || {})
 const infrastructure = computed(() => village.value.infrastructure || {})
 const constructionQueue = computed(() => village.value.constructionQueue || [])
 const gold = computed(() => village.value.gold || 0)
+const inventory = computed(() => gameState.value.inventory || {})
 
 const buildings = computed(() => {
   const defs = [
@@ -100,10 +100,21 @@ const selectedBuilding = computed(() =>
   buildings.value.find((b) => b.id === selectedId.value)
 )
 
-const buildingData = computed(() => {
-  // Simplified — real data would come from engine/building definitions
-  return gameState.value.buildingDefinitions?.[selectedId.value] || null
-})
+function getUpgradeCost(buildingId, nextLevel) {
+  const costs = {
+    farm: { 1: { gold: 30, wood: 10, stone: 0, duration: 1 }, 2: { gold: 80, wood: 30, stone: 10, duration: 3 } },
+    housing: { 2: { gold: 150, wood: 40, stone: 10, duration: 4 }, 3: { gold: 300, wood: 90, stone: 45, duration: 6 } },
+    warehouse: { 2: { gold: 120, wood: 50, stone: 30, duration: 4 } },
+    blacksmith: { 1: { gold: 150, wood: 50, stone: 30, duration: 3 } },
+    infirmary: { 1: { gold: 150, wood: 100, stone: 0, duration: 3 }, 2: { gold: 400, wood: 200, stone: 100, duration: 5 }, 3: { gold: 800, wood: 300, stone: 200, duration: 7 } },
+    tavern: { 1: { gold: 200, wood: 100, stone: 50, duration: 3 } },
+    witchs_hut: { 1: { gold: 200, wood: 80, stone: 30, duration: 2 } },
+    arcane_sanctum: { 1: { gold: 500, wood: 100, stone: 50, duration: 3 }, 2: { gold: 1500, wood: 200, stone: 100, duration: 5 }, 3: { gold: 3000, wood: 400, stone: 200, duration: 7 }, 4: { gold: 6000, wood: 800, stone: 400, duration: 10 } },
+    explorer_guild: { 1: { gold: 300, wood: 200, stone: 100, duration: 4 }, 2: { gold: 800, wood: 400, stone: 200, duration: 7 } },
+    training_grounds: { 1: { gold: 300, wood: 150, stone: 50, duration: 5 } }
+  }
+  return costs[buildingId]?.[nextLevel] || { gold: nextLevel * 100, wood: nextLevel * 50, stone: nextLevel * 25, duration: nextLevel * 2 }
+}
 
 const buildingDescription = computed(() => {
   return t('village_info_building_' + selectedId.value + '_desc')
@@ -115,21 +126,30 @@ const currentEffects = computed(() => {
 })
 
 const nextEffects = computed(() => {
-  if (!selectedBuilding.value || !buildingData.value) return null
+  if (!selectedBuilding.value) return null
   const next = selectedBuilding.value.lvl + 1
-  return t('buildings_effect_' + selectedId.value, { level: next })
+  const nextEffect = t('buildings_effect_' + selectedId.value, { level: next })
+  // If translation returns the key itself, there's no effect text for next level
+  if (nextEffect === 'buildings_effect_' + selectedId.value) return null
+  return nextEffect
 })
 
 const upgradeCost = computed(() => {
-  if (!buildingData.value) return null
-  const nextLevel = (selectedBuilding.value?.lvl || 0) + 1
-  return buildingData.value.levels?.[nextLevel]?.cost || null
+  if (!selectedBuilding.value) return null
+  const nextLevel = (selectedBuilding.value.lvl || 0) + 1
+  return getUpgradeCost(selectedId.value, nextLevel)
 })
 
 const canUpgrade = computed(() => {
   if (!selectedBuilding.value || !upgradeCost.value) return false
   if (gold.value < (upgradeCost.value.gold || 0)) return false
   if (constructionQueue.value.length > 0) return false
+  // Check materials
+  const materials = inventory.value.materials || []
+  const woodItem = materials.find(m => m.id === 'material_wood')
+  const stoneItem = materials.find(m => m.id === 'material_stone')
+  if ((upgradeCost.value.wood || 0) > 0 && (!woodItem || woodItem.count < upgradeCost.value.wood)) return false
+  if ((upgradeCost.value.stone || 0) > 0 && (!stoneItem || stoneItem.count < upgradeCost.value.stone)) return false
   return true
 })
 
@@ -139,12 +159,16 @@ function selectBuilding(id) {
 
 function startUpgrade() {
   if (!selectedBuilding.value || !upgradeCost.value) return
+  const cost = upgradeCost.value
   dispatch('buildings', 'startProject', {
     buildingId: selectedId.value,
     targetLevel: (selectedBuilding.value.lvl || 0) + 1,
-    costGold: upgradeCost.value.gold || 0,
-    costMaterials: upgradeCost.value.materials || {},
-    duration: upgradeCost.value.duration || 1
+    costGold: cost.gold || 0,
+    costMaterials: {
+      ...(cost.wood ? { material_wood: cost.wood } : {}),
+      ...(cost.stone ? { material_stone: cost.stone } : {})
+    },
+    duration: cost.duration || 1
   })
 }
 </script>

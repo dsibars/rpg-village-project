@@ -30,6 +30,7 @@
           :is="currentPageComponent"
           v-else
           @openSettings="currentPage = 'settings'"
+          @navigate="handleNavigate"
         />
       </main>
 
@@ -57,7 +58,7 @@
       v-if="showDailyReport"
       :open="true"
       :report="dailyReport"
-      @close="showDailyReport = false"
+      @close="onCloseDailyReport"
     />
 
     <ExpeditionResultModal
@@ -169,7 +170,16 @@ const pages = {
 }
 
 const currentPageComponent = computed(() => pages[currentPage.value] || VillagePage)
-const currentPageLabel = computed(() => t('shared_uxelm_nav_main'))
+const currentPageLabel = computed(() => {
+  const labels = {
+    village: 'shared_uxelm_nav_village',
+    heroes: 'shared_uxelm_nav_heroes',
+    adventure: 'shared_uxelm_nav_adventure',
+    town: 'shared_uxelm_nav_town',
+    settings: 'shared_uxelm_nav_settings'
+  }
+  return t(labels[currentPage.value] || 'shared_uxelm_nav_main')
+})
 
 const navItems = computed(() => [
   { id: 'village', label: t('shared_uxelm_nav_village'), icon: '\u{1F3D8}' },
@@ -269,6 +279,19 @@ function onCloseExpeditionResult() {
   showExpeditionResult.value = false
   expeditionResultReport.value = null
   proceedToPresentations()
+}
+
+function onCloseDailyReport() {
+  showDailyReport.value = false
+  if (dailyReport.value) {
+    dismissedReportDay.value = dailyReport.value.day
+  }
+}
+
+function handleNavigate({ page, tab }) {
+  if (page && pages[page]) {
+    currentPage.value = page
+  }
 }
 
 function proceedToPresentations() {

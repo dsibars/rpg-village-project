@@ -634,6 +634,7 @@ export const eu = {
     shared_uxelm_once_per_turn: "1/Txanda",
     shared_uxelm_remove: "Kendu",
     shared_uxelm_save_slot_title: "Hautatu Gorde Zirrikitua",
+    shared_uxelm_save_slot_subtitle: "Hautatu zirrikitu bat jarraitzeko, edo hautatu hutsik dagoen bat partida berria hasteko.",
     shared_uxelm_skip_combat: "Saltatu Borroka",
     shared_uxelm_skills: "Teknikak",
     shared_uxelm_spell_name_placeholder: "Sorginkeriaren izena...",

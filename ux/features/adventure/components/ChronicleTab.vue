@@ -132,7 +132,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, inject } from 'vue'
 import { useI18n } from '@/core/composables/useI18n.js'
 import { useGameState } from '@/core/composables/useGameState.js'
 import { PRESENTATION_CATALOG } from '@/core/data/index.js'
@@ -142,7 +142,8 @@ import ModalFrame from '@/components/ModalFrame.vue'
 import PresentationModal from '../../shared/PresentationModal.vue'
 
 const { t } = useI18n()
-const { gameState, engine } = useGameState()
+const { gameState } = useGameState()
+const engine = inject('engine')
 
 const expandedChapters = ref({
   1: true,

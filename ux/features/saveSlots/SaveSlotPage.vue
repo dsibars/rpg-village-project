@@ -1,7 +1,7 @@
 <template>
   <div class="save-slot-page">
     <h1>{{ t('shared_uxelm_save_slot_title') }}</h1>
-    <p class="subtitle">Select a slot to continue, or choose an empty slot to start a new game.</p>
+    <p class="subtitle">{{ t('shared_uxelm_save_slot_subtitle') }}</p>
 
     <div class="slots-grid">
       <button

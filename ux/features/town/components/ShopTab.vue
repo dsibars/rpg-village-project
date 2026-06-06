@@ -106,6 +106,11 @@ import { useGameState } from '@/core/composables/useGameState.js'
 import { useAdapter } from '@/core/composables/useAdapter.js'
 import Button from '@/components/Button.vue'
 import EmptyState from '@/components/EmptyState.vue'
+import {
+  CONSUMABLES_CATALOG,
+  WEAPONS_CATALOG,
+  ARMOR_CATALOG
+} from '../../../../js/engine/shared/data/ShopCatalog.js'
 
 const { t } = useI18n()
 const { gameState } = useGameState()
@@ -119,28 +124,34 @@ const village = computed(() => gameState.value.village || {})
 const inventory = computed(() => gameState.value.inventory || {})
 const gold = computed(() => village.value.gold || 0)
 const blacksmithLevel = computed(() => village.value.infrastructure?.blacksmith || 0)
-const isUnlocked = computed(() => gameState.value.shopUnlocked || true)
+const isUnlocked = computed(() => true) // Shop always unlocked for now
 
 const storageUsed = computed(() => inventory.value.totalUsed || 0)
 const storageMax = computed(() => village.value.maxStorage || 100)
 const storageWarning = computed(() => storageUsed.value / storageMax.value > 0.9)
 
+function enrichShopItem(item) {
+  const name = item.i18n_name ? t(item.i18n_name) : (item.family || item.archetype || item.id)
+  const desc = item.i18n_desc ? t(item.i18n_desc) : ''
+  return {
+    ...item,
+    name,
+    description: desc,
+    id: item.id || `${item.type}_${item.material}_${item.family || item.archetype}_${item.slot || 'any'}`
+  }
+}
+
 const catalogItems = computed(() => {
   if (currentTab.value === 'buy') {
     const items = []
     // Consumables
-    const consumables = gameState.value.shopCatalog?.consumables || []
-    items.push(...consumables.map((c) => ({ ...c, category: 'consumable' })))
+    items.push(...CONSUMABLES_CATALOG.map(enrichShopItem))
     // Weapons (gated by blacksmith)
-    if (blacksmithLevel.value >= 1) {
-      const weapons = gameState.value.shopCatalog?.weapons || []
-      items.push(...weapons.map((w) => ({ ...w, category: 'weapon' })))
-    }
+    const weaponTier = blacksmithLevel.value >= 2 ? 3 : blacksmithLevel.value >= 1 ? 2 : 1
+    items.push(...WEAPONS_CATALOG.filter(w => w.tier <= weaponTier).map(enrichShopItem))
     // Armor (gated by blacksmith)
-    if (blacksmithLevel.value >= 2) {
-      const armor = gameState.value.shopCatalog?.armor || []
-      items.push(...armor.map((a) => ({ ...a, category: 'armor' })))
-    }
+    const armorTier = blacksmithLevel.value >= 2 ? 2 : 1
+    items.push(...ARMOR_CATALOG.filter(a => a.tier <= armorTier).map(enrichShopItem))
     return items
   } else if (currentTab.value === 'sell') {
     const items = []
@@ -150,7 +161,11 @@ const catalogItems = computed(() => {
     items.push(...equipment.map((e) => ({ ...e, sellPrice: Math.floor((e.value || 10) * 0.5) })))
     return items
   } else {
-    return gameState.value.shopCatalog?.resources || []
+    // Resources tab
+    return [
+      { id: 'material_wood', name: t('item_material_wood'), cost: 2, quantity: 1 },
+      { id: 'material_stone', name: t('item_material_stone'), cost: 3, quantity: 1 }
+    ]
   }
 })
 

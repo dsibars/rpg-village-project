@@ -634,6 +634,7 @@ export const ca = {
     shared_uxelm_once_per_turn: "1/Torn",
     shared_uxelm_remove: "Treure",
     shared_uxelm_save_slot_title: "Tria Ranura de Desa",
+    shared_uxelm_save_slot_subtitle: "Selecciona una ranura per continuar, o tria una buida per començar una nova partida.",
     shared_uxelm_skip_combat: "Saltar Batalla",
     shared_uxelm_skills: "Técniques",
     shared_uxelm_spell_name_placeholder: "Nom del conjur...",

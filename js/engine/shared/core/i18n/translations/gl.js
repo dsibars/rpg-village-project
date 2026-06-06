@@ -634,6 +634,7 @@ export const gl = {
     shared_uxelm_once_per_turn: "1/Quenda",
     shared_uxelm_remove: "Quitar",
     shared_uxelm_save_slot_title: "Elixe Ranura de Gardado",
+    shared_uxelm_save_slot_subtitle: "Selecciona unha ranura para continuar, ou elixe unha baleira para comezar unha nova partida.",
     shared_uxelm_skip_combat: "Saltar Batalla",
     shared_uxelm_skills: "Técnicas",
     shared_uxelm_spell_name_placeholder: "Nome do conxuro...",
