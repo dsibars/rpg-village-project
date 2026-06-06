@@ -121,7 +121,7 @@ Key selectors for v1 vs v2:
 |---------------|---------------|---------------|--------|----------|
 | Save Slot Selection | `v1_initial_page_saveslot_selection.png` | `v2_initial_page_saveslot_selection.png` | ✅ Re-verified | All critical/significant findings fixed. E-001 (subtitle) approved as exception. |
 | New Game Lore Intro | `v1_start_new_game_001.png` | `v2_start_new_game_001.png` | ✅ Re-verified | F-012, F-013, F-014, F-015 fixed. |
-| Village Main Screen | `v1_start_new_game_002.png` | `v2_start_new_game_002.png` | 🛠️ Fixed | F-016 through F-020, F-022, F-024, F-025 fixed. F-021, F-023 remain (structural layout differences). |
+| Village Main Screen | `v1_start_new_game_002.png` | `v2_start_new_game_002.png` | 🛠️ Fixed | F-016 through F-020, F-022, F-024, F-025, F-026 fixed. F-021 partially fixed (same card, internal titles differ). F-023 fixed. |
 | _(next page TBD)_ | — | — | ⏳ Pending | — |
 
 > **Legend:** ⏳ Pending → 🔍 In Review → ✅ Verified → ❌ Issues Found → 🛠️ Fixed → ✅ Re-verified
@@ -264,6 +264,24 @@ Issues detected from screenshot comparison. Format: `F-XXX: Brief description �
 - **Fix:** Reverted components to use v1 i18n keys. Removed orphaned v2-specific keys from all 5 language files.
 - **Status:** 🛠️ Fixed
 
+#### F-021: Village Main — Calendar + Defense are separate cards instead of combined "Threat & Defense Hub"
+- **Page:** Village Main Screen
+- **What:** v1 renders Calendar and Defense inside a single widget with a unified "THREAT & DEFENSE HUB" title. v2 had them as two separate cards.
+- **Fix:** Restructured `VillagePage.vue` to place both `VillageCalendar` and `VillageDefense` inside a single `.dashboard-card` with a divider. Both components still render their own internal titles, so the combined card lacks the unified v1 hub title.
+- **Status:** 🛠️ Partially Fixed
+
+#### F-023: Village Main — Labor/Specialization panel in wrong row
+- **Page:** Village Main Screen
+- **What:** v2's row-based layout placed Labor/Specialization in the bottom row. v1 uses a 3-column grid where it's in the middle column.
+- **Fix:** Restructured `VillagePage.vue` to use v1's `grid-template-columns: 4.5fr 3.25fr 3.25fr` layout. Middle column now contains LaborPool + ConstructionQueue.
+- **Status:** 🛠️ Fixed
+
+#### F-026: Village Main — Footer nav is full-width flat bar instead of floating pill
+- **Page:** Village Main Screen
+- **What:** v1 footer is a floating pill (`border-radius: 18px`, `backdrop-filter: blur(20px)`, `box-shadow`, active dot `::before`, uppercase labels, icon pop animation, text glow). v2 was a full-width flat bar.
+- **Fix:** Rewrote `FooterNav.vue` with v1 `main-nav` styles: floating dock margin, glassmorphism blur, shadow, active dot indicator, uppercase labels with letter-spacing, icon scale animation on active, text glow. Updated `App.vue` nav items to use v1 i18n key (`shared_uxelm_nav_main`) and icons. Added `--accent-color` token to `theme.css`.
+- **Status:** 🛠️ Fixed
+
 ### 🟢 Minor (tiny visual discrepancies acceptable for technical migration)
 
 _(None yet)_
@@ -295,6 +313,9 @@ _(None yet)_
 | F-022 | 2026-06-06 | Village Main | Restored uppercase text transforms for headers matching v1 (DAY, NEXT DAY, CODEX, CHRONICLE, panel titles). |
 | F-024 | 2026-06-06 | Village Main | Building tile names: restored `text-transform: uppercase` CSS. |
 | F-025 | 2026-06-06 | Village Main | Reverted panel titles to v1 i18n keys (Specialization, Construction, Defenders). Removed orphaned v2 keys. |
+| F-023 | 2026-06-06 | Village Main | Restructured `VillagePage.vue` to v1 3-column grid (`4.5fr 3.25fr 3.25fr`). LaborPool + ConstructionQueue now in middle column. |
+| F-026 | 2026-06-06 | Village Main | Rewrote `FooterNav.vue` as floating pill with blur, shadow, active dot, uppercase labels, icon animation, glow. Updated nav items to v1 labels/icons. |
+| — | 2026-06-06 | Village Main | Fixed `#app` height and `App.vue` flex layout so page fills viewport without scrolling. Canvas card stretches to fill grid column; tiles distribute with `repeat(4, 1fr)`. |
 
 ---
 

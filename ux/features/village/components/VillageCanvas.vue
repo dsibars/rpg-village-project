@@ -50,7 +50,9 @@ const tiles = computed(() => {
 .village-canvas {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(4, 1fr);
   gap: var(--spacing-sm);
+  height: 100%;
 }
 
 @media (max-width: 575px) {
@@ -63,6 +65,7 @@ const tiles = computed(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 4px;
   padding: var(--spacing-sm);
   background: var(--bg-card);

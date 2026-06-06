@@ -200,10 +200,10 @@ const currentPageLabel = computed(() => {
 })
 
 const navItems = computed(() => [
-  { id: 'village', label: t('shared_uxelm_nav_village'), icon: '\u{1F3D8}' },
+  { id: 'village', label: t('shared_uxelm_nav_main'), icon: '\u{1F3E1}' },
   { id: 'heroes', label: t('shared_uxelm_nav_heroes'), icon: '\u{2694}' },
   { id: 'adventure', label: t('shared_uxelm_nav_adventure'), icon: '\u{1F5FA}' },
-  { id: 'town', label: t('shared_uxelm_nav_town'), icon: '\u{1F3EA}' }
+  { id: 'town', label: t('shared_uxelm_nav_town'), icon: '\u{1F3D8}' }
 ])
 
 function refreshSaveSlots() {
@@ -377,7 +377,8 @@ refreshSaveSlots()
 .app-root {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100%;
+  overflow: hidden;
   font-family: var(--font-body);
   color: var(--text-primary);
   background: var(--bg-base);
@@ -386,7 +387,7 @@ refreshSaveSlots()
 .app-main {
   flex: 1;
   overflow-y: auto;
-  padding-bottom: 80px; /* reserve space for footer nav */
+  min-height: 0;
 }
 
 .page-error {

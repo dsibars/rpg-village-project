@@ -27,50 +27,51 @@
       </button>
     </div>
 
-    <!-- Top Row: Canvas + Calendar + Defense -->
-    <div class="dashboard-row">
-      <div class="dashboard-card">
-        <VillageCanvas
-          :infrastructure="infrastructure"
-          @navigate="navigateToBuildings"
-        />
+    <!-- v1 3-column grid layout -->
+    <div class="village-dashboard">
+      <!-- Left Column: Village Canvas (full height) -->
+      <div class="dashboard-col col-canvas">
+        <div class="dashboard-card card-full">
+          <VillageCanvas
+            :infrastructure="infrastructure"
+            @navigate="navigateToBuildings"
+          />
+        </div>
       </div>
 
-      <div class="dashboard-card">
-        <VillageCalendar :calendar="calendar" />
+      <!-- Middle Column: Labor Pool + Construction Queue -->
+      <div class="dashboard-col col-middle">
+        <div class="dashboard-card">
+          <LaborPool
+            :population="population"
+            @change-role="changeWorkerRole"
+          />
+        </div>
+
+        <div class="dashboard-card">
+          <ConstructionQueue
+            :queue="constructionQueue"
+            @navigate="navigateToBuildings"
+          />
+        </div>
       </div>
 
-      <div class="dashboard-card">
-        <VillageDefense
-          :assigned="defenseAssigned"
-          :heroes="heroes"
-          @assign="assignDefense"
-          @unassign="unassignDefense"
-        />
-      </div>
-    </div>
+      <!-- Right Column: Calendar+Defense Hub + Daily Objectives -->
+      <div class="dashboard-col col-right">
+        <div class="dashboard-card card-hub">
+          <VillageCalendar :calendar="calendar" />
+          <div class="hub-divider" />
+          <VillageDefense
+            :assigned="defenseAssigned"
+            :heroes="heroes"
+            @assign="assignDefense"
+            @unassign="unassignDefense"
+          />
+        </div>
 
-    <!-- Middle Row: Labor Pool + Construction Queue -->
-    <div class="dashboard-row">
-      <div class="dashboard-card">
-        <LaborPool
-          :population="population"
-          @change-role="changeWorkerRole"
-        />
-      </div>
-
-      <div class="dashboard-card">
-        <ConstructionQueue
-          :queue="constructionQueue"
-          @navigate="navigateToBuildings"
-        />
-      </div>
-    </div>
-
-    <!-- Bottom Row: Daily Objectives -->
-    <div class="dashboard-row">
-      <div class="dashboard-card full-width">
-        <DailyObjectives :daily-objectives="dailyObjectives" />
+        <div class="dashboard-card">
+          <DailyObjectives :daily-objectives="dailyObjectives" />
+        </div>
       </div>
     </div>
   </div>
@@ -132,8 +133,10 @@ function navigateToBuildings(buildingId) {
 .village-page {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-lg);
-  padding: var(--spacing-lg);
+  height: 100%;
+  overflow: hidden;
+  padding: var(--spacing-md);
+  gap: var(--spacing-md);
   color: var(--text-primary);
 }
 
@@ -146,6 +149,7 @@ function navigateToBuildings(buildingId) {
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-md);
   gap: var(--spacing-md);
+  flex-shrink: 0;
 }
 
 .village-title {
@@ -242,11 +246,23 @@ function navigateToBuildings(buildingId) {
   border-color: var(--color-primary-light);
 }
 
-.dashboard-row {
+/* ── v1 3-Column Grid Layout ── */
+.village-dashboard {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: var(--spacing-lg);
+  grid-template-columns: 4.5fr 3.25fr 3.25fr;
+  gap: var(--spacing-md);
+  min-height: 0;
 }
+
+.dashboard-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  min-height: 0;
+  overflow: hidden;
+}
+
+
 
 .dashboard-card {
   display: flex;
@@ -256,33 +272,66 @@ function navigateToBuildings(buildingId) {
   background: var(--bg-card);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
+  min-height: 0;
+  overflow: hidden;
 }
 
-.dashboard-card.full-width {
-  grid-column: 1 / -1;
+.col-canvas .dashboard-card {
+  flex: 1;
+  min-height: 0;
 }
 
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.card-hub {
+  gap: 0;
+  padding: 0;
 }
 
-.card-header h3 {
-  margin: 0;
-  font-size: 1rem;
-  color: var(--text-primary);
+.card-hub > * {
+  padding: var(--spacing-md);
 }
 
-.level-badge {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  font-weight: 400;
+.hub-divider {
+  height: 1px;
+  background: var(--glass-border);
+  margin: 0 var(--spacing-md);
+}
+
+/* Scrollable content within cards when needed */
+.dashboard-card > :deep(.village-canvas) {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.dashboard-card > :deep(.labor-pool),
+.dashboard-card > :deep(.construction-queue),
+.dashboard-card > :deep(.daily-objectives) {
+  overflow-y: auto;
+}
+
+@media (max-width: 1024px) {
+  .village-dashboard {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+    overflow-y: auto;
+  }
+
+  .col-canvas {
+    grid-column: 1 / -1;
+  }
+
+  .col-canvas .card-full {
+    max-height: 320px;
+  }
 }
 
 @media (max-width: 768px) {
-  .dashboard-row {
+  .village-dashboard {
     grid-template-columns: 1fr;
+    overflow-y: auto;
+  }
+
+  .col-canvas {
+    grid-column: auto;
   }
 }
 </style>
