@@ -8,7 +8,7 @@
       <p class="modal-subtitle">{{ t('heroes_uxelm_inscription_desc') }}</p>
 
       <div v-if="isInscribing" class="pending-banner">
-        \u{23F3}
+        ⏳
         {{ t('heroes_uxelm_inscription_pending') }}:
         {{ hero.bodyInscriptionDaysRemaining }}
         {{ t('heroes_uxelm_inscription_days_remaining') }}
@@ -40,7 +40,7 @@
             {{ glyphElementIcon(glyphById(id)?.element) }}
             {{ glyphName(id) }}
             <span class="tier">{{ glyphTierSymbol(id) }}</span>
-            <span class="remove">\u{2715}</span>
+            <span class="remove">✕</span>
           </span>
         </div>
       </div>
@@ -126,13 +126,13 @@ function glyphTierSymbol(id) {
 
 function glyphElementIcon(element) {
   const map = {
-    fire: '\u{1F525}',
-    water: '\u{1F4A7}',
-    wind: '\u{1F343}',
-    storm: '\u{26A1}',
-    light: '\u{2600}',
-    dark: '\u{1F311}',
-    earth: '\u{1FAA8}'
+    fire: '🔥',
+    water: '💧',
+    wind: '🍃',
+    storm: '⚡',
+    light: '☀',
+    dark: '🌑',
+    earth: '🪨'
   }
   return map[element] || ''
 }

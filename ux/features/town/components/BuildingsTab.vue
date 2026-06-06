@@ -10,7 +10,7 @@
           :class="{ active: selectedId === building.id, locked: !building.active }"
           @click="selectBuilding(building.id)"
         >
-          <span class="building-icon">{{ building.active ? building.icon : '\u{1F512}' }}</span>
+          <span class="building-icon">{{ building.active ? building.icon : '🔒' }}</span>
           <div class="building-info">
             <span class="building-name">{{ building.name }}</span>
             <span class="building-level">{{ t('shared_uxelm_level') }} {{ building.lvl }}</span>
@@ -35,10 +35,10 @@
 
         <div v-if="upgradeCost" class="upgrade-cost">
           <h4>{{ t('buildings_uxelm_cost') }}</h4>
-          <p>\u{1F4B0} {{ upgradeCost.gold }}g</p>
-          <p v-if="upgradeCost.wood">\u{1FAB5} {{ upgradeCost.wood }} Wood</p>
-          <p v-if="upgradeCost.stone">\u{1FAA8} {{ upgradeCost.stone }} Stone</p>
-          <p>\u{23F3} {{ upgradeCost.duration }} {{ t('shared_uxelm_days') }}</p>
+          <p>💰 {{ upgradeCost.gold }}g</p>
+          <p v-if="upgradeCost.wood">🪵 {{ upgradeCost.wood }} Wood</p>
+          <p v-if="upgradeCost.stone">🪨 {{ upgradeCost.stone }} Stone</p>
+          <p>⏳ {{ upgradeCost.duration }} {{ t('shared_uxelm_days') }}</p>
         </div>
 
         <Button
@@ -50,7 +50,7 @@
         </Button>
       </div>
 
-      <EmptyState v-else icon="\u{1F3D8}" :title="t('buildings_uxelm_select')" />
+      <EmptyState v-else icon="🏘" :title="t('buildings_uxelm_select')" />
     </div>
   </div>
 </template>
@@ -77,17 +77,17 @@ const inventory = computed(() => gameState.value.inventory || {})
 
 const buildings = computed(() => {
   const defs = [
-    { id: 'townhall', name: t('village_info_building_townhall'), icon: '\u{1F3DB}' },
-    { id: 'housing', name: t('village_info_building_housing'), icon: '\u{1F3E0}' },
-    { id: 'farm', name: t('village_info_building_farm'), icon: '\u{1F33E}' },
-    { id: 'warehouse', name: t('village_info_building_warehouse'), icon: '\u{1F4E6}' },
-    { id: 'blacksmith', name: t('village_info_building_blacksmith'), icon: '\u{2692}' },
-    { id: 'training_grounds', name: t('village_info_building_training_grounds'), icon: '\u{1F4AA}' },
-    { id: 'explorer_guild', name: t('village_info_building_explorer_guild'), icon: '\u{1F9ED}' },
-    { id: 'witchs_hut', name: t('village_info_building_witchs_hut'), icon: '\u{1F52E}' },
-    { id: 'arcane_sanctum', name: t('village_info_building_arcane_sanctum'), icon: '\u{2728}' },
-    { id: 'infirmary', name: t('village_info_building_infirmary'), icon: '\u{1F3E5}' },
-    { id: 'tavern', name: t('village_info_building_tavern'), icon: '\u{1F37A}' }
+    { id: 'townhall', name: t('village_info_building_townhall'), icon: '🏛' },
+    { id: 'housing', name: t('village_info_building_housing'), icon: '🏠' },
+    { id: 'farm', name: t('village_info_building_farm'), icon: '🌾' },
+    { id: 'warehouse', name: t('village_info_building_warehouse'), icon: '📦' },
+    { id: 'blacksmith', name: t('village_info_building_blacksmith'), icon: '⚒' },
+    { id: 'training_grounds', name: t('village_info_building_training_grounds'), icon: '💪' },
+    { id: 'explorer_guild', name: t('village_info_building_explorer_guild'), icon: '🧭' },
+    { id: 'witchs_hut', name: t('village_info_building_witchs_hut'), icon: '🔮' },
+    { id: 'arcane_sanctum', name: t('village_info_building_arcane_sanctum'), icon: '✨' },
+    { id: 'infirmary', name: t('village_info_building_infirmary'), icon: '🏥' },
+    { id: 'tavern', name: t('village_info_building_tavern'), icon: '🍺' }
   ]
   return defs.map((b) => ({
     ...b,

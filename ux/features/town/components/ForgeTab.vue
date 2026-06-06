@@ -2,7 +2,7 @@
   <div class="forge-tab">
     <!-- Lock overlay -->
     <div v-if="!isUnlocked" class="lock-overlay">
-      <EmptyState icon="\u{1F512}" :title="t('forge_uxelm_locked')" />
+      <EmptyState icon="🔒" :title="t('forge_uxelm_locked')" />
     </div>
 
     <template v-else>
@@ -16,7 +16,7 @@
             :class="{ selected: selectedId === item.id, equipped: item.equippedOn }"
             @click="selectedId = item.id"
           >
-            <span class="item-icon">\u{2699}</span>
+            <span class="item-icon">⚙</span>
             <div class="item-info">
               <span class="item-name">{{ item.name }}</span>
               <span v-if="item.equippedOn" class="equipped-label">{{ item.equippedOn }}</span>
@@ -34,7 +34,7 @@
           </div>
           <div v-if="refineCost" class="refine-cost">
             <h4>{{ t('forge_uxelm_refinement_cost') }}</h4>
-            <p>\u{1F4B0} {{ refineCost.gold }}g</p>
+            <p>💰 {{ refineCost.gold }}g</p>
             <p v-for="(amount, mat) in refineCost.materials" :key="mat">
               {{ mat }}: {{ amount }}
             </p>
@@ -48,7 +48,7 @@
           </Button>
         </div>
 
-        <EmptyState v-else icon="\u{2699}" :title="t('forge_uxelm_select_item')" />
+        <EmptyState v-else icon="⚙" :title="t('forge_uxelm_select_item')" />
       </div>
     </template>
   </div>

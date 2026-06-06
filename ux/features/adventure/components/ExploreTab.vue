@@ -8,7 +8,7 @@
         :class="{ active: viewMode === 'tree' }"
         @click="viewMode = 'tree'"
       >
-        \u{1F333} {{ t('explore_uxelm_tree_view') }}
+        🌳 {{ t('explore_uxelm_tree_view') }}
       </Button>
       <Button
         variant="ghost"
@@ -16,7 +16,7 @@
         :class="{ active: viewMode === 'list' }"
         @click="viewMode = 'list'"
       >
-        \u{1F4CB} {{ t('explore_uxelm_list_view') }}
+        📋 {{ t('explore_uxelm_list_view') }}
       </Button>
     </div>
 
@@ -274,12 +274,12 @@ function retireExpedition() {
 function nodeIcon(exp) {
   const status = exp.status || 'available'
   const map = {
-    available: '\u{2B1C}',
-    active: '\u{1F535}',
-    completed: '\u{2705}',
-    closed: '\u{2B1B}'
+    available: '⬜',
+    active: '🔵',
+    completed: '✅',
+    closed: '⬛'
   }
-  return map[status] || '\u{2B1C}'
+  return map[status] || '⬜'
 }
 </script>
 

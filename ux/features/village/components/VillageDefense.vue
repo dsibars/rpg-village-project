@@ -20,7 +20,7 @@
           @click="$emit('unassign', heroId)"
         >
           {{ getHeroName(heroId) }}
-          <span class="remove-btn">\u{2715}</span>
+          <span class="remove-btn">✕</span>
         </span>
       </div>
 

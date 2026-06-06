@@ -7,7 +7,7 @@
     ]"
   >
     <div class="card-avatar">
-      {{ isDead ? '\u{1F480}' : (isHero ? '\u{2694}' : '\u{1F47E}') }}
+      {{ isDead ? '💀' : (isHero ? '⚔' : '👾') }}
     </div>
 
     <div class="card-info">
@@ -126,12 +126,12 @@ const mpPct = computed(() => {
 
 function statusIcon(type) {
   const map = {
-    poison: '\u{1F922}',
-    burn: '\u{1F525}',
-    regen: '\u{1F49A}',
-    haste: '\u{2B50}',
-    sleep: '\u{1F4A4}',
-    stun: '\u{1F4AB}'
+    poison: '🤢',
+    burn: '🔥',
+    regen: '💚',
+    haste: '⭐',
+    sleep: '💤',
+    stun: '💫'
   }
   return map[type] || type
 }

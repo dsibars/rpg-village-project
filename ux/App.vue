@@ -200,10 +200,10 @@ const currentPageLabel = computed(() => {
 })
 
 const navItems = computed(() => [
-  { id: 'village', label: t('shared_uxelm_nav_main'), icon: '\u{1F3E1}' },
-  { id: 'heroes', label: t('shared_uxelm_nav_heroes'), icon: '\u{2694}' },
-  { id: 'adventure', label: t('shared_uxelm_nav_adventure'), icon: '\u{1F5FA}' },
-  { id: 'town', label: t('shared_uxelm_nav_town'), icon: '\u{1F3D8}' }
+  { id: 'village', label: t('shared_uxelm_nav_main'), icon: '🏡' },
+  { id: 'heroes', label: t('shared_uxelm_nav_heroes'), icon: '⚔' },
+  { id: 'adventure', label: t('shared_uxelm_nav_adventure'), icon: '🗺' },
+  { id: 'town', label: t('shared_uxelm_nav_town'), icon: '🏘' }
 ])
 
 function refreshSaveSlots() {

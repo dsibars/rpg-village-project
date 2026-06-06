@@ -1,6 +1,6 @@
 <template>
   <div class="hero-empty-state">
-    <span class="empty-icon">\u{1F9CD}</span>
+    <span class="empty-icon">🧍</span>
     <p class="empty-message">{{ t('heroes_uxelm_select_prompt') }}</p>
   </div>
 </template>

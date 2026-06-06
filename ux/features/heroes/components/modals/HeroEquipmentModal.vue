@@ -82,12 +82,12 @@ const { t } = useI18n()
 
 const slots = ['head', 'body', 'legs', 'leftHand', 'rightHand', 'accessory']
 const slotIcons = {
-  head: '\u{1FA96}',
-  body: '\u{1F9BA}',
-  legs: '\u{1F97E}',
-  leftHand: '\u{2694}',
-  rightHand: '\u{1F6E1}',
-  accessory: '\u{1F48D}'
+  head: '🪖',
+  body: '🦺',
+  legs: '🥾',
+  leftHand: '⚔',
+  rightHand: '🛡',
+  accessory: '💍'
 }
 
 const selectedSlot = ref(null)

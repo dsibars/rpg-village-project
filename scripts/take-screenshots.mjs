@@ -15,10 +15,8 @@
  *        npx playwright install chromium
  *
  * Outputs:
- *   ux/_migration_screenshots/v1_<flow>_001.png
- *   ux/_migration_screenshots/v1_<flow>_002.png
- *   ux/_migration_screenshots/v2_<flow>_001.png
- *   ux/_migration_screenshots/v2_<flow>_002.png
+ *   ux/_migration_screenshots/v1_<flow>_<nnn>_<name>.png
+ *   ux/_migration_screenshots/v2_<flow>_<nnn>_<name>.png
  */
 
 import { chromium } from 'playwright';
@@ -58,7 +56,18 @@ const server = http.createServer((req, res) => {
   });
 });
 
+let screenshotCounter = 1;
+
+async function snap(page, name, prefix) {
+  const num = String(screenshotCounter++).padStart(3, '0');
+  const fileName = `${prefix}_start_new_game_${num}_${name}.png`;
+  await page.screenshot({ path: path.join(OUT_DIR, fileName), fullPage: false });
+  console.log(`[${prefix}] Screenshot ${num} (${name}) saved`);
+}
+
 async function takeScreenshots(page, selectors, prefix) {
+  screenshotCounter = 1;
+
   // Clear storage for clean state
   await page.evaluate(() => {
     localStorage.clear();
@@ -84,13 +93,12 @@ async function takeScreenshots(page, selectors, prefix) {
 
   // Wait for intro dialog
   await page.waitForSelector(selectors.introOverlay, { timeout: 15000 });
-  await page.waitForTimeout(1200); // let fade-in animation finish
+  await page.waitForTimeout(1200);
 
-  // Screenshot 001: intro dialog
-  await page.screenshot({ path: path.join(OUT_DIR, `${prefix}_start_new_game_001.png`), fullPage: false });
-  console.log(`[${prefix}] Screenshot 001 saved`);
+  // 001: intro dialog
+  await snap(page, 'intro', prefix);
 
-  // Dismiss intro (Skip if available, otherwise click through)
+  // Dismiss intro
   const skipBtn = await page.$(selectors.introSkip);
   if (skipBtn) {
     await skipBtn.click();
@@ -108,9 +116,82 @@ async function takeScreenshots(page, selectors, prefix) {
   await page.waitForSelector(selectors.villagePage, { timeout: 15000 });
   await page.waitForTimeout(800);
 
-  // Screenshot 002: village main screen
-  await page.screenshot({ path: path.join(OUT_DIR, `${prefix}_start_new_game_002.png`), fullPage: false });
-  console.log(`[${prefix}] Screenshot 002 saved`);
+  // 002: village main screen
+  await snap(page, 'village', prefix);
+
+  // ── Heroes ──
+  await clickNav(page, selectors.navHeroes);
+  await page.waitForTimeout(800);
+  await snap(page, 'heroes', prefix);
+
+  // ── Adventure / Explore ──
+  await clickNav(page, selectors.navAdventure);
+  await page.waitForTimeout(800);
+  await snap(page, 'explore', prefix);
+
+  // Bestiary
+  await clickSubNav(page, selectors.subNavBestiary);
+  await page.waitForTimeout(800);
+  await snap(page, 'bestiary', prefix);
+
+  // Codex
+  await clickSubNav(page, selectors.subNavCodex);
+  await page.waitForTimeout(800);
+  await snap(page, 'codex', prefix);
+
+  // Chronicle
+  await clickSubNav(page, selectors.subNavChronicle);
+  await page.waitForTimeout(800);
+  await snap(page, 'chronicle', prefix);
+
+  // ── Town / Buildings ──
+  await clickNav(page, selectors.navTown);
+  await page.waitForTimeout(800);
+  await snap(page, 'buildings', prefix);
+
+  // Shop
+  await clickSubNav(page, selectors.subNavShop);
+  await page.waitForTimeout(800);
+  await snap(page, 'shop', prefix);
+
+  // Forge
+  await clickSubNav(page, selectors.subNavForge);
+  await page.waitForTimeout(800);
+  await snap(page, 'forge', prefix);
+
+  // Inventory
+  await clickSubNav(page, selectors.subNavInventory);
+  await page.waitForTimeout(800);
+  await snap(page, 'inventory', prefix);
+
+  // Settings (sub-nav in v1 town, separate nav in v2)
+  if (selectors.subNavSettings) {
+    await clickSubNav(page, selectors.subNavSettings);
+    await page.waitForTimeout(800);
+    await snap(page, 'settings', prefix);
+  } else if (selectors.navSettings) {
+    await clickNav(page, selectors.navSettings);
+    await page.waitForTimeout(800);
+    await snap(page, 'settings', prefix);
+  }
+}
+
+async function clickNav(page, selector) {
+  const el = await page.$(selector);
+  if (el) {
+    await el.click();
+  } else {
+    console.log(`  Nav not found: ${selector}`);
+  }
+}
+
+async function clickSubNav(page, selector) {
+  const el = await page.$(selector);
+  if (el) {
+    await el.click();
+  } else {
+    console.log(`  Sub-nav not found: ${selector}`);
+  }
 }
 
 server.listen(PORT, async () => {
@@ -119,7 +200,6 @@ server.listen(PORT, async () => {
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({ viewport: { width: 1600, height: 1300 } });
 
-  // Ensure output directory exists
   if (!fs.existsSync(OUT_DIR)) fs.mkdirSync(OUT_DIR, { recursive: true });
 
   // ── v1 (Vanilla JS) ────────────────────────────────────────────────
@@ -134,7 +214,17 @@ server.listen(PORT, async () => {
       introOverlay: '.presentation-overlay',
       introSkip: '.presentation-skip',
       introNext: '.presentation-next',
-      villagePage: '.village-dashboard-grid, #main-content'
+      villagePage: '.village-dashboard-grid, #main-content',
+      navHeroes: '.nav-item[data-category="heroes"]',
+      navAdventure: '.nav-item[data-category="adventure"]',
+      navTown: '.nav-item[data-category="town"]',
+      subNavBestiary: '.sub-nav-tab[data-subview="bestiary"]',
+      subNavCodex: '.sub-nav-tab[data-subview="codex"]',
+      subNavChronicle: '.sub-nav-tab[data-subview="chronicle"]',
+      subNavShop: '.sub-nav-tab[data-subview="shop"]',
+      subNavForge: '.sub-nav-tab[data-subview="forge"]',
+      subNavInventory: '.sub-nav-tab[data-subview="inventory"]',
+      subNavSettings: '.sub-nav-tab[data-subview="settings"]',
     }, 'v1');
     await page.close();
   }
@@ -151,7 +241,18 @@ server.listen(PORT, async () => {
       introOverlay: '.presentation-overlay',
       introSkip: '.presentation-skip',
       introNext: '.presentation-next',
-      villagePage: '.village-page, .dashboard-row'
+      villagePage: '.village-page, .dashboard-row',
+      navHeroes: '.footer-nav .nav-item:nth-child(2), .nav-item:nth-child(2)',
+      navAdventure: '.footer-nav .nav-item:nth-child(3), .nav-item:nth-child(3)',
+      navTown: '.footer-nav .nav-item:nth-child(4), .nav-item:nth-child(4)',
+      subNavBestiary: '.tab-nav .tab-btn:nth-child(2)',
+      subNavCodex: '.tab-nav .tab-btn:nth-child(3)',
+      subNavChronicle: '.tab-nav .tab-btn:nth-child(4)',
+      subNavShop: '.tab-nav .tab-btn:nth-child(2)',
+      subNavForge: '.tab-nav .tab-btn:nth-child(3)',
+      subNavInventory: '.tab-nav .tab-btn:nth-child(4)',
+      subNavSettings: null,
+      navSettings: '.top-bar-right .btn-quick:last-child',
     }, 'v2');
     await page.close();
   }

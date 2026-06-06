@@ -72,13 +72,13 @@ const netClass = computed(() => {
 
 function eventIcon(type) {
   const map = {
-    construction: '\u{1F3D8}',
-    expedition: '\u{1F9ED}',
-    hero: '\u{2694}',
-    combat: '\u{1F4A5}',
-    resource: '\u{1F33E}'
+    construction: '🏘',
+    expedition: '🧭',
+    hero: '⚔',
+    combat: '💥',
+    resource: '🌾'
   }
-  return map[type] || '\u{1F4CC}'
+  return map[type] || '📌'
 }
 </script>
 

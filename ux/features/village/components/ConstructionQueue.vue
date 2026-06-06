@@ -18,7 +18,7 @@
           <span class="project-level">{{ t('shared_uxelm_level') }} {{ project.targetLevel }}</span>
         </div>
         <div class="project-status">
-          <span>\u{23F3} {{ project.daysRemaining }} {{ t('shared_uxelm_days') }}</span>
+          <span>⏳ {{ project.daysRemaining }} {{ t('shared_uxelm_days') }}</span>
         </div>
         <div class="progress-container">
           <div

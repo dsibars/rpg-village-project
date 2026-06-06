@@ -5,7 +5,7 @@
         {{ focusedSlotIndex !== null ? t('magic_circle_uxelm_slot_title', { slot: focusedSlotIndex + 1 }) : t('magic_circle_uxelm_palette_title') }}
       </h3>
       <button v-if="focusedSlotIndex !== null" class="close-btn" @click="$emit('unfocus')">
-        \u{2715}
+        ✕
       </button>
     </div>
 

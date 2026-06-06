@@ -35,7 +35,7 @@
           :class="{ selected: selectedId === item.id }"
           @click="selectedId = item.id"
         >
-          <span class="item-icon">{{ item.icon || '\u{1F4E6}' }}</span>
+          <span class="item-icon">{{ item.icon || '📦' }}</span>
           <span class="item-count">x{{ item.count || 1 }}</span>
           <span class="item-name">{{ item.name }}</span>
         </div>
@@ -75,7 +75,7 @@
         </div>
       </div>
 
-      <EmptyState v-else icon="\u{1F392}" :title="t('inventory_uxelm_select_item')" />
+      <EmptyState v-else icon="🎒" :title="t('inventory_uxelm_select_item')" />
     </div>
 
     <!-- Teach Glyph Modal -->

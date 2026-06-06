@@ -14,7 +14,7 @@
         :class="{ completed: obj.completed }"
       >
         <div class="objective-header">
-          <span class="objective-check">{{ obj.completed ? '\u{2705}' : '\u{2B1C}' }}</span>
+          <span class="objective-check">{{ obj.completed ? '✅' : '⬜' }}</span>
           <span class="objective-label">{{ formatLabel(obj) }}</span>
           <span class="objective-progress">{{ obj.progress }} / {{ obj.target }}</span>
         </div>
@@ -28,7 +28,7 @@
       </div>
 
       <div v-if="allCompleted" class="all-completed">
-        <span>\u{1F389}</span> {{ t('daily_uxelm_objective_all_done') }}
+        <span>🎉</span> {{ t('daily_uxelm_objective_all_done') }}
       </div>
     </div>
   </div>

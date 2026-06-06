@@ -34,7 +34,7 @@
         @click="$emit('focus', i - 1)"
       >
         <template v-if="i - 1 >= maxSlots">
-          <span class="slot-lock">\u{1F512}</span>
+          <span class="slot-lock">🔒</span>
         </template>
         <template v-else>
           <span class="slot-icon">{{ getSlotIcon(i - 1) }}</span>

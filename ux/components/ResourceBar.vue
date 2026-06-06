@@ -1,15 +1,15 @@
 <template>
   <div class="resource-bar">
     <div class="resource">
-      <Icon name="\u{1FA99}" size="sm" />
+      <Icon name="🪙" size="sm" />
       <span class="resource-value">{{ gold }}</span>
     </div>
     <div class="resource">
-      <Icon name="\u{1FAB5}" size="sm" />
+      <Icon name="🪵" size="sm" />
       <span class="resource-value">{{ wood }}</span>
     </div>
     <div class="resource">
-      <Icon name="\u{1F465}" size="sm" />
+      <Icon name="👥" size="sm" />
       <span class="resource-value">{{ population }} / {{ maxPopulation }}</span>
     </div>
   </div>

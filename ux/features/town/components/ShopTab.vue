@@ -2,7 +2,7 @@
   <div class="shop-tab">
     <!-- Lock overlay -->
     <div v-if="!isUnlocked" class="lock-overlay">
-      <EmptyState icon="\u{1F512}" :title="t('shop_uxelm_locked')" />
+      <EmptyState icon="🔒" :title="t('shop_uxelm_locked')" />
     </div>
 
     <template v-else>
@@ -52,7 +52,7 @@
             :class="{ selected: selectedItem?.id === item.id, 'just-bought': justBought === item.id }"
             @click="selectItem(item)"
           >
-            <span class="item-icon">{{ item.icon || '\u{1F4E6}' }}</span>
+            <span class="item-icon">{{ item.icon || '📦' }}</span>
             <div class="item-info">
               <span class="item-name">{{ item.name }}</span>
               <span class="item-price">{{ item.cost }}g</span>
@@ -64,7 +64,7 @@
         <div v-if="selectedItem" class="detail-pane">
           <h3>{{ selectedItem.name }}</h3>
           <p class="item-desc">{{ selectedItem.description || '' }}</p>
-          <p class="item-price">\u{1F4B0} {{ selectedItem.cost }}g</p>
+          <p class="item-price">💰 {{ selectedItem.cost }}g</p>
 
           <div class="detail-actions">
             <Button
@@ -93,7 +93,7 @@
           </div>
         </div>
 
-        <EmptyState v-else icon="\u{1F6D2}" :title="t('shop_uxelm_select_item')" />
+        <EmptyState v-else icon="🛒" :title="t('shop_uxelm_select_item')" />
       </div>
     </template>
   </div>

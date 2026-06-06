@@ -1,7 +1,7 @@
 <template>
   <div class="hero-profile">
     <div class="profile-left">
-      <div class="portrait">\u{1F9B8}</div>
+      <div class="portrait">🦸</div>
 
       <div class="profile-info">
         <span class="origin-badge">{{ originName }}</span>
@@ -68,7 +68,7 @@ const { t } = useI18n()
 
 const isIdle = computed(() => props.hero.activity === 'idle')
 
-const activityEmoji = computed(() => (isIdle.value ? '\u{1F4A4}' : '\u{2694}'))
+const activityEmoji = computed(() => (isIdle.value ? '💤' : '⚔'))
 const activityTitle = computed(() =>
   isIdle.value ? t('heroes_status_activity_idle') : t('heroes_status_activity_expedition')
 )

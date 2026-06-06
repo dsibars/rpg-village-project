@@ -20,10 +20,10 @@ const props = defineProps({
   items: {
     type: Array,
     default: () => [
-      { id: 'village', label: 'Main', icon: '\u{1F3E1}' },
-      { id: 'heroes', label: 'Heroes', icon: '\u{2694}' },
-      { id: 'adventure', label: 'Adventure', icon: '\u{1F5FA}' },
-      { id: 'town', label: 'Town', icon: '\u{1F3D8}' }
+      { id: 'village', label: 'Main', icon: '🏡' },
+      { id: 'heroes', label: 'Heroes', icon: '⚔' },
+      { id: 'adventure', label: 'Adventure', icon: '🗺' },
+      { id: 'town', label: 'Town', icon: '🏘' }
     ]
   }
 })

@@ -69,10 +69,10 @@ const used = computed(() => {
 const available = computed(() => total.value - used.value)
 
 const roleIcons = {
-  builder: '\u{1F528}',
-  farmer: '\u{1F33E}',
-  miner: '\u{26CF}',
-  scout: '\u{1F441}'
+  builder: '🔨',
+  farmer: '🌾',
+  miner: '⛏',
+  scout: '👁'
 }
 
 const roleEffects = {

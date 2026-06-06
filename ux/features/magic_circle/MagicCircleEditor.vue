@@ -1,6 +1,6 @@
 <template>
   <FullViewOverlay @close="onClose">
-    <template #icon>\u{1F52E}</template>
+    <template #icon>🔮</template>
     <template #title>{{ t('magic_circle_uxelm_title') }}</template>
 
     <div
@@ -14,7 +14,7 @@
       <div class="mc-top-margin mc-margin-bar">
         <div class="mc-top-left">
           <h2 class="mc-title">
-            <span class="mc-title-icon">\u{1F52E}</span>
+            <span class="mc-title-icon">🔮</span>
             <span>{{ t('magic_circle_uxelm_title') }}</span>
           </h2>
           <span class="mc-hero-badge">
@@ -49,7 +49,7 @@
       <!-- Left Margin -->
       <div class="mc-left-margin mc-margin-bar">
         <div class="mc-polarity-indicator">
-          <span class="mc-polarity-icon">{{ isSupport ? '\u{1F49A}' : '\u{2694}' }}</span>
+          <span class="mc-polarity-icon">{{ isSupport ? '💚' : '⚔' }}</span>
           <span class="mc-polarity-text">
             {{ isSupport ? t('magic_circle_info_polarity_ally') : t('magic_circle_info_polarity_foe') }}
           </span>
@@ -59,7 +59,7 @@
       <!-- Right Margin -->
       <div class="mc-right-margin mc-margin-bar">
         <div class="mc-count-indicator" :class="{ 'all-active': targetInfo.count === 'all' }">
-          <span class="mc-count-icon">{{ targetInfo.count === 'all' ? '\u{1F465}' : '\u{1F464}' }}</span>
+          <span class="mc-count-icon">{{ targetInfo.count === 'all' ? '👥' : '👤' }}</span>
           <span class="mc-count-text">
             {{ targetInfo.count === 'all' ? t('magic_circle_info_target_all') : t('magic_circle_info_target_one') }}
           </span>

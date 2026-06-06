@@ -38,7 +38,7 @@
           class="mobile-back"
           @click="selectedHeroId = null"
         >
-          \u{2190} {{ t('shared_uxelm_back') }}
+          ← {{ t('shared_uxelm_back') }}
         </Button>
 
         <HeroProfile

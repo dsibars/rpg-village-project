@@ -3,10 +3,10 @@
     <TabNav
       v-model="currentTab"
       :tabs="[
-        { id: 'explore', label: t('shared_uxelm_nav_explore'), icon: '\u{1F5FA}' },
-        { id: 'bestiary', label: t('shared_uxelm_nav_bestiary'), icon: '\u{1F47E}' },
-        { id: 'codex', label: t('shared_uxelm_nav_codex'), icon: '\u{1F4D6}' },
-        { id: 'chronicle', label: t('nav_chronicle'), icon: '\u{1F4DC}' }
+        { id: 'explore', label: t('shared_uxelm_nav_explore'), icon: '🗺' },
+        { id: 'bestiary', label: t('shared_uxelm_nav_bestiary'), icon: '👾' },
+        { id: 'codex', label: t('shared_uxelm_nav_codex'), icon: '📖' },
+        { id: 'chronicle', label: t('nav_chronicle'), icon: '📜' }
       ]"
     />
     <component :is="tabs[currentTab]" />

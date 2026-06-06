@@ -90,17 +90,17 @@ const dialogue = computed(() => {
 })
 
 const elementIcons = {
-  fire: '\u{1F525}',
-  water: '\u{1F4A7}',
-  wind: '\u{1F343}',
-  storm: '\u{26A1}',
-  light: '\u{2600}',
-  dark: '\u{1F311}',
-  earth: '\u{1FAA8}',
-  neutral: '\u{1F52E}'
+  fire: '🔥',
+  water: '💧',
+  wind: '🍃',
+  storm: '⚡',
+  light: '☀',
+  dark: '🌑',
+  earth: '🪨',
+  neutral: '🔮'
 }
 
-const elementIcon = computed(() => elementIcons[dialogue.value.element] || '\u{1F52E}')
+const elementIcon = computed(() => elementIcons[dialogue.value.element] || '🔮')
 
 const dialogueLines = computed(() => {
   return (dialogue.value.lines || []).map((line) => {

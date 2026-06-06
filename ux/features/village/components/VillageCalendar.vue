@@ -20,7 +20,7 @@
           class="event-item"
           :class="{ urgent: isUrgent(ev) }"
         >
-          <span class="event-icon">{{ ev.type === 'raid' ? '\u{2694}' : '\u{1F4C5}' }}</span>
+          <span class="event-icon">{{ ev.type === 'raid' ? '⚔' : '📅' }}</span>
           <span class="event-day">{{ dayLabel(ev) }}</span>
           <span class="event-label">{{ eventLabel(ev) }}</span>
         </div>
@@ -40,8 +40,8 @@ const props = defineProps({
 const { t } = useI18n()
 
 const seasonIcon = computed(() => {
-  const map = { spring: '\u{1F338}', summer: '\u{2600}', autumn: '\u{1F342}', winter: '\u{2744}' }
-  return map[props.calendar?.season] || '\u{1F4C5}'
+  const map = { spring: '🌸', summer: '☀', autumn: '🍂', winter: '❄' }
+  return map[props.calendar?.season] || '📅'
 })
 
 const seasonLabel = computed(() => t('calendar_info_season_' + (props.calendar?.season || 'spring')))

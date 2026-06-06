@@ -19,7 +19,7 @@
           <div class="skill-info">
             <span class="skill-name">
               {{ familyName(family.id) }}
-              <span v-if="isInscribed" class="inscribed-mark">\u{2726}</span>
+              <span v-if="isInscribed" class="inscribed-mark">✦</span>
             </span>
             <span class="skill-meta">
               {{ effectLabel(family) }}{{ effectLabel(family) ? ' · ' : '' }}{{ staminaCost(family) }} {{ t('shared_uxelm_stat_sta') }}
@@ -39,7 +39,7 @@
 
         <div v-for="family in lockedList" :key="family.id" class="skill-item locked">
           <div class="skill-info">
-            <span class="skill-name">\u{1F512} {{ familyName(family.id) }}</span>
+            <span class="skill-name">🔒 {{ familyName(family.id) }}</span>
             <span class="skill-meta">
               {{ effectLabel(family, 1) }}{{ effectLabel(family, 1) ? ' · ' : '' }}{{ family.staminaCostBase }} {{ t('shared_uxelm_stat_sta') }}
             </span>

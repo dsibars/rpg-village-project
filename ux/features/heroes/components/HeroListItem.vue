@@ -20,7 +20,7 @@
         class="badge meal-badge"
         :title="t('heroes_status_meal_buff')"
       >
-        \u{1F356}
+        🍖
       </span>
       <span v-if="hasPoints" class="badge points-badge" :title="t('heroes_uxelm_stat_point_available', { amount: hero.statPoints })">
         +{{ hero.statPoints }}
@@ -43,7 +43,7 @@ defineEmits(['select'])
 const { t } = useI18n()
 
 const isIdle = computed(() => props.hero.activity === 'idle')
-const activityEmoji = computed(() => (isIdle.value ? '\u{1F4A4}' : '\u{2694}'))
+const activityEmoji = computed(() => (isIdle.value ? '💤' : '⚔'))
 const activityTitle = computed(() =>
   isIdle.value ? t('heroes_status_activity_idle') : t('heroes_status_activity_expedition')
 )

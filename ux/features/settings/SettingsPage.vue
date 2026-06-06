@@ -38,14 +38,14 @@
           :disabled="cheatActivated"
           @click="activateDevCheat"
         >
-          {{ cheatActivated ? '\u{2705} Done!' : t('settings_uxelm_dev_cheat') }}
+          {{ cheatActivated ? '✅ Done!' : t('settings_uxelm_dev_cheat') }}
         </Button>
         <Button
           v-if="hasArcaneSanctum"
           variant="secondary"
           @click="openMagicSimulator"
         >
-          \u{1F52E} {{ t('settings_uxelm_magic_simulator') }}
+          🔮 {{ t('settings_uxelm_magic_simulator') }}
         </Button>
       </div>
     </div>
