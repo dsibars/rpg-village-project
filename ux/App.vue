@@ -114,6 +114,7 @@ const showIntro = ref(false)
 const showDailyReport = ref(false)
 const pageError = shallowRef(null)
 const saveSlots = ref([])
+const slotIndex = ref(props.persistence?.slotIndex ?? null)
 
 // Presentation queue (PostDaySequencer Step 1)
 const presentationQueue = ref([])
@@ -153,7 +154,7 @@ watch(dailyReport, (report) => {
   }
 })
 
-const hasSlotSelected = computed(() => props.persistence?.slotIndex !== null)
+const hasSlotSelected = computed(() => slotIndex.value !== null)
 
 const gold = computed(() => village.value.gold || 0)
 const population = computed(() => village.value.population || 0)
@@ -194,6 +195,7 @@ function onSelectSlot(index) {
     props.saveSlotManager.createSlot(index)
     props.persistence.setSlot(index)
   }
+  slotIndex.value = index
 
   props.engine?.initialize?.()
   if (props.engine?.isNewGame) {
