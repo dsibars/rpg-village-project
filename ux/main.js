@@ -38,14 +38,41 @@ export function createVueApp({ engine, persistence, saveSlotManager, container }
   app.mount(container)
 
   // Throttled game loop: update reactive gameState at 10 FPS.
-  // Higher-frequency updates can be enabled later for combat animations.
+  // Also handles combat auto-advance (enemy turns + auto-battle).
   let lastUpdate = 0
+  let lastCombatAdvanceTime = null
   const GAME_LOOP_INTERVAL = 100
+  const COMBAT_ADVANCE_INTERVAL = 500
   let frameId = null
 
   function gameLoop(timestamp) {
     if (timestamp - lastUpdate >= GAME_LOOP_INTERVAL) {
-      gameState.value = engine?.update() || {}
+      const newState = engine?.update() || {}
+
+      // Combat Auto-Advance: when it's an enemy turn or auto-battle is on,
+      // advance the battle every 500ms (matches legacy adapter behavior).
+      if (newState.activeBattle && !newState.activeBattle.isOver) {
+        const battle = newState.activeBattle
+        const activeActor = battle.turnOrder?.[battle.currentTurnIndex]
+        const isHeroTurn = activeActor && activeActor.type === 'Hero'
+
+        if (!isHeroTurn || battle.autoBattle) {
+          const now = Date.now()
+          if (!lastCombatAdvanceTime) {
+            lastCombatAdvanceTime = now
+          }
+          if (now - lastCombatAdvanceTime >= COMBAT_ADVANCE_INTERVAL) {
+            engine.nextBattleTurn?.()
+            lastCombatAdvanceTime = now
+          }
+        } else {
+          lastCombatAdvanceTime = null
+        }
+      } else {
+        lastCombatAdvanceTime = null
+      }
+
+      gameState.value = newState
       lastUpdate = timestamp
     }
     frameId = requestAnimationFrame(gameLoop)

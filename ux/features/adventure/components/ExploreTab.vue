@@ -136,7 +136,7 @@
 </template>
 
 <script setup>
-import { ref, computed, inject } from 'vue'
+import { ref, computed, inject, watch } from 'vue'
 import { useI18n } from '@/core/composables/useI18n.js'
 import { useGameState } from '@/core/composables/useGameState.js'
 import { useAdapter } from '@/core/composables/useAdapter.js'
@@ -152,6 +152,18 @@ const viewMode = ref(localStorage.getItem('explore_view_mode') || 'tree')
 const selectedRegion = ref(null)
 const selectedExp = ref(null)
 const selectedHeroIds = ref([])
+
+// Persist view mode preference to localStorage (PF-007)
+watch(viewMode, (mode) => {
+  localStorage.setItem('explore_view_mode', mode)
+})
+
+// Auto-select first region when regions load and none is selected (PF-006)
+watch(() => gameState.value.expeditionRegions, (regs) => {
+  if (!selectedRegion.value && regs && regs.length > 0) {
+    selectedRegion.value = regs[0].id
+  }
+}, { immediate: true })
 
 const regions = computed(() => gameState.value.expeditionRegions || [])
 const expeditions = computed(() => gameState.value.expeditions || [])

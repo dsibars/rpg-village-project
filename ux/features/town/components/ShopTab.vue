@@ -124,7 +124,10 @@ const village = computed(() => gameState.value.village || {})
 const inventory = computed(() => gameState.value.inventory || {})
 const gold = computed(() => village.value.gold || 0)
 const blacksmithLevel = computed(() => village.value.infrastructure?.blacksmith || 0)
-const isUnlocked = computed(() => true) // Shop always unlocked for now
+const isUnlocked = computed(() => {
+  const completed = gameState.value.completedExpeditions || []
+  return completed.includes('exp_tutorial_cave')
+})
 
 const storageUsed = computed(() => inventory.value.totalUsed || 0)
 const storageMax = computed(() => village.value.maxStorage || 100)
@@ -199,9 +202,9 @@ function sellItem() {
 
 function buyResource() {
   if (!selectedItem.value || !canAfford.value) return
-  dispatch('shop', 'buyResource', {
-    resourceId: selectedItem.value.id,
-    quantity: selectedItem.value.quantity || 1
+  dispatch('shop', 'buyItem', {
+    itemData: selectedItem.value,
+    costGold: selectedItem.value.cost
   })
 }
 </script>
