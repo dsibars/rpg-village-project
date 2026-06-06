@@ -24,11 +24,13 @@ build: docs-hash build-web build-app
 build-web: docs-hash
 	@echo "Building RPG Village (web)..."
 	@npm run build
-	@echo "Web build complete! Output: dist/"
+	@npm run build:v2
+	@echo "Web build complete! Output: dist/ (index.html + index_v2.html)"
 
 build-app: docs-hash
 	@echo "Building RPG Village (electron app)..."
 	@npm run build
+	@npm run build:v2
 	@npm run electron:package
 	@echo "App build complete! Check out/ directory."
 

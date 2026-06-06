@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:v2": "vite build --config vite.v2.config.js",
     "build:debug": "vite build -m debug",
     "electron:run": "ELECTRON_RUN_AS_NODE= electron infrastructure/electron/main.js",
     "electron:package": "ELECTRON_RUN_AS_NODE= electron-forge package",
