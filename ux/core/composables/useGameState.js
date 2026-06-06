@@ -60,7 +60,11 @@ export function useBestiary() {
   const { gameState } = useGameState()
   return {
     bestiary: computed(() => gameState.value.bestiary || []),
-    enemyTemplates: computed(() => gameState.value.enemyTemplates || [])
+    enemyTemplates: computed(() => {
+      const tpl = gameState.value.enemyTemplates
+      if (!tpl) return []
+      return Array.isArray(tpl) ? tpl : Object.values(tpl)
+    })
   }
 }
 

@@ -177,7 +177,13 @@ const hasSlotSelected = computed(() => slotIndex.value !== null)
 
 const gold = computed(() => village.value.gold || 0)
 const population = computed(() => village.value.population || 0)
-const wood = computed(() => gameState.value.inventory?.materials?.material_wood || village.value.wood || 0)
+const wood = computed(() => {
+  const mats = gameState.value.inventory?.materials
+  if (typeof mats === 'object' && mats !== null && !Array.isArray(mats)) {
+    return mats.material_wood || village.value.wood || 0
+  }
+  return village.value.wood || 0
+})
 
 const pages = {
   village: VillagePage,
@@ -332,12 +338,14 @@ function handleNavigate({ page, tab }) {
   if (page && pages[page]) {
     currentPage.value = page
     activeTab.value = tab || null
+    pageError.value = null
   }
 }
 
 function handlePageChange(page) {
   currentPage.value = page
   activeTab.value = null
+  pageError.value = null
 }
 
 function proceedToPresentations() {

@@ -2,7 +2,7 @@
   <div class="shop-tab">
     <!-- Lock overlay -->
     <div v-if="!isUnlocked" class="lock-overlay">
-      <EmptyState icon="🔒" :title="t('shop_uxelm_locked')" />
+      <EmptyState icon="🔒" :title="t('shop_uxelm_locked')" :message="t('shop_uxelm_locked_desc')" />
     </div>
 
     <template v-else>
@@ -158,9 +158,18 @@ const catalogItems = computed(() => {
     return items
   } else if (currentTab.value === 'sell') {
     const items = []
-    const consumables = inventory.value.consumables || []
+    // v1 stores consumables as object { consumable_id: count }
+    const consumablesObj = inventory.value.consumables || {}
+    if (typeof consumablesObj === 'object' && !Array.isArray(consumablesObj)) {
+      Object.entries(consumablesObj).forEach(([id, count]) => {
+        if (count > 0) {
+          items.push({ id, name: t('item_' + id), count, sellPrice: Math.floor((10) * 0.5), type: 'consumables' })
+        }
+      })
+    } else if (Array.isArray(consumablesObj)) {
+      items.push(...consumablesObj.map((c) => ({ ...c, sellPrice: Math.floor((c.cost || 10) * 0.5) })))
+    }
     const equipment = inventory.value.equipment || []
-    items.push(...consumables.map((c) => ({ ...c, sellPrice: Math.floor((c.cost || 10) * 0.5) })))
     items.push(...equipment.map((e) => ({ ...e, sellPrice: Math.floor((e.value || 10) * 0.5) })))
     return items
   } else {

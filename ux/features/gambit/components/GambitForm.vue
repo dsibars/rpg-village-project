@@ -23,8 +23,8 @@
           </option>
         </optgroup>
         <optgroup :label="t('gambit_uxelm_spells')">
-          <option v-for="(spell, idx) in hero.spellCodex" :key="spell" :value="`spell:${idx}`">
-            {{ spell }}
+          <option v-for="(spell, idx) in hero.spellCodex" :key="spell.name || idx" :value="`spell:${idx}`">
+            {{ spell.name || spell }}
           </option>
         </optgroup>
         <option value="defend">{{ t('gambit_uxelm_defend') }}</option>

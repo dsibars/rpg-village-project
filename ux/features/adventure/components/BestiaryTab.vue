@@ -15,7 +15,7 @@
         class="enemy-card"
         :class="{ discovered: enemy.isDiscovered, undiscovered: !enemy.isDiscovered }"
       >
-        <div class="enemy-type-badge">{{ enemy.isDiscovered ? typeIcon(enemy.type) : '❓' }}</div>
+        <div class="enemy-type-badge">{{ typeIcon(enemy.type) }}</div>
         <div class="enemy-name">{{ enemy.isDiscovered ? enemy.name : '???' }}</div>
         
         <div class="enemy-stats">

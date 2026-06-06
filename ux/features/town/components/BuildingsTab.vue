@@ -122,18 +122,63 @@ const buildingDescription = computed(() => {
   return t('village_info_building_' + selectedId.value + '_desc')
 })
 
+function getBuildingEffectText(id, level) {
+  // Match v1 BuildingDetailPane.js logic
+  if (id === 'farm') {
+    return `${t('village_info_building_farm_effect_grain')}: +${4 * level}`
+  }
+  if (id === 'housing') {
+    const calcPop = (lvl) => {
+      if (lvl <= 0) return 0
+      if (lvl === 1) return 3
+      if (lvl === 2) return 10
+      return 20 + (lvl - 3) * 10
+    }
+    return `${t('village_info_building_housing_effect_population')}: ${calcPop(level)}`
+  }
+  if (id === 'warehouse') {
+    const calcStorage = (lvl) => {
+      if (lvl <= 0) return 100
+      if (lvl === 1) return 200
+      if (lvl === 2) return 500
+      return 500 + (lvl - 2) * 500
+    }
+    return `${t('village_info_building_warehouse_effect_storage')}: ${calcStorage(level)} 🪵/🪨`
+  }
+  if (id === 'blacksmith') {
+    return `${t('village_info_building_blacksmith_effect_forge')}: ${level >= 1 ? t('village_info_building_blacksmith_effect_iron_gear') : t('shared_uxelm_locked')}`
+  }
+  if (id === 'infirmary') {
+    return `${t('village_info_building_infirmary_effect_healing')}: +${level * 10}%`
+  }
+  if (id === 'tavern') {
+    return `${t('village_info_building_tavern_effect_recruitment')}: ${level >= 1 ? t('shared_uxelm_unlocked') : t('shared_uxelm_locked')}`
+  }
+  if (id === 'witchs_hut') {
+    return `${t('village_info_building_witchs_hut_effect_magic_readings')}: ${level >= 1 ? t('shared_uxelm_unlocked') : t('shared_uxelm_locked')}`
+  }
+  if (id === 'arcane_sanctum') {
+    return `${t('village_info_building_arcane_sanctum_effect_academy')}: ${level >= 1 ? `${t('village_info_building_arcane_sanctum_effect_slots')}: ${level}` : t('shared_uxelm_locked')}`
+  }
+  if (id === 'explorer_guild') {
+    return `${t('village_info_building_explorer_guild_effect_expeditions')}: ${level >= 1 ? t('shared_uxelm_unlocked') : t('shared_uxelm_locked')}`
+  }
+  if (id === 'training_grounds') {
+    return `${t('village_info_building_training_grounds_effect_passive_experience')}: ${level >= 1 ? `+${level * 5}%` : t('shared_uxelm_locked')}`
+  }
+  return ''
+}
+
 const currentEffects = computed(() => {
   if (!selectedBuilding.value) return ''
-  return t('buildings_effect_' + selectedId.value, { level: selectedBuilding.value.lvl })
+  return getBuildingEffectText(selectedId.value, selectedBuilding.value.lvl)
 })
 
 const nextEffects = computed(() => {
   if (!selectedBuilding.value) return null
   const next = selectedBuilding.value.lvl + 1
-  const nextEffect = t('buildings_effect_' + selectedId.value, { level: next })
-  // If translation returns the key itself, there's no effect text for next level
-  if (nextEffect === 'buildings_effect_' + selectedId.value) return null
-  return nextEffect
+  const effect = getBuildingEffectText(selectedId.value, next)
+  return effect || null
 })
 
 const upgradeCost = computed(() => {
@@ -146,12 +191,12 @@ const canUpgrade = computed(() => {
   if (!selectedBuilding.value || !upgradeCost.value) return false
   if (gold.value < (upgradeCost.value.gold || 0)) return false
   if (constructionQueue.value.length > 0) return false
-  // Check materials
-  const materials = inventory.value.materials || []
-  const woodItem = materials.find(m => m.id === 'material_wood')
-  const stoneItem = materials.find(m => m.id === 'material_stone')
-  if ((upgradeCost.value.wood || 0) > 0 && (!woodItem || woodItem.count < upgradeCost.value.wood)) return false
-  if ((upgradeCost.value.stone || 0) > 0 && (!stoneItem || stoneItem.count < upgradeCost.value.stone)) return false
+  // Check materials — v1 stores materials as object { material_wood: count }
+  const materials = inventory.value.materials || {}
+  const woodCount = typeof materials.material_wood === 'number' ? materials.material_wood : 0
+  const stoneCount = typeof materials.material_stone === 'number' ? materials.material_stone : 0
+  if ((upgradeCost.value.wood || 0) > 0 && woodCount < upgradeCost.value.wood) return false
+  if ((upgradeCost.value.stone || 0) > 0 && stoneCount < upgradeCost.value.stone) return false
   return true
 })
 

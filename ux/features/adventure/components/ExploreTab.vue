@@ -173,7 +173,13 @@ watch(() => gameState.value.expeditionRegions, (regs) => {
   }
 }, { immediate: true })
 
-const regions = computed(() => gameState.value.expeditionRegions || [])
+const regions = computed(() => {
+  const regs = gameState.value.expeditionRegions
+  if (!regs) return []
+  if (Array.isArray(regs)) return regs
+  // v1 stores expeditionRegions as object { regionId: { name, ... } }
+  return Object.entries(regs).map(([id, data]) => ({ id, ...data }))
+})
 const expeditions = computed(() => gameState.value.expeditions || [])
 const activeExpeditions = computed(() => gameState.value.activeExpeditions || [])
 const maxConcurrent = computed(() => gameState.value.maxConcurrentExpeditions || 1)

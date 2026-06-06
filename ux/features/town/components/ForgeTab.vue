@@ -2,7 +2,7 @@
   <div class="forge-tab">
     <!-- Lock overlay -->
     <div v-if="!isUnlocked" class="lock-overlay">
-      <EmptyState icon="🔒" :title="t('forge_uxelm_locked')" />
+      <EmptyState icon="🔒" :title="t('forge_uxelm_locked')" :message="t('forge_uxelm_locked_desc')" />
     </div>
 
     <template v-else>

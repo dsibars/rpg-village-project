@@ -57,7 +57,7 @@ const { t } = useI18n()
 
 const props = defineProps({
   bestiary: { type: Array, default: () => [] },
-  enemyTemplates: { type: Array, default: () => [] }
+  enemyTemplates: { type: [Array, Object], default: () => [] }
 })
 
 const emit = defineEmits(['start', 'close'])
@@ -66,7 +66,8 @@ const selectedEnemies = ref([])
 const maxEnemyLevel = 50
 
 const availableEnemies = computed(() => {
-  return props.enemyTemplates.filter(t => props.bestiary.includes(t.id))
+  const templates = Array.isArray(props.enemyTemplates) ? props.enemyTemplates : Object.values(props.enemyTemplates)
+  return templates.filter(t => props.bestiary.includes(t.id))
 })
 
 function isSelected(templateId) {

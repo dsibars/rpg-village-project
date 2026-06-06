@@ -121,7 +121,20 @@ Key selectors for v1 vs v2:
 |---------------|---------------|---------------|--------|----------|
 | Save Slot Selection | `v1_initial_page_saveslot_selection.png` | `v2_initial_page_saveslot_selection.png` | ✅ Re-verified | All critical/significant findings fixed. E-001 (subtitle) approved as exception. |
 | New Game Lore Intro | `v1_start_new_game_001.png` | `v2_start_new_game_001.png` | ✅ Re-verified | F-012, F-013, F-014, F-015 fixed. |
-| Village Main Screen | `v1_start_new_game_002.png` | `v2_start_new_game_002.png` | 🛠️ Fixed | F-016 through F-020, F-022, F-024, F-025, F-026 fixed. F-021 partially fixed (same card, internal titles differ). F-023 fixed. |
+| Village Main Screen | `v1_start_new_game_002_village.png` | `v2_start_new_game_002_village.png` | 🛠️ Fixed | F-016 through F-020, F-022, F-024, F-025, F-026 fixed. F-021 partially fixed (same card, internal titles differ). F-023 fixed. |
+| Heroes | `v1_start_new_game_003_heroes.png` | `v2_start_new_game_003_heroes.png` | 🔍 In Review | Functional. Layout differs: v1 uses sidebar list + detail pane; v2 uses compact card list + detail pane. |
+| Explore | `v1_start_new_game_004_explore.png` | `v2_start_new_game_004_explore.png` | 🛠️ Fixed | F-027 fixed (explore_info_undefined). Layout differs: v1 has WORLD MAP sidebar + node visualization; v2 has tree/list toggle + expedition cards. |
+| Bestiary | `v1_start_new_game_005_bestiary.png` | `v2_start_new_game_005_bestiary.png` | 🛠️ Fixed | F-030 fixed (type icons hidden for undiscovered). Layout differs: v1 uses compact grid with full stat labels; v2 uses slightly larger cards with abbreviated labels. |
+| Codex | `v1_start_new_game_006_codex.png` | `v2_start_new_game_006_codex.png` | 🔍 In Review | Functional. Layout differs: v1 has category sections with group headers; v2 has filter tabs at top. |
+| Chronicle | `v1_start_new_game_007_chronicle.png` | `v2_start_new_game_007_chronicle.png` | 🔍 In Review | Functional. Layout differs: v1 has 2-column layout with discovery log sidebar; v2 has similar structure but different proportions. |
+| Buildings | `v1_start_new_game_008_buildings.png` | `v2_start_new_game_008_buildings.png` | 🔍 In Review | Functional. Layout differs: v1 uses 2-panel master-detail with uppercase names; v2 uses vertical card list with title case names. |
+| Shop | `v1_start_new_game_012_shop.png` | `v2_start_new_game_012_shop.png` | 🛠️ Fixed | F-028 fixed (missing locked description). Layout differs: v1 locked state has centered card with background; v2 has plain centered text. |
+| Forge | `v1_start_new_game_013_forge.png` | `v2_start_new_game_013_forge.png` | 🛠️ Fixed | F-028 fixed (missing locked description). Same layout difference as Shop. |
+| Inventory | `v1_start_new_game_014_inventory.png` | `v2_start_new_game_014_inventory.png` | 🔍 In Review | F-027 fixed (crash). F-034: Missing STORAGE header, purple bar, count badges, 2-panel layout. |
+| Settings | `v1_start_new_game_015_settings.png` | `v2_start_new_game_015_settings.png` | 🔍 In Review | F-035: Missing ABOUT section, MAGIC CIRCLE SIMULATOR, multi-card grid layout, developer options description. |
+| Heroes Detail | `v1_start_new_game_004_heroes_detail.png` | `v2_start_new_game_004_heroes_detail.png` | 🔍 In Review | Functional. Missing stat descriptions, experience format, avatar shape, action button layout differ. |
+| Explore Detail | `v1_start_new_game_006_explore_detail.png` | `v2_start_new_game_006_explore_detail.png` | 🔍 In Review | Functional. v1 uses modal; v2 uses inline card. Missing Base Reward, COMBAT INTEL, checkbox selection. |
+| Buildings Detail | `v1_start_new_game_011_buildings_detail.png` | `v2_start_new_game_011_buildings_detail.png` | 🔍 In Review | Functional. v2 shows Town Hall in list (v1 doesn't). Missing building icon, BUILDING EFFECTS arrows, cost bars. |
 | _(next page TBD)_ | — | — | ⏳ Pending | — |
 
 > **Legend:** ⏳ Pending → 🔍 In Review → ✅ Verified → ❌ Issues Found → 🛠️ Fixed → ✅ Re-verified
@@ -282,9 +295,72 @@ Issues detected from screenshot comparison. Format: `F-XXX: Brief description �
 - **Fix:** Rewrote `FooterNav.vue` with v1 `main-nav` styles: floating dock margin, glassmorphism blur, shadow, active dot indicator, uppercase labels with letter-spacing, icon scale animation on active, text glow. Updated `App.vue` nav items to use v1 i18n key (`shared_uxelm_nav_main`) and icons. Added `--accent-color` token to `theme.css`.
 - **Status:** 🛠️ Fixed
 
+#### F-027: Inventory / Explore / Buildings — v2 assumes object data is an array
+- **Pages:** Inventory, Explore, Buildings (Shop sell tab)
+- **What:** v1 stores `inventory.materials`, `inventory.food`, `inventory.consumables`, and `expeditionRegions` as **objects** (`{ id: count }`), not arrays. v2 assumed arrays and called `.map()`, `.find()`, etc., causing crashes.
+- **Fix:**
+  - `InventoryTab.vue`: Added `entriesToItems()` helper that handles both arrays and objects via `Object.entries()`.
+  - `ExploreTab.vue`: `regions` computed now converts object-shaped `expeditionRegions` to array with `id` included.
+  - `BuildingsTab.vue`: `canUpgrade` now reads `materials.material_wood` and `materials.material_stone` directly from the object.
+  - `ShopTab.vue`: Sell tab now converts object-shaped `consumables` via `Object.entries()`.
+  - `App.vue`: `wood` computed now defensively checks if `materials` is an object. `pageError` is now cleared on page navigation.
+- **Status:** 🛠️ Fixed
+
+#### F-028: Shop / Forge — Locked state missing description text
+- **Pages:** Shop, Forge
+- **What:** v1 locked states show a centered card with lock emoji, title ("Shop Locked"), and description ("Complete the Tutorial Cave expedition to unlock the Shop."). v2 only showed the lock emoji and title — no description.
+- **Fix:** Added `:message="t('shop_uxelm_locked_desc')"` to `ShopTab.vue` and `:message="t('forge_uxelm_locked_desc')"` to `ForgeTab.vue` `EmptyState` component.
+- **Status:** 🛠️ Fixed
+
+#### F-029: Heroes — Detail pane empty on initial load
+- **Page:** Heroes
+- **What:** v2 shows the hero list (Arthur) but the detail pane says "Select a hero to view stats and equipment" even though no hero is selected. v1 has the same behavior — the detail pane is empty until a hero is clicked. Not a bug, just a behavioral match.
+- **Status:** ✅ Verified (matches v1)
+
+#### F-030: Bestiary — Undiscovered enemies missing type icons
+- **Page:** Bestiary
+- **What:** v1 always shows the enemy type emoji (🐺, 🐀, 💧, 👺, 💀, 🐉) even for undiscovered entries. v2 showed "❓" for all undiscovered enemies, losing the visual variety of the type icons.
+- **Fix:** Changed `BestiaryTab.vue` line 18 from `enemy.isDiscovered ? typeIcon(enemy.type) : '❓'` to always render `typeIcon(enemy.type)`.
+- **Status:** 🛠️ Fixed
+
+#### F-031: Heroes Detail — Missing stat descriptions, experience format, avatar shape, action button layout
+- **Page:** Heroes Detail
+- **What:** v1 shows descriptive text under each stat (e.g., "Hit Points — determines how much damage a hero can survive"), experience as "0 / 20", square avatar with border, 2 rows of 3 action buttons, and "Spend a skill point to unlock a new technique" helper text. v2 lacks stat descriptions, shows "0 XP", circular avatar, wrapped action buttons, and no helper text.
+- **Status:** ❌ Issues Found
+
+#### F-032: Explore Detail — Missing Base Reward, COMBAT INTEL, checkbox selection
+- **Page:** Explore Detail
+- **What:** v1 expedition detail modal shows "Base Reward: 100 Gold", "COMBAT INTEL" section with enemy type tags (Green Slime, Fire Slime), checkbox-based hero selection with HP display, and "ASSIGN HEROES" button. v2 inline card lacks Base Reward, COMBAT INTEL, uses simple tag for hero selection, and has "START" button.
+- **Status:** ❌ Issues Found
+
+#### F-033: Buildings Detail — Town Hall in list, missing icon, BUILDING EFFECTS, cost bars
+- **Page:** Buildings Detail
+- **What:** v1 building list excludes Town Hall (it's implicit). v2 includes Town Hall as first item. v1 detail shows building emoji icon, "BUILDING EFFECTS" with before→after arrows (e.g., "Max Villagers 3 → 10"), cost bars for Gold/Wood/Stone/Time, and "CONFIRM" button. v2 lacks icon, shows empty "Current Effects", simple text list for costs, and "BUILD" button.
+- **Status:** ❌ Issues Found
+
+#### F-034: Inventory — Missing STORAGE header, purple bar, count badges, 2-panel layout
+- **Page:** Inventory
+- **What:** v1 has "STORAGE" header with "60 / 200" and purple gradient progress bar. v2 has green bar without header text. v1 item cards show count as purple circular badges; v2 shows count below item. v1 uses 2-panel layout (items left, detail right); v2 proportions differ.
+- **Status:** ❌ Issues Found
+
+#### F-035: Settings — Missing ABOUT section, MAGIC CIRCLE SIMULATOR, multi-card grid layout
+- **Page:** Settings
+- **What:** v1 Settings has 2-column multi-card grid: INTERFACE LANGUAGE, CHOOSE SAVE SLOT, DEVELOPER OPTIONS (with descriptive text + MAGIC CIRCLE SIMULATOR button), DANGER ZONE, and ABOUT (version info). v2 has single-column stacked cards, no ABOUT section, no MAGIC CIRCLE SIMULATOR, no DANGER ZONE card separation, and no developer options description text.
+- **Status:** ❌ Issues Found
+
 ### 🟢 Minor (tiny visual discrepancies acceptable for technical migration)
 
 _(None yet)_
+
+---
+
+## Batch Fixes (Cross-Cutting)
+
+#### Unicode Escape Fix — 150 `\u{XXXXX}` sequences across 35 Vue files
+- **What:** Vue templates render `\u{XXXXX}` as literal text (unlike JS strings where it's valid syntax). All 35+ Vue files using unicode escapes in `<template>` sections showed garbled text instead of emojis.
+- **Fix:** Mass-replaced all `\u{XXXXX}` patterns with actual Unicode characters in Vue templates.
+- **Files affected:** `SaveSlotPage.vue`, `VillagePage.vue`, `VillageCanvas.vue`, `LaborPool.vue`, `VillageCalendar.vue`, `VillageDefense.vue`, `DailyObjectives.vue`, `ConstructionQueue.vue`, `FooterNav.vue`, `TopBar.vue`, `HeroesPage.vue`, `HeroCard.vue`, `HeroDetail.vue`, `AdventurePage.vue`, `ExploreTab.vue`, `BestiaryTab.vue`, `CodexTab.vue`, `ChronicleTab.vue`, `TownPage.vue`, `BuildingsTab.vue`, `ShopTab.vue`, `ForgeTab.vue`, `InventoryTab.vue`, `SettingsPage.vue`, `PresentationModal.vue`, `DailyReportModal.vue`, `CombatOverlay.vue`, `ExpeditionResultModal.vue`, `MagicCircleEditor.vue`, `EmptyState.vue`, `Button.vue`, `ModalFrame.vue`, `ToastContainer.vue`, `App.vue`, and others.
+- **Status:** 🛠️ Fixed
 
 ---
 
@@ -316,6 +392,10 @@ _(None yet)_
 | F-023 | 2026-06-06 | Village Main | Restructured `VillagePage.vue` to v1 3-column grid (`4.5fr 3.25fr 3.25fr`). LaborPool + ConstructionQueue now in middle column. |
 | F-026 | 2026-06-06 | Village Main | Rewrote `FooterNav.vue` as floating pill with blur, shadow, active dot, uppercase labels, icon animation, glow. Updated nav items to v1 labels/icons. |
 | — | 2026-06-06 | Village Main | Fixed `#app` height and `App.vue` flex layout so page fills viewport without scrolling. Canvas card stretches to fill grid column; tiles distribute with `repeat(4, 1fr)`. |
+| — | 2026-06-06 | Global | Mass-fixed 150 `\u{XXXXX}` unicode escape sequences across 35 Vue files — replaced with actual emoji characters in templates. |
+| F-027 | 2026-06-06 | Inventory, Explore, Buildings, Shop | Fixed object-shaped data crashes: `inventory.materials/food/consumables` and `expeditionRegions` are objects in v1, not arrays. Added `entriesToItems()` helper and object-to-array conversion. |
+| F-028 | 2026-06-06 | Shop, Forge | Added missing locked-state description text (`shop_uxelm_locked_desc`, `forge_uxelm_locked_desc`) to `EmptyState` component. |
+| F-030 | 2026-06-06 | Bestiary | Restored type icons for undiscovered enemies — v1 always shows the enemy type emoji; v2 was showing "❓" for all undiscovered entries. |
 
 ---
 
@@ -334,4 +414,9 @@ Features or changes that are **intentionally different** from vanilla. Each must
 Observations about the migration architecture that are not bugs.
 
 1. **`shallowRef` is correct**: The game state is replaced wholesale on each tick. `shallowRef` avoids deep proxying thousands of nested objects. This matches the architecture doc §6.2.
-2. **State shape differences**: The Vue composable `useGameState()` exposes `gameState.value.expeditionRegions` as an array. The legacy `ExploreView.getRegions()` treats `state.expeditionRegions` as an **object** (using `Object.entries()`). Verify which shape the engine actually outputs.
+2. **State shape differences**: The Vue composable `useGameState()` exposes `gameState.value.expeditionRegions` as an array. The legacy `ExploreView.getRegions()` treats `state.expeditionRegions` as an **object** (using `Object.entries()`). The engine outputs objects for `materials`, `food`, `consumables`, `expeditionRegions`, and `enemyTemplates`. All Vue components must handle both shapes defensively.
+3. **Structural differences (known/acceptable)**:
+   - **Explore layout**: v1 uses WORLD MAP sidebar + node visualization; v2 uses tree/list toggle + expedition cards. The underlying data and functionality are the same.
+   - **Settings location**: v1 has Settings as a sub-tab under Town; v2 has it as a separate page via gear icon in TopBar. This is a navigation restructuring, not a content difference.
+   - **Buildings list**: v1 shows only buildable/non-locked buildings in the list (excluding Town Hall); v2 shows all buildings including locked ones with lock icons. This is a UX choice in v2 that doesn't affect functionality.
+4. **Modal vs inline**: v1 uses modals for expedition detail and some hero interactions. v2 uses inline cards or page-level views. These are structural pattern differences that would require significant rewrites to match exactly. The content within them should match (F-032).

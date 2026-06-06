@@ -124,10 +124,42 @@ async function takeScreenshots(page, selectors, prefix) {
   await page.waitForTimeout(800);
   await snap(page, 'heroes', prefix);
 
+  // Hero detail (click first hero)
+  await clickElement(page, selectors.heroCard);
+  await page.waitForTimeout(800);
+  await snap(page, 'heroes_detail', prefix);
+
   // ── Adventure / Explore ──
   await clickNav(page, selectors.navAdventure);
   await page.waitForTimeout(800);
   await snap(page, 'explore', prefix);
+
+  // Expedition detail (click first node/card)
+  await clickElement(page, selectors.expeditionNode);
+  await page.waitForTimeout(800);
+  await snap(page, 'explore_detail', prefix);
+  // Dismiss any modal that may have opened
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(300);
+  // Also try clicking modal close button or overlay for v1
+  if (prefix === 'v1') {
+    // v1 BaseModal uses .btn-close-modal inside .modal-overlay
+    const closeBtn = await page.$('.btn-close-modal');
+    if (closeBtn) {
+      await closeBtn.click().catch(() => {});
+      await page.waitForTimeout(400);
+    }
+    // Also try clicking the overlay edge (not center where modal-body is)
+    const overlay = await page.$('.modal-overlay');
+    if (overlay) {
+      // Click at top-left corner of overlay to ensure we hit the overlay itself
+      const box = await overlay.boundingBox();
+      if (box) {
+        await page.mouse.click(box.x + 5, box.y + 5);
+        await page.waitForTimeout(400);
+      }
+    }
+  }
 
   // Bestiary
   await clickSubNav(page, selectors.subNavBestiary);
@@ -148,6 +180,11 @@ async function takeScreenshots(page, selectors, prefix) {
   await clickNav(page, selectors.navTown);
   await page.waitForTimeout(800);
   await snap(page, 'buildings', prefix);
+
+  // Building detail (click first building)
+  await clickElement(page, selectors.buildingCard);
+  await page.waitForTimeout(800);
+  await snap(page, 'buildings_detail', prefix);
 
   // Shop
   await clickSubNav(page, selectors.subNavShop);
@@ -179,18 +216,52 @@ async function takeScreenshots(page, selectors, prefix) {
 async function clickNav(page, selector) {
   const el = await page.$(selector);
   if (el) {
-    await el.click();
+    try {
+      await el.click({ timeout: 3000 });
+    } catch (e) {
+      await page.evaluate((sel) => {
+        const element = document.querySelector(sel);
+        if (element) element.click();
+      }, selector);
+    }
   } else {
     console.log(`  Nav not found: ${selector}`);
   }
 }
 
 async function clickSubNav(page, selector) {
+  if (!selector) return;
   const el = await page.$(selector);
   if (el) {
-    await el.click();
+    // Try normal click first; if blocked by overlay, force via evaluate
+    try {
+      await el.click({ timeout: 3000 });
+    } catch (e) {
+      // Click directly via JS to bypass overlay interception
+      await page.evaluate((sel) => {
+        const element = document.querySelector(sel);
+        if (element) element.click();
+      }, selector);
+    }
   } else {
     console.log(`  Sub-nav not found: ${selector}`);
+  }
+}
+
+async function clickElement(page, selector) {
+  if (!selector) return;
+  const el = await page.$(selector);
+  if (el) {
+    try {
+      await el.click({ timeout: 3000 });
+    } catch (e) {
+      await page.evaluate((sel) => {
+        const element = document.querySelector(sel);
+        if (element) element.click();
+      }, selector);
+    }
+  } else {
+    console.log(`  Element not found: ${selector}`);
   }
 }
 
@@ -225,6 +296,9 @@ server.listen(PORT, async () => {
       subNavForge: '.sub-nav-tab[data-subview="forge"]',
       subNavInventory: '.sub-nav-tab[data-subview="inventory"]',
       subNavSettings: '.sub-nav-tab[data-subview="settings"]',
+      heroCard: '#heroes-list-container .hero-card',
+      buildingCard: '.building-card',
+      expeditionNode: '.tree-node, .expedition-card',
     }, 'v1');
     await page.close();
   }
@@ -253,6 +327,9 @@ server.listen(PORT, async () => {
       subNavInventory: '.tab-nav .tab-btn:nth-child(4)',
       subNavSettings: null,
       navSettings: '.top-bar-right .btn-quick:last-child',
+      heroCard: '.hero-list-item',
+      buildingCard: '.building-card',
+      expeditionNode: '.tree-node, .expedition-card',
     }, 'v2');
     await page.close();
   }

@@ -132,20 +132,41 @@ const filters = computed(() => [
   { id: 'equipment', label: t('inventory_uxelm_filter_equipment') }
 ])
 
+function entriesToItems(obj, type, iconFn) {
+  if (!obj) return []
+  if (Array.isArray(obj)) return obj.map((item) => ({ ...item, type }))
+  return Object.entries(obj)
+    .filter(([, count]) => (typeof count === 'number' ? count > 0 : true))
+    .map(([id, count]) => ({
+      id,
+      name: type === 'consumables' ? t('item_' + id) : t(id),
+      count: typeof count === 'number' ? count : 1,
+      icon: iconFn ? iconFn(id) : undefined,
+      type
+    }))
+}
+
 const allItems = computed(() => {
   const items = []
   if (activeFilter.value === 'all' || activeFilter.value === 'materials') {
-    items.push(...(inventory.value.materials || []).map((m) => ({ ...m, type: 'material' })))
+    items.push(...entriesToItems(inventory.value.materials, 'materials', (id) =>
+      id === 'material_wood' ? '🪵' : (id === 'material_stone' ? '🪨' : '⛓️')
+    ))
   }
   if (activeFilter.value === 'all' || activeFilter.value === 'food') {
-    items.push(...(inventory.value.food || []).map((f) => ({ ...f, type: 'food' })))
-    items.push(...(inventory.value.meals || []).map((m) => ({ ...m, type: 'meal' })))
+    items.push(...entriesToItems(inventory.value.food, 'food', (id) => {
+      const recipes = { food_grain: '🌾' }
+      return recipes[id] || '🌾'
+    }))
+    items.push(...entriesToItems(inventory.value.meals, 'meal'))
   }
   if (activeFilter.value === 'all' || activeFilter.value === 'consumables') {
-    items.push(...(inventory.value.consumables || []).map((c) => ({ ...c, type: 'consumable' })))
+    items.push(...entriesToItems(inventory.value.consumables, 'consumables', (id) =>
+      id.startsWith('tablet_glyph_') ? '🪧' : (id === 'teleport_scroll' ? '📜' : '🧪')
+    ))
   }
   if (activeFilter.value === 'all' || activeFilter.value === 'equipment') {
-    items.push(...(inventory.value.equipment || []).map((e) => ({ ...e, type: 'equipment' })))
+    items.push(...(inventory.value.equipment || []).map((e, index) => ({ ...e, type: 'equipment', id: e.id || `eq_${e.type}_${e.material}_${index}` })))
   }
   // Recipes and glyph tablets
   if (activeFilter.value === 'all') {
