@@ -2,6 +2,7 @@
   <div class="inventory-tab">
     <!-- Storage bar -->
     <div class="storage-bar">
+      <span class="storage-label">{{ t('inventory_uxelm_storage') }}</span>
       <div class="storage-track">
         <div
           class="storage-fill"
@@ -36,7 +37,7 @@
           @click="selectedId = item.id"
         >
           <span class="item-icon">{{ item.icon || '📦' }}</span>
-          <span class="item-count">x{{ item.count || 1 }}</span>
+          <span v-if="(item.count || 1) > 1" class="item-count-badge">{{ item.count }}</span>
           <span class="item-name">{{ item.name }}</span>
         </div>
       </div>
@@ -215,6 +216,14 @@ function teachGlyph(heroId) {
   border-radius: var(--radius-md);
 }
 
+.storage-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-primary);
+}
+
 .storage-track {
   flex: 1;
   height: 8px;
@@ -225,17 +234,18 @@ function teachGlyph(heroId) {
 
 .storage-fill {
   height: 100%;
-  background: #22c55e;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-primary-light));
   border-radius: 4px;
   transition: all 0.3s ease;
 }
 
-.storage-fill.warning { background: #f59e0b; }
-.storage-fill.danger { background: #ef4444; }
+.storage-fill.warning { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+.storage-fill.danger { background: linear-gradient(90deg, #ef4444, #f87171); }
 
 .storage-text {
   font-size: 0.8rem;
   color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
 }
 
 .filter-tabs {
@@ -276,6 +286,7 @@ function teachGlyph(heroId) {
 }
 
 .grid-item {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -294,6 +305,23 @@ function teachGlyph(heroId) {
 
 .item-icon {
   font-size: 1.5rem;
+}
+
+.item-count-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  min-width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+  background: var(--color-primary);
+  color: white;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  font-weight: 700;
 }
 
 .item-count {

@@ -81,22 +81,38 @@
 
       <div class="detail-stats">
         <p>{{ selectedExp.stages?.length || 0 }} {{ t('explore_uxelm_stages') }}</p>
+        <p>{{ t('explore_uxelm_base_reward') }}: {{ selectedExp.reward?.gold || 0 }} {{ t('village_info_gold') }}</p>
         <p>{{ t('explore_uxelm_recommended_level') }}: {{ maxEnemyLevel(selectedExp) }}</p>
+      </div>
+
+      <!-- Combat Intel -->
+      <div v-if="enemyTags.length" class="combat-intel">
+        <h4>{{ t('explore_uxelm_intel_enemies') }}</h4>
+        <div class="enemy-tags">
+          <span v-for="tag in enemyTags" :key="tag" class="enemy-tag">{{ tag }}</span>
+        </div>
       </div>
 
       <!-- Hero Selector (for available expeditions) -->
       <div v-if="detailMode === 'available'" class="hero-selector">
         <h4>{{ t('explore_uxelm_select_heroes') }}</h4>
-        <div class="hero-chips">
-          <button
+        <div class="hero-list">
+          <label
             v-for="hero in availableHeroes"
             :key="hero.id"
-            class="hero-chip"
+            class="hero-row"
             :class="{ selected: selectedHeroIds.includes(hero.id) }"
-            @click="toggleHero(hero.id)"
           >
-            {{ hero.name }} (Lv.{{ hero.level }})
-          </button>
+            <input
+              type="checkbox"
+              :checked="selectedHeroIds.includes(hero.id)"
+              @change="toggleHero(hero.id)"
+            >
+            <div class="hero-row-info">
+              <span class="hero-row-name">{{ hero.name }} ({{ t('shared_uxelm_level') }} {{ hero.level }})</span>
+              <span class="hero-row-hp">HP: {{ hero.hp ?? 0 }}/{{ hero.baseMaxHp ?? hero.maxHp ?? '?' }}</span>
+            </div>
+          </label>
         </div>
         <Button
           variant="primary"
@@ -104,7 +120,7 @@
           :disabled="selectedHeroIds.length === 0 || isAtMaxExpeditions"
           @click="startExpedition"
         >
-          {{ t('explore_uxelm_start') }}
+          {{ t('explore_uxelm_assign_heroes') }}
         </Button>
         <p v-if="isAtMaxExpeditions" class="warning">{{ t('explore_uxelm_max_concurrent') }}</p>
       </div>
@@ -217,6 +233,20 @@ const assignedHeroNames = computed(() => {
 
 const availableHeroes = computed(() => {
   return heroes.value.filter((h) => h.activity === 'idle' && h.hp > 0)
+})
+
+const enemyTags = computed(() => {
+  if (!selectedExp.value || !selectedExp.value.stages) return []
+  const tags = new Set()
+  selectedExp.value.stages.forEach((stage) => {
+    if (stage.enemies) {
+      stage.enemies.forEach((e) => {
+        if (e.name) tags.add(e.name)
+        else if (e.templateId) tags.add(e.templateId)
+      })
+    }
+  })
+  return Array.from(tags)
 })
 
 function maxEnemyLevel(exp) {
@@ -459,6 +489,36 @@ function nodeIcon(exp) {
   margin-bottom: var(--spacing-md);
 }
 
+.combat-intel {
+  padding: var(--spacing-sm);
+  background: var(--bg-base);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-sm);
+}
+
+.combat-intel h4 {
+  margin: 0 0 var(--spacing-xs);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.enemy-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+}
+
+.enemy-tag {
+  padding: 2px 8px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  color: var(--color-danger);
+}
+
 .hero-selector {
   display: flex;
   flex-direction: column;
@@ -470,26 +530,48 @@ function nodeIcon(exp) {
   font-size: 0.9rem;
 }
 
-.hero-chips {
+.hero-list {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: var(--spacing-xs);
 }
 
-.hero-chip {
-  padding: var(--spacing-xs) var(--spacing-sm);
+.hero-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
   background: var(--bg-base);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-md);
-  color: var(--text-primary);
   cursor: pointer;
-  font-family: var(--font-body);
-  font-size: 0.8rem;
+  transition: all 0.15s ease;
 }
 
-.hero-chip.selected {
-  border-color: var(--color-primary);
-  background: rgba(99, 102, 241, 0.15);
+.hero-row:hover, .hero-row.selected {
+  border-color: var(--color-primary-light);
+}
+
+.hero-row input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-primary);
+}
+
+.hero-row-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.hero-row-name {
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.hero-row-hp {
+  font-size: 0.75rem;
+  color: var(--color-success);
 }
 
 .warning {

@@ -49,15 +49,17 @@ const visibleActions = computed(() =>
 
 <style scoped>
 .hero-action-bar {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: var(--spacing-sm);
 }
 
 .action-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
 }
 
 .action-icon {
@@ -66,5 +68,11 @@ const visibleActions = computed(() =>
 
 .action-label {
   font-size: 0.75rem;
+}
+
+@media (max-width: 768px) {
+  .hero-action-bar {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 </style>

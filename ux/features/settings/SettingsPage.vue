@@ -2,50 +2,83 @@
   <div class="settings-page">
     <h1>{{ t('settings_uxelm_title') }}</h1>
 
-    <div class="settings-section">
-      <h3>{{ t('settings_uxelm_language') }}</h3>
-      <select v-model="selectedLanguage" class="language-select" @change="changeLanguage">
-        <option value="en">English</option>
-        <option value="es">Español</option>
-        <option value="ca">Català</option>
-        <option value="eu">Euskara</option>
-        <option value="gl">Galego</option>
-      </select>
-    </div>
+    <div class="settings-grid">
+      <!-- Left Column -->
+      <div class="settings-column">
+        <!-- Interface Language -->
+        <div class="settings-card">
+          <h3>{{ t('settings_uxelm_language') }}</h3>
+          <p class="card-desc">{{ t('settings_uxelm_language_choose') }}</p>
+          <select v-model="selectedLanguage" class="language-select" @change="changeLanguage">
+            <option value="en">English</option>
+            <option value="es">Español</option>
+            <option value="ca">Català</option>
+            <option value="eu">Euskara</option>
+            <option value="gl">Galego</option>
+          </select>
+        </div>
 
-    <div class="settings-section">
-      <h3>{{ t('settings_uxelm_save_management') }}</h3>
-      <p class="slot-label">{{ t('settings_uxelm_current_slot', { index: currentSlotIndex + 1 }) }}</p>
+        <!-- Choose Save Slot -->
+        <div class="settings-card">
+          <h3>{{ t('settings_uxelm_choose_slot') }}</h3>
+          <p class="slot-label">{{ t('settings_uxelm_current_slot', { index: currentSlotIndex + 1 }) }}</p>
+          <Button variant="secondary" class="full-width-btn" @click="returnToSlots">
+            <span class="btn-icon">💾</span>
+            {{ t('settings_uxelm_return_slots') }}
+          </Button>
+        </div>
 
-      <div class="setting-actions">
-        <Button variant="secondary" @click="returnToSlots">
-          {{ t('settings_uxelm_return_slots') }}
-        </Button>
-        <Button variant="danger" @click="confirmWipeSlot">
-          {{ t('settings_uxelm_wipe_slot') }}
-        </Button>
-        <Button variant="danger" @click="confirmWipeAll">
-          {{ t('settings_uxelm_wipe_all') }}
-        </Button>
+        <!-- Developer Options -->
+        <div class="settings-card">
+          <h3>{{ t('settings_uxelm_dev_options') }}</h3>
+          <p class="card-desc">{{ t('settings_uxelm_dev_desc') }}</p>
+          <div class="dev-actions">
+            <Button
+              variant="primary"
+              class="full-width-btn cheat-btn"
+              :disabled="cheatActivated"
+              @click="activateDevCheat"
+            >
+              <span class="btn-icon">⚡</span>
+              {{ cheatActivated ? '✅ Done!' : t('settings_uxelm_dev_cheat') }}
+            </Button>
+            <Button
+              variant="secondary"
+              class="full-width-btn"
+              @click="openMagicSimulator"
+            >
+              <span class="btn-icon">🔮</span>
+              {{ t('settings_uxelm_magic_simulator') }}
+            </Button>
+          </div>
+          <p class="card-desc simulator-desc">{{ t('settings_uxelm_magic_simulator_desc') }}</p>
+        </div>
+      </div>
+
+      <!-- Right Column -->
+      <div class="settings-column">
+        <!-- About -->
+        <div class="settings-card about-card">
+          <h3>{{ t('settings_uxelm_about') }}</h3>
+          <div class="about-content">
+            <p class="about-title">RPG Village</p>
+            <p class="about-version">{{ t('settings_uxelm_version') }}: 1.0.0-beta</p>
+            <p class="about-built">{{ t('settings_uxelm_built_with') }}</p>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="settings-section">
-      <h3>{{ t('settings_uxelm_dev_options') }}</h3>
-      <div class="setting-actions">
-        <Button
-          variant="secondary"
-          :disabled="cheatActivated"
-          @click="activateDevCheat"
-        >
-          {{ cheatActivated ? '✅ Done!' : t('settings_uxelm_dev_cheat') }}
+    <!-- Danger Zone -->
+    <div class="settings-card danger-zone">
+      <h3>{{ t('settings_uxelm_danger_zone') }}</h3>
+      <p class="card-desc">{{ t('settings_uxelm_danger_desc') }}</p>
+      <div class="danger-actions">
+        <Button variant="danger" class="danger-btn" @click="confirmWipeSlot">
+          {{ t('settings_uxelm_wipe_slot') }}
         </Button>
-        <Button
-          v-if="hasArcaneSanctum"
-          variant="secondary"
-          @click="openMagicSimulator"
-        >
-          🔮 {{ t('settings_uxelm_magic_simulator') }}
+        <Button variant="danger" class="danger-btn" @click="confirmWipeAll">
+          {{ t('settings_uxelm_wipe_all') }}
         </Button>
       </div>
     </div>
@@ -97,8 +130,6 @@ const selectedLanguage = ref(currentLanguage?.value || 'en')
 const cheatActivated = ref(false)
 const showSimulator = ref(false)
 
-const village = computed(() => gameState.value.village || {})
-const hasArcaneSanctum = computed(() => (village.value.infrastructure?.arcane_sanctum || 0) >= 1)
 const currentSlotIndex = computed(() => engine?.getCurrentSlotIndex?.() || 0)
 
 const confirmDialog = ref({
@@ -181,22 +212,30 @@ function openMagicSimulator() {
 
 <style scoped>
 .settings-page {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-lg);
   padding: var(--spacing-lg);
   color: var(--text-primary);
-  max-width: 600px;
-  margin: 0 auto;
 }
 
 .settings-page h1 {
-  margin: 0;
+  margin: 0 0 var(--spacing-lg);
   font-family: var(--font-heading);
   font-size: 1.5rem;
 }
 
-.settings-section {
+.settings-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
+.settings-column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.settings-card {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
@@ -206,10 +245,18 @@ function openMagicSimulator() {
   border-radius: var(--radius-lg);
 }
 
-.settings-section h3 {
+.settings-card h3 {
   margin: 0;
   font-size: 1rem;
   color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.card-desc {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
 }
 
 .language-select {
@@ -228,10 +275,77 @@ function openMagicSimulator() {
   color: var(--text-secondary);
 }
 
-.setting-actions {
+.full-width-btn {
+  width: 100%;
+  justify-content: center;
+}
+
+.btn-icon {
+  margin-right: 6px;
+}
+
+.dev-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.cheat-btn {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  border: none;
+}
+
+.simulator-desc {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.about-card {
+  height: fit-content;
+}
+
+.about-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.about-title {
+  margin: 0;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+
+.about-version {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.about-built {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.danger-zone {
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.danger-zone h3 {
+  color: var(--color-danger);
+}
+
+.danger-actions {
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-sm);
+}
+
+.danger-btn {
+  min-width: 160px;
 }
 
 .confirm-dialog {
@@ -250,5 +364,11 @@ function openMagicSimulator() {
   display: flex;
   gap: var(--spacing-sm);
   justify-content: flex-end;
+}
+
+@media (max-width: 768px) {
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

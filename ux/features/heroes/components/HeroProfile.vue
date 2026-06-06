@@ -1,37 +1,58 @@
 <template>
   <div class="hero-profile">
     <div class="profile-left">
-      <div class="portrait">🦸</div>
+      <div class="portrait">
+        <img
+          :src="avatarSrc"
+          :alt="hero.name"
+          class="portrait-img"
+          @error="$event.target.style.display='none'; $event.target.nextElementSibling.style.display='flex'"
+        />
+        <span class="portrait-fallback" style="display: none;">🦸</span>
+      </div>
 
       <div class="profile-info">
-        <span class="origin-badge">{{ originName }}</span>
-        <h2 class="hero-name">{{ hero.name }}</h2>
-        <p class="hero-level">{{ t('shared_uxelm_level') }} {{ hero.level }}</p>
-        <p class="origin-desc">{{ originDesc }}</p>
+        <div class="profile-title-group">
+          <span class="origin-badge">{{ originName }}</span>
+          <h2 class="hero-name">{{ hero.name }} <span class="hero-level-inline">({{ t('shared_uxelm_level') }} {{ hero.level }})</span></h2>
+        </div>
+        <p class="origin-desc"><em>{{ originDesc }}</em></p>
 
         <div class="status-row">
-          <span class="status-label">{{ t('heroes_uxelm_activity') }}:</span>
-          <span class="status-badge" :title="activityTitle">
-            <span class="status-emoji">{{ activityEmoji }}</span>
+          <span class="status-label"><strong>{{ t('heroes_uxelm_activity') }}:</strong></span>
+          <span class="status-badge" :class="isIdle ? 'idle' : 'busy'" :title="activityTitle">
             {{ activityTitle }}
           </span>
         </div>
 
         <div class="status-row">
-          <span class="status-label">{{ t('heroes_uxelm_experience') }}:</span>
-          <span class="status-value">{{ hero.exp || 0 }} XP</span>
+          <span class="status-label"><strong>{{ t('heroes_uxelm_experience') }}:</strong></span>
+          <span class="status-value">{{ hero.exp || 0 }} / {{ hero.expToNextLevel || '?' }}</span>
         </div>
 
-        <div v-if="(hero.skillPoints || 0) > 0" class="alert skill-alert">
-          <strong>{{ t('heroes_uxelm_skill_point', { amount: hero.skillPoints }) }}</strong>
+        <div class="skill-points-info">
+          <div v-if="(hero.skillPoints || 0) > 0 && isIdle" class="skill-alert">
+            <strong>{{ t('heroes_uxelm_skill_point').replace('{amount}', hero.skillPoints) }}</strong>
+            <span class="skill-hint"> · {{ t('heroes_uxelm_skill_spend_hint') }}</span>
+          </div>
+          <div v-else-if="(hero.skillPoints || 0) > 0 && !isIdle" class="skill-alert locked">
+            <strong>{{ t('heroes_uxelm_skill_point').replace('{amount}', hero.skillPoints) }}</strong>
+            <span class="skill-hint"> · {{ t('heroes_uxelm_skill_busy') }}</span>
+          </div>
+          <div v-else-if="nextMilestone" class="skill-alert muted">
+            {{ t('heroes_uxelm_skill_next_milestone').replace('{level}', nextMilestone) }}
+          </div>
+          <div v-else class="skill-alert muted">
+            {{ t('heroes_uxelm_skill_max_families') }}
+          </div>
         </div>
 
         <div v-if="showStatAlert" class="alert" :class="{ busy: !isIdle }">
           <strong v-if="isIdle">
-            {{ t('heroes_uxelm_stat_point_available', { amount: hero.statPoints }) }}
+            {{ t('heroes_uxelm_stat_point_available').replace('{amount}', hero.statPoints) }}
           </strong>
           <strong v-else>
-            {{ t('heroes_uxelm_stat_point_busy', { amount: hero.statPoints }) }}
+            {{ t('heroes_uxelm_stat_point_busy').replace('{amount}', hero.statPoints) }}
           </strong>
         </div>
 
@@ -68,7 +89,6 @@ const { t } = useI18n()
 
 const isIdle = computed(() => props.hero.activity === 'idle')
 
-const activityEmoji = computed(() => (isIdle.value ? '💤' : '⚔'))
 const activityTitle = computed(() =>
   isIdle.value ? t('heroes_status_activity_idle') : t('heroes_status_activity_expedition')
 )
@@ -83,6 +103,30 @@ const originName = computed(() => t(`heroes_info_origin_${originKey.value}`))
 const originDesc = computed(() => t(`heroes_info_origin_${originKey.value}_desc`))
 
 const showStatAlert = computed(() => (props.hero.statPoints || 0) > 0)
+
+const avatarSrc = computed(() => {
+  if (props.hero.avatar) {
+    return `assets/heroes/${props.hero.avatar}`
+  }
+  const fallbackMap = {
+    origin_warrior: 'origin_warrior.webp',
+    origin_guard: 'origin_guard.webp',
+    origin_thief: 'origin_thief.webp',
+    origin_monk: 'origin_monk.webp',
+    origin_clown: 'origin_clown.webp',
+    origin_poet: 'origin_poet.webp',
+    origin_farmer: 'origin_farmer.webp',
+    origin_cook: 'origin_cook.webp',
+    origin_arcane_initiate: 'origin_arcane_initiate.webp'
+  }
+  const mapped = fallbackMap[props.hero.origin] || 'arthur.webp'
+  return `assets/heroes/${mapped}`
+})
+
+const nextMilestone = computed(() => {
+  const milestones = props.hero.skillPointMilestones || [1, 5, 10, 15, 20, 25]
+  return milestones.find(m => m > props.hero.level)
+})
 </script>
 
 <style scoped>
@@ -107,14 +151,35 @@ const showStatAlert = computed(() => (props.hero.statPoints || 0) > 0)
   justify-content: center;
   font-size: 4rem;
   background: var(--bg-card);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-lg);
+  border: 2px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.portrait-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.portrait-fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .profile-info {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
+}
+
+.profile-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
 }
 
 .origin-badge {
@@ -133,8 +198,14 @@ const showStatAlert = computed(() => (props.hero.statPoints || 0) > 0)
 .hero-name {
   margin: 0;
   font-family: var(--font-heading);
-  font-size: 1.75rem;
+  font-size: 1.5rem;
   color: var(--text-primary);
+}
+
+.hero-level-inline {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  font-weight: 400;
 }
 
 .hero-level {
@@ -191,9 +262,35 @@ const showStatAlert = computed(() => (props.hero.statPoints || 0) > 0)
   border-color: rgba(234, 179, 8, 0.3);
 }
 
+.skill-points-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
 .skill-alert {
+  padding: var(--spacing-sm) var(--spacing-md);
   background: rgba(99, 102, 241, 0.1);
-  border-color: rgba(99, 102, 241, 0.3);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  color: var(--text-primary);
+}
+
+.skill-alert.locked {
+  background: rgba(234, 179, 8, 0.1);
+  border-color: rgba(234, 179, 8, 0.3);
+}
+
+.skill-alert.muted {
+  background: transparent;
+  border-color: var(--glass-border);
+  color: var(--text-muted);
+}
+
+.skill-hint {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
 }
 
 @media (max-width: 768px) {

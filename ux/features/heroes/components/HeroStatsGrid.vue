@@ -6,18 +6,23 @@
       class="stat-row"
       :class="{ highlight: stat.hasBonus }"
     >
-      <span class="stat-label">{{ stat.label }}</span>
-      <span class="stat-value">{{ stat.value }}</span>
-      <Button
-        v-if="canAllocate && stat.key"
-        variant="primary"
-        size="sm"
-        class="stat-add-btn"
-        :aria-label="`${t('heroes_uxelm_skill_learn')} ${stat.label}`"
-        @click="$emit('allocate', stat.key)"
-      >
-        +
-      </Button>
+      <div class="stat-info">
+        <strong class="stat-name">{{ stat.label }}</strong>
+        <span class="stat-desc">{{ stat.desc }}</span>
+      </div>
+      <div class="stat-value-group">
+        <span class="stat-value">{{ stat.value }}</span>
+        <Button
+          v-if="canAllocate && stat.key"
+          variant="primary"
+          size="sm"
+          class="stat-add-btn"
+          :aria-label="`${t('heroes_uxelm_skill_learn')} ${stat.label}`"
+          @click="$emit('allocate', stat.key)"
+        >
+          +
+        </Button>
+      </div>
     </div>
   </div>
 </template>
@@ -48,13 +53,13 @@ const stats = computed(() => {
   const maxStamina = h.maxStamina ?? h.stamina ?? 0
 
   return [
-    { id: 'hp', key: 'baseMaxHp', label: t('heroes_info_stat_hp'), value: `${h.hp ?? 0} / ${maxHp}`, hasBonus: false },
-    { id: 'mp', key: 'baseMaxMp', label: t('heroes_info_stat_mp'), value: `${h.mp ?? 0} / ${maxMp}`, hasBonus: false },
-    { id: 'stamina', key: null, label: t('heroes_info_stat_stamina'), value: `${h.stamina ?? 0} / ${maxStamina}`, hasBonus: false },
-    { id: 'strength', key: 'baseStrength', label: t('heroes_info_stat_strength'), value: h.strength ?? 0, hasBonus: false },
-    { id: 'speed', key: 'baseSpeed', label: t('heroes_info_stat_speed'), value: h.speed ?? 0, hasBonus: false },
-    { id: 'defense', key: 'baseDefense', label: t('heroes_info_stat_defense'), value: h.defense ?? 0, hasBonus: false },
-    { id: 'magicPower', key: 'baseMagicPower', label: t('heroes_info_stat_magic_power'), value: h.magicPower ?? 0, hasBonus: false }
+    { id: 'hp', key: 'baseMaxHp', label: t('heroes_info_stat_hp'), desc: t('heroes_info_stat_hp_desc'), value: `${h.hp ?? 0} / ${maxHp}`, hasBonus: false },
+    { id: 'mp', key: 'baseMaxMp', label: t('heroes_info_stat_mp'), desc: t('heroes_info_stat_mp_desc'), value: `${h.mp ?? 0} / ${maxMp}`, hasBonus: false },
+    { id: 'stamina', key: null, label: t('heroes_info_stat_stamina'), desc: t('heroes_info_stat_stamina_desc'), value: `${h.stamina ?? 0} / ${maxStamina}`, hasBonus: false },
+    { id: 'strength', key: 'baseStrength', label: t('heroes_info_stat_strength'), desc: t('heroes_info_stat_strength_desc'), value: h.strength ?? 0, hasBonus: false },
+    { id: 'speed', key: 'baseSpeed', label: t('heroes_info_stat_speed'), desc: t('heroes_info_stat_speed_desc'), value: h.speed ?? 0, hasBonus: false },
+    { id: 'defense', key: 'baseDefense', label: t('heroes_info_stat_defense'), desc: t('heroes_info_stat_defense_desc'), value: h.defense ?? 0, hasBonus: false },
+    { id: 'magicPower', key: 'baseMagicPower', label: t('heroes_info_stat_magic_power'), desc: t('heroes_info_stat_magic_power_desc'), value: h.magicPower ?? 0, hasBonus: false }
   ]
 })
 </script>
@@ -67,9 +72,9 @@ const stats = computed(() => {
 }
 
 .stat-row {
-  display: grid;
-  grid-template-columns: 1fr auto auto;
+  display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: var(--spacing-md);
   padding: var(--spacing-sm) var(--spacing-md);
   background: var(--bg-card);
@@ -77,9 +82,27 @@ const stats = computed(() => {
   border-radius: var(--radius-md);
 }
 
-.stat-label {
-  color: var(--text-secondary);
+.stat-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stat-name {
   font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.stat-desc {
+  font-size: 0.8rem;
+  font-style: italic;
+  color: var(--text-muted);
+}
+
+.stat-value-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .stat-value {
