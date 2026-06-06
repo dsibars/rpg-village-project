@@ -14,7 +14,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useI18n } from '@/core/composables/useI18n.js'
 import TabNav from '@/components/TabNav.vue'
 import BuildingsTab from './components/BuildingsTab.vue'
@@ -22,9 +22,19 @@ import ShopTab from './components/ShopTab.vue'
 import ForgeTab from './components/ForgeTab.vue'
 import InventoryTab from './components/InventoryTab.vue'
 
+const props = defineProps({
+  activeTab: { type: String, default: null }
+})
+
 const { t } = useI18n()
 
-const currentTab = ref('buildings')
+const currentTab = ref(props.activeTab || 'buildings')
+
+watch(() => props.activeTab, (newTab) => {
+  if (newTab) {
+    currentTab.value = newTab
+  }
+})
 
 const tabs = {
   buildings: BuildingsTab,

@@ -31,7 +31,7 @@ describe('HeroStatsGrid', () => {
 
   it('shows allocate buttons when idle and has stat points', () => {
     const wrapper = mountWithProviders({ hero: { ...baseHero, statPoints: 3, activity: 'idle' } })
-    expect(wrapper.findAll('.stat-add-btn').length).toBe(7)
+    expect(wrapper.findAll('.stat-add-btn').length).toBe(6)
   })
 
   it('hides allocate buttons when on expedition', () => {
@@ -49,6 +49,6 @@ describe('HeroStatsGrid', () => {
     const buttons = wrapper.findAll('.stat-add-btn')
     await buttons[2].trigger('click')
     expect(wrapper.emitted('allocate')).toBeTruthy()
-    expect(wrapper.emitted('allocate')[0]).toEqual(['stamina'])
+    expect(wrapper.emitted('allocate')[0]).toEqual(['baseStrength'])
   })
 })

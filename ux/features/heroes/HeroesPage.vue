@@ -207,7 +207,10 @@ function openAction(actionId) {
 }
 
 function handleGambitAction(actionType, payload) {
-  dispatch('gambit', actionType, payload)
+  const result = dispatch('gambit', actionType, payload)
+  if (actionType === 'testGambits' && payload?.onResult && result?.success) {
+    payload.onResult(result.data)
+  }
 }
 
 function handleInscribeSpell({ glyphIds, glyphTiers, name }) {

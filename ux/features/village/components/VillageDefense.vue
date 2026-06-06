@@ -1,7 +1,7 @@
 <template>
   <div class="village-defense">
     <div class="defense-header">
-      <h4>{{ t('village_uxelm_defense') }}</h4>
+      <h4>{{ t('village_uxelm_defender') }}</h4>
       <span class="defense-count">{{ assigned.length }} / {{ maxDefenders }}</span>
     </div>
 
@@ -92,6 +92,8 @@ function getHeroName(heroId) {
   margin: 0;
   font-size: 0.95rem;
   color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .defense-count {

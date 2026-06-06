@@ -4,7 +4,7 @@
       <span class="season-icon">{{ seasonIcon }}</span>
       <div class="season-info">
         <span class="season-name">{{ seasonLabel }}</span>
-        <span class="season-day">{{ t('calendar_info_day') }} {{ dayOfSeason }}</span>
+        <span class="season-day">{{ t('calendar_info_day').replace('{day}', dayOfSeason) }}</span>
       </div>
     </div>
 
@@ -109,6 +109,8 @@ function eventLabel(ev) {
   margin: 0 0 var(--spacing-xs);
   font-size: 0.85rem;
   color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .empty-state {

@@ -75,7 +75,7 @@ const engine = inject('engine')
 const gameState = inject('gameState')
 
 const battle = useActiveBattle()
-const expeditions = useExpeditions()
+const { activeExpeditions } = useExpeditions()
 const inventory = useInventory()
 
 const menuState = ref('main')
@@ -85,7 +85,7 @@ const logConsole = ref(null)
 const lastLogLength = ref(0)
 
 const activeExpedition = computed(() => {
-  const active = expeditions.value.activeExpeditions || []
+  const active = activeExpeditions.value || []
   return active[0] || null
 })
 
@@ -249,7 +249,7 @@ function formatLogEntry(entry) {
     text = t('combat_log_use_consumable', { attacker: ev.actorName, item: itemName, target: ev.targetName, amount: ev.amount, stat })
     color = '#00bcd4'
   } else if (ev.type === 'STAMINA_REGEN') {
-    text = `${ev.actorName} regenerates ${ev.amount} Stamina`
+    text = t('combat_log_stamina_regen', { actor: ev.actorName, amount: ev.amount })
     color = '#4caf50'
   } else {
     text = `[${ev.type}]`

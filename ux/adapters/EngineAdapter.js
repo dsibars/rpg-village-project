@@ -1,6 +1,76 @@
 import { showToast } from '../core/toast.js'
 import { getPresentationById } from '../../js/engine/shared/data/PresentationCatalog.js'
 
+/**
+ * Generates a success feedback toast message for adapter actions.
+ * Keeps the dispatch function clean and centralizes user feedback text.
+ */
+function getSuccessToast(i18n, domain, action, payload, data) {
+  if (!i18n) return null
+
+  switch (true) {
+    case domain === 'hero' && action === 'recruit': {
+      const hero = data?.hero
+      const cost = data?.cost
+      if (hero) {
+        return i18n.t('heroes_uxelm_recruit_success') + ' ' + hero.name + '! (-' + cost + 'g)'
+      }
+      return null
+    }
+
+    case domain === 'hero' && action === 'useConsumable': {
+      const { hero, amountRestored, type } = data || {}
+      if (hero) {
+        const statLabel = type === 'HEAL_HP'
+          ? i18n.t('shared_uxelm_stat_hp')
+          : i18n.t('shared_uxelm_stat_mp')
+        return i18n.t('shared_uxelm_toast_consumable_used', { hero: hero.name, amount: amountRestored, stat: statLabel })
+      }
+      return null
+    }
+
+    case domain === 'gambit' && action === 'suggestPreset': {
+      const count = data?.addedCount || 0
+      const presetName = i18n.t(data?.presetId)
+      return i18n.t('shared_uxelm_toast_preset_applied', { preset: presetName, count })
+    }
+
+    case domain === 'shop' && action === 'sellItem': {
+      return i18n.t('shared_uxelm_toast_gold_earned', { amount: data?.goldEarned })
+    }
+
+    case domain === 'shop' && action === 'sellResource': {
+      const resName = i18n.t(payload?.resourceId)
+      return i18n.t('shared_uxelm_toast_resource_sold', {
+        amount: data?.goldEarned,
+        count: data?.sold,
+        resource: resName
+      })
+    }
+
+    case domain === 'inventory' && action === 'cookMeal': {
+      return i18n.t('inventory_uxelm_cooked') + ' ' + i18n.t(payload?.recipeId)
+    }
+
+    case domain === 'inventory' && action === 'consumeMeal': {
+      return i18n.t('inventory_uxelm_fed') + ' ' + data?.fedCount + ' ' + i18n.t('heroes_uxelm_heroes')
+    }
+
+    case (domain === 'inventory' || domain === 'hero') && action === 'useGlyphTablet': {
+      const glyphId = data?.glyphId
+      const hero = data?.hero
+      if (hero && glyphId) {
+        const transGlyph = i18n.t('magic_circle_info_' + glyphId)
+        return i18n.t('shared_uxelm_toast_glyph_learned', { hero: hero.name, glyph: transGlyph })
+      }
+      return null
+    }
+
+    default:
+      return null
+  }
+}
+
 const ACTION_MAP = {
   hero: {
     recruit: (engine) => engine.recruitHero(),
@@ -110,6 +180,11 @@ export function createEngineAdapter(engine, gameStateRef) {
       if (!normalized.success) {
         const message = engine.i18n?.t(normalized.error) || normalized.error || 'Action failed'
         showToast(message, 'error')
+      } else {
+        const toastMessage = getSuccessToast(engine.i18n, domain, action, payload, normalized.data)
+        if (toastMessage) {
+          showToast(toastMessage, 'success')
+        }
       }
 
       // Force a state snapshot after the action — matches legacy forceUpdate() behavior.

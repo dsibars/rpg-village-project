@@ -118,6 +118,7 @@ const dialogueLines = computed(() => {
 function onClose() {
   if (engine && currentHero.value) {
     engine.recordWitchVisit?.(currentHero.value, currentDay.value)
+    engine.heroService?.saveAll?.()
     // Force state snapshot so the visit is persisted
     if (gameState) {
       gameState.value = engine.update?.() || gameState.value

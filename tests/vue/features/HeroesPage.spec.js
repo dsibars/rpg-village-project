@@ -87,7 +87,7 @@ describe('HeroesPage', () => {
     await wrapper.findAll('.hero-list-item')[0].trigger('click')
     await flushPromises()
     await wrapper.find('.stat-add-btn').trigger('click')
-    expect(dispatch).toHaveBeenCalledWith('hero', 'increaseStat', { heroId: 'h1', statId: 'hp' })
+    expect(dispatch).toHaveBeenCalledWith('hero', 'increaseStat', { heroId: 'h1', statId: 'baseMaxHp' })
   })
 
   it('opens skills modal when action bar skills button clicked', async () => {

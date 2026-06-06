@@ -1199,10 +1199,6 @@ export const en = {
 
     // Added during UX audit
     settings_uxelm_save_management: "Save Management",
-    intro_uxelm_title: "A New Sanctuary",
-    intro_uxelm_era: "Era of Sanctuary",
-    intro_uxelm_text: "You have discovered a remote valley far from the war-torn lands. Here, you will lay the foundations of a new village, gather heroes, and defend your people. May hope guide your path.",
-    shared_uxelm_story: "Story",
     shared_uxelm_next: "Next",
     buildings_uxelm_current_effects: "Current Effects",
     buildings_uxelm_next_level: "Next Level",
@@ -1221,12 +1217,9 @@ export const en = {
     shop_uxelm_tab_resources: "Resources",
     shop_uxelm_storage_warning: "Warning: Your storage is full or nearly full!",
     shop_uxelm_no_items: "No items available in shop.",
-    village_uxelm_projects: "Active Projects",
     daily_uxelm_objectives_title: "Daily Objectives",
-    village_uxelm_workers: "Labor Assignment",
     calendar_info_day: "Day {day}",
     calendar_uxelm_upcoming: "Upcoming Events",
-    village_uxelm_defense: "Village Defense",
     daily_report_uxelm_title: "Day {day} Summary",
     daily_report_uxelm_none: "No financial transactions or events recorded.",
     daily_report_uxelm_summary: "Daily Report",
@@ -1242,4 +1235,17 @@ export const en = {
     shared_uxelm_stat_def: "DEF",
     shared_uxelm_stat_spd: "SPD",
     shared_uxelm_stat_sta: "STA",
+
+    // ═══ INTRO / SHARED ════════════════════════════════════════════════════
+    shared_uxelm_next: "Next",
+    shared_uxelm_level_up: "LEVEL UP!",
+
+    // ═══ TOAST FEEDBACK ════════════════════════════════════════════════════
+    shared_uxelm_gold: "Gold",
+    shared_uxelm_toast_gold_earned: "+{amount}g",
+    shared_uxelm_toast_resource_sold: "+{amount}g ({count} {resource})",
+    shared_uxelm_toast_preset_applied: "Applied {preset} (+{count} gambits)",
+    shared_uxelm_toast_glyph_learned: "{hero} learned {glyph}!",
+    shared_uxelm_toast_consumable_used: "{hero} +{amount} {stat}",
+    combat_log_stamina_regen: "{actor} regenerates {amount} stamina",
 };

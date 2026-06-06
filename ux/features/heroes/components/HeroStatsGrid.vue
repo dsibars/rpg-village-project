@@ -9,12 +9,12 @@
       <span class="stat-label">{{ stat.label }}</span>
       <span class="stat-value">{{ stat.value }}</span>
       <Button
-        v-if="canAllocate"
+        v-if="canAllocate && stat.key"
         variant="primary"
         size="sm"
         class="stat-add-btn"
         :aria-label="`${t('heroes_uxelm_skill_learn')} ${stat.label}`"
-        @click="$emit('allocate', stat.id)"
+        @click="$emit('allocate', stat.key)"
       >
         +
       </Button>
@@ -48,13 +48,13 @@ const stats = computed(() => {
   const maxStamina = h.maxStamina ?? h.stamina ?? 0
 
   return [
-    { id: 'hp', label: t('heroes_info_stat_hp'), value: `${h.hp ?? 0} / ${maxHp}`, hasBonus: false },
-    { id: 'mp', label: t('heroes_info_stat_mp'), value: `${h.mp ?? 0} / ${maxMp}`, hasBonus: false },
-    { id: 'stamina', label: t('heroes_info_stat_stamina'), value: `${h.stamina ?? 0} / ${maxStamina}`, hasBonus: false },
-    { id: 'strength', label: t('heroes_info_stat_strength'), value: h.strength ?? 0, hasBonus: false },
-    { id: 'speed', label: t('heroes_info_stat_speed'), value: h.speed ?? 0, hasBonus: false },
-    { id: 'defense', label: t('heroes_info_stat_defense'), value: h.defense ?? 0, hasBonus: false },
-    { id: 'magicPower', label: t('heroes_info_stat_magic_power'), value: h.magicPower ?? 0, hasBonus: false }
+    { id: 'hp', key: 'baseMaxHp', label: t('heroes_info_stat_hp'), value: `${h.hp ?? 0} / ${maxHp}`, hasBonus: false },
+    { id: 'mp', key: 'baseMaxMp', label: t('heroes_info_stat_mp'), value: `${h.mp ?? 0} / ${maxMp}`, hasBonus: false },
+    { id: 'stamina', key: null, label: t('heroes_info_stat_stamina'), value: `${h.stamina ?? 0} / ${maxStamina}`, hasBonus: false },
+    { id: 'strength', key: 'baseStrength', label: t('heroes_info_stat_strength'), value: h.strength ?? 0, hasBonus: false },
+    { id: 'speed', key: 'baseSpeed', label: t('heroes_info_stat_speed'), value: h.speed ?? 0, hasBonus: false },
+    { id: 'defense', key: 'baseDefense', label: t('heroes_info_stat_defense'), value: h.defense ?? 0, hasBonus: false },
+    { id: 'magicPower', key: 'baseMagicPower', label: t('heroes_info_stat_magic_power'), value: h.magicPower ?? 0, hasBonus: false }
   ]
 })
 </script>

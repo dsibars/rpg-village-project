@@ -48,20 +48,20 @@ export function useCalendar() {
 
 export function useExpeditions() {
   const { gameState } = useGameState()
-  return computed(() => ({
-    expeditions: gameState.value.expeditions || [],
-    activeExpeditions: gameState.value.activeExpeditions || [],
-    completedExpeditions: gameState.value.completedExpeditions || [],
-    regions: gameState.value.expeditionRegions || []
-  }))
+  return {
+    expeditions: computed(() => gameState.value.expeditions || []),
+    activeExpeditions: computed(() => gameState.value.activeExpeditions || []),
+    completedExpeditions: computed(() => gameState.value.completedExpeditions || []),
+    regions: computed(() => gameState.value.expeditionRegions || [])
+  }
 }
 
 export function useBestiary() {
   const { gameState } = useGameState()
-  return computed(() => ({
-    bestiary: gameState.value.bestiary || [],
-    enemyTemplates: gameState.value.enemyTemplates || []
-  }))
+  return {
+    bestiary: computed(() => gameState.value.bestiary || []),
+    enemyTemplates: computed(() => gameState.value.enemyTemplates || [])
+  }
 }
 
 export function useActiveBattle() {

@@ -14,7 +14,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useI18n } from '@/core/composables/useI18n.js'
 import TabNav from '@/components/TabNav.vue'
 import ExploreTab from './components/ExploreTab.vue'
@@ -22,9 +22,19 @@ import BestiaryTab from './components/BestiaryTab.vue'
 import CodexTab from './components/CodexTab.vue'
 import ChronicleTab from './components/ChronicleTab.vue'
 
+const props = defineProps({
+  activeTab: { type: String, default: null }
+})
+
 const { t } = useI18n()
 
-const currentTab = ref('explore')
+const currentTab = ref(props.activeTab || 'explore')
+
+watch(() => props.activeTab, (newTab) => {
+  if (newTab) {
+    currentTab.value = newTab
+  }
+})
 
 const tabs = {
   explore: ExploreTab,

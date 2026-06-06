@@ -1,26 +1,35 @@
 <template>
   <div class="village-page">
-    <!-- Storage bar -->
-    <div class="storage-bar">
-      <div class="storage-track">
-        <div
-          class="storage-fill"
-          :class="{ warning: storagePercent > 75, danger: storagePercent > 90 }"
-          :style="{ width: `${storagePercent}%` }"
-        />
+    <!-- Header bar matching v1 -->
+    <div class="village-header-bar">
+      <h2 class="village-title">{{ t('shared_uxelm_nav_village') }}</h2>
+      <div class="header-badges">
+        <span class="badge townhall-badge">
+          🏛️ {{ t('village_info_building_townhall') }} Lv{{ townhallLevel }}
+        </span>
+        <div class="storage-badge">
+          <span class="storage-label">📦 {{ inventoryUsed }} / {{ maxStorage }}</span>
+          <div class="storage-track">
+            <div
+              class="storage-fill"
+              :class="{ warning: storagePercent > 75, danger: storagePercent > 90 }"
+              :style="{ width: `${storagePercent}%` }"
+            />
+          </div>
+        </div>
       </div>
-      <span class="storage-text">{{ inventoryUsed }} / {{ maxStorage }} {{ t('shared_uxelm_storage') }}</span>
+      <button
+        v-if="hasDailyReport"
+        class="btn-recall-report"
+        @click="$emit('recallDailyReport')"
+      >
+        📜 {{ t('village_uxelm_report_view') }}
+      </button>
     </div>
 
     <!-- Top Row: Canvas + Calendar + Defense -->
     <div class="dashboard-row">
       <div class="dashboard-card">
-        <div class="card-header">
-          <h3>
-            {{ t('village_info_building_townhall') }}
-            <span class="level-badge">Lv.{{ townhallLevel }}</span>
-          </h3>
-        </div>
         <VillageCanvas
           :infrastructure="infrastructure"
           @navigate="navigateToBuildings"
@@ -83,13 +92,15 @@ const { t } = useI18n()
 const { gameState, heroes } = useGameState()
 const { dispatch } = useAdapter()
 
-const emit = defineEmits(['navigate'])
+const emit = defineEmits(['navigate', 'recallDailyReport'])
 
 const village = computed(() => gameState.value.village || {})
 const infrastructure = computed(() => village.value.infrastructure || {})
 const population = computed(() => village.value.population || {})
 const constructionQueue = computed(() => village.value.constructionQueue || [])
 const dailyObjectives = computed(() => gameState.value.dailyObjectives || null)
+const dailyReport = computed(() => gameState.value.village?.lastDailyReport || null)
+const hasDailyReport = computed(() => !!dailyReport.value && !!dailyReport.value.day)
 const calendar = computed(() => gameState.value.calendar || null)
 const inventory = computed(() => gameState.value.inventory || {})
 
@@ -126,43 +137,109 @@ function navigateToBuildings(buildingId) {
   color: var(--text-primary);
 }
 
-.storage-bar {
+.village-header-bar {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  justify-content: space-between;
   padding: var(--spacing-sm) var(--spacing-md);
   background: var(--bg-card);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-md);
+  gap: var(--spacing-md);
+}
+
+.village-title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+
+.header-badges {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  flex: 1;
+  justify-content: center;
+}
+
+.badge {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+}
+
+.storage-badge {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.storage-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  white-space: nowrap;
 }
 
 .storage-track {
-  flex: 1;
-  height: 8px;
+  width: 120px;
+  height: 6px;
   background: rgba(0, 0, 0, 0.3);
-  border-radius: 4px;
+  border-radius: 3px;
   overflow: hidden;
 }
 
 .storage-fill {
   height: 100%;
-  background: #22c55e;
-  border-radius: 4px;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-primary-light));
+  border-radius: 3px;
   transition: width 0.3s ease, background 0.3s ease;
 }
 
 .storage-fill.warning {
-  background: #f59e0b;
+  background: linear-gradient(90deg, var(--color-warning), #fbbf24);
 }
 
 .storage-fill.danger {
-  background: #ef4444;
+  background: linear-gradient(90deg, var(--color-danger), #ef4444);
+  animation: pulseDanger 1.5s ease-in-out infinite;
 }
 
-.storage-text {
+@keyframes pulseDanger {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.btn-recall-report {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-family: var(--font-body);
   font-size: 0.8rem;
-  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
   white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.btn-recall-report:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: var(--text-primary);
+  border-color: var(--color-primary-light);
 }
 
 .dashboard-row {

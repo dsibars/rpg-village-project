@@ -15,6 +15,8 @@
         :population="population"
         :wood="wood"
         @nextDay="onNextDay"
+        @openSettings="currentPage = 'settings'"
+        @navigate="handleNavigate"
       />
 
       <main class="app-main" role="main" :aria-label="currentPageLabel">
@@ -29,15 +31,17 @@
         <component
           :is="currentPageComponent"
           v-else
+          :active-tab="activeTab"
           @openSettings="currentPage = 'settings'"
           @navigate="handleNavigate"
+          @recallDailyReport="showDailyReport = true"
         />
       </main>
 
       <FooterNav
         :current="currentPage"
         :items="navItems"
-        @navigate="currentPage = $event"
+        @navigate="handlePageChange"
       />
     </template>
 
@@ -46,12 +50,6 @@
     <CombatOverlay
       v-if="showCombatOverlay"
       @close="showCombatOverlay = false"
-    />
-
-    <IntroDialog
-      v-if="showIntro"
-      :open="true"
-      @close="showIntro = false"
     />
 
     <DailyReportModal
@@ -82,6 +80,7 @@ import { ref, computed, shallowRef, onErrorCaptured, watch } from 'vue'
 import { useI18n } from './core/composables/useI18n.js'
 import { useGameState } from './core/composables/useGameState.js'
 import { useNarrativeToasts } from './core/composables/useNarrativeToasts.js'
+import { showToast } from './core/toast.js'
 import TopBar from './components/TopBar.vue'
 import FooterNav from './components/FooterNav.vue'
 import ToastContainer from './components/ToastContainer.vue'
@@ -92,7 +91,6 @@ import AdventurePage from './features/adventure/AdventurePage.vue'
 import TownPage from './features/town/TownPage.vue'
 import SettingsPage from './features/settings/SettingsPage.vue'
 import CombatOverlay from './features/combat/CombatOverlay.vue'
-import IntroDialog from './features/shared/IntroDialog.vue'
 import DailyReportModal from './features/village/components/modals/DailyReportModal.vue'
 import PresentationModal from './features/shared/PresentationModal.vue'
 import ExpeditionResultModal from './features/shared/ExpeditionResultModal.vue'
@@ -110,12 +108,32 @@ const { dispatch } = useAdapter()
 useNarrativeToasts()
 
 const currentPage = ref('village')
+const activeTab = ref(null)
 const showCombatOverlay = ref(false)
-const showIntro = ref(false)
 const showDailyReport = ref(false)
 const pageError = shallowRef(null)
 const saveSlots = ref([])
 const slotIndex = ref(props.persistence?.slotIndex ?? null)
+
+// Storage warning state (PF-012)
+const storageWarningDismissed = ref(false)
+const inventory = computed(() => gameState.value.inventory || {})
+const maxStorage = computed(() => village.value.maxStorage || 100)
+const storagePercent = computed(() => {
+  const used = inventory.value.totalUsed || 0
+  const max = maxStorage.value
+  return max > 0 ? (used / max) * 100 : 0
+})
+
+watch(storagePercent, (pct) => {
+  if (pct > 95 && !storageWarningDismissed.value) {
+    showToast(t('shop_uxelm_storage_warning'), 'warning')
+    storageWarningDismissed.value = true
+  }
+  if (pct < 80) {
+    storageWarningDismissed.value = false
+  }
+})
 
 // Presentation queue (PostDaySequencer Step 1)
 const presentationQueue = ref([])
@@ -159,7 +177,7 @@ const hasSlotSelected = computed(() => slotIndex.value !== null)
 
 const gold = computed(() => village.value.gold || 0)
 const population = computed(() => village.value.population || 0)
-const wood = computed(() => village.value.wood || 0)
+const wood = computed(() => gameState.value.inventory?.materials?.material_wood || village.value.wood || 0)
 
 const pages = {
   village: VillagePage,
@@ -190,7 +208,25 @@ const navItems = computed(() => [
 
 function refreshSaveSlots() {
   if (!props.saveSlotManager) return
-  saveSlots.value = props.saveSlotManager.listSlots()
+  const slots = props.saveSlotManager.listSlots() || []
+  saveSlots.value = slots.map(slot => {
+    const idx = slot.slotIndex !== undefined ? slot.slotIndex : slot.index
+    let summary = null
+    let lastPlayedFormatted = ''
+    if (slot.exists) {
+      try {
+        summary = props.saveSlotManager.getSlotSummary(idx)
+        lastPlayedFormatted = props.saveSlotManager.formatLastPlayed(slot.lastPlayedAt)
+      } catch (e) {
+        console.error('Failed to load summary for slot:', idx, e)
+      }
+    }
+    return {
+      ...slot,
+      summary,
+      lastPlayedFormatted
+    }
+  })
 }
 
 function onSelectSlot(index) {
@@ -209,7 +245,11 @@ function onSelectSlot(index) {
 
   props.engine?.initialize?.()
   if (props.engine?.isNewGame) {
-    showIntro.value = true
+    const prologue = props.engine?.presentationService?.replayPresentation?.('pres_prologue')
+    if (prologue) {
+      currentPresentation.value = prologue
+      showPresentation.value = true
+    }
   }
   refreshSaveSlots()
 }
@@ -291,7 +331,13 @@ function onCloseDailyReport() {
 function handleNavigate({ page, tab }) {
   if (page && pages[page]) {
     currentPage.value = page
+    activeTab.value = tab || null
   }
+}
+
+function handlePageChange(page) {
+  currentPage.value = page
+  activeTab.value = null
 }
 
 function proceedToPresentations() {

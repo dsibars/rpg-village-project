@@ -1,15 +1,36 @@
 <template>
   <header class="top-bar">
-    <div class="top-bar-brand">RPG Village</div>
-    <div class="top-bar-day">{{ t('shared_uxelm_day') }} {{ day }}</div>
-    <div class="top-bar-stats">
-      <span class="stat">🪙 {{ gold }}</span>
+    <div class="top-bar-left">
+      <div class="top-bar-brand">RPG Village</div>
+      <div class="top-bar-day">{{ t('shared_uxelm_day') }} {{ day }}</div>
+    </div>
+
+    <div class="top-bar-center">
+      <button class="btn-next-day" @click="$emit('nextDay')">
+        ☀️ {{ t('shared_uxelm_next_day') }}
+      </button>
+      <button
+        class="btn-quick btn-text"
+        @click="$emit('navigate', { page: 'adventure', tab: 'codex' })"
+      >
+        📖 {{ t('shared_uxelm_nav_codex') }}
+      </button>
+      <button
+        class="btn-quick btn-text"
+        @click="$emit('navigate', { page: 'adventure', tab: 'chronicle' })"
+      >
+        📜 {{ t('nav_chronicle') }}
+      </button>
+    </div>
+
+    <div class="top-bar-right">
+      <span class="stat">💰 {{ gold }}</span>
       <span class="stat">👥 {{ populationDisplay }}</span>
       <span class="stat">🪵 {{ wood }}</span>
+      <button class="btn-quick" :title="t('shared_uxelm_nav_settings')" @click="$emit('openSettings')">
+        ⚙️
+      </button>
     </div>
-    <button class="btn-next-day" @click="$emit('nextDay')">
-      ☀️ {{ t('shared_uxelm_next_day') }}
-    </button>
   </header>
 </template>
 
@@ -24,7 +45,7 @@ const props = defineProps({
   wood: { type: Number, default: 0 }
 })
 
-defineEmits(['nextDay'])
+defineEmits(['nextDay', 'openSettings', 'navigate'])
 
 const { t } = useI18n()
 
@@ -47,6 +68,12 @@ const populationDisplay = computed(() => {
   font-family: var(--font-body);
 }
 
+.top-bar-left {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
 .top-bar-brand {
   font-family: var(--font-heading);
   font-weight: 700;
@@ -56,15 +83,58 @@ const populationDisplay = computed(() => {
 
 .top-bar-day {
   color: var(--text-secondary);
+  text-transform: uppercase;
+  font-weight: 600;
+  font-size: 0.9rem;
+  letter-spacing: 0.5px;
 }
 
-.top-bar-stats {
+.top-bar-center {
   display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.top-bar-right {
+  display: flex;
+  align-items: center;
   gap: var(--spacing-md);
 }
 
 .stat {
   color: var(--text-primary);
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.btn-quick {
+  padding: var(--spacing-xs);
+  background: transparent;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  transition: all 0.15s ease;
+  color: var(--text-secondary);
+}
+
+.btn-quick:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--color-primary-light);
+  color: var(--text-primary);
+}
+
+.btn-quick.btn-text {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-family: var(--font-heading);
 }
 
 .btn-next-day {
@@ -75,9 +145,27 @@ const populationDisplay = computed(() => {
   border-radius: var(--radius-md);
   cursor: pointer;
   font-family: var(--font-body);
+  text-transform: uppercase;
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+  transition: background 0.15s ease;
 }
 
 .btn-next-day:hover {
   background: var(--color-primary-light);
+}
+
+@media (max-width: 768px) {
+  .top-bar {
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+  }
+
+  .top-bar-center {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+  }
 }
 </style>

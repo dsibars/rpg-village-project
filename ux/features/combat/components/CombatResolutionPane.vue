@@ -9,7 +9,7 @@
         <span v-else-if="s.hpLost < 0" class="hp-gained">+{{-s.hpLost}} HP</span>
         <span v-if="s.hpLost !== 0"> | </span>
         <span class="exp-gained">+{{ s.expEarned }} EXP</span>
-        <span v-if="s.leveledUp" class="level-up">(LEVEL UP!)</span>
+        <span v-if="s.leveledUp" class="level-up">({{ t('shared_uxelm_level_up') }})</span>
       </div>
     </div>
 
@@ -56,7 +56,7 @@ const rewards = computed(() => {
   const list = []
   const rw = preview.value?.rewards
   if (!rw || !preview.value?.isLastStage) return list
-  if (rw.gold) list.push(`Ὃ0 ${rw.gold} Gold`)
+  if (rw.gold) list.push(`🪙 ${rw.gold} ${t('village_info_gold')}`)
   if (rw.items) {
     for (const [itemId, qty] of Object.entries(rw.items)) {
       list.push(`὎6 ${qty}x ${t(itemId)}`)

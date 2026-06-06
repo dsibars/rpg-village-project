@@ -1,7 +1,7 @@
 <template>
   <div class="labor-pool">
     <div class="pool-header">
-      <h4>{{ t('village_uxelm_workers') }}</h4>
+      <h4>{{ t('village_uxelm_role') }}</h4>
       <span class="pool-status">
         ({{ available }} {{ t('shared_uxelm_available') }} / {{ total }} {{ t('shared_uxelm_total') }})
       </span>
@@ -100,6 +100,8 @@ const roleEffects = {
   margin: 0;
   font-size: 0.95rem;
   color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .pool-status {

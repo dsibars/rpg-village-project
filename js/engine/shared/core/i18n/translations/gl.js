@@ -1183,10 +1183,6 @@ export const gl = {
 
     // Added during UX audit
     settings_uxelm_save_management: "Xestión de Partidas",
-    intro_uxelm_title: "Un Novo Santuario",
-    intro_uxelm_era: "Era do Santuario",
-    intro_uxelm_text: "Descubriches un val remoto lonxe das terras devastadas pola guerra. Aquí sentarás as bases dunha nova aldea, reunirás heroes e defenderás á túa xente. Que a esperanza guíe o teu camiño.",
-    shared_uxelm_story: "Historia",
     shared_uxelm_next: "Seguinta",
     buildings_uxelm_current_effects: "Efectos Actuais",
     buildings_uxelm_next_level: "Seguinte Nivel",
@@ -1205,12 +1201,9 @@ export const gl = {
     shop_uxelm_tab_resources: "Recursos",
     shop_uxelm_storage_warning: "Aviso: O teu almacén está cheo ou case cheo!",
     shop_uxelm_no_items: "Non hai obxectos dispoñibles na tenda.",
-    village_uxelm_projects: "Proxectos Activos",
     daily_uxelm_objectives_title: "Obxectivos Diarios",
-    village_uxelm_workers: "Asignación de Traballadores",
     calendar_info_day: "Día {day}",
     calendar_uxelm_upcoming: "Próximos Eventos",
-    village_uxelm_defense: "Defensa da Aldea",
     daily_report_uxelm_title: "Resumo do Día {day}",
     daily_report_uxelm_none: "Non se rexistraron transaccións financeiras nin eventos.",
     daily_report_uxelm_summary: "Informe Diario",
@@ -1226,4 +1219,17 @@ export const gl = {
     shared_uxelm_stat_def: "DEF",
     shared_uxelm_stat_spd: "VEL",
     shared_uxelm_stat_sta: "EST",
+
+    // ═══ INTRO / SHARED ════════════════════════════════════════════════════
+    shared_uxelm_next: "Seguinte",
+    shared_uxelm_level_up: "¡SUBIDA DE NIVEL!",
+
+    // ═══ TOAST FEEDBACK ════════════════════════════════════════════════════
+    shared_uxelm_gold: "Ouro",
+    shared_uxelm_toast_gold_earned: "+{amount}g",
+    shared_uxelm_toast_resource_sold: "+{amount}g ({count} {resource})",
+    shared_uxelm_toast_preset_applied: "Aplicado {preset} (+{count} gambits)",
+    shared_uxelm_toast_glyph_learned: "{hero} aprendeu {glyph}!",
+    shared_uxelm_toast_consumable_used: "{hero} +{amount} {stat}",
+    combat_log_stamina_regen: "{actor} regenera {amount} de estamina",
 };

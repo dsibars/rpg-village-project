@@ -1183,10 +1183,6 @@ export const eu = {
 
     // Added during UX audit
     settings_uxelm_save_management: "Partiden Kudeaketa",
-    intro_uxelm_title: "Santutegi Berri Bat",
-    intro_uxelm_era: "Santutegiko Aroa",
-    intro_uxelm_text: "Gerratik urrun dagoen haran galdu bat aurkitu duzu. Hemen herrixka berri baten oinarriak ezarriko dituzu, heroiak bilduko dituzu eta zure jendea defendatuko duzu. Itxaropenak gidatuko ahal zaitu.",
-    shared_uxelm_story: "Istorioa",
     shared_uxelm_next: "Hurrengoa",
     buildings_uxelm_current_effects: "Oraingo Efektuak",
     buildings_uxelm_next_level: "Hurrengo Maila",
@@ -1205,12 +1201,9 @@ export const eu = {
     shop_uxelm_tab_resources: "Baliabideak",
     shop_uxelm_storage_warning: "Abisua: Zure biltegia beteta edo ia beteta dago!",
     shop_uxelm_no_items: "Ez dago objekturik salgai dendan.",
-    village_uxelm_projects: "Proiektu Aktiboak",
     daily_uxelm_objectives_title: "Eguneroko Helburuak",
-    village_uxelm_workers: "Langileen Esleipena",
     calendar_info_day: "{day}. Eguna",
     calendar_uxelm_upcoming: "Hurrengo Gertaerak",
-    village_uxelm_defense: "Herri Defentsa",
     daily_report_uxelm_title: "{day}. Eguneko Laburpena",
     daily_report_uxelm_none: "Ez da finantza-eragiketarik edo gertaerarik erregistratu.",
     daily_report_uxelm_summary: "Eguneroko Txostena",
@@ -1226,4 +1219,17 @@ export const eu = {
     shared_uxelm_stat_def: "DEF",
     shared_uxelm_stat_spd: "ABI",
     shared_uxelm_stat_sta: "EST",
+
+    // ═══ INTRO / SHARED ════════════════════════════════════════════════════
+    shared_uxelm_next: "Next",
+    shared_uxelm_level_up: "LEVEL UP!",
+
+    // ═══ TOAST FEEDBACK ════════════════════════════════════════════════════
+    shared_uxelm_gold: "Gold",
+    shared_uxelm_toast_gold_earned: "+{amount}g",
+    shared_uxelm_toast_resource_sold: "+{amount}g ({count} {resource})",
+    shared_uxelm_toast_preset_applied: "Applied {preset} (+{count} gambits)",
+    shared_uxelm_toast_glyph_learned: "{hero} learned {glyph}!",
+    shared_uxelm_toast_consumable_used: "{hero} +{amount} {stat}",
+    combat_log_stamina_regen: "{actor} regenerates {amount} stamina",
 };

@@ -57,7 +57,7 @@ describe('HeroProfile', () => {
     const wrapper = mountWithProviders({ hero })
     await wrapper.find('.stat-add-btn').trigger('click')
     expect(wrapper.emitted('allocateStat')).toBeTruthy()
-    expect(wrapper.emitted('allocateStat')[0]).toEqual(['hp'])
+    expect(wrapper.emitted('allocateStat')[0]).toEqual(['baseMaxHp'])
   })
 
   it('emits openAction when action bar button clicked', async () => {

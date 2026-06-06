@@ -63,6 +63,8 @@ function formatLabel(obj) {
   margin: 0;
   font-size: 0.95rem;
   color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .empty-state {

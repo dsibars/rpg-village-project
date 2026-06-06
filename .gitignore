@@ -152,3 +152,6 @@ itch.config
 .agents_shared_memory/memory.db
 .agents_shared_memory/docs_hash
 .agents_shared_memory/docs_hash_history
+
+# PNG Screenshots for AI review
+ux/_migration_screenshots

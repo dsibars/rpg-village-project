@@ -20,6 +20,14 @@
       </Button>
     </div>
 
+    <!-- Status Banner (PF-014) -->
+    <div class="status-banner">
+      <span class="status-label">{{ t('explore_uxelm_active_expeditions') }}:</span>
+      <span class="status-value" :class="{ warning: isAtMaxExpeditions }">
+        {{ activeExpeditions.length }} / {{ maxConcurrent }}
+      </span>
+    </div>
+
     <!-- Region List -->
     <div class="region-list">
       <button
@@ -291,6 +299,30 @@ function nodeIcon(exp) {
 .view-toggle button.active {
   background: rgba(99, 102, 241, 0.2);
   border-color: var(--color-primary);
+}
+
+.status-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: var(--bg-card);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+}
+
+.status-label {
+  color: var(--text-secondary);
+}
+
+.status-value {
+  font-weight: 600;
+  color: var(--color-primary-light);
+}
+
+.status-value.warning {
+  color: var(--color-danger);
 }
 
 .region-list {

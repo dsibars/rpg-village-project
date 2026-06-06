@@ -1,6 +1,6 @@
 <template>
   <div class="construction-queue">
-    <h4>{{ t('village_uxelm_projects') }}</h4>
+    <h4>{{ t('village_uxelm_construction') }}</h4>
 
     <div v-if="queue.length === 0" class="empty-state">
       {{ t('village_uxelm_project_none') }}
@@ -58,6 +58,8 @@ function progressPercent(project) {
   margin: 0;
   font-size: 0.95rem;
   color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .empty-state {

@@ -1,224 +1,238 @@
 # Migration Check Status — Vanilla JS → Vue 3
 
-> **Context:** This document tracks the ongoing review of the RPG Village UI migration from vanilla JS (`js/presentation/`) to Vue 3 (`ux/`).  
-> See [core_initiative_component_based_ui.md](../.dev_workflow/ideas/core_initiative_component_based_ui.md) for architecture vision and rationale.
+> **Goal:** This is a **technical migration only**. The same game, same texts, same layout, same UX — only the underlying framework changes from vanilla JS to Vue 3.
+>
+> **What we accept:** Tiny visual discrepancies that are an obvious consequence of switching frameworks (e.g., slightly different spacing from Vue's rendering pipeline, minor CSS cascade differences).
+>
+> **What we DO NOT accept:** Different texts, different layouts, added/removed features, or "improvements" that change how the page looks or behaves. If the vanilla page says "CHOOSE SAVE SLOT", the migrated page must say "CHOOSE SAVE SLOT". If the vanilla page has 2 columns, the migrated page must have 2 columns.
+>
+> **Rule:** We are not refactoring. We are not redesigning. We are migrating.
 
 ---
 
-## Purpose & Collaborative Workflow
+## Review Workflow: Screenshot-Driven Comparison
 
-This file serves as a **shared agents log** for the migration review. It is designed to support iterative, multi-session collaborative work between humans and AI agents.
+All review is done by comparing screenshots of the **vanilla** (v1) vs **migrated** (v2) UI.
 
-### How this file is used:
+### Screenshot Location
+`ux/_migration_screenshots/`
 
-1. **Session start**: The reviewing agent reads this file first to understand what has been reviewed, what's pending, and what's currently being worked on.
-2. **During review**: As the agent detects potential issues, they are **immediately** added to the [Potential Findings](#potential-findings) section — even before diagnosis is complete. This ensures nothing is lost if a session is interrupted.
-3. **When a fix begins**: The finding is moved to [Working Actions](#working-actions) with a brief clue about the intended approach. This acts as a resumable TODO if the session ends before the fix is complete.
-4. **When a fix is done**: The entry is removed from Working Actions. Optionally, a brief note is added to the [Completed Fixes](#completed-fixes) log.
-5. **Session end**: The agent updates the [Review Progress](#review-progress) section to record what was covered.
+### Naming Convention
+| Prefix | Meaning |
+|--------|---------|
+| `v1_` | Vanilla JS (legacy `js/presentation/`) — the reference |
+| `v2_` | Vue 3 (migrated `ux/`) — the target |
 
-> **Rule**: Never leave a detected issue unwritten. Add it to Potential Findings immediately. The cost of writing one line is zero; the cost of forgetting is starting over.
+Both screenshots of the same page must share the same suffix. Example:
+- `v1_initial_page_saveslot_selection.png`
+- `v2_initial_page_saveslot_selection.png`
 
-### What "Continue" Means
-
-If you are told to **"continue the migration review"** (or similar), your goal is to move the project as close as possible to a **one-shot perfect migration** when the user tests it. This means:
-
-1. **Check unreviewed parts** — Work through every 🔲 item in [Review Progress](#review-progress). Prioritize by functional risk (combat, save/load, progression gates) over polish.
-2. **Discover missing parts** — As you review, determine if there are files, flows, or edge cases *not yet listed* in the Review Progress table. Add them immediately so they aren't lost.
-3. **Recheck previously reviewed parts** — If a component has been modified since its last review date, or if a fix in one area could affect another, re-review it. Update the **Last Reviewed** date and append a note like `(rechecked 2026-06-06 — still valid after PF-XXX fix)`.
-4. **Fix or file everything** — Do not let findings sit idle. Either:
-   - Fix them immediately (move to [Working Actions](#working-actions), then [Completed Fixes](#completed-fixes)), or
-   - Ensure they are fully diagnosed and documented in [Potential Findings](#potential-findings) with a fix hint.
-5. **Aim for test-readiness** — The migration is "ready for test" when:
-   - All P1 (Critical) findings are resolved or have a WA in progress.
-   - All P2 (Significant) findings that block core loops are resolved.
-   - No unreviewed component remains that could hide a P1/P2 issue.
-
-> **Guiding principle**: Treat every session as if it is the last one before the user runs a full playtest. Leave no silent breakage behind.
+### Review Steps
+1. **Place both screenshots side by side** (or toggle between them).
+2. **Compare text content** — must be identical (casing, wording, labels).
+3. **Compare layout** — columns, alignment, spacing, visible elements.
+4. **Compare behavior** — hover states, click targets, modal triggers.
+5. **Document findings** in [Findings](#findings) with the page name and screenshot filenames.
+6. **Fix deltas only** — no improvements, no redesigns.
 
 ---
 
-## Review Progress
+## Reviewed Pages
 
-Tracks which areas have been reviewed and their status.
+| Page / Screen | v1 Screenshot | v2 Screenshot | Status | Findings |
+|---------------|---------------|---------------|--------|----------|
+| Save Slot Selection | `v1_initial_page_saveslot_selection.png` | `v2_initial_page_saveslot_selection.png` | ✅ Re-verified | All critical/significant findings fixed. E-001 (subtitle) approved as exception. |
+| New Game Lore Intro | `v1_start_new_game_001.png` | `v2_start_new_game_001.png` | ✅ Re-verified | F-012, F-013, F-014, F-015 fixed. |
+| Village Main Screen | `v1_start_new_game_002.png` | `v2_start_new_game_002.png` | 🛠️ Fixed | F-016 through F-020, F-022, F-024, F-025 fixed. F-021, F-023 remain (structural layout differences). |
+| _(next page TBD)_ | — | — | ⏳ Pending | — |
 
-| Area | Status | Last Reviewed | Notes |
-|------|--------|--------------|-------|
-| `ux/main.js` | ✅ Reviewed | 2026-06-06 | Game loop, provider setup — looks correct |
-| `ux/App.vue` | ✅ Reviewed | 2026-06-06 | Shell, routing, overlays, post-day sequencing |
-| `ux/adapters/EngineAdapter.js` | ✅ Reviewed | 2026-06-06 | Action map vs legacy adapter |
-| `ux/core/composables/` | ✅ Reviewed | 2026-06-06 | useGameState, useI18n, useAdapter, useNarrativeToasts |
-| `ux/core/toast.js` | ✅ Reviewed | 2026-06-06 | Toast + narrative queue |
-| `ux/components/TopBar.vue` | ✅ Reviewed | 2026-06-06 | Shell header |
-| `ux/components/FooterNav.vue` | ✅ Reviewed | 2026-06-06 | Bottom nav |
-| `ux/components/TabNav.vue` | ✅ Reviewed | 2026-06-06 | Tab component |
-| `ux/features/village/VillagePage.vue` | ✅ Reviewed | 2026-06-06 | Dashboard layout |
-| `ux/features/heroes/HeroesPage.vue` | ✅ Reviewed | 2026-06-06 | Master-detail, modals |
-| `ux/features/adventure/AdventurePage.vue` | ✅ Reviewed | 2026-06-06 | Tab container |
-| `ux/features/adventure/components/ExploreTab.vue` | ✅ Reviewed | 2026-06-06 | Major differences vs legacy tree |
-| `ux/features/town/TownPage.vue` | ✅ Reviewed | 2026-06-06 | Tab container |
-| `ux/features/combat/CombatOverlay.vue` | ✅ Reviewed | 2026-06-06 | Combat UI + auto-advance |
-| `ux/features/settings/SettingsPage.vue` | ✅ Reviewed | 2026-06-06 | Settings + simulator |
-| `ux/features/saveSlots/SaveSlotPage.vue` | 🔲 Not reviewed | — | — |
-| `ux/features/town/components/BuildingsTab.vue` | ✅ Reviewed | 2026-06-06 | Hardcoded costs (PF-017) |
-| `ux/features/town/components/ShopTab.vue` | ✅ Reviewed | 2026-06-06 | buyResource missing (PF-015), unlock gate (PF-016) |
-| `ux/features/town/components/ForgeTab.vue` | ✅ Reviewed | 2026-06-06 | Unlock gate correct (blacksmith ≥ 1). PF-018 resolved as false alarm. |
-| `ux/features/town/components/InventoryTab.vue` | ✅ Reviewed | 2026-06-06 | Looks correct, has teach modal |
-| `ux/features/adventure/components/BestiaryTab.vue` | 🔲 Not reviewed | — | — |
-| `ux/features/adventure/components/CodexTab.vue` | 🔲 Not reviewed | — | — |
-| `ux/features/adventure/components/ChronicleTab.vue` | 🔲 Not reviewed | — | — |
-| `ux/features/heroes/components/HeroProfile.vue` | ✅ Reviewed | 2026-06-06 | Looks correct |
-| `ux/features/heroes/components/HeroActionBar.vue` | ✅ Reviewed | 2026-06-06 | Visibility gating looks correct |
-| `ux/features/heroes/components/HeroStatsGrid.vue` | 🔲 Not reviewed | — | — |
-| `ux/features/heroes/components/modals/*` | 🔲 Not reviewed | — | 8 modals |
-| `ux/features/gambit/GambitEditor.vue` | 🔲 Not reviewed | — | — |
-| `ux/features/gambit/components/*` | 🔲 Not reviewed | — | 6 sub-components |
-| `ux/features/magic_circle/MagicCircleEditor.vue` | 🔲 Not reviewed | — | — |
-| `ux/features/magic_circle/components/*` | 🔲 Not reviewed | — | 3 sub-components |
-| `ux/features/village/components/*` | 🔲 Not reviewed | — | 6 sub-components |
-| `ux/features/village/components/modals/*` | 🔲 Not reviewed | — | DailyReportModal |
-| `ux/features/shared/*` | 🔲 Not reviewed | — | IntroDialog, PresentationModal, ExpeditionResultModal |
-| `ux/features/combat/components/*` | 🔲 Not reviewed | — | 5 sub-components |
+> **Legend:** ⏳ Pending → 🔍 In Review → ✅ Verified → ❌ Issues Found → 🛠️ Fixed → ✅ Re-verified
 
 ---
 
-## Potential Findings
+## Findings
 
-Issues detected during review that need further investigation or fixing.
+Issues detected from screenshot comparison. Format: `F-XXX: Brief description — page name`.
 
-### 🔴 P1 — Critical (broken functionality)
+### 🔴 Critical (broken functionality or text/layout mismatch)
 
-#### PF-001: Combat Auto-Advance Missing from Vue Game Loop
-- **Where:** `ux/main.js` game loop vs `js/presentation/adapters/EngineAdapter.js` lines 367-393
-- **What:** The legacy adapter's game loop includes **combat auto-advance logic** — when it's an enemy turn (or auto-battle is on), it calls `engine.nextBattleTurn()` every 500ms. The Vue `main.js` game loop (lines 46-52) only calls `engine.update()` — it never calls `engine.nextBattleTurn()`. This means **enemy turns and auto-battle will not advance** in the Vue build.
-- **Impact:** Combat is completely broken for enemy turns and auto-battle mode. Players must manually advance every single turn.
-- **Fix hint:** Add combat auto-advance logic to the Vue game loop in `main.js`, similar to the legacy adapter's pattern (check `activeBattle`, `turnOrder`, `currentTurnIndex`, and call `engine.nextBattleTurn()` at 500ms intervals).
+#### F-001: SaveSlotPage — Population renders as raw JSON object instead of number
+- **Page:** Save Slot Selection
+- **What:** `slot.summary?.village?.population` renders the full population object as a JSON string. Vanilla has defensive fallback: `summary.village.population?.total || summary.village.population || 0`. Vue only does `?? 0`, missing the `.total` fallback for object-shaped legacy save data.
+- **Fix:** Template should read `slot.summary?.village?.population?.total ?? slot.summary?.village?.population ?? 0`.
+- **Status:** 🛠️ Fixed
 
-#### PF-002: Explore Tree View is Flat List Instead of Branching Tree
-- **Where:** `ux/features/adventure/components/ExploreTab.vue` tree mode (lines 54-65) vs `js/presentation/ui/explore/components/ExpeditionTree.js`
-- **What:** The legacy tree renders a **bottom-up branching tree** with SVG connector lines between parent/child nodes, levels grouped by depth, and icons representing status (○ available, ◎ active, ✕ completed, ⬡ closed, △ locked). The Vue version renders a flat vertical list of `tree-node` divs with no parent-child hierarchy, no SVG connectors, no depth levels. It's just the same as the list view but with different styling.
-- **Impact:** The tree view is a core visual differentiator of the explore page. Players lose the ability to see the expedition graph structure.
-- **Fix hint:** Port the `ExpeditionTree.js` branching logic: build parent-child relationships via `node.parentId`, group by depth level, render level rows in reverse order, add SVG connector overlay. Consider extracting to a dedicated `ExpeditionTree.vue` component.
+#### F-002: SaveSlotPage — Language selector shows empty/blank value
+- **Page:** Save Slot Selection
+- **What:** Language dropdown appears blank instead of showing the current language.
+- **Root Cause:** Template binds `:value="currentLanguage.value"`. In Vue template context, `currentLanguage` (a ref) is auto-unwrapped to the string value; accessing `.value` on the primitive string returns `undefined`.
+- **Fix:** Change to `:value="currentLanguage"`.
+- **Status:** 🛠️ Fixed
 
-#### PF-003: Explore Tree Node Click Doesn't Open Detail Modal
-- **Where:** `ux/features/adventure/components/ExploreTab.vue` function `selectExpedition` vs `js/presentation/ui/explore/ExploreView.js` function `handleTreeNodeClick`
-- **What:** In the legacy, clicking a tree node opens a **modal dialog** with `ExpeditionDetailPane` inside (via `BaseModal.show`). In Vue, clicking a tree node just sets `selectedExp` to show an inline detail pane below. Additionally, the legacy shows a special **completed expedition modal** (with hero names, rewards, closure bonuses) for completed/closed nodes — the Vue version doesn't handle this at all.
-- **Impact:** Completed/closed expeditions can't be reviewed. The UX interaction pattern is fundamentally different from what players know.
+#### F-003: SaveSlotPage — Title changed from "CHOOSE SAVE SLOT" to "RPG VILLAGE"
+- **Page:** Save Slot Selection
+- **What:** Vanilla page shows a functional title "CHOOSE SAVE SLOT". Migrated page shows a branding title "RPG VILLAGE".
+- **Fix:** Revert h1 text to `t('shared_uxelm_save_slot_title')` and apply vanilla heading styling (white, uppercase, smaller size).
+- **Status:** 🛠️ Fixed
 
-### 🟡 P2 — Significant (degraded experience)
+#### F-004: SaveSlotPage — "EMPTY" slot styling lost uppercase + gray color
+- **Page:** Save Slot Selection
+- **What:** Vanilla shows "EMPTY" in uppercase with gray/neutral styling (`var(--text-muted)`). Migrated shows "Empty" in title case with purple styling (`var(--color-primary-light)`).
+- **Fix:** Add `.slot-card.empty .slot-number-title` CSS rule with `text-transform: uppercase`, `color: var(--text-muted)`, and matching font-size.
+- **Status:** 🛠️ Fixed
 
-#### PF-004: No Settings Tab Access from Footer Nav  
-- **Where:** `ux/App.vue` line 37-41 (FooterNav) and `ux/components/FooterNav.vue`
-- **What:** The legacy UI has settings accessible from the Town category's tab group. The Vue footer nav only has 4 categories (village, heroes, adventure, town). Settings is registered as a page in `App.vue` (line 169) but there's no navigation path to reach it from the footer. It's only accessible via `@openSettings` event, which is emitted from… nowhere in the current implementation. Check if any page component actually emits `openSettings`.
-- **Impact:** Players cannot access the settings page (language, save management, dev cheats).
-- **Fix hint:** Either add a settings button to TopBar or add it as a tab in TownPage, matching the legacy behavior.
+#### F-005: SaveSlotPage — Grid changed from 2 columns to 3 columns
+- **Page:** Save Slot Selection
+- **What:** Vanilla uses a 2-column grid. Migrated uses 3 columns via `repeat(auto-fill, minmax(280px, 1fr))`, making slots cramped.
+- **Fix:** Change grid to `repeat(2, 1fr)` to match vanilla.
+- **Status:** 🛠️ Fixed
 
-#### PF-005: `useBestiary()` Composable Returns Object Inside Computed
-- **Where:** `ux/core/composables/useGameState.js` lines 59-65
-- **What:** `useBestiary()` returns a single computed that yields `{ bestiary, enemyTemplates }`. But in `HeroesPage.vue` line 159, it's destructured as `const { bestiary, enemyTemplates } = useBestiary()`, which means `bestiary` and `enemyTemplates` are plain (non-reactive) properties extracted once from the computed. They won't track reactivity correctly — they'll be the initial values and never update.
-- **Impact:** Gambit test setup (which needs enemy templates) may show stale data. The bestiary tab could be affected.
-- **Fix hint:** Either return separate computeds from `useBestiary()` or use `.value` in the consuming component to access the nested properties.
+#### F-006: SaveSlotPage — "DAY X" lost uppercase/bold styling
+- **Page:** Save Slot Selection
+- **What:** Vanilla shows "DAY 2" in uppercase, small (0.7rem), and bold (600). Migrated shows "Day 2" in sentence case, large (1.1rem), and heavier (700).
+- **Fix:** Add `.slot-card:not(.empty) .slot-number-title` rule with `text-transform: uppercase`, `font-size: 0.7rem`, `font-weight: 600`, and `letter-spacing: 0.5px`.
+- **Status:** 🛠️ Fixed
 
-#### PF-006: Region Selection Doesn't Auto-Select First Region
-- **Where:** `ux/features/adventure/components/ExploreTab.vue` — `selectedRegion` initialized to `null` (line 152)
-- **What:** The legacy `ExploreView.js` auto-selects the first region if none is selected (line 250-252). The Vue version starts with `selectedRegion = null`, so on first visit the region list shows but no region is selected, meaning no expeditions are filtered/shown.
-- **Impact:** Players see an empty expedition list on first visit until they manually click a region.
+#### F-007: SaveSlotPage — Delete button missing mobile visibility override
+- **Page:** Save Slot Selection
+- **What:** Both vanilla and Vue hide the delete button by default (`opacity: 0`) and show on hover. Vanilla adds a mobile breakpoint `@media (max-width: 640px) { opacity: 1 }` so touch users can see it. Vue is missing this override.
+- **Fix:** Add the mobile breakpoint override to `.btn-delete`.
+- **Status:** 🛠️ Fixed
 
-#### PF-007: ExploreTab `viewMode` Persistence Without Watch
-- **Where:** `ux/features/adventure/components/ExploreTab.vue` line 151
-- **What:** `viewMode` reads from `localStorage` on init, but never **writes** back when changed. In the legacy, `setViewMode()` calls `localStorage.setItem('explore_view_mode', mode)`. The Vue version only initializes from localStorage — toggling the view doesn't persist.
-- **Impact:** View mode preference resets on page refresh.
+### 🟡 Significant (degraded experience — not blocking but noticeable)
 
-#### PF-008: Navigate Event from VillagePage Not Handled
-- **Where:** `ux/features/village/VillagePage.vue` emits `navigate` (line 116), received by `App.vue` `@navigate="handleNavigate"` (line 33) 
-- **What:** `handleNavigate` in App.vue (line 291-294) only handles the `page` part of the navigation. The `tab` parameter is ignored. So when VillagePage emits `navigate { page: 'town', tab: 'buildings' }`, it switches to TownPage but doesn't set the tab to 'buildings'.
-- **Impact:** Navigation from village canvas to buildings tab works but doesn't auto-select the buildings tab (it goes to whatever tab was last active in TownPage).
+#### F-010: SaveSlotPage — Empty slot color inversion
+- **Page:** Save Slot Selection
+- **What:** Vanilla empty slots show "EMPTY" in gray and "Start New Game" in purple (`var(--accent-color)`). Vue shows "Empty" in purple and "Start New Game" in gray (`var(--text-muted)`). The accent/muted colors are swapped.
+- **Fix:** Set `.slot-action-new` color to the accent color (purple) and empty slot title to muted (gray).
+- **Status:** 🛠️ Fixed
 
-#### PF-009: Missing Codex/Chronicle Quick-Access Buttons
-- **Where:** `ux/components/TopBar.vue` vs legacy `UIController.js` lines 103-115
-- **What:** The legacy TopBar has `btn-global-codex` and `btn-global-chronicle` buttons that let players jump directly to the Codex and Chronicle tabs from any page. The Vue TopBar doesn't include these shortcuts.
-- **Impact:** Players lose quick navigation to important reference/history pages.
+#### F-011: SaveSlotPage — "Continue" lost bold weight and size
+- **Page:** Save Slot Selection
+- **What:** Vanilla `.slot-primary` is `font-weight: 700`, `font-size: 1.1rem`. Vue uses `font-weight: 500`, `font-size: 0.9rem`, making "Continue" appear noticeably lighter and smaller.
+- **Fix:** Align `.slot-primary` to vanilla values.
+- **Status:** 🛠️ Fixed
 
-### 🟢 P3 — Minor (polish, visual differences)
+#### F-012: New Game Intro — v2 shows simplified welcome modal instead of 3-page lore carousel
+- **Page:** New Game Lore Intro
+- **What:** Vanilla shows the `PresentationModal` with `pres_prologue` (3 images, 3 lore texts, pagination dots, NEXT/FINISH/SKIP). Vue shows `IntroDialog.vue` — a single-page centered modal with title "Welcome to RPG Village", no images, no pagination, just a CONTINUE button. Completely different content, layout, and component.
+- **Root Cause:** `IntroDialog.vue` was created as a shortcut, bypassing the existing `PresentationModal.vue` and the entire `PresentationCatalog` / `PresentationService` architecture.
+- **Fix:** Remove `IntroDialog.vue`. Route new-game intro through `PresentationModal.vue` using `pres_prologue` catalog data. Call `markAsSeen` on completion via existing `onPresentationComplete` handler.
+- **Status:** 🛠️ Fixed
 
-#### PF-010: TopBar Missing Wood Stat from Inventory State
-- **Where:** `ux/App.vue` line 162 and `ux/components/TopBar.vue`
-- **What:** In App.vue, `wood` is computed as `village.value.wood || 0`. But in the legacy `UIController.js` (line 242-244), wood is read from `state.inventory.materials.material_wood`. The state shape might differ — if `village.wood` isn't populated by the engine, the TopBar will always show 0.
-- **Impact:** Wood resource could show as 0 even when the player has wood.
+#### F-013: PresentationModal.vue — missing skip button, replay badge, mobile adaptation, animations
+- **Page:** New Game Lore Intro / Post-Day Presentations / Chronicle Replays
+- **What:** The Vue `PresentationModal.vue` lacked several v1 features: skip button (top-right), replay badge (`isReplay=true`), mobile bottom-sheet `@media` styles, image/text `presFadeIn` animations, and `<img>` error fallback.
+- **Fix:** Rewrote `PresentationModal.vue` as a standalone overlay (decoupled from `FullViewOverlay`). Ported all v1 CSS including blur backdrop, slide-up animation, mobile sheet adaptation, skip/replay UI, and fade animations. Added `isReplay` prop. Used `<img>` with `@error` handler.
+- **Status:** 🛠️ Fixed
 
-#### PF-011: HelloWorld.vue Still in Components Directory
-- **Where:** `ux/components/HelloWorld.vue`
-- **What:** This is a Vite scaffold artifact. It's 893 bytes and shouldn't be in the production build.
-- **Impact:** Dead code, no functional impact but unprofessional.
+#### F-014: PresentationModal.vue — title header and background mismatch
+- **Page:** New Game Lore Intro / Post-Day Presentations / Chronicle Replays
+- **What:** The old Vue `PresentationModal.vue` extended `FullViewOverlay`, which forced a title header ("✨ Story") and a solid `var(--bg-base)` background. v1 has no title header and uses `rgba(0,0,0,0.92)` with `backdrop-filter: blur(12px)`.
+- **Fix:** Decoupled from `FullViewOverlay`. The new standalone component has no header and uses the correct glassmorphism background treatment matching v1.
+- **Status:** 🛠️ Fixed
 
-#### PF-012: Storage Warning Toast Missing in Vue
-- **Where:** Legacy `UIController.js` lines 248-258 vs Vue implementation
-- **What:** The legacy UI proactively shows a toast when storage exceeds 95%, and clears the flag when it drops below 80%. The Vue implementation doesn't have this proactive storage warning anywhere.
-- **Impact:** Players don't get warned about full storage.
+#### F-015: Orphaned translation keys `intro_uxelm_*` and `shared_uxelm_story`
+- **Page:** N/A (i18n cleanup)
+- **What:** `IntroDialog.vue` introduced translation keys (`intro_uxelm_title`, `intro_uxelm_era`, `intro_uxelm_text`, `shared_uxelm_story`) that are not used by vanilla. After removing `IntroDialog.vue`, these keys were orphaned across all 5 language files.
+- **Fix:** Removed orphaned keys from `en.js`, `es.js`, `ca.js`, `gl.js`, `eu.js`.
+- **Status:** 🛠️ Fixed
 
-#### PF-013: Legacy adapter shows success toasts for actions, Vue adapter does not
-- **Where:** Vue `ux/adapters/EngineAdapter.js` vs Legacy `js/presentation/adapters/EngineAdapter.js`
-- **What:** The legacy adapter shows success feedback like `"${hero.name} +${amountRestored} HP"` for consumables, `"+${goldEarned}g"` for selling items, etc. The Vue adapter only shows error toasts (line 111-112). Positive feedback is completely missing.
-- **Impact:** Players don't get feedback for successful actions (recruit, sell, cook, etc.).
+#### F-016: Village Main — "Day {day} 1" template variable leaking to UI
+- **Page:** Village Main Screen
+- **What:** `VillageCalendar.vue` shows literal `Day {day} 1` because `calendar_info_day` is defined as `"Day {day}"` but the component concatenates the raw translation without substituting the placeholder.
+- **Fix:** Replaced concatenation with `t('calendar_info_day').replace('{day}', dayOfSeason)`.
+- **Status:** 🛠️ Fixed
 
-#### PF-014: ExploreTab Status Banner Missing
-- **Where:** `ux/features/adventure/components/ExploreTab.vue` vs Legacy `ExploreView.js` `renderStatus()` method (lines 211-224)
-- **What:** Legacy shows a status banner: "Active expeditions: X / Y". Vue has no such banner.
-- **Impact:** Minor info loss about how many concurrent expeditions are active vs max.
-#### PF-015: ShopTab `buyResource` Dispatches Non-Existent Adapter Action
-- **Where:** `ux/features/town/components/ShopTab.vue` line 202 dispatches `dispatch('shop', 'buyResource', ...)` 
-- **What:** The Vue adapter's `shop` domain (EngineAdapter.js) only has `buyItem`, `sellItem`, `sellResource`. There is no `buyResource` action. Calling it will log `"Unknown action: shop.buyResource"` and silently fail.
-- **Impact:** Players cannot purchase wood/stone resources from the shop's Resources tab. The button does nothing.
-- **Fix hint:** Either add `buyResource: (engine, p) => engine.buyResource(p.resourceId, p.quantity)` to the adapter, or remap to an existing method like `buyItem` with appropriate params.
+#### F-017: Village Main — Storage bar color changed from purple gradient to solid green
+- **Page:** Village Main Screen
+- **What:** v1 uses a purple/indigo gradient for the storage bar. v2 uses flat `#22c55e` green. Warning and danger states also lost their gradients.
+- **Fix:** Restored v1 gradient CSS in `VillagePage.vue`: `linear-gradient(90deg, var(--color-primary), var(--color-primary-light))` for default, amber gradient for warning, red gradient + pulse animation for danger.
+- **Status:** 🛠️ Fixed
 
-#### PF-016: Shop Unlock Gate Always True
-- **Where:** `ux/features/town/components/ShopTab.vue` line 127 — `isUnlocked = computed(() => true)`
-- **What:** The legacy `UIController.updateNavLocks()` gates the shop on `completedExpeditions.includes('exp_tutorial_cave')`. The forge is gated on `blacksmith >= 1`. In the Vue ShopTab, the shop is always unlocked.
-- **Impact:** Players can access the shop before completing the tutorial cave expedition, breaking progression gating.
-- **Fix hint:** Check `gameState.value.completedExpeditions` for `'exp_tutorial_cave'`.
+#### F-018: Village Main — Building grid changed from 3 columns to auto-fill
+- **Page:** Village Main Screen
+- **What:** v1 explicitly uses `repeat(3, 1fr)`. v2 uses `repeat(auto-fill, minmax(90px, 1fr))`, producing a 4-column layout at this viewport width.
+- **Fix:** Changed `VillageCanvas.vue` grid to `repeat(3, 1fr)` with mobile override `repeat(2, 1fr)` below 575px.
+- **Status:** 🛠️ Fixed
 
-#### PF-017: Buildings Cost Data Hardcoded Instead of Using Engine Data
-- **Where:** `ux/features/town/components/BuildingsTab.vue` lines 103-117 — `getUpgradeCost()` 
-- **What:** The building upgrade costs are hardcoded in the Vue component. The legacy uses the engine's `startProject()` method which validates costs from the authoritative `buildings_data.md` spec. If the spec values change, the Vue component will show wrong costs and potentially allow invalid upgrades (the engine may reject them, but the UI shows stale data).
-- **Impact:** Data drift risk. The UI costs can diverge from the engine's authoritative costs.
-- **Fix hint:** The engine should expose cost calculations, or the adapter should provide building data. Check if `gameState` already includes building definitions with cost info.
+#### F-019: Village Main — Missing "VILLAGE" page title
+- **Page:** Village Main Screen
+- **What:** v1 has a prominent `VILLAGE` heading in the header bar. v2 has no page title — the town hall level label is inside the building card.
+- **Fix:** Added `village-header-bar` to `VillagePage.vue` with `VILLAGE` title, town hall badge, storage bar, and recall button. Moved town hall level out of canvas card.
+- **Status:** 🛠️ Fixed
 
-#### PF-018: ~~Forge Unlock Gate Not Implemented~~ — **RESOLVED: False alarm**
-- **Where:** `ux/features/town/components/ForgeTab.vue` line 74
-- **What:** Forge correctly uses `isUnlocked = computed(() => blacksmithLevel.value >= 1)`. No issue.
+#### F-020: Village Main — Daily Report Recall button missing
+- **Page:** Village Main Screen
+- **What:** v1 header bar has a button to re-open the previous day's report. v2 completely lacks this.
+- **Fix:** Added recall button to `VillagePage.vue` header bar (conditional on `hasDailyReport`). Wired `@recallDailyReport` event through `App.vue` to set `showDailyReport = true`.
+- **Status:** 🛠️ Fixed
+
+#### F-022: Village Main — Text casing differences (uppercase headers lost)
+- **Page:** Village Main Screen
+- **What:** v1 uses `text-transform: uppercase` for many headers (tile names, "DAY 1", "NEXT DAY", "CODEX", "CHRONICLE", panel titles). v2 uses title/sentence case almost everywhere.
+- **Fix:** Applied `text-transform: uppercase` to `TopBar.vue` (day display, next-day button, codex/chronicle buttons), `VillagePage.vue` header title, and all village panel headers (LaborPool, ConstructionQueue, VillageDefense, DailyObjectives, VillageCalendar).
+- **Status:** 🛠️ Fixed
+
+#### F-024: Village Main — Building tile names lost uppercase transform
+- **Page:** Village Main Screen
+- **What:** v1 CSS applies `text-transform: uppercase` to `.village-tile-name`. v2 has no such transform.
+- **Fix:** Added `text-transform: uppercase` to `.tile-name` in `VillageCanvas.vue`.
+- **Status:** 🛠️ Fixed
+
+#### F-025: Village Main — Panel title i18n keys changed from v1 to v2-specific keys
+- **Page:** Village Main Screen
+- **What:** `LaborPool.vue` used `village_uxelm_workers` ("Labor Assignment"), `ConstructionQueue.vue` used `village_uxelm_projects` ("Active Projects"), `VillageDefense.vue` used `village_uxelm_defense` ("Village Defense"). v1 uses `village_uxelm_role` ("Specialization"), `village_uxelm_construction` ("Construction"), `village_uxelm_defender` ("Defenders").
+- **Fix:** Reverted components to use v1 i18n keys. Removed orphaned v2-specific keys from all 5 language files.
+- **Status:** 🛠️ Fixed
+
+### 🟢 Minor (tiny visual discrepancies acceptable for technical migration)
+
+_(None yet)_
 
 ---
 
-## Working Actions
+## Fix Log
 
-Active work items. Format: `WA-XXX: Brief description — approach hint`.
-
-_(Empty — no fixes currently in progress)_
+| Fix ID | Date | Page | Description |
+|--------|------|------|-------------|
+| F-001 | 2026-06-06 | Save Slot Selection | Population binding: added `.total` fallback for object-shaped legacy save data. |
+| F-002 | 2026-06-06 | Save Slot Selection | Language selector: fixed ref unwrapping in template (`:value="currentLanguage"`). |
+| F-003 | 2026-06-06 | Save Slot Selection | Title: reverted to `shared_uxelm_save_slot_title`; applied vanilla heading styling. |
+| F-004 | 2026-06-06 | Save Slot Selection | Empty slot label: added uppercase transform and muted gray color. |
+| F-005 | 2026-06-06 | Save Slot Selection | Grid: changed from `auto-fill` to fixed 2-column layout. |
+| F-006 | 2026-06-06 | Save Slot Selection | Day label: restored uppercase, smaller font-size, and vanilla weight. |
+| F-007 | 2026-06-06 | Save Slot Selection | Delete button: added mobile breakpoint override (`opacity: 1` below 640px). |
+| F-010 | 2026-06-06 | Save Slot Selection | Empty slot colors: swapped accent/muted to match vanilla (EMPTY=gray, Start New Game=purple). |
+| F-011 | 2026-06-06 | Save Slot Selection | Continue text: restored `font-weight: 700` and `font-size: 1.1rem`. |
+| F-012 | 2026-06-06 | New Game Lore Intro | Replaced `IntroDialog.vue` with `PresentationModal.vue` + `pres_prologue` catalog data. |
+| F-013 | 2026-06-06 | New Game Lore Intro | PresentationModal.vue: added skip button, `isReplay` prop/badge, mobile styles, fade animations, image error fallback. |
+| F-014 | 2026-06-06 | New Game Lore Intro | Decoupled PresentationModal.vue from `FullViewOverlay`; restored glassmorphism background, removed title header. |
+| F-015 | 2026-06-06 | i18n | Removed orphaned `intro_uxelm_*` and `shared_uxelm_story` keys from all translation files. |
+| F-016 | 2026-06-06 | Village Main | VillageCalendar: fixed `Day {day}` template leak — now interpolates `dayOfSeason` correctly. |
+| F-017 | 2026-06-06 | Village Main | Storage bar: restored purple/indigo gradient to match v1. |
+| F-018 | 2026-06-06 | Village Main | Building grid: changed from `auto-fill` to fixed `repeat(3, 1fr)` with mobile `repeat(2, 1fr)`. |
+| F-020 | 2026-06-06 | Village Main | Added missing Daily Report Recall button to village header. |
+| F-019 | 2026-06-06 | Village Main | Added missing "VILLAGE" page title header. |
+| F-022 | 2026-06-06 | Village Main | Restored uppercase text transforms for headers matching v1 (DAY, NEXT DAY, CODEX, CHRONICLE, panel titles). |
+| F-024 | 2026-06-06 | Village Main | Building tile names: restored `text-transform: uppercase` CSS. |
+| F-025 | 2026-06-06 | Village Main | Reverted panel titles to v1 i18n keys (Specialization, Construction, Defenders). Removed orphaned v2 keys. |
 
 ---
 
-## Completed Fixes
+## Exceptions
 
-Log of fixes applied during review sessions.
+Features or changes that are **intentionally different** from vanilla. Each must have a justification.
 
-| Fix ID | Date | Description |
-|--------|------|-------------|
-| PF-001 | 2026-06-06 | Added combat auto-advance to Vue game loop (`ux/main.js`). Enemy turns and auto-battle now advance every 500ms, matching legacy behavior. |
-| PF-006 | 2026-06-06 | Added `watch` on `expeditionRegions` to auto-select first region when regions load (`ExploreTab.vue`). |
-| PF-007 | 2026-06-06 | Added `watch` on `viewMode` to persist to `localStorage` when changed (`ExploreTab.vue`). |
-| PF-015 | 2026-06-06 | Fixed `buyResource` in ShopTab to dispatch `shop.buyItem` instead of non-existent `shop.buyResource`. |
-| PF-016 | 2026-06-06 | Shop now gates on `completedExpeditions.includes('exp_tutorial_cave')` instead of being always unlocked. |
+| Exception ID | Page | Description | Justification |
+|--------------|------|-------------|---------------|
+| E-001 | Save Slot Selection | Subtitle paragraph `shared_uxelm_save_slot_subtitle` added below the title. Vanilla only shows hardcoded "RPG Village" as the subtitle line. | User-approved improvement: adds functional context for the player without changing layout or behavior. |
 
 ---
 
 ## Architecture Notes
 
-Observations about the migration architecture that aren't bugs but may inform future work.
+Observations about the migration architecture that are not bugs.
 
-1. **State shape differences**: The Vue composable `useGameState()` exposes `gameState.value.expeditionRegions` as an array (per the composable's `regions` selector). The legacy `ExploreView.getRegions()` treats `state.expeditionRegions` as an **object** (using `Object.entries()`). Verify which shape the engine actually outputs — a mismatch here could cause the entire region list to be empty.
-
-2. **`shallowRef` is correct**: The game state is replaced wholesale on each tick. `shallowRef` avoids deep proxying thousands of nested objects. This matches the architecture doc §6.2.
-
-3. **Missing `eraseBodyCircle` and `useGlyphTablet` in hero adapter**: The Vue adapter has `eraseBodyCircle` and `useGlyphTablet` under `hero` domain (lines 14-15), plus `useGlyphTablet` also under `inventory` domain (line 49). The legacy adapter doesn't seem to have `eraseBodyCircle` wired. This might be intentional (overwrite-only, as noted in legacy adapter line 194), but verify the HeroInscriptionModal doesn't try to dispatch `eraseBodyCircle`.
-
-4. **Tab navigation pass-through**: `TownPage` and `AdventurePage` don't accept props for the initial tab. So deep-linking from other pages (e.g., VillagePage → buildings tab) requires a different mechanism (emitting navigate events up to App.vue, which would need to pass tab info back down). Currently this chain is broken (see PF-008).
+1. **`shallowRef` is correct**: The game state is replaced wholesale on each tick. `shallowRef` avoids deep proxying thousands of nested objects. This matches the architecture doc §6.2.
+2. **State shape differences**: The Vue composable `useGameState()` exposes `gameState.value.expeditionRegions` as an array. The legacy `ExploreView.getRegions()` treats `state.expeditionRegions` as an **object** (using `Object.entries()`). Verify which shape the engine actually outputs.

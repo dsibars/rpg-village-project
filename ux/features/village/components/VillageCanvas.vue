@@ -49,8 +49,14 @@ const tiles = computed(() => {
 <style scoped>
 .village-canvas {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: var(--spacing-sm);
+}
+
+@media (max-width: 575px) {
+  .village-canvas {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 .village-tile {
@@ -86,6 +92,7 @@ const tiles = computed(() => {
   font-size: 0.7rem;
   text-align: center;
   color: var(--text-secondary);
+  text-transform: uppercase;
 }
 
 .tile-level {

@@ -111,7 +111,9 @@ function getUpgradeCost(buildingId, nextLevel) {
     witchs_hut: { 1: { gold: 200, wood: 80, stone: 30, duration: 2 } },
     arcane_sanctum: { 1: { gold: 500, wood: 100, stone: 50, duration: 3 }, 2: { gold: 1500, wood: 200, stone: 100, duration: 5 }, 3: { gold: 3000, wood: 400, stone: 200, duration: 7 }, 4: { gold: 6000, wood: 800, stone: 400, duration: 10 } },
     explorer_guild: { 1: { gold: 300, wood: 200, stone: 100, duration: 4 }, 2: { gold: 800, wood: 400, stone: 200, duration: 7 } },
-    training_grounds: { 1: { gold: 300, wood: 150, stone: 50, duration: 5 } }
+    // NOTE: Costs sourced from docs/village/buildings_data.md. Keep in sync.
+    // Iron costs are not yet modeled in the UI cost structure.
+    training_grounds: { 1: { gold: 300, wood: 0, stone: 150, duration: 5 } }
   }
   return costs[buildingId]?.[nextLevel] || { gold: nextLevel * 100, wood: nextLevel * 50, stone: nextLevel * 25, duration: nextLevel * 2 }
 }

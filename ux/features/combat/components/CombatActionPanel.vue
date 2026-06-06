@@ -21,17 +21,17 @@
         ⚔ {{ t('heroes_info_family_single_strike') }}
       </Button>
       <Button variant="secondary" :disabled="!hasSkills" @click="setMenu('skills')">
-        ✨ {{ t('shared_uxelm_skills') }}
+        🔮 {{ t('shared_uxelm_skills') }}
       </Button>
       <Button variant="secondary" :disabled="!canCastSpells" @click="setMenu('magic')">
-        ὒE {{ t('shared_uxelm_magic') }}
+        ✨ {{ t('shared_uxelm_magic') }}
       </Button>
       <Button variant="secondary" :disabled="battle?.itemUsedThisTurn" @click="setMenu('items')">
-        Ἱ2 {{ t('combat_uxelm_items') }}
+        🎒 {{ t('combat_uxelm_items') }}
         <span v-if="battle?.itemUsedThisTurn" class="hint">({{ t('shared_uxelm_once_per_turn') }})</span>
       </Button>
       <Button variant="secondary" @click="executeDefend">
-        Ὦ1 {{ t('gambit_uxelm_defend') }}
+        🛡️ {{ t('gambit_uxelm_defend') }}
       </Button>
     </div>
 
@@ -72,7 +72,7 @@
           @click="selectAction('targeting', { type: 'skill', id: selectedFamily, name: t('heroes_info_family_' + selectedFamily), tier })"
         >
           <span v-if="tier === heroTier(selectedFamily)" class="tier-highlight">⚡</span>
-          <span v-else-if="tier === 1" class="tier-low">Ὂ7</span>
+          <span v-else-if="tier === 1" class="tier-low">⚪</span>
           Tier {{ tier }}
           <span class="cost">({{ skillCost(selectedFamily, tier).staCost }} STA<span v-if="skillCost(selectedFamily, tier).mpCost"> + {{ skillCost(selectedFamily, tier).mpCost }} MP</span>)</span>
         </Button>
@@ -225,7 +225,7 @@ function canCastSpell(spell) {
 }
 
 function elementIcon(element) {
-  return { fire: 'ὒ5', water: 'Ὂ7', wind: 'ἲA', storm: '⚡', light: '✨', dark: 'ἱ1', earth: 'ᾩ8' }[element] || 'ὒE'
+  return { fire: '🔥', water: '💧', wind: '💨', storm: '⚡', light: '✨', dark: '🌑', earth: '🪨' }[element] || '✨'
 }
 
 function setMenu(state, action = null, family = null) {

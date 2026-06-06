@@ -9,7 +9,12 @@ function mountWithProviders(component, props = {}) {
     global: {
       provide: {
         gameState: shallowRef({}),
-        i18n: { t: (k) => k },
+        i18n: {
+          t: (k, params = {}) => {
+            if (k === 'shared_uxelm_save_slot_day') return `Day ${params.day}`
+            return k
+          }
+        },
         currentLanguage: { value: 'en' }
       }
     }
@@ -33,14 +38,15 @@ describe('SaveSlotPage', () => {
     const slots = [{ index: 0, exists: true, day: 5, lastPlayedAt: '2024-01-01' }]
     const wrapper = mountWithProviders(SaveSlotPage, { slots })
     expect(wrapper.find('.btn-delete').exists()).toBe(true)
-    expect(wrapper.text()).toContain('shared_uxelm_day')
+    expect(wrapper.text()).toContain('Day')
     expect(wrapper.text()).toContain('5')
   })
 
-  it('emits deleteSlot when delete button is clicked', async () => {
+  it('emits deleteSlot when delete button is clicked and confirmed', async () => {
     const slots = [{ index: 0, exists: true, day: 5, lastPlayedAt: '2024-01-01' }]
     const wrapper = mountWithProviders(SaveSlotPage, { slots })
     await wrapper.find('.btn-delete').trigger('click')
+    await wrapper.find('.btn-danger').trigger('click')
     expect(wrapper.emitted('deleteSlot')).toBeTruthy()
     expect(wrapper.emitted('deleteSlot')[0]).toEqual([0])
   })
