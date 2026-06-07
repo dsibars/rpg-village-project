@@ -238,6 +238,7 @@ watch(viewMode, (mode) => {
 
 // Auto-select first region
 watch(() => gameState.value.expeditionRegions, (regs) => {
+  console.log('watch expeditionRegions fired, regions:', Object.keys(regs || {}))
   if (!selectedRegion.value && regs) {
     const entries = getRegions(regs)
     if (entries.length > 0) {
@@ -245,6 +246,8 @@ watch(() => gameState.value.expeditionRegions, (regs) => {
     }
   }
 }, { immediate: true })
+
+
 
 function getRegions(regs) {
   if (!regs) return []
@@ -271,7 +274,11 @@ const maxConcurrent = computed(() => gameState.value.maxConcurrentExpeditions ||
 const isAtMaxExpeditions = computed(() => activeExpeditions.value.length >= maxConcurrent.value)
 
 const allNodes = computed(() => {
-  return selectedRegionData.value?.availableNodes || []
+  const regions = gameState.value.expeditionRegions
+  if (!regions || !selectedRegion.value) return []
+  const regionData = regions[selectedRegion.value]
+  const nodes = regionData?.availableNodes
+  return nodes ? [...nodes] : []
 })
 
 const activeIds = computed(() => {
