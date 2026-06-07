@@ -29,9 +29,6 @@
           />
 
           <div class="editor-actions">
-            <button class="btn-preset" @click="handleSuggestPreset">
-              💡 {{ t('gambit_uxelm_preset_suggest') }}
-            </button>
             <button class="btn-test" @click="showTestSetup = true">
               🧪 {{ t('gambit_uxelm_test_mode') }}
             </button>
@@ -148,10 +145,6 @@ function handleAdd({ conditionRaw, actionRaw, target, tier }) {
   })
 
   emit('action', 'addGambit', { heroId: props.hero.id, gambit: localGambits.value[localGambits.value.length - 1] })
-}
-
-function handleSuggestPreset() {
-  emit('action', 'suggestPreset', { heroId: props.hero.id })
 }
 
 function handleTestStart(enemies) {

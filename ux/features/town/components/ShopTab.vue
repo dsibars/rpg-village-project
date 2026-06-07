@@ -333,7 +333,11 @@ const sellGroups = computed(() => {
   const consumableItems = Object.entries(consumablesObj)
     .filter(([_, count]) => count > 0)
     .map(([id, count]) => {
-      const shopItem = CONSUMABLES_CATALOG.find(c => c.id === id)
+      // Inventory/loot IDs (e.g. 'tiny_hp_potion') differ from shop catalog IDs ('item_tiny_hp_potion')
+      let shopItem = CONSUMABLES_CATALOG.find(c => c.id === id)
+      if (!shopItem && !id.startsWith('item_')) {
+        shopItem = CONSUMABLES_CATALOG.find(c => c.id === `item_${id}`)
+      }
       const basePrice = shopItem ? shopItem.cost : 0
       return {
         id,
@@ -367,7 +371,7 @@ const sellGroups = computed(() => {
   eqGroups.forEach(g => {
     const items = equipment.filter(g.filter).map(eq => ({
       ...eq,
-      type: 'equipment',
+      category: 'equipment',
       sellPrice: engine?.getSellPrice ? engine.getSellPrice(eq) : Math.floor((eq.value || 10) * 0.5)
     }))
     if (items.length > 0) {
