@@ -37,6 +37,12 @@ export function createVueApp({ engine, persistence, saveSlotManager, container }
 
   app.mount(container)
 
+  // Expose engine for screenshot automation and debugging.
+  // This is safe: it's only used by test/audit tooling and does not affect gameplay.
+  if (typeof window !== 'undefined') {
+    window.__ENGINE__ = engine
+  }
+
   // Throttled game loop: update reactive gameState at 10 FPS.
   // Also handles combat auto-advance (enemy turns + auto-battle).
   let lastUpdate = 0

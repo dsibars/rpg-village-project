@@ -133,7 +133,8 @@ export function buildEffectChips(effects, isSupport = false) {
     } else {
       displayValue = Math.round(value * 100)
     }
-    chips.push({ icon: config.icon, labelKey: config.labelKey, value: displayValue })
+    const suffix = key === 'poisonStacks' ? '' : '%'
+    chips.push({ icon: config.icon, labelKey: config.labelKey, value: displayValue, suffix })
   }
   return chips
 }

@@ -58,60 +58,74 @@ npx vite build                              # v1 → dist/index.html
 npx vite build --config vite.v2.config.js   # v2 → dist/index_v2.html
 ```
 
-### Step 2: Run the Screenshot Script
+### Step 2: Run the Screenshot Orchestrator
+
+The new modular orchestrator lives in `scripts/screenshots/` and uses **semantic naming** so v1/v2 pairs sort together.
 
 ```bash
-node scripts/take-screenshots.mjs [v1|v2|both]
+# Full run (all flows, both versions)
+npm run screenshots
+
+# Only v2
+npm run screenshots:v2
+
+# Only specific flows
+node scripts/screenshots/orchestrator.mjs --flows onboarding,village,heroes --version v2
+
+# Dry run (validate without capturing)
+npm run screenshots:dry
 ```
 
-- `v1` — screenshots only the vanilla (reference) version
-- `v2` — screenshots only the migrated (target) version
-- `both` — screenshots both (default)
+Available flows: `onboarding`, `village`, `heroes`, `adventure`, `town`, `combat`, `magic-circle`, `settings`.
 
-### What the Script Does
+### Naming Convention
 
-1. Starts a local static file server on `localhost:8765`
-2. Opens a headless Chromium browser (1600×1300 viewport)
-3. **Clears localStorage** to ensure a clean new-game state
-4. Navigates to the app's save-slot screen
-5. Clicks the first empty slot → starts new game
-6. Waits for the intro dialog (`PresentationModal`) to appear
-7. Takes **001 screenshot** (intro dialog)
-8. Clicks **Skip** to dismiss the intro
-9. Waits for the village main screen
-10. Takes **002 screenshot** (village main screen)
-
-### Output Location
-
-Screenshots are saved to `ux/_migration_screenshots/`:
+Screenshots use `{version}_{flow}_{state}.png` so pairs are alphabetically adjacent:
 
 ```
 ux/_migration_screenshots/
-├── v1_start_new_game_001.png   # v1 intro dialog
-├── v1_start_new_game_002.png   # v1 village screen
-├── v2_start_new_game_001.png   # v2 intro dialog
-└── v2_start_new_game_002.png   # v2 village screen
+├── v1_onboarding_save_slot_empty.png
+├── v2_onboarding_save_slot_empty.png
+├── v1_onboarding_village_fresh.png
+├── v2_onboarding_village_fresh.png
+├── v1_village_main.png
+├── v2_village_main.png
+└── ...
 ```
 
-### Extending the Script for New Flows
+### Architecture
 
-The script (`scripts/take-screenshots.mjs`) uses **CSS selectors** to find and interact with UI elements. To add a new flow (e.g., Heroes page, Shop page):
+The orchestrator (`scripts/screenshots/orchestrator.mjs`) uses a **state-injection hybrid**:
 
-1. Add a new `async function` that navigates to the desired page
-2. Use Playwright selectors (`page.$`, `page.click`, `page.waitForSelector`) to interact
-3. Call `page.screenshot({ path: '...' })` at the right moment
-4. Add the new screenshot filenames to the naming convention table above
+1. Starts a static file server on `localhost:8765`.
+2. Opens a headless Chromium browser at 1600×1300.
+3. Navigates to a fresh app instance for each flow.
+4. Injects game state via `page.evaluate()` using:
+   - v1: `window.engine`
+   - v2: `window.__ENGINE__` (exposed in `ux/main.js`)
+5. Navigates to target UI states via CSS selectors.
+6. Captures screenshots with semantic filenames.
 
-Key selectors for v1 vs v2:
+This is faster and more reliable than click-through UI automation.
 
-| Element | v1 Selector | v2 Selector |
-|---------|-------------|-------------|
-| Save slot screen | `.save-slots-screen` | `.save-slot-page` |
-| Empty slot | `.save-slot-card.empty` | `.slot-card.empty` |
-| Intro overlay | `.presentation-overlay` | `.presentation-overlay` |
-| Skip button | `.presentation-skip` | `.presentation-skip` |
-| Next button | `.presentation-next` | `.presentation-next` |
-| Village page | `.village-dashboard-grid` | `.village-page` |
+### Extending the Orchestrator
+
+1. Add a registry entry in `scripts/screenshots/registry.mjs`:
+   ```js
+   { flow: 'heroes', state: 'heroes_modal_gambits', description: 'Hero gambits modal open' }
+   ```
+2. Add selectors to `scripts/screenshots/selectors/v1.mjs` and `scripts/screenshots/selectors/v2.mjs`.
+3. Implement the capture logic in the matching flow module (e.g. `scripts/screenshots/flows/03-heroes.mjs`).
+4. Run the flow to verify:
+   ```bash
+   node scripts/screenshots/orchestrator.mjs --flows heroes --version v2
+   ```
+
+See `scripts/screenshots/README.md` for full developer documentation.
+
+### Legacy Script
+
+The previous sequential script is still available at `scripts/take-screenshots.mjs` for backward compatibility, but new work should use the orchestrator.
 
 ---
 
@@ -135,6 +149,7 @@ Key selectors for v1 vs v2:
 | Heroes Detail | `v1_start_new_game_004_heroes_detail.png` | `v2_start_new_game_004_heroes_detail.png` | 🛠️ Fixed | F-031 fixed: stat descriptions, experience format ("0 / 20"), square avatar with border, and skill helper text all restored. Action buttons functional; minor wrapping order difference accepted. |
 | Explore Detail | `v1_start_new_game_006_explore_detail.png` | `v2_start_new_game_006_explore_detail.png` | 🛠️ Fixed | F-032 fixed: Base Reward, COMBAT INTEL, checkbox hero selection, and "ASSIGN HEROES" button all present. F-039 fixed (expedition badge). Modal vs inline is an accepted structural difference. |
 | Buildings Detail | `v1_start_new_game_011_buildings_detail.png` | `v2_start_new_game_011_buildings_detail.png` | 🛠️ Fixed | F-033 fixed: building emoji icon, BUILDING EFFECTS arrows, cost grid, and "CONFIRM" button all present. Town Hall correctly excluded. v2 list shows all hardcoded buildings (v1 reads from infrastructure object) — known structural difference. |
+| Magic Circle Simulator | `v1_magic_circle_002_simulator.png` | `v2_magic_circle_002_simulator.png` | 🛠️ Fixed | F-041 through F-057 fixed: empty slot icons, hexagon core, tier symbols, connection colors, effect chips, already-used indicator, remove button text, simulator inscribe text, no-harm/none chips, drawer title, polarity icon, element display, drawer positioning, tier dial symbols, power stat, and background theme. FullViewOverlay header is an acceptable structural difference. |
 | _(next page TBD)_ | — | — | ⏳ Pending | — |
 
 > **Legend:** ⏳ Pending → 🔍 In Review → ✅ Verified → ❌ Issues Found → 🛠️ Fixed → ✅ Re-verified
@@ -382,6 +397,108 @@ Issues detected from screenshot comparison. Format: `F-XXX: Brief description �
 - **What:** v1 list header "YOUR HEROES" is uppercase via CSS. v2 shows "Your Heroes" in title case. v1 hero card shows "Level 1" as a purple badge; v2 shows "Lv1" as plain text. v2 adds a green "+5" stat-points badge not present in v1. v1 shows only an activity emoji (💤); v2 shows a full "Idle" badge.
 - **Status:** 🔍 In Review
 
+#### F-041: Magic Circle — Empty slot icons missing
+- **Page:** Magic Circle
+- **What:** v1 empty core slot shows `⚡` and empty ring slots show `＋`. v2 empty slots showed nothing.
+- **Fix:** Updated `MandalaGrid.vue` template to render `⚡` for empty core and `＋` for empty ring slots.
+- **Status:** 🛠️ Fixed
+
+#### F-042: Magic Circle — Core slot is circular instead of hexagonal
+- **Page:** Magic Circle
+- **What:** v1 core slot uses `clip-path: polygon(...)` for a hexagonal shape. v2 core slot was a plain circle.
+- **Fix:** Added hexagonal `clip-path` and `::before` inner background to `.mandala-slot.core-slot` in `MandalaGrid.vue` scoped CSS.
+- **Status:** 🛠️ Fixed
+
+#### F-043: Magic Circle — Mandala slot tier symbols always show `+`
+- **Page:** Magic Circle
+- **What:** v1 slot tier badges show actual glyph tier symbols (`+`, `++`, `+++`, `✦`, etc.) via `engine.getGlyphSymbol()`. v2 hardcoded `'+'`.
+- **Fix:** Updated `getSlotTier()` in `MandalaGrid.vue` to call `engine.getGlyphSymbol(tier)` and pass `selectedTiers` / `glyphMastery` props.
+- **Status:** 🛠️ Fixed
+
+#### F-044: Magic Circle — Connection lines missing element color theming
+- **Page:** Magic Circle
+- **What:** v1 SVG connection lines use `getElementColor(spell.element)`. v2 used fixed indigo `rgba(99, 102, 241, 0.4)`.
+- **Fix:** Passed `spellElement` prop to `MandalaGrid.vue` and used `getElementColor()` for line stroke.
+- **Status:** 🛠️ Fixed
+
+#### F-045: Magic Circle — Effect chips missing `%` suffix
+- **Page:** Magic Circle
+- **What:** v1 effect chips append `%` for percentage values (e.g., "Pierce 15%"). v2 showed raw numbers (e.g., "Pierce 15").
+- **Fix:** Updated `buildEffectChips()` in `useMagicCircle.js` to include `suffix` property (`'%'` for most, `''` for poison stacks).
+- **Status:** 🛠️ Fixed
+
+#### F-046: Magic Circle — Missing "already-used" indicator on palette cards
+- **Page:** Magic Circle
+- **What:** v1 palette cards show a green checkmark (`already-used` class) when a glyph is placed in another slot. v2 had no such indication.
+- **Fix:** Added `isPlacedElsewhere()` computed logic and `already-used` CSS class to `mc-palette-card` in `GlyphPalette.vue`.
+- **Status:** 🛠️ Fixed
+
+#### F-047: Magic Circle — Remove button uses wrong translation key
+- **Page:** Magic Circle
+- **What:** v1 remove button text is `magic_circle_uxelm_slot_remove_prompt` ("Click again to remove."). v2 used `shared_uxelm_remove`.
+- **Fix:** Changed button text in `GlyphPalette.vue` to `magic_circle_uxelm_slot_remove_prompt`.
+- **Status:** 🛠️ Fixed
+
+#### F-048: Magic Circle — Inscribe button in simulator doesn't show disabled text
+- **Page:** Magic Circle
+- **What:** v1 simulator mode shows `magic_circle_uxelm_inscribe_disabled` ("Inscribe (Simulator)"). v2 showed normal `magic_circle_uxelm_inscribe` text while disabled.
+- **Fix:** Passed `isSimulator` prop to `McActionPanel.vue` and added conditional button text.
+- **Status:** 🛠️ Fixed
+
+#### F-049: Magic Circle — Missing "no-harm" chip for support spells
+- **Page:** Magic Circle
+- **What:** v1 shows a green `💚 magic_circle_info_effect_no_harm` chip when a support spell has no effect chips. v2 showed nothing.
+- **Fix:** Added support spell "no-harm" chip fallback in `McActionPanel.vue`.
+- **Status:** 🛠️ Fixed
+
+#### F-050: Magic Circle — Missing "none" chip when no effects
+- **Page:** Magic Circle
+- **What:** v1 shows `magic_circle_info_effect_none` chip when spell has no effects or no spell is composed. v2 showed empty chips container.
+- **Fix:** Added "none" chip fallback for both `spell === null` and `spell.effects` empty cases in `McActionPanel.vue`.
+- **Status:** 🛠️ Fixed
+
+#### F-051: Magic Circle — Drawer title for core slot uses wrong key
+- **Page:** Magic Circle
+- **What:** v1 uses `magic_circle_uxelm_drawer_title_core` ("CORE (Center) Configuration") for core slot. v2 used `magic_circle_uxelm_slot_title` with slot number.
+- **Fix:** Updated `drawerTitle` computed in `GlyphPalette.vue` to use the core-specific key when `focusedSlotIndex === 0`.
+- **Status:** 🛠️ Fixed
+
+#### F-052: Magic Circle — Polarity icon missing emoji variation selector
+- **Page:** Magic Circle
+- **What:** v1 uses `⚔️` (with emoji variation selector). v2 used `⚔` (text-style).
+- **Fix:** Changed polarity icon in `MagicCircleEditor.vue` from `⚔` to `⚔️`.
+- **Status:** 🛠️ Fixed
+
+#### F-053: Magic Circle — Element display uses dot instead of emoji
+- **Page:** Magic Circle
+- **What:** v1 bottom panel shows emoji + text (e.g., "🔥 Fire"). v2 showed a colored dot + text.
+- **Fix:** Replaced dot-based element display with emoji-based display in `McActionPanel.vue`.
+- **Status:** 🛠️ Fixed
+
+#### F-054: Magic Circle — Drawer completely off-screen / broken positioning
+- **Page:** Magic Circle
+- **What:** v2 drawer was positioned with `position: absolute` but parent `.magic-circle-editor` had no `position: relative`, causing the drawer to render off-screen or in the wrong location. The drawer also lacked `transform: translateX(100%)` / `translateX(0)` slide animation.
+- **Fix:** Added `position: relative` to `.magic-circle-editor`, restored v1 drawer CSS (absolute positioning, `transform` slide animation, 360px width, dark background), and moved drawer into the grid area.
+- **Status:** 🛠️ Fixed
+
+#### F-055: Magic Circle — Tier dial shows numbers instead of glyph symbols
+- **Page:** Magic Circle
+- **What:** v1 tier dial ticks show glyph symbols (`+`, `++`, `+++`, `✦`, etc.) via `engine.getGlyphSymbol()`. v2 showed raw tier numbers (`1`, `2`, `3`, etc.).
+- **Fix:** Updated tier tick rendering in `GlyphPalette.vue` to call `engine.getGlyphSymbol(t)`.
+- **Status:** 🛠️ Fixed
+
+#### F-056: Magic Circle — Missing power stat in top margin
+- **Page:** Magic Circle
+- **What:** v2 top margin only showed "0 MP" and budget bar; "0 DMG" / "40 DMG" power stat was missing or invisible due to CSS layout differences (`flex-direction: column` vs v1's horizontal row).
+- **Fix:** Changed `.mc-top-right` from `flex-direction: column` to horizontal `align-items: center; gap: 20px` to match v1 layout.
+- **Status:** 🛠️ Fixed
+
+#### F-057: Magic Circle — Background theme completely different
+- **Page:** Magic Circle
+- **What:** v1 uses a dark radial gradient background (`#0f0f18` → `#050508`) with red side gradient. v2 used the generic `FullViewOverlay` body background (lighter bluish-gray).
+- **Fix:** Applied v1 background styles directly to `.magic-circle-editor` in `MagicCircleEditor.vue` scoped CSS.
+- **Status:** 🛠️ Fixed
+
 ### 🟢 Minor (tiny visual discrepancies acceptable for technical migration)
 
 _(None yet)_
@@ -439,6 +556,23 @@ _(None yet)_
 | F-037 | 2026-06-06 | Settings | Fixed developer options description: changed `settings_uxelm_dev_desc` to `settings_uxelm_dev_cheat_desc` in `SettingsPage.vue`. |
 | F-038 | 2026-06-06 | Settings | Fixed save slot card title: changed `settings_uxelm_choose_slot` to `shared_uxelm_save_slot_title` in `SettingsPage.vue`. |
 | F-039 | 2026-06-06 | Explore Detail | Fixed expedition badge: changed from `detailMode` ("available"/"active") to `isStory ? explore_uxelm_story : explore_uxelm_exploration` in `ExploreTab.vue`. |
+| F-041 | 2026-06-06 | Magic Circle | Fixed empty slot icons: core shows `⚡`, rings show `＋` in `MandalaGrid.vue`. |
+| F-042 | 2026-06-06 | Magic Circle | Fixed core slot hexagon shape: added `clip-path` polygon and `::before` inner background in `MandalaGrid.vue`. |
+| F-043 | 2026-06-06 | Magic Circle | Fixed slot tier symbols: now uses `engine.getGlyphSymbol(tier)` instead of hardcoded `'+'` in `MandalaGrid.vue`. |
+| F-044 | 2026-06-06 | Magic Circle | Fixed connection line colors: now uses `getElementColor(spellElement)` instead of fixed indigo in `MandalaGrid.vue`. |
+| F-045 | 2026-06-06 | Magic Circle | Fixed effect chips `%` suffix: added `suffix` property to `buildEffectChips()` in `useMagicCircle.js`. |
+| F-046 | 2026-06-06 | Magic Circle | Fixed "already-used" palette indicator: added `isPlacedElsewhere()` check and CSS class in `GlyphPalette.vue`. |
+| F-047 | 2026-06-06 | Magic Circle | Fixed remove button text: changed from `shared_uxelm_remove` to `magic_circle_uxelm_slot_remove_prompt` in `GlyphPalette.vue`. |
+| F-048 | 2026-06-06 | Magic Circle | Fixed simulator inscribe button text: added `isSimulator` prop and conditional text in `McActionPanel.vue`. |
+| F-049 | 2026-06-06 | Magic Circle | Fixed missing "no-harm" chip for support spells in `McActionPanel.vue`. |
+| F-050 | 2026-06-06 | Magic Circle | Fixed missing "none" effect chip when no spell/effects in `McActionPanel.vue`. |
+| F-051 | 2026-06-06 | Magic Circle | Fixed core drawer title: now uses `magic_circle_uxelm_drawer_title_core` in `GlyphPalette.vue`. |
+| F-052 | 2026-06-06 | Magic Circle | Fixed polarity icon: changed `⚔` to `⚔️` in `MagicCircleEditor.vue`. |
+| F-053 | 2026-06-06 | Magic Circle | Fixed element display: replaced colored dot with emoji + text in `McActionPanel.vue`. |
+| F-054 | 2026-06-06 | Magic Circle | Fixed drawer positioning: added `position: relative` to parent, restored slide animation and v1 drawer dimensions in `MagicCircleEditor.vue`. |
+| F-055 | 2026-06-06 | Magic Circle | Fixed tier dial symbols: now uses `engine.getGlyphSymbol(t)` instead of raw numbers in `GlyphPalette.vue`. |
+| F-056 | 2026-06-06 | Magic Circle | Fixed missing power stat: restored horizontal `.mc-top-right` layout in `MagicCircleEditor.vue`. |
+| F-057 | 2026-06-06 | Magic Circle | Fixed background theme: applied v1 radial gradient background to `.magic-circle-editor` in `MagicCircleEditor.vue`. |
 
 ---
 

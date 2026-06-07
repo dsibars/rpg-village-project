@@ -312,8 +312,24 @@ function runPostDaySequence(report) {
   pendingReport.value = report
 
   // Step 1: Expedition result modal
-  if (report?.expedition && report.expedition.status !== 'battle_started') {
-    expeditionResultReport.value = report.expedition
+  let expData = report?.expedition
+  // If the stale report says battle_started, check if combat actually resolved the expedition
+  if (expData?.status === 'battle_started') {
+    const es = props.engine?.expeditionService
+    const completedIds = es?.state?.completedIds || []
+    if (expData.expId && completedIds.includes(expData.expId)) {
+      const exp = es?.getExpeditions?.()?.find(e => e.id === expData.expId)
+      expData = {
+        status: 'completed',
+        expId: expData.expId,
+        expName: expData.expName || exp?.name || expData.expId,
+        rewards: exp?.reward,
+        combatLog: { isVictory: true }
+      }
+    }
+  }
+  if (expData && expData.status !== 'battle_started') {
+    expeditionResultReport.value = expData
     showExpeditionResult.value = true
     return
   }

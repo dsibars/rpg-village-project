@@ -49,7 +49,7 @@
       <!-- Left Margin -->
       <div class="mc-left-margin mc-margin-bar">
         <div class="mc-polarity-indicator">
-          <span class="mc-polarity-icon">{{ isSupport ? '💚' : '⚔' }}</span>
+          <span class="mc-polarity-icon">{{ isSupport ? '💚' : '⚔️' }}</span>
           <span class="mc-polarity-text">
             {{ isSupport ? t('magic_circle_info_polarity_ally') : t('magic_circle_info_polarity_foe') }}
           </span>
@@ -67,19 +67,21 @@
       </div>
 
       <!-- Center: Mandala -->
-      <div class="mc-center-container">
+      <div class="mc-center-container" :class="{ 'drawer-open': focusedSlotIndex !== null }">
         <MandalaGrid
           :max-slots="maxSlots"
           :focused-slot-index="focusedSlotIndex"
           :composition="composition"
+          :spell-element="spell?.element || null"
+          :selected-tiers="selectedTiers"
+          :glyph-mastery="glyphMastery"
           @focus="toggleFocus"
         />
       </div>
 
       <!-- Drawer: Glyph Palette -->
       <div
-        v-if="focusedSlotIndex !== null"
-        class="mc-focused-drawer"
+        :class="['mc-focused-drawer', { open: focusedSlotIndex !== null }]"
       >
         <GlyphPalette
           :focused-slot-index="focusedSlotIndex"
@@ -97,6 +99,8 @@
       <McActionPanel
         :spell="spell"
         :effect-chips="effectChips"
+        :is-support="isSupport"
+        :is-simulator="isSimulator"
         v-model:custom-name="customName"
         :can-inscribe="canInscribe"
         @inscribe="handleInscribe"
@@ -187,7 +191,6 @@ function handleInscribe() {
   }
 
   if (props.isSimulator) {
-    // In simulator mode, just close without inscribing
     onClose()
     return
   }
@@ -205,16 +208,26 @@ function onClose() {
 <style scoped>
 .magic-circle-editor {
   display: grid;
-  grid-template-columns: 60px 1fr 60px;
-  grid-template-rows: auto 1fr auto;
+  grid-template-columns: 80px 1fr 80px;
+  grid-template-rows: 60px 1fr 80px;
   grid-template-areas:
     "top    top    top"
     "left   center right"
     "bottom bottom bottom";
-  gap: var(--spacing-md);
-  padding: var(--spacing-lg);
+  gap: 0;
   height: 100%;
   box-sizing: border-box;
+  position: relative;
+  background: radial-gradient(circle at center, #0f0f18 0%, #050508 100%),
+              linear-gradient(90deg, rgba(239, 68, 68, 0.05) 0%, transparent 40%);
+  background-blend-mode: screen;
+  color: #e2e8f0;
+  overflow: hidden;
+}
+
+.magic-circle-editor.mode-support {
+  background: radial-gradient(circle at center, #0a0e14 0%, #040609 100%),
+              linear-gradient(90deg, rgba(16, 185, 129, 0.06) 0%, transparent 40%);
 }
 
 /* Element theme classes */
@@ -227,10 +240,10 @@ function onClose() {
 .magic-circle-editor.el-active-earth { --el-color: #84cc16; }
 
 .mc-margin-bar {
-  background: var(--bg-card);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-sm) var(--spacing-md);
+  background: rgba(10, 10, 15, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .mc-top-margin {
@@ -238,19 +251,24 @@ function onClose() {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 0 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  z-index: 10;
 }
 
 .mc-top-left {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
+  align-items: center;
+  gap: 12px;
 }
 
 .mc-title {
   margin: 0;
   font-family: var(--font-heading);
-  font-size: 1.25rem;
-  color: var(--text-primary);
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #ffffff;
 }
 
 .mc-title-icon {
@@ -258,46 +276,50 @@ function onClose() {
 }
 
 .mc-hero-badge {
-  font-size: 0.8rem;
-  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #cbd5e1;
 }
 
 .mc-top-right {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 4px;
+  align-items: center;
+  gap: 20px;
 }
 
 .mc-power-stat {
-  font-size: 0.9rem;
-  color: var(--color-primary-light);
+  font-size: 0.95rem;
   font-weight: 600;
+  color: #ffffff;
 }
 
 .mc-power-stat.val-heal {
-  color: #22c55e;
+  color: #34d399;
 }
 
 .mc-mp-cost {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #60a5fa;
 }
 
 .mc-budget-container {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  gap: 2px;
-  min-width: 140px;
+  width: 140px;
+  gap: 4px;
 }
 
 .mc-budget-track {
-  width: 100%;
   height: 6px;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
   border-radius: 3px;
   overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .mc-budget-fill {
@@ -307,8 +329,11 @@ function onClose() {
 }
 
 .mc-budget-label {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
+  text-transform: uppercase;
   font-weight: 600;
+  letter-spacing: 0.05em;
+  text-align: right;
 }
 
 .mc-left-margin {
@@ -316,24 +341,35 @@ function onClose() {
   display: flex;
   align-items: center;
   justify-content: center;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  z-index: 10;
 }
 
 .mc-polarity-indicator {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 4px;
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
+  gap: 16px;
+  writing-mode: vertical-lr;
+  transform: rotate(180deg);
+  font-weight: 800;
+  font-size: 1.25rem;
+  letter-spacing: 0.25em;
+  transition: color 0.3s ease;
+  color: #ef4444;
+}
+
+.magic-circle-editor.mode-support .mc-polarity-indicator {
+  color: #10b981;
 }
 
 .mc-polarity-icon {
-  font-size: 1.2rem;
+  transform: rotate(90deg);
+  font-size: 1.4rem;
 }
 
 .mc-polarity-text {
-  font-size: 0.75rem;
-  color: var(--text-muted);
+  font-size: 0.85rem;
 }
 
 .mc-right-margin {
@@ -341,28 +377,33 @@ function onClose() {
   display: flex;
   align-items: center;
   justify-content: center;
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  z-index: 10;
 }
 
 .mc-count-indicator {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 4px;
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
+  gap: 16px;
+  writing-mode: vertical-lr;
+  font-weight: 800;
+  font-size: 1.25rem;
+  letter-spacing: 0.25em;
+  color: #94a3b8;
+  transition: color 0.3s ease;
 }
 
 .mc-count-indicator.all-active {
-  color: var(--color-primary-light);
+  color: #ffffff;
 }
 
 .mc-count-icon {
-  font-size: 1.2rem;
+  font-size: 1.4rem;
 }
 
 .mc-count-text {
-  font-size: 0.75rem;
-  color: var(--text-muted);
+  font-size: 0.85rem;
 }
 
 .mc-center-container {
@@ -371,15 +412,34 @@ function onClose() {
   align-items: center;
   justify-content: center;
   position: relative;
+  overflow: hidden;
+  transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mc-center-container.drawer-open {
+  right: 360px;
 }
 
 .mc-focused-drawer {
   position: absolute;
-  right: var(--spacing-lg);
-  top: 80px;
+  top: 60px;
+  right: 0;
   bottom: 80px;
-  z-index: 10;
-  max-width: 320px;
+  width: 360px;
+  background: rgba(7, 7, 10, 0.96);
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  z-index: 15;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+}
+
+.mc-focused-drawer.open {
+  transform: translateX(0);
 }
 
 @media (max-width: 768px) {
@@ -395,9 +455,17 @@ function onClose() {
   }
 
   .mc-focused-drawer {
-    position: static;
-    max-width: 100%;
-    margin-top: var(--spacing-md);
+    width: 100%;
+    top: auto;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 60vh;
+    transform: translateY(100%);
+  }
+
+  .mc-focused-drawer.open {
+    transform: translateY(0);
   }
 
   .mc-left-margin,
@@ -406,5 +474,10 @@ function onClose() {
     writing-mode: horizontal-tb;
   }
 
+  .mc-polarity-indicator,
+  .mc-count-indicator {
+    writing-mode: horizontal-tb;
+    transform: none;
+  }
 }
 </style>
