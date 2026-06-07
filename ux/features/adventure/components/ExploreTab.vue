@@ -1,142 +1,186 @@
 <template>
   <div class="explore-tab">
-    <!-- View Toggle -->
-    <div class="view-toggle">
-      <Button
-        variant="ghost"
-        size="sm"
-        :class="{ active: viewMode === 'tree' }"
-        @click="viewMode = 'tree'"
-      >
-        🌳 {{ t('explore_uxelm_tree_view') }}
-      </Button>
-      <Button
-        variant="ghost"
-        size="sm"
-        :class="{ active: viewMode === 'list' }"
-        @click="viewMode = 'list'"
-      >
-        📋 {{ t('explore_uxelm_list_view') }}
-      </Button>
-    </div>
-
-    <!-- Status Banner (PF-014) -->
-    <div class="status-banner">
-      <span class="status-label">{{ t('explore_uxelm_active_expeditions') }}:</span>
-      <span class="status-value" :class="{ warning: isAtMaxExpeditions }">
-        {{ activeExpeditions.length }} / {{ maxConcurrent }}
-      </span>
-    </div>
-
-    <!-- Region List -->
-    <div class="region-list">
-      <button
-        v-for="region in regions"
-        :key="region.id"
-        class="region-btn"
-        :class="{ active: selectedRegion === region.id }"
-        @click="selectedRegion = region.id"
-      >
-        {{ t('explore_info_' + region.id) }}
-        <span class="region-count">{{ region.clearCount }}/{{ region.totalCount }}</span>
-      </button>
-    </div>
-
-    <!-- Expedition List -->
-    <div v-if="viewMode === 'list'" class="expedition-list">
+    <!-- Explore Header: View Toggle + Status -->
+    <div class="explore-header">
+      <div class="view-toggle">
+        <button
+          class="view-btn"
+          :class="{ active: viewMode === 'list' }"
+          title="List View"
+          @click="viewMode = 'list'"
+        >☰</button>
+        <button
+          class="view-btn"
+          :class="{ active: viewMode === 'tree' }"
+          title="Tree View"
+          @click="viewMode = 'tree'"
+        >🌲</button>
+      </div>
       <div
-        v-for="exp in filteredExpeditions"
-        :key="exp.id"
-        class="expedition-card"
-        :class="{ active: selectedExp?.id === exp.id }"
-        @click="selectExpedition(exp)"
+        id="explore-status-banner"
+        :class="['status-banner', { none: activeExpeditions.length === 0 }]"
       >
-        <div class="card-header">
-          <span class="exp-name">{{ exp.name }}</span>
-          <span class="exp-badge">{{ exp.stages?.length || 0 }} {{ t('explore_uxelm_stages') }} • Lv. {{ maxEnemyLevel(exp) }}</span>
-        </div>
+        {{ t('explore_uxelm_active_expeditions') }}: {{ activeExpeditions.length }} / {{ maxConcurrent }}
       </div>
     </div>
 
-    <!-- Expedition Tree (simplified) -->
-    <div v-else class="expedition-tree">
-      <div
-        v-for="exp in filteredExpeditions"
-        :key="exp.id"
-        class="tree-node"
-        :class="exp.status || 'available'"
-        @click="selectExpedition(exp)"
-      >
-        <span class="node-icon">{{ nodeIcon(exp) }}</span>
-        <span class="node-name">{{ exp.name }}</span>
-      </div>
-    </div>
-
-    <!-- Detail Pane -->
-    <div v-if="selectedExp" class="detail-pane">
-      <div class="detail-header">
-        <h3>{{ selectedExp.name }}</h3>
-        <span class="detail-badge">{{ selectedExp?.isStory ? t('explore_uxelm_story') : t('explore_uxelm_exploration') }}</span>
-      </div>
-
-      <div class="detail-stats">
-        <p>{{ selectedExp.stages?.length || 0 }} {{ t('explore_uxelm_stages') }}</p>
-        <p>{{ t('explore_uxelm_base_reward') }}: {{ selectedExp.reward?.gold || 0 }} {{ t('village_info_gold') }}</p>
-        <p>{{ t('explore_uxelm_recommended_level') }}: {{ maxEnemyLevel(selectedExp) }}</p>
-      </div>
-
-      <!-- Combat Intel -->
-      <div v-if="enemyTags.length" class="combat-intel">
-        <h4>{{ t('explore_uxelm_intel_enemies') }}</h4>
-        <div class="enemy-tags">
-          <span v-for="tag in enemyTags" :key="tag" class="enemy-tag">{{ tag }}</span>
+    <!-- Master-Detail Layout -->
+    <div class="master-detail-layout">
+      <!-- Master Pane: World Map / Regions -->
+      <aside class="master-pane card">
+        <div class="pane-header">
+          <h3>{{ t('explore_uxelm_world_map') }}</h3>
         </div>
-      </div>
-
-      <!-- Hero Selector (for available expeditions) -->
-      <div v-if="detailMode === 'available'" class="hero-selector">
-        <h4>{{ t('explore_uxelm_select_heroes') }}</h4>
-        <div class="hero-list">
-          <label
-            v-for="hero in availableHeroes"
-            :key="hero.id"
-            class="hero-row"
-            :class="{ selected: selectedHeroIds.includes(hero.id) }"
+        <div class="region-list-container">
+          <div
+            v-for="[regionId, regionData] in regionEntries"
+            :key="regionId"
+            class="region-list-item"
+            :class="{ selected: selectedRegion === regionId }"
+            @click="selectRegion(regionId)"
           >
-            <input
-              type="checkbox"
-              :checked="selectedHeroIds.includes(hero.id)"
-              @change="toggleHero(hero.id)"
-            >
-            <div class="hero-row-info">
-              <span class="hero-row-name">{{ hero.name }} ({{ t('shared_uxelm_level') }} {{ hero.level }})</span>
-              <span class="hero-row-hp">HP: {{ hero.hp ?? 0 }}/{{ hero.baseMaxHp ?? hero.maxHp ?? '?' }}</span>
+            <div class="region-list-name">{{ t('explore_info_' + regionId) }}</div>
+            <div class="region-list-meta">
+              {{ regionData.clears || 0 }} {{ t('explore_uxelm_clears') }} — {{ availableCount(regionData) }} {{ pathWord(regionData) }}
+              <span v-if="activeCount(regionData) > 0">
+                • {{ activeCount(regionData) }} {{ t('explore_uxelm_active') }}
+              </span>
             </div>
-          </label>
+          </div>
         </div>
-        <Button
-          variant="primary"
-          size="sm"
-          :disabled="selectedHeroIds.length === 0 || isAtMaxExpeditions"
-          @click="startExpedition"
-        >
-          {{ t('explore_uxelm_assign_heroes') }}
-        </Button>
-        <p v-if="isAtMaxExpeditions" class="warning">{{ t('explore_uxelm_max_concurrent') }}</p>
-      </div>
+      </aside>
 
-      <!-- Active Expedition Dashboard -->
-      <div v-else-if="detailMode === 'active'" class="active-dashboard">
-        <div class="progress-bar-container">
-          <div class="progress-bar" :style="{ width: `${activeProgress}%` }" />
+      <!-- Detail Pane: Tree or List -->
+      <main class="detail-pane card glass-pane">
+        <!-- Empty state when no region selected -->
+        <div v-if="!selectedRegion" class="empty-detail">
+          <div class="detail-icon-bg">🗺️</div>
+          <p>{{ t('explore_uxelm_select_region') }}</p>
         </div>
-        <p>{{ activeExpedition?.currentStage || 0 }} / {{ selectedExp.stages?.length || 0 }} {{ t('explore_uxelm_stages') }}</p>
-        <p>{{ t('explore_uxelm_assigned_heroes') }}: {{ assignedHeroNames.join(', ') }}</p>
-        <Button variant="secondary" size="sm" @click="retireExpedition">
-          {{ t('explore_uxelm_unassign_retire') }}
-        </Button>
-      </div>
+
+        <!-- Tree View -->
+        <div v-else-if="viewMode === 'tree'" class="expedition-tree-root expedition-tree">
+          <!-- Region title bar -->
+          <div class="tree-region-title-bar">
+            <span class="tree-region-title-name">{{ t('explore_info_' + selectedRegion) }}</span>
+            <span class="tree-region-title-meta">
+              {{ (selectedRegionData?.clears || 0) }} {{ t('explore_uxelm_clears') }}
+            </span>
+          </div>
+
+          <!-- Tree scroll container -->
+          <div ref="treeScrollContainer" class="tree-scroll-container">
+            <div class="tree-wrapper">
+              <div
+                v-for="(levelNodes, levelIndex) in treeLevels"
+                :key="levelIndex"
+                class="tree-level-row"
+              >
+                <div
+                  v-for="node in levelNodes"
+                  :key="node.id"
+                  :data-id="node.id"
+                  class="tree-node"
+                  :class="[nodeStateClass(node), { selected: selectedExp?.id === node.id }]"
+                  :title="nodeTooltip(node)"
+                  @click="handleNodeClick(node)"
+                >
+                  {{ nodeIconChar(node) }}
+                </div>
+              </div>
+            </div>
+            <!-- SVG overlay for connectors -->
+            <svg
+              ref="svgOverlay"
+              class="tree-svg-overlay"
+              :width="svgSize.width"
+              :height="svgSize.height"
+              :style="{ width: svgSize.width + 'px', height: svgSize.height + 'px' }"
+            >
+              <line
+                v-for="(conn, i) in connectors"
+                :key="i"
+                :x1="conn.x1"
+                :y1="conn.y1"
+                :x2="conn.x2"
+                :y2="conn.y2"
+                :class="conn.class"
+                stroke="rgba(255,255,255,0.12)"
+                stroke-width="1.5"
+              />
+            </svg>
+          </div>
+        </div>
+
+        <!-- List View -->
+        <div v-else class="expedition-list-view expedition-list">
+          <div
+            v-for="exp in listExpeditions"
+            :key="exp.id"
+            class="expedition-card"
+            :class="{ active: selectedExp?.id === exp.id }"
+            @click="selectExpedition(exp)"
+          >
+            <div class="card-header">
+              <span class="exp-name">{{ exp.name }}</span>
+              <span class="exp-badge">{{ exp.stages?.length || 0 }} {{ t('explore_uxelm_stages') }}</span>
+            </div>
+          </div>
+
+          <!-- Inline detail pane for list view -->
+          <div v-if="selectedExp && viewMode === 'list'" class="detail-pane-inline">
+            <ExpeditionDetailInline
+              :expedition="selectedExp"
+              :mode="detailMode"
+              @start="startExpedition"
+              @recall="retireExpedition"
+            />
+          </div>
+        </div>
+      </main>
     </div>
+
+    <!-- Expedition Detail Modal (for tree view clicks) -->
+    <ModalFrame
+      v-if="showDetailModal"
+      :title="selectedExp?.name || ''"
+      @close="showDetailModal = false"
+    >
+      <ExpeditionDetailInline
+        :expedition="selectedExp"
+        :mode="detailMode"
+        @start="startExpedition"
+        @recall="retireExpedition"
+      />
+    </ModalFrame>
+
+    <!-- Completed / Closed Node Modal -->
+    <ModalFrame
+      v-if="showCompletedModal"
+      :title="completedModalNode?.name || ''"
+      @close="showCompletedModal = false"
+    >
+      <div class="completed-modal-content">
+        <div class="completed-modal-header">
+          <div class="completed-icon">{{ completedModalNode?.status === 'closed' ? '⬡' : '✕' }}</div>
+          <div class="completed-name">{{ completedModalNode?.name }}</div>
+          <div class="completed-meta">
+            {{ completedModalStatus }} — {{ t('shared_uxelm_day') }} {{ completedModalNode?.completionMeta?.dayCompleted || '?' }}
+          </div>
+        </div>
+        <div class="completed-info">
+          <div><strong>{{ t('explore_uxelm_heroes') }}:</strong> {{ completedModalNode?.completionMeta?.heroNames?.join(', ') || t('explore_uxelm_unknown') }}</div>
+          <div><strong>{{ t('explore_uxelm_reward') }}:</strong> {{ completedModalNode?.completionMeta?.rewardReceived?.gold || 0 }} {{ t('explore_uxelm_gold_suffix') }}</div>
+          <div v-if="completedModalRewardItems" class="completed-items">{{ completedModalRewardItems }}</div>
+          <div v-if="completedModalNode?.completionMeta?.rewardReceived?.closureBonus" class="completed-bonus">
+            {{ t('explore_uxelm_closure_bonus') }}: {{ completedModalNode.completionMeta.rewardReceived.closureBonus.gold }}g
+          </div>
+        </div>
+        <div class="completed-footer">
+          {{ (completedModalNode?.stages || []).length }} {{ t('explore_uxelm_stages_suffix') }} • {{ t('explore_uxelm_depth_suffix') }} {{ completedModalNode?.depth || 1 }}
+        </div>
+      </div>
+    </ModalFrame>
 
     <!-- Defense Advisory Modal -->
     <ModalFrame
@@ -160,12 +204,13 @@
 </template>
 
 <script setup>
-import { ref, computed, inject, watch } from 'vue'
+import { ref, computed, watch, inject, nextTick, onMounted, onUnmounted } from 'vue'
 import { useI18n } from '@/core/composables/useI18n.js'
 import { useGameState } from '@/core/composables/useGameState.js'
 import { useAdapter } from '@/core/composables/useAdapter.js'
 import Button from '@/components/Button.vue'
 import ModalFrame from '@/components/ModalFrame.vue'
+import ExpeditionDetailInline from './ExpeditionDetailInline.vue'
 
 const { t } = useI18n()
 const { gameState, heroes } = useGameState()
@@ -176,40 +221,186 @@ const viewMode = ref(localStorage.getItem('explore_view_mode') || 'tree')
 const selectedRegion = ref(null)
 const selectedExp = ref(null)
 const selectedHeroIds = ref([])
+const showDetailModal = ref(false)
+const showCompletedModal = ref(false)
+const completedModalNode = ref(null)
+const treeScrollContainer = ref(null)
+const svgOverlay = ref(null)
+const svgSize = ref({ width: 0, height: 0 })
+const connectors = ref([])
 
-// Persist view mode preference to localStorage (PF-007)
+const defenseWarning = ref(null)
+
+// Persist view mode
 watch(viewMode, (mode) => {
   localStorage.setItem('explore_view_mode', mode)
 })
 
-// Auto-select first region when regions load and none is selected (PF-006)
+// Auto-select first region
 watch(() => gameState.value.expeditionRegions, (regs) => {
-  if (!selectedRegion.value && regs && regs.length > 0) {
-    selectedRegion.value = regs[0].id
+  if (!selectedRegion.value && regs) {
+    const entries = getRegions(regs)
+    if (entries.length > 0) {
+      selectedRegion.value = entries[0][0]
+    }
   }
 }, { immediate: true })
 
-const regions = computed(() => {
-  const regs = gameState.value.expeditionRegions
+function getRegions(regs) {
   if (!regs) return []
-  if (Array.isArray(regs)) return regs
-  // v1 stores expeditionRegions as object { regionId: { name, ... } }
-  return Object.entries(regs).map(([id, data]) => ({ id, ...data }))
+  if (Array.isArray(regs)) {
+    return regs.filter(r => r.unlocked).map(r => [r.id, r])
+  }
+  return Object.entries(regs)
+    .filter(([_, r]) => r.unlocked)
+    .sort((a, b) => a[0].localeCompare(b[0]))
+}
+
+const regionEntries = computed(() => {
+  return getRegions(gameState.value.expeditionRegions)
 })
-const expeditions = computed(() => gameState.value.expeditions || [])
+
+const selectedRegionData = computed(() => {
+  if (!selectedRegion.value) return null
+  const entry = regionEntries.value.find(([id]) => id === selectedRegion.value)
+  return entry ? entry[1] : null
+})
+
 const activeExpeditions = computed(() => gameState.value.activeExpeditions || [])
 const maxConcurrent = computed(() => gameState.value.maxConcurrentExpeditions || 1)
-
 const isAtMaxExpeditions = computed(() => activeExpeditions.value.length >= maxConcurrent.value)
 
-const filteredExpeditions = computed(() => {
-  if (!selectedRegion.value) return expeditions.value
-  return expeditions.value.filter((e) => e.regionId === selectedRegion.value)
+const allNodes = computed(() => {
+  return selectedRegionData.value?.availableNodes || []
+})
+
+const activeIds = computed(() => {
+  return new Set(activeExpeditions.value.map(e => e.id))
+})
+
+function availableCount(regionData) {
+  return (regionData.availableNodes || []).filter(n => (n.status || 'available') === 'available').length
+}
+
+function activeCount(regionData) {
+  return (regionData.availableNodes || []).filter(n => activeIds.value.has(n.id)).length
+}
+
+function pathWord(regionData) {
+  const count = availableCount(regionData)
+  return count === 1 ? t('explore_uxelm_path_singular') : t('explore_uxelm_path_plural')
+}
+
+function selectRegion(regionId) {
+  if (selectedRegion.value === regionId) return
+  selectedRegion.value = regionId
+  selectedExp.value = null
+  selectedHeroIds.value = []
+}
+
+// Tree computation
+const treeLevels = computed(() => {
+  const nodes = allNodes.value
+  if (nodes.length === 0) return []
+
+  const nodesById = {}
+  const nodesByParent = {}
+
+  nodes.forEach(node => {
+    nodesById[node.id] = node
+    const parentId = node.parentId || 'root'
+    if (!nodesByParent[parentId]) nodesByParent[parentId] = []
+    nodesByParent[parentId].push(node)
+  })
+
+  const levelMap = new Map()
+  function setLevel(nodeId, level) {
+    const node = nodesById[nodeId]
+    if (!node || levelMap.has(nodeId)) return
+    levelMap.set(nodeId, level)
+    const children = nodesByParent[nodeId] || []
+    children.forEach(child => setLevel(child.id, level + 1))
+  }
+
+  const rootNodes = nodes.filter(n => !n.parentId)
+  rootNodes.forEach(r => setLevel(r.id, 0))
+
+  const maxLevel = Math.max(0, ...Array.from(levelMap.values()))
+  const levels = []
+  for (let i = 0; i <= maxLevel; i++) levels.push([])
+  nodes.forEach(node => {
+    const level = levelMap.get(node.id) || 0
+    levels[level].push(node)
+  })
+
+  // Return in reverse order so column-reverse renders root at top
+  return levels.reverse()
+})
+
+function nodeIconChar(node) {
+  const status = node.status || 'available'
+  const isActive = activeIds.value.has(node.id)
+  if (status === 'completed') return '✕'
+  if (status === 'closed') return '⬡'
+  if (isActive) return '◎'
+  if (status === 'locked') return '△'
+  return '○'
+}
+
+function nodeStateClass(node) {
+  const status = node.status || 'available'
+  const isActive = activeIds.value.has(node.id)
+  if (status === 'completed') return 'completed'
+  if (status === 'closed') return 'closed'
+  if (isActive) return 'active'
+  if (status === 'locked') return 'locked'
+  return 'available'
+}
+
+function nodeTooltip(node) {
+  const stageCount = (node.stages || []).length
+  return `${node.name} — ${stageCount} ${t('explore_uxelm_stages')}`
+}
+
+function handleNodeClick(node) {
+  const status = node.status || 'available'
+  if (status === 'completed' || status === 'closed') {
+    completedModalNode.value = node
+    showCompletedModal.value = true
+    return
+  }
+  selectedExp.value = node
+  selectedHeroIds.value = []
+  showDetailModal.value = true
+}
+
+const completedModalStatus = computed(() => {
+  if (!completedModalNode.value) return ''
+  return completedModalNode.value.status === 'closed'
+    ? t('explore_uxelm_path_sealed_title')
+    : t('explore_uxelm_completed_title')
+})
+
+const completedModalRewardItems = computed(() => {
+  const items = completedModalNode.value?.completionMeta?.rewardReceived?.items
+  if (!items) return ''
+  return Object.entries(items).map(([k, v]) => {
+    const transKey = k.startsWith('material_') || k.startsWith('food_') || k.startsWith('meal_') ? k : 'item_' + k
+    return `${v} ${t(transKey)}`
+  }).join(', ')
+})
+
+// List view expeditions
+const listExpeditions = computed(() => {
+  return allNodes.value.filter(n => {
+    const s = n.status || 'available'
+    return s === 'available' || activeIds.value.has(n.id)
+  })
 })
 
 const activeExpedition = computed(() => {
   if (!selectedExp.value) return null
-  return activeExpeditions.value.find((e) => e.id === selectedExp.value.id)
+  return activeExpeditions.value.find(e => e.id === selectedExp.value.id)
 })
 
 const detailMode = computed(() => {
@@ -217,184 +408,426 @@ const detailMode = computed(() => {
   return 'available'
 })
 
-const activeProgress = computed(() => {
-  if (!activeExpedition.value || !selectedExp.value) return 0
-  return ((activeExpedition.value.currentStage || 0) / (selectedExp.value.stages?.length || 1)) * 100
-})
-
-const assignedHeroNames = computed(() => {
-  const active = activeExpedition.value
-  if (!active || !active.heroIds) return []
-  return active.heroIds.map((id) => {
-    const h = heroes.value.find((hero) => hero.id === id)
-    return h ? h.name : id
-  })
-})
-
-const availableHeroes = computed(() => {
-  return heroes.value.filter((h) => h.activity === 'idle' && h.hp > 0)
-})
-
-const enemyTags = computed(() => {
-  if (!selectedExp.value || !selectedExp.value.stages) return []
-  const tags = new Set()
-  selectedExp.value.stages.forEach((stage) => {
-    if (stage.enemies) {
-      stage.enemies.forEach((e) => {
-        const enemyId = typeof e === 'string' ? e : (e.id || e.templateId)
-        if (enemyId) {
-          const translated = t('combat_info_' + enemyId)
-          tags.add(translated !== 'combat_info_' + enemyId ? translated : enemyId)
-        }
-      })
-    }
-  })
-  return Array.from(tags)
-})
-
-function maxEnemyLevel(exp) {
-  if (!exp.stages) return 1
-  return Math.max(1, ...exp.stages.map((s) => s.enemyLevel || 1))
-}
-
 function selectExpedition(exp) {
   selectedExp.value = exp
   selectedHeroIds.value = []
 }
 
-function toggleHero(heroId) {
-  const idx = selectedHeroIds.value.indexOf(heroId)
-  if (idx >= 0) {
-    selectedHeroIds.value.splice(idx, 1)
-  } else {
-    selectedHeroIds.value.push(heroId)
-  }
+function startExpedition({ expId, heroIds }) {
+  showDetailModal.value = false
+  dispatch('explore', 'assignExpedition', { expId, heroIds })
+  selectedHeroIds.value = []
 }
 
-const defenseWarning = ref(null)
-
-function startExpedition() {
-  if (!selectedExp.value || selectedHeroIds.value.length === 0) return
-
-  if (engine) {
-    const advisory = engine.getDefenseAdvisory(selectedExp.value.id, [...selectedHeroIds.value])
-    if (advisory && advisory.hasWarning) {
-      const currentDay = gameState.value.village?.day || 1
-      const daysUntilRaid = advisory.nextRaidDay - currentDay
-      
-      const message = t(advisory.warningKey, {
-        raidDay: advisory.nextRaidDay,
-        returnDay: advisory.expeditionReturnDay,
-        daysUntilRaid
-      })
-      
-      defenseWarning.value = { message }
-      return
-    }
-  }
-
-  confirmStartExpedition()
+function retireExpedition({ expId }) {
+  showDetailModal.value = false
+  dispatch('explore', 'retireExpedition', { expId })
 }
 
 function confirmStartExpedition() {
-  dispatch('explore', 'assignExpedition', {
-    expId: selectedExp.value.id,
-    heroIds: [...selectedHeroIds.value]
-  })
-  selectedHeroIds.value = []
   defenseWarning.value = null
 }
 
-function retireExpedition() {
-  if (!selectedExp.value) return
-  dispatch('explore', 'retireExpedition', { expId: selectedExp.value.id })
+// SVG Connectors
+function drawConnectors() {
+  const container = treeScrollContainer.value
+  if (!container || allNodes.value.length === 0) {
+    connectors.value = []
+    return
+  }
+
+  const containerRect = container.getBoundingClientRect()
+  if (containerRect.width === 0) return
+
+  svgSize.value = { width: containerRect.width, height: containerRect.height }
+
+  const nodesById = {}
+  allNodes.value.forEach(n => { nodesById[n.id] = n })
+
+  const nodeEls = container.querySelectorAll('.tree-node')
+  const elMap = new Map()
+  nodeEls.forEach(el => {
+    const id = el.getAttribute('data-id')
+    if (id) elMap.set(id, el)
+  })
+
+  const newConnectors = []
+  for (const node of allNodes.value) {
+    if (!node.parentId) continue
+    const parentEntry = elMap.get(node.parentId)
+    const childEntry = elMap.get(node.id)
+    if (!parentEntry || !childEntry) continue
+
+    const parentRect = parentEntry.getBoundingClientRect()
+    const childRect = childEntry.getBoundingClientRect()
+
+    const x1 = parentRect.left + parentRect.width / 2 - containerRect.left
+    const y1 = parentRect.top + parentRect.height / 2 - containerRect.top
+    const x2 = childRect.left + childRect.width / 2 - containerRect.left
+    const y2 = childRect.top + childRect.height / 2 - containerRect.top
+
+    const parentNode = nodesById[node.parentId]
+    const isParentCompleted = parentNode?.status === 'completed'
+    const isChildCompleted = node.status === 'completed'
+    const isParentActive = activeIds.value.has(parentNode?.id)
+    const isChildActive = activeIds.value.has(node.id)
+
+    let lineClass = 'tree-connector-line'
+    if (isParentCompleted && isChildCompleted) {
+      lineClass += ' connector-completed'
+    } else if (isChildActive || isParentActive) {
+      lineClass += ' connector-active'
+    } else if (node.status === 'locked') {
+      lineClass += ' connector-locked'
+    }
+
+    newConnectors.push({ x1, y1, x2, y2, class: lineClass })
+  }
+  connectors.value = newConnectors
 }
 
-function nodeIcon(exp) {
-  const status = exp.status || 'available'
-  const map = {
-    available: '⬜',
-    active: '🔵',
-    completed: '✅',
-    closed: '⬛'
+// Watch for tree changes and redraw connectors
+watch([() => allNodes.value, () => selectedRegion.value, () => viewMode.value], () => {
+  nextTick(() => drawConnectors())
+}, { flush: 'post' })
+
+let resizeObserver = null
+
+onMounted(() => {
+  resizeObserver = new ResizeObserver(() => drawConnectors())
+  if (treeScrollContainer.value) {
+    resizeObserver.observe(treeScrollContainer.value)
   }
-  return map[status] || '⬜'
-}
+  nextTick(() => drawConnectors())
+})
+
+onUnmounted(() => {
+  if (resizeObserver) resizeObserver.disconnect()
+})
 </script>
 
 <style scoped>
 .explore-tab {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
-  padding: var(--spacing-lg);
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
 }
 
+.explore-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+  flex-shrink: 0;
+  padding: 0 var(--spacing-lg);
+  padding-top: var(--spacing-lg);
+}
+
+/* View Toggle */
 .view-toggle {
   display: flex;
-  gap: var(--spacing-xs);
+  gap: 4px;
+  background: rgba(255,255,255,0.05);
+  border-radius: var(--radius-sm);
+  padding: 3px;
+}
+.view-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+}
+.view-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255,255,255,0.08);
+}
+.view-btn.active {
+  background: rgba(99, 102, 241, 0.3);
+  color: var(--accent-color);
 }
 
-.view-toggle button.active {
-  background: rgba(99, 102, 241, 0.2);
-  border-color: var(--color-primary);
-}
-
+/* Status Banner */
 .status-banner {
+  background: rgba(46, 204, 113, 0.2);
+  color: #2ecc71;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-weight: bold;
+  font-size: 0.85rem;
+}
+.status-banner.none {
+  display: none;
+}
+
+/* Master-Detail Layout */
+.master-detail-layout {
+  display: flex;
+  flex-direction: row;
+  gap: var(--spacing-md);
+  align-items: stretch;
+  flex: 1;
+  min-height: 0;
+  padding: 0 var(--spacing-lg);
+  padding-bottom: var(--spacing-lg);
+}
+
+.master-pane {
+  flex: 0 0 320px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+}
+
+.pane-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+}
+.pane-header h3 {
+  margin: 0;
+  color: var(--accent-color);
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.region-list-container {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  padding-right: 6px;
+}
+
+/* Region List Items */
+.region-list-item {
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.region-list-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(99, 102, 241, 0.3);
+}
+.region-list-item.selected {
+  background: rgba(99, 102, 241, 0.12);
+  border-color: var(--accent-color);
+  box-shadow: 0 0 8px rgba(99, 102, 241, 0.15);
+}
+.region-list-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+.region-list-meta {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* Detail Pane */
+.detail-pane {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.empty-detail {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: var(--text-muted);
+}
+.detail-icon-bg {
+  font-size: 4rem;
+  opacity: 0.1;
+  margin-bottom: 20px;
+}
+
+/* Tree View */
+.expedition-tree-root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  position: relative;
+}
+
+.tree-region-title-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: rgba(255,255,255,0.03);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  flex-shrink: 0;
+}
+.tree-region-title-name {
+  color: var(--accent-color);
+  font-size: 1rem;
+  font-weight: 600;
+}
+.tree-region-title-meta {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.tree-scroll-container {
+  flex: 1;
+  position: relative;
+  overflow: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 0;
+  padding: 24px;
+}
+
+.tree-svg-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.tree-wrapper {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  gap: 48px;
+  position: relative;
+  z-index: 1;
+}
+
+.tree-level-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.tree-node {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-xs) var(--spacing-sm);
-  background: var(--bg-card);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-md);
-  font-size: 0.85rem;
-}
-
-.status-label {
-  color: var(--text-secondary);
-}
-
-.status-value {
-  font-weight: 600;
-  color: var(--color-primary-light);
-}
-
-.status-value.warning {
-  color: var(--color-danger);
-}
-
-.region-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-xs);
-}
-
-.region-btn {
-  padding: var(--spacing-xs) var(--spacing-sm);
-  background: var(--bg-card);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-md);
-  color: var(--text-primary);
+  justify-content: center;
+  font-size: 1.3rem;
   cursor: pointer;
-  font-family: var(--font-body);
-  font-size: 0.85rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid;
+  position: relative;
+  z-index: 2;
+  background: #0f172a;
+  user-select: none;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+.tree-node:hover {
+  transform: scale(1.15) translateY(-2px);
+  z-index: 5;
+}
+.tree-node.selected {
+  border-color: #ffffff !important;
+  box-shadow: 0 0 25px rgba(255, 255, 255, 0.45), inset 0 0 12px rgba(255, 255, 255, 0.25);
+  transform: scale(1.15);
 }
 
-.region-btn:hover, .region-btn.active {
-  border-color: var(--color-primary-light);
+/* Node states */
+.tree-node.available {
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.2) 0%, #0f172a 100%);
+  border-color: var(--accent-color);
+  color: #a78bfa;
+  box-shadow: 0 0 12px rgba(139, 92, 246, 0.3), inset 0 0 8px rgba(139, 92, 246, 0.15);
+  animation: pulse-glow-avail 2s infinite alternate;
+}
+.tree-node.active {
+  background: radial-gradient(circle, rgba(251, 191, 36, 0.25) 0%, #0f172a 100%);
+  border-color: #fbbf24;
+  color: #fbbf24;
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.5), inset 0 0 10px rgba(251, 191, 36, 0.3);
+  animation: pulse-glow-active 1.5s infinite alternate;
+}
+.tree-node.active::before {
+  content: '';
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  border: 2px dashed #fbbf24;
+  animation: spin-cw 12s linear infinite;
+  pointer-events: none;
+}
+.tree-node.completed {
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, #0f172a 100%);
+  border-color: var(--success);
+  color: var(--success);
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.25), inset 0 0 6px rgba(16, 185, 129, 0.1);
+}
+.tree-node.closed {
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, #0f172a 100%);
+  border-color: #f59e0b;
+  color: #f59e0b;
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.2);
+}
+.tree-node.locked {
+  background: #090d16;
+  border-color: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.12);
+  font-size: 1rem;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
-.region-count {
-  margin-left: 4px;
-  color: var(--text-muted);
-  font-size: 0.75rem;
+/* SVG Energy Connectors */
+:deep(.tree-connector-line) {
+  stroke: rgba(255, 255, 255, 0.12);
+  stroke-width: 1.5;
+  transition: stroke 0.4s ease, stroke-width 0.4s ease;
+}
+:deep(.tree-connector-line.connector-completed) {
+  stroke: rgba(16, 185, 129, 0.45);
+  stroke-width: 2.5;
+  filter: drop-shadow(0 0 2px rgba(16, 185, 129, 0.5));
+}
+:deep(.tree-connector-line.connector-active) {
+  stroke: rgba(251, 191, 36, 0.65);
+  stroke-width: 2.5;
+  stroke-dasharray: 6 4;
+  animation: tree-line-flow 1.5s linear infinite;
+  filter: drop-shadow(0 0 3px rgba(251, 191, 36, 0.5));
+}
+:deep(.tree-connector-line.connector-locked) {
+  stroke: rgba(255, 255, 255, 0.04);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
 }
 
-.expedition-list, .expedition-tree {
+/* List View */
+.expedition-list-view {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xs);
+  padding: var(--spacing-md);
+  overflow-y: auto;
 }
 
 .expedition-card {
@@ -405,220 +838,119 @@ function nodeIcon(exp) {
   cursor: pointer;
   transition: all 0.15s ease;
 }
-
 .expedition-card:hover, .expedition-card.active {
   border-color: var(--color-primary-light);
 }
-
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
-
 .exp-name {
   font-weight: 600;
   font-size: 0.9rem;
 }
-
 .exp-badge {
   font-size: 0.75rem;
   color: var(--text-muted);
 }
 
-.tree-node {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-sm) var(--spacing-md);
-  background: var(--bg-card);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-}
-
-.tree-node:hover {
-  border-color: var(--color-primary-light);
-}
-
-.tree-node.active {
-  border-color: var(--color-primary);
-  background: rgba(99, 102, 241, 0.08);
-}
-
-.tree-node.completed {
-  opacity: 0.6;
-}
-
-.node-icon {
-  font-size: 1rem;
-}
-
-.node-name {
-  font-size: 0.9rem;
-}
-
-.detail-pane {
+/* Detail pane inline (list view) */
+.detail-pane-inline {
+  margin-top: var(--spacing-md);
   padding: var(--spacing-md);
   background: var(--bg-card);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
 }
 
-.detail-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: var(--spacing-sm);
+/* Completed modal */
+.completed-modal-content {
+  text-align: center;
 }
-
-.detail-header h3 {
-  margin: 0;
-  font-size: 1.1rem;
+.completed-modal-header {
+  margin-bottom: 16px;
 }
-
-.detail-badge {
-  padding: 2px 8px;
-  background: rgba(99, 102, 241, 0.1);
-  border-radius: var(--radius-sm);
-  font-size: 0.75rem;
-  color: var(--color-primary-light);
-  text-transform: capitalize;
+.completed-icon {
+  font-size: 2rem;
+  margin-bottom: 8px;
 }
-
-.detail-stats {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  margin-bottom: var(--spacing-md);
+.completed-name {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: var(--accent-color);
 }
-
-.combat-intel {
-  padding: var(--spacing-sm);
-  background: var(--bg-base);
-  border-radius: var(--radius-md);
-  margin-bottom: var(--spacing-sm);
-}
-
-.combat-intel h4 {
-  margin: 0 0 var(--spacing-xs);
-  font-size: 0.85rem;
+.completed-meta {
   color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.enemy-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-xs);
-}
-
-.enemy-tag {
-  padding: 2px 8px;
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  border-radius: var(--radius-sm);
-  font-size: 0.75rem;
-  color: var(--color-danger);
-}
-
-.hero-selector {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-}
-
-.hero-selector h4 {
-  margin: 0;
   font-size: 0.9rem;
 }
-
-.hero-list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
-}
-
-.hero-row {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-sm) var(--spacing-md);
-  background: var(--bg-base);
-  border: 1px solid var(--glass-border);
+.completed-info {
+  background: rgba(255,255,255,0.03);
   border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: all 0.15s ease;
+  padding: 12px;
+  margin-bottom: 12px;
+  text-align: left;
 }
-
-.hero-row:hover, .hero-row.selected {
-  border-color: var(--color-primary-light);
+.completed-info > div {
+  margin-bottom: 8px;
 }
-
-.hero-row input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-  accent-color: var(--color-primary);
-}
-
-.hero-row-info {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.hero-row-name {
+.completed-items {
+  margin-top: 8px;
   font-size: 0.85rem;
-  font-weight: 500;
+  color: var(--text-muted);
 }
-
-.hero-row-hp {
-  font-size: 0.75rem;
-  color: var(--color-success);
+.completed-bonus {
+  margin-top: 8px;
+  color: #f39c12;
+  font-weight: bold;
 }
-
-.warning {
-  color: var(--color-danger);
+.completed-footer {
   font-size: 0.8rem;
+  color: var(--text-muted);
 }
 
-.active-dashboard {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-}
-
-.progress-bar-container {
-  width: 100%;
-  height: 8px;
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.progress-bar {
-  height: 100%;
-  background: var(--color-primary);
-  border-radius: 4px;
-  transition: width 0.3s ease;
-}
-
+/* Advisory modal */
 .advisory-modal-content {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
   max-width: 400px;
 }
-
 .warning-text {
   font-size: 0.9rem;
   color: var(--text-primary);
   line-height: 1.5;
 }
-
 .advisory-actions {
   display: flex;
   justify-content: flex-end;
   gap: var(--spacing-sm);
+}
+
+@keyframes pulse-glow-avail {
+  0% { box-shadow: 0 0 6px rgba(139, 92, 246, 0.2), inset 0 0 4px rgba(139, 92, 246, 0.1); }
+  100% { box-shadow: 0 0 16px rgba(139, 92, 246, 0.5), inset 0 0 10px rgba(139, 92, 246, 0.25); }
+}
+@keyframes pulse-glow-active {
+  0% { box-shadow: 0 0 10px rgba(251, 191, 36, 0.4), inset 0 0 6px rgba(251, 191, 36, 0.2); }
+  100% { box-shadow: 0 0 22px rgba(251, 191, 36, 0.85), inset 0 0 12px rgba(251, 191, 36, 0.4); }
+}
+@keyframes spin-cw {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes tree-line-flow {
+  to { stroke-dashoffset: -20; }
+}
+
+@media (max-width: 768px) {
+  .master-detail-layout {
+    flex-direction: column;
+  }
+  .master-pane {
+    flex: auto;
+    height: auto;
+    max-height: 40%;
+  }
 }
 </style>

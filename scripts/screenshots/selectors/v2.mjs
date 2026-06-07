@@ -61,10 +61,10 @@ export const v2Selectors = {
 
   // === Adventure ===
   exploreTree: '.explore-tab .expedition-tree, .expedition-tree',
-  exploreListToggle: '.explore-tab .view-toggle button:last-child',
+  exploreListToggle: '.explore-tab .view-toggle button:first-child',
   exploreList: '.explore-tab .expedition-list, .expedition-list',
   expeditionNodeAvailable: '.explore-tab .tree-node.available, .tree-node.available',
-  expeditionDetail: '.explore-tab .detail-pane, .detail-pane',
+  expeditionDetail: '.modal-overlay .expedition-detail, .explore-tab .detail-pane',
   bestiaryList: '.bestiary-tab .bestiary-grid, .bestiary-grid, .bestiary-list',
   codexList: '.codex-tab .features-list, .codex-nav-pane, .codex-list',
   chronicleList: '.chronicle-tab .chronicle-two-pane, .recent-list, .chronicle-list',
