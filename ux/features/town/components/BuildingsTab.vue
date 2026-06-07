@@ -22,8 +22,10 @@
       <!-- Detail Pane -->
       <div v-if="selectedBuilding" class="detail-pane">
         <div class="detail-header">
-          <span class="detail-badge">{{ t('village_uxelm_infrastructure') }}</span>
-          <h3>{{ selectedBuilding.name }}</h3>
+          <div class="detail-header-left">
+            <span class="detail-badge">{{ t('village_uxelm_infrastructure') }}</span>
+            <h3>{{ selectedBuilding.name }}</h3>
+          </div>
           <span class="detail-level">{{ t('village_uxelm_level_current') }} {{ selectedBuilding.lvl }}</span>
         </div>
 
@@ -371,13 +373,12 @@ function startUpgrade() {
 
 .level-badge {
   padding: 2px 8px;
-  background: var(--bg-base);
-  border: 1px solid var(--glass-border);
+  background: var(--color-primary);
+  border: 1px solid var(--color-primary);
   border-radius: var(--radius-sm);
   font-size: 0.7rem;
   font-weight: 600;
-  color: var(--text-muted);
-  text-transform: uppercase;
+  color: white;
 }
 
 .level-badge.built {
@@ -396,9 +397,38 @@ function startUpgrade() {
   border-radius: var(--radius-lg);
 }
 
+.detail-badge {
+  display: inline-block;
+  background: var(--color-primary);
+  color: white;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.detail-header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
 .detail-pane h3 {
   margin: 0;
   font-size: 1.25rem;
+}
+
+.detail-level {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
 }
 
 .building-desc {
@@ -494,6 +524,8 @@ function startUpgrade() {
   margin: 0 0 var(--spacing-xs);
   font-size: 0.85rem;
   color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .cost-grid {
@@ -528,10 +560,13 @@ function startUpgrade() {
 
 .action-footer {
   margin-top: var(--spacing-sm);
+  display: flex;
+  justify-content: flex-end;
 }
 
 .confirm-btn {
-  width: 100%;
+  width: auto;
+  min-width: 120px;
 }
 
 .btn-icon {

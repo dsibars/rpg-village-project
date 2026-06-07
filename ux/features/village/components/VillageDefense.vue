@@ -1,6 +1,6 @@
 <template>
   <div class="village-defense">
-    <div class="defense-header">
+    <div v-if="showHeader" class="defense-header">
       <h4>{{ t('village_uxelm_defender') }}</h4>
       <span class="defense-count">{{ assigned.length }} / {{ maxDefenders }}</span>
     </div>
@@ -50,7 +50,8 @@ import Button from '@/components/Button.vue'
 
 const props = defineProps({
   assigned: { type: Array, default: () => [] },
-  heroes: { type: Array, default: () => [] }
+  heroes: { type: Array, default: () => [] },
+  showHeader: { type: Boolean, default: true }
 })
 
 const emit = defineEmits(['assign', 'unassign'])

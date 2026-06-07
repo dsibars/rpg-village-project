@@ -100,6 +100,11 @@ const tiles = computed(() => {
 
 .tile-level {
   font-size: 0.65rem;
-  color: var(--text-muted);
+  font-weight: 600;
+  color: white;
+  padding: 2px 8px;
+  background: var(--color-primary);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-sm);
 }
 </style>

@@ -59,14 +59,18 @@
       <!-- Right Column: Calendar+Defense Hub + Daily Objectives -->
       <div class="dashboard-col col-right">
         <div class="dashboard-card card-hub">
-          <VillageCalendar :calendar="calendar" />
-          <div class="hub-divider" />
-          <VillageDefense
-            :assigned="defenseAssigned"
-            :heroes="heroes"
-            @assign="assignDefense"
-            @unassign="unassignDefense"
-          />
+          <h3 class="hub-title">{{ t('village_uxelm_threat_defense_hub') }}</h3>
+          <div class="hub-body">
+            <VillageCalendar :calendar="calendar" />
+            <div class="hub-divider" />
+            <VillageDefense
+              :assigned="defenseAssigned"
+              :heroes="heroes"
+              :show-header="false"
+              @assign="assignDefense"
+              @unassign="unassignDefense"
+            />
+          </div>
         </div>
 
         <div class="dashboard-card">
@@ -286,14 +290,31 @@ function navigateToBuildings(buildingId) {
   padding: 0;
 }
 
-.card-hub > * {
-  padding: var(--spacing-md);
+.hub-title {
+  margin: 0;
+  padding: var(--spacing-md) var(--spacing-md) var(--spacing-xs);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-primary-light);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.hub-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: var(--spacing-xs) var(--spacing-md) var(--spacing-md);
+}
+
+.hub-body > * {
+  padding: var(--spacing-xs) 0;
 }
 
 .hub-divider {
   height: 1px;
   background: var(--glass-border);
-  margin: 0 var(--spacing-md);
+  margin: 0;
 }
 
 /* Scrollable content within cards when needed */

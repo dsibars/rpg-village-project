@@ -8,12 +8,11 @@
   >
     <div class="item-header">
       <span class="hero-name">{{ hero.name }}</span>
-      <span class="hero-level">{{ t('shared_uxelm_level_abbrev') }} {{ hero.level }}</span>
+      <span class="hero-level">{{ t('shared_uxelm_level') }} {{ hero.level }}</span>
     </div>
     <div class="item-meta">
       <span class="badge activity-badge" :title="activityTitle">
         <span class="emoji">{{ activityEmoji }}</span>
-        {{ activityTitle }}
       </span>
       <span
         v-if="hasMealBuff"
@@ -93,7 +92,11 @@ const hasPoints = computed(() => (props.hero.statPoints || 0) > 0 || (props.hero
 
 .hero-level {
   font-size: 0.75rem;
-  color: var(--text-muted);
+  color: white;
+  background: var(--color-primary);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 600;
   flex-shrink: 0;
 }
 

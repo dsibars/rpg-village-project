@@ -1,5 +1,7 @@
 <template>
   <div class="chronicle-tab">
+    <h2 class="page-title">{{ t('chronicle_page_title') }}</h2>
+
     <!-- Recently Unlocked (Horizontal scroll cards) -->
     <div v-if="recentUnlocks.length > 0" class="recent-section">
       <h3>{{ t('chronicle_recently_unlocked') }}</h3>

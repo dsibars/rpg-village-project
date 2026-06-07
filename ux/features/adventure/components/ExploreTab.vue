@@ -241,8 +241,11 @@ const enemyTags = computed(() => {
   selectedExp.value.stages.forEach((stage) => {
     if (stage.enemies) {
       stage.enemies.forEach((e) => {
-        if (e.name) tags.add(e.name)
-        else if (e.templateId) tags.add(e.templateId)
+        const enemyId = typeof e === 'string' ? e : (e.id || e.templateId)
+        if (enemyId) {
+          const translated = t('combat_info_' + enemyId)
+          tags.add(translated !== 'combat_info_' + enemyId ? translated : enemyId)
+        }
       })
     }
   })

@@ -599,3 +599,182 @@ Observations about the migration architecture that are not bugs.
    - **Codex layout**: v1 renders category sections with group headers (SYSTEM CODEX, BASICS, COMBAT, VILLAGE BUILDINGS) in the left pane; v2 uses filter tabs at the top of the left pane. The feature set and detail pane content are identical.
    - **Chronicle layout**: v1 and v2 are structurally identical (Recently Unlocked, Chapter sections, Discovery Log). Minor proportion and header-casing differences exist (F-040 area).
 4. **Modal vs inline**: v1 uses modals for expedition detail and some hero interactions. v2 uses inline cards or page-level views. These are structural pattern differences that would require significant rewrites to match exactly. The content within them should match (F-032).
+
+---
+
+## Review Session — 2026-06-07
+
+New screenshots generated via orchestrator (`scripts/screenshots/orchestrator.mjs`) for both v1 and v2. Review conducted by comparing available pairs and inspecting v2-only screenshots where v1 counterparts were missing or broken.
+
+### Updated Page Statuses
+
+| Page / Screen | v1 Screenshot | v2 Screenshot | Status | Notes |
+|---------------|---------------|---------------|--------|-------|
+| Save Slot Selection | `v1_onboarding_save_slot_empty.png` | `v2_onboarding_save_slot_empty.png` | ✅ Re-verified | Fixes hold. |
+| New Game Lore Intro | `v1_onboarding_intro_prologue.png` | `v2_onboarding_intro_prologue.png` | ✅ Re-verified | Fixes hold. |
+| Village Main | `v1_village_village_main.png` | `v2_village_village_main.png` | 🛠️ Fixed | Fixes hold. New minor: F-070, F-071. |
+| Heroes List + Detail | `v1_heroes_heroes_list_selected.png` | `v2_heroes_heroes_list_selected.png` | 🔍 In Review | F-040 expanded → F-060–F-064. |
+| Explore | `v1_adventure_explore_list_view.png` | `v2_adventure_explore_list_view.png` | 🛠️ Fixed | Fixes hold. Structural layout difference accepted. |
+| Bestiary | `v1_adventure_bestiary_mixed.png` | `v2_adventure_bestiary_mixed.png` | 🛠️ Fixed | **v1 screenshot broken** (F-059). v2 independently verified. |
+| Codex | `v1_adventure_codex_unlocked.png` | `v2_adventure_codex_unlocked.png` | 🔍 In Review | **v1 screenshot broken** (F-059). v2 functional. |
+| Chronicle | `v1_adventure_chronicle_milestones.png` | `v2_adventure_chronicle_milestones.png` | 🔍 In Review | **v1 screenshot broken** (F-059). v2 functional. |
+| Buildings List | `v1_town_buildings_list.png` | `v2_town_buildings_list.png` | 🔍 In Review | New findings: F-065–F-069. |
+| Buildings Detail | `v1_town_buildings_detail_construct.png` | `v2_town_buildings_detail_construct.png` | 🛠️ Fixed | F-033 holds. New minor: F-067–F-069. |
+| Shop | — | `v2_town_shop_locked.png` / `unlocked.png` | 🛠️ Fixed | No v1 pair available. F-028 holds. |
+| Forge | — | `v2_town_forge_locked.png` / `unlocked.png` | 🛠️ Fixed | No v1 pair available. F-028 holds. |
+| Inventory | `v1_town_inventory_with_items.png` | `v2_town_inventory_with_items.png` | 🛠️ Fixed | F-034, F-036 hold. Minor proportion diff. |
+| Settings | `v1_settings_settings_main.png` | `v2_settings_settings_main.png` | 🛠️ Fixed | **v1 screenshot broken** (F-059). v2 independently verified. |
+| Magic Circle | `v1_magic-circle_magic_circle_empty.png` | `v2_magic-circle_magic_circle_empty.png` | 🛠️ Fixed | **v1 screenshot broken** (F-059). v2 independently verified; F-041–F-057 hold. |
+| Trainer Modal | `v1_building-modals_trainer_modal.png` | `v2_building-modals_trainer_modal.png` | ❌ Issues Found | **v1 screenshot broken** (F-059). v2 critical bug: F-058. |
+| Witch Modal | `v1_building-modals_witch_modal.png` | `v2_building-modals_witch_modal.png` | 🔍 In Review | Raw key bug present in **both** v1 and v2 (pre-existing). v2 missing 🌙 emoji in title. |
+| Academy Modal | `v1_building-modals_academy_modal.png` | `v2_building-modals_academy_modal.png` | 🔍 In Review | **v1 screenshot broken** (F-059). v2 hardcoded English text. |
+| Hall of Fame Modal | `v1_building-modals_hall_of_fame_modal.png` | `v2_building-modals_hall_of_fame_modal.png` | 🔍 In Review | **v1 screenshot broken** (F-059). v2 hardcoded English text. |
+
+### 🔴 Critical (New)
+
+#### F-058: Training Grounds Modal — Raw i18n keys displayed
+- **Page:** Building Modals → Training Grounds
+- **What:** v2 modal shows literal translation keys instead of text: `"trainer_no_family_1"`, `"trainer_no_family_2"`, and `"No_family"`.
+- **v1 Status:** v1 screenshot is broken (captures Heroes page instead), so direct comparison not possible. The bug is clearly present in v2.
+- **Fix:** Wrap the keys through `t()` in the Training Grounds modal component.
+- **Status:** ❌ Open
+
+#### F-059: v1 Screenshot Orchestrator — Multiple captures show wrong page/modal
+- **Impact:** Prevents side-by-side comparison for several pages.
+- **Affected v1 screenshots:**
+  - `v1_adventure_bestiary_mixed.png` → shows Tutorial Cave explore modal
+  - `v1_adventure_codex_unlocked.png` → shows Tutorial Cave explore modal
+  - `v1_adventure_chronicle_milestones.png` → shows Tutorial Cave explore modal
+  - `v1_magic-circle_magic_circle_empty.png` → shows Village main page
+  - `v1_settings_settings_main.png` → shows Village main page
+  - `v1_building-modals_trainer_modal.png` → shows Heroes page
+  - `v1_building-modals_academy_modal.png` → shows Witch's Hut modal
+  - `v1_building-modals_hall_of_fame_modal.png` → shows Witch's Hut modal
+- **Root Cause:** The v1 flow selectors likely fail to close an open modal before navigating to the next state, or the state injection doesn't properly reset the UI between capture steps.
+- **Fix:** Update `scripts/screenshots/selectors/v1.mjs` to ensure modals are closed (e.g., press Escape or click backdrop) before navigating to subsequent states in a flow.
+- **Status:** ❌ Open
+
+### 🟡 Significant (New)
+
+#### F-060: Heroes — List header "YOUR HEROES" lost uppercase transform
+- **Page:** Heroes
+- **What:** v1 list header is uppercase via CSS. v2 shows "Your Heroes" in title case.
+- **Fix:** Add `text-transform: uppercase` to the heroes list header in `HeroesPage.vue` or `HeroList.vue`.
+- **Status:** ❌ Open
+
+#### F-061: Heroes — Hero card level format changed from "Level 1" badge to "Lv 1" text
+- **Page:** Heroes
+- **What:** v1 shows "Level 1" inside a purple pill badge. v2 shows "Lv 1" as plain right-aligned text without a badge.
+- **Fix:** Restore the purple pill badge with full "Level X" text in `HeroCard.vue`.
+- **Status:** ❌ Open
+
+#### F-062: Heroes — Activity display changed from emoji to full "Idle" badge
+- **Page:** Heroes
+- **What:** v1 shows only an activity emoji (e.g., 💤) on the right side of the hero card. v2 shows a full green "Idle" badge with background.
+- **Fix:** Replace the green "Idle" badge with just the activity emoji, matching v1 behavior.
+- **Status:** ❌ Open
+
+#### F-063: Heroes — Stat-points badge "+5" not present in v1
+- **Page:** Heroes
+- **What:** v2 hero cards show a green "+5" badge when unassigned stat points exist. v1 has no such indicator on the list cards.
+- **Fix:** Remove the stat-points badge from `HeroCard.vue` list view, or verify if this is an acceptable addition.
+- **Status:** ❌ Open
+
+#### F-064: Heroes Detail — Activity and Experience on separate lines instead of same line
+- **Page:** Heroes Detail
+- **What:** v1 has `Activity: Idle` and `Experience: 0 / 20` on the **same** horizontal line. v2 places them on **separate** lines with a label-value layout.
+- **Fix:** Restore the single-row layout for Activity and Experience in `HeroProfile.vue`.
+- **Status:** ❌ Open
+
+#### F-065: Buildings — Locked buildings show "Locked" instead of "Not Built"
+- **Page:** Buildings List
+- **What:** v1 locked building tiles show "Not Built". v2 shows "Locked".
+- **Fix:** Change the locked-state label in `BuildingsTab.vue` to "Not Built".
+- **Status:** ❌ Open
+
+#### F-066: Buildings — Level badge casing changed to uppercase
+- **Page:** Buildings List
+- **What:** v1 badges use title case: "Level 1", "Not Built". v2 uses uppercase: "LEVEL 1", "NOT BUILT".
+- **Fix:** Remove `text-transform: uppercase` from the level badge in `BuildingsTab.vue`.
+- **Status:** ❌ Open
+
+#### F-067: Buildings Detail — "Infrastructure" is plain text instead of purple badge
+- **Page:** Buildings Detail
+- **What:** v1 shows "Infrastructure" as a purple pill badge above the building name. v2 shows it as plain text.
+- **Fix:** Wrap the infrastructure label in a purple badge component matching v1 styling.
+- **Status:** ❌ Open
+
+#### F-068: Buildings Detail — "Next Upgrade: Level 2" header casing differs
+- **Page:** Buildings Detail
+- **What:** v1 shows "NEXT UPGRADE: LEVEL 2" in uppercase. v2 shows "Next Upgrade: Level 2" in title case.
+- **Fix:** Add `text-transform: uppercase` to the next-upgrade header in the building detail pane.
+- **Status:** ❌ Open
+
+#### F-069: Buildings Detail — Confirm button is full-width instead of right-aligned
+- **Page:** Buildings Detail
+- **What:** v1 "CONFIRM" button is right-aligned and smaller. v2 button spans the full width of the detail pane.
+- **Fix:** Change the confirm button layout to be right-aligned with auto width.
+- **Status:** ❌ Open
+
+### 🟢 Minor (New)
+
+#### F-070: Village — Specialization controls are vertical instead of horizontal
+- **Page:** Village Main
+- **What:** v1 shows minus/number/plus controls in a horizontal row (`- 2 +`). v2 stacks them vertically.
+- **Impact:** Low — functionality identical, visual difference only.
+- **Status:** ❌ Open
+
+#### F-071: Village — Threat & Defense Hub split into multiple cards
+- **Page:** Village Main
+- **What:** v1 renders Calendar and Defense inside a single "THREAT & DEFENSE HUB" card. v2 splits them into separate cards.
+- **Note:** F-021 was previously marked "partially fixed" for this same issue.
+- **Status:** ❌ Open (same as F-021)
+
+### Pre-existing Issues (Not Regressions)
+
+#### Witch's Hut — `"witch_generic_far"` raw i18n key
+- **Page:** Building Modals → Witch's Hut
+- **What:** Both v1 and v2 display the literal key `"witch_generic_far"` instead of its translation. This is a pre-existing vanilla bug, not a migration regression.
+- **Action:** Should be fixed in both versions, but is out of scope for the migration review.
+
+### Fix Log (Session 2026-06-07)
+
+| Fix ID | Date | Page | Description |
+|--------|------|------|-------------|
+| F-058 | 2026-06-07 | Trainer Modal | v2 shows raw i18n keys `"trainer_no_family_*"` and `"No_family"` — needs `t()` wrapping. |
+| F-059 | 2026-06-07 | Screenshot Orchestrator | v1 capture bug: multiple flows capture wrong page/modal due to modal not being closed between states. |
+| F-060 | 2026-06-07 | Heroes | List header "YOUR HEROES" lost uppercase transform. |
+| F-061 | 2026-06-07 | Heroes | Hero card level format changed from "Level 1" purple badge to "Lv 1" plain text. |
+| F-062 | 2026-06-07 | Heroes | Activity display changed from emoji-only to full "Idle" badge. |
+| F-063 | 2026-06-07 | Heroes | Green "+5" stat-points badge added to list cards — not present in v1. |
+| F-064 | 2026-06-07 | Heroes Detail | Activity and Experience placed on separate lines instead of same line. |
+| F-065 | 2026-06-07 | Buildings | Locked buildings show "Locked" instead of v1's "Not Built". |
+| F-066 | 2026-06-07 | Buildings | Level badge casing changed from title case to uppercase. |
+| F-067 | 2026-06-07 | Buildings Detail | "Infrastructure" label is plain text instead of purple badge. |
+| F-068 | 2026-06-07 | Buildings Detail | "Next Upgrade: Level 2" header uses title case instead of uppercase. |
+| F-069 | 2026-06-07 | Buildings Detail | Confirm button is full-width instead of right-aligned. |
+| F-070 | 2026-06-07 | Village | Specialization minus/number/plus controls are vertical instead of horizontal. |
+| F-071 | 2026-06-07 | Village | Threat & Defense Hub split into multiple cards (continuation of F-021). |
+
+### Screenshots Pending Review (No v1 Pair Available)
+
+The following v2 screenshots exist but have no v1 counterpart for comparison. They should be reviewed in a future session:
+
+- `v2_hero-modals_heroes_modal_skills.png`
+- `v2_hero-modals_heroes_modal_gambits.png`
+- `v2_hero-modals_heroes_modal_equipment.png`
+- `v2_hero-modals_heroes_modal_inscription.png`
+- `v2_hero-modals_heroes_modal_consumables.png`
+- `v2_magic-circle_magic_circle_spell_composed.png`
+- `v2_magic-circle_magic_circle_core_drawer.png`
+- `v2_magic-circle_magic_circle_ring_drawer.png`
+- `v2_magic-circle_magic_circle_fire_selected.png`
+- `v2_village_village_construction_active.png`
+- `v2_village_village_daily_report.png`
+- `v2_village_village_recall_report.png`
+- `v2_village_village_storage_warning.png`
+- `v2_post-day_expedition_result.png`
+- `v2_post-day_narrative_unlock_toast.png`
+- `v2_settings_settings_simulator.png`
+- `v2_combat_combat_targeting_enemy.png`
+- `v2_combat_combat_skills_menu.png`

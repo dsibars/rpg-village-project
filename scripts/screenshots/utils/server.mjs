@@ -24,8 +24,17 @@ export function createServer(distDir = DIST_DIR) {
 
     fs.readFile(filePath, (err, data) => {
       if (err) {
-        res.writeHead(404)
-        res.end('Not found')
+        // SPA fallback: serve index.html for unknown routes
+        const indexPath = path.join(distDir, 'index.html')
+        fs.readFile(indexPath, (indexErr, indexData) => {
+          if (indexErr) {
+            res.writeHead(404)
+            res.end('Not found')
+            return
+          }
+          res.writeHead(200, { 'Content-Type': 'text/html' })
+          res.end(indexData)
+        })
         return
       }
       res.writeHead(200, { 'Content-Type': contentTypes[ext] || 'application/octet-stream' })

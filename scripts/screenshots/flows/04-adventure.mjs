@@ -12,6 +12,28 @@ function getSelectors(version) {
   return version === 'v1' ? s1 : s2
 }
 
+async function dismissAnyModal(page) {
+  // Try close button first
+  const closeBtn = await page.$('.modal-overlay .btn-close, .modal-frame .btn-close, .modal-close, button[aria-label="close"]')
+  if (closeBtn) {
+    await closeBtn.click().catch(() => {})
+    await page.waitForTimeout(400)
+  } else {
+    // v1: many modals close by clicking the overlay backdrop itself
+    const overlay = await page.$('.modal-overlay')
+    if (overlay) {
+      await overlay.click({ position: { x: 10, y: 10 } }).catch(() => {})
+      await page.waitForTimeout(400)
+    } else {
+      await page.keyboard.press('Escape')
+      await page.waitForTimeout(300)
+    }
+  }
+  try {
+    await page.waitForSelector('.modal-overlay', { state: 'hidden', timeout: 2000 })
+  } catch { /* ignore */ }
+}
+
 export async function run({ page, version, snap }) {
   const selectors = getSelectors(version)
 
@@ -50,6 +72,7 @@ export async function run({ page, version, snap }) {
     await node.click()
     await waitForVisible(page, selectors.expeditionDetail, 2000)
     await snap({ flow: 'adventure', state: 'explore_available_detail' })
+    await dismissAnyModal(page)
   }
 
   // --- explore_list_view ---
@@ -61,16 +84,19 @@ export async function run({ page, version, snap }) {
   }
 
   // --- bestiary_mixed ---
+  await dismissAnyModal(page)
   await clickSubNav(page, selectors.adventureBestiaryTab)
   await waitForVisible(page, selectors.bestiaryList, 2000)
   await snap({ flow: 'adventure', state: 'bestiary_mixed' })
 
   // --- codex_unlocked ---
+  await dismissAnyModal(page)
   await clickSubNav(page, selectors.adventureCodexTab)
   await waitForVisible(page, selectors.codexList, 2000)
   await snap({ flow: 'adventure', state: 'codex_unlocked' })
 
   // --- chronicle_milestones ---
+  await dismissAnyModal(page)
   await clickSubNav(page, selectors.adventureChronicleTab)
   await waitForVisible(page, selectors.chronicleList, 2000)
   await snap({ flow: 'adventure', state: 'chronicle_milestones' })

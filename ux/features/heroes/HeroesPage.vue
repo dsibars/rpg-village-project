@@ -283,6 +283,7 @@ function inscribeBodyCircle({ glyphIds, glyphTiers }) {
   font-family: var(--font-heading);
   font-size: 1.25rem;
   color: var(--color-primary);
+  text-transform: uppercase;
 }
 
 .heroes-detail-panel {

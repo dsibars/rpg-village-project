@@ -60,7 +60,10 @@ const dialogueLines = computed(() => {
   })
 })
 
-const dialogueCategory = computed(() => dialogue.value.category || '')
+const dialogueCategory = computed(() => {
+  const cat = dialogue.value.category || 'unknown'
+  return t('trainer_category_' + cat)
+})
 </script>
 
 <style scoped>

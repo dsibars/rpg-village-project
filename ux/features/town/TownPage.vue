@@ -6,7 +6,8 @@
         { id: 'buildings', label: t('shared_uxelm_nav_buildings'), icon: '🏘' },
         { id: 'shop', label: t('shared_uxelm_nav_shop'), icon: '🏪' },
         { id: 'forge', label: t('shared_uxelm_nav_forge'), icon: '⚒' },
-        { id: 'inventory', label: t('shared_uxelm_nav_inventory'), icon: '🎒' }
+        { id: 'inventory', label: t('shared_uxelm_nav_inventory'), icon: '🎒' },
+        { id: 'settings', label: t('shared_uxelm_nav_settings'), icon: '⚙️' }
       ]"
     />
     <component :is="tabs[currentTab]" />
@@ -21,6 +22,7 @@ import BuildingsTab from './components/BuildingsTab.vue'
 import ShopTab from './components/ShopTab.vue'
 import ForgeTab from './components/ForgeTab.vue'
 import InventoryTab from './components/InventoryTab.vue'
+import SettingsPage from '../settings/SettingsPage.vue'
 
 const props = defineProps({
   activeTab: { type: String, default: null }
@@ -40,7 +42,8 @@ const tabs = {
   buildings: BuildingsTab,
   shop: ShopTab,
   forge: ForgeTab,
-  inventory: InventoryTab
+  inventory: InventoryTab,
+  settings: SettingsPage
 }
 </script>
 

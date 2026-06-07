@@ -1,7 +1,7 @@
 <template>
   <ModalFrame
     v-if="open"
-    :title="t('witch_uxelm_title')"
+    :title="'🌙 ' + t('witch_uxelm_title')"
     @close="onClose"
   >
     <div class="witch-modal">
@@ -37,7 +37,7 @@
 
       <div class="witch-footer">
         <span class="witch-meta">
-          {{ dialogue.category }} · {{ dialogue.element }}
+          {{ t('witch_category_' + (dialogue.category || 'unknown')) }} · {{ t('witch_element_' + (dialogue.element || 'neutral')) }}
         </span>
         <Button variant="secondary" size="sm" @click="onClose">
           {{ t('shared_uxelm_close') }}
@@ -188,8 +188,13 @@ function onClose() {
 }
 
 .witch-meta {
-  font-size: 0.8rem;
-  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: white;
+  padding: 2px 10px;
+  background: var(--color-primary);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-sm);
   text-transform: capitalize;
 }
 </style>

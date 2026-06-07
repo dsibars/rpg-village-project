@@ -11,6 +11,26 @@ function getSelectors(version) {
   return version === 'v1' ? s1 : s2
 }
 
+async function dismissAnyModal(page) {
+  const closeBtn = await page.$('.modal-overlay .btn-close, .modal-frame .btn-close, .modal-close, button[aria-label="close"]')
+  if (closeBtn) {
+    await closeBtn.click().catch(() => {})
+    await page.waitForTimeout(400)
+  } else {
+    const overlay = await page.$('.modal-overlay')
+    if (overlay) {
+      await overlay.click({ position: { x: 10, y: 10 } }).catch(() => {})
+      await page.waitForTimeout(400)
+    } else {
+      await page.keyboard.press('Escape')
+      await page.waitForTimeout(300)
+    }
+  }
+  try {
+    await page.waitForSelector('.modal-overlay', { state: 'hidden', timeout: 2000 })
+  } catch { /* ignore */ }
+}
+
 export async function run({ page, version, snap }) {
   const selectors = getSelectors(version)
 
@@ -28,7 +48,14 @@ export async function run({ page, version, snap }) {
   }, { engineExpr, buildingKey: 'arcane_sanctum' })
 
   // Open settings then magic simulator
-  await clickNav(page, selectors.navSettings)
+  // v1: settings is a sub-tab under Town; v2: settings is in top nav
+  if (version === 'v1') {
+    await clickNav(page, selectors.navTown)
+    await waitForVisible(page, selectors.townTab, 3000)
+    await clickSubNav(page, selectors.townSettingsTab)
+  } else {
+    await clickNav(page, selectors.navSettings)
+  }
   await waitForVisible(page, selectors.settingsPanel, 3000)
 
   const simBtn = await page.$(selectors.openMagicCircleBtn)
@@ -58,6 +85,7 @@ export async function run({ page, version, snap }) {
 
   // --- magic_circle_ring_drawer ---
   // Close current drawer first
+  await dismissAnyModal(page)
   const closeBtn = await page.$('.close-btn')
   if (closeBtn) await closeBtn.click()
   await page.waitForTimeout(200)
@@ -71,7 +99,9 @@ export async function run({ page, version, snap }) {
 
   // --- magic_circle_spell_composed ---
   // Close drawer and look for composed spell preview
-  if (closeBtn) await closeBtn.click()
+  await dismissAnyModal(page)
+  const closeBtn2 = await page.$('.close-btn')
+  if (closeBtn2) await closeBtn2.click()
   await page.waitForTimeout(300)
   const composed = await page.$('.mc-element-display, .spell-composed, .composed-spell')
   if (composed) {

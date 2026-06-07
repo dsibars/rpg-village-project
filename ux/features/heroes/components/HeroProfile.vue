@@ -22,15 +22,16 @@
         <p class="hero-origin-desc"><em>{{ originDesc }}</em></p>
 
         <div class="hero-status-row">
-          <span><strong>{{ t('heroes_uxelm_activity') }}:</strong></span>
-          <span class="status-badge" :class="isIdle ? 'idle' : 'busy'" :title="activityTitle">
-            {{ activityTitle }}
+          <span class="status-col">
+            <strong>{{ t('heroes_uxelm_activity') }}:</strong>
+            <span class="status-badge" :class="isIdle ? 'idle' : 'busy'" :title="activityTitle">
+              {{ activityTitle }}
+            </span>
           </span>
-        </div>
-
-        <div class="hero-status-row">
-          <span><strong>{{ t('heroes_uxelm_experience') }}:</strong></span>
-          <span class="status-value">{{ hero.exp || 0 }} / {{ hero.expToNextLevel || '?' }}</span>
+          <span class="status-col">
+            <strong>{{ t('heroes_uxelm_experience') }}:</strong>
+            <span class="status-value">{{ hero.exp || 0 }} / {{ hero.expToNextLevel || '?' }}</span>
+          </span>
         </div>
 
         <div class="skill-points-alert" :class="{ locked: !isIdle }">
@@ -140,6 +141,18 @@ const skillAlertSuffix = computed(() => {
 </script>
 
 <style scoped>
+.hero-status-row {
+  display: flex;
+  gap: var(--spacing-lg);
+  flex-wrap: wrap;
+}
+
+.status-col {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
 .skill-points-alert {
   margin-top: 6px;
   background: rgba(99, 102, 241, 0.1);

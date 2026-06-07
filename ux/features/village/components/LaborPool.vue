@@ -123,6 +123,7 @@ const roleEffects = {
   background: var(--bg-card);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-md);
+  gap: var(--spacing-sm);
 }
 
 .role-info {
@@ -147,8 +148,10 @@ const roleEffects = {
 
 .role-controls {
   display: flex;
+  flex-direction: row;
   align-items: center;
   gap: 4px;
+  flex-shrink: 0;
 }
 
 .role-count {
