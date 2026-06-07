@@ -111,23 +111,11 @@
       </div>
     </div>
 
-    <!-- Discovery Lore Modal -->
-    <ModalFrame
-      v-if="selectedLore"
-      :title="selectedLore.title"
-      @close="selectedLore = null"
-    >
-      <div class="lore-modal-content">
-        <p class="lore-text">{{ selectedLore.lore }}</p>
-      </div>
-    </ModalFrame>
-
     <!-- Custom Replay Modal (when playing from the chronicle view) -->
     <PresentationModal
       v-if="activeReplayPresentation"
       :open="true"
       :presentation="activeReplayPresentation"
-      :is-replay="true"
       @close="activeReplayPresentation = null"
     />
   </div>
@@ -140,8 +128,8 @@ import { useGameState } from '@/core/composables/useGameState.js'
 import { PRESENTATION_CATALOG } from '@/core/data/index.js'
 import { UNLOCK_NARRATIVES } from '@/core/data/index.js'
 import Button from '@/components/Button.vue'
-import ModalFrame from '@/components/ModalFrame.vue'
 import PresentationModal from '../../shared/PresentationModal.vue'
+import { queueNarrative } from '@/core/toast.js'
 
 const { t } = useI18n()
 const { gameState } = useGameState()
@@ -152,7 +140,6 @@ const expandedChapters = ref({
   2: true
 })
 
-const selectedLore = ref(null)
 const activeReplayPresentation = ref(null)
 
 const presentationService = computed(() => engine?.presentationService)
@@ -336,7 +323,10 @@ const discoveryLog = computed(() => {
 const totalNarratives = computed(() => UNLOCK_NARRATIVES.length)
 
 function openDiscoveryDetail(entry) {
-  selectedLore.value = entry
+  const narrative = UNLOCK_NARRATIVES.find(n => n.id === entry.id)
+  if (narrative) {
+    queueNarrative(narrative)
+  }
 }
 </script>
 
@@ -667,10 +657,4 @@ function openDiscoveryDetail(entry) {
   padding: var(--spacing-md);
 }
 
-.lore-modal-content {
-  font-size: 0.9rem;
-  line-height: 1.6;
-  color: var(--text-primary);
-  max-width: 450px;
-}
 </style>

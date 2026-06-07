@@ -82,6 +82,13 @@ export class GameEngine {
         
         if (this.isNewGame) {
             this.initNewGame();
+        } else {
+            // Backfill: older saves may lack the prologue presentation state.
+            if (!this.presentationService.isSeen('pres_prologue')) {
+                const currentDay = this.villageService?.getState?.()?.day ?? null;
+                this.presentationService.markAsSeen('pres_prologue', currentDay);
+                this._persistPresentationState();
+            }
         }
 
         this.i18n.setLanguage(globalPersistence.load('settings_lang', 'en'));

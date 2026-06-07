@@ -5,23 +5,24 @@
       <p class="subtitle">{{ t('shared_uxelm_save_slot_subtitle') }}</p>
     </header>
 
-    <div class="save-slots-lang-container">
-      <label for="slots-lang-select">{{ t('settings_language_label') }}</label>
-      <select
-        id="slots-lang-select"
-        :value="currentLanguage"
-        class="select-control"
-        @change="setLanguage($event.target.value)"
-      >
-        <option value="en">English</option>
-        <option value="es">Español</option>
-        <option value="ca">Català</option>
-        <option value="eu">Euskara</option>
-        <option value="gl">Galego</option>
-      </select>
-    </div>
+    <div class="save-slots-content">
+      <div class="save-slots-lang-container">
+        <label for="slots-lang-select">{{ t('settings_language_label') }}</label>
+        <select
+          id="slots-lang-select"
+          :value="currentLanguage"
+          class="select-control"
+          @change="setLanguage($event.target.value)"
+        >
+          <option value="en">English</option>
+          <option value="es">Español</option>
+          <option value="ca">Català</option>
+          <option value="eu">Euskara</option>
+          <option value="gl">Galego</option>
+        </select>
+      </div>
 
-    <div class="slots-grid">
+      <div class="slots-grid">
       <button
         v-for="slot in normalizedSlots"
         :key="slot.index"
@@ -81,6 +82,7 @@
           🗑️
         </button>
       </button>
+    </div>
     </div>
 
     <!-- Confirm Delete Modal -->
@@ -187,8 +189,14 @@ function performDelete() {
   font-size: 1rem;
 }
 
+.save-slots-content {
+  width: 100%;
+  max-width: 900px;
+}
+
 .save-slots-lang-container {
   display: flex;
+  justify-content: flex-end;
   align-items: center;
   gap: var(--spacing-sm);
   margin-bottom: var(--spacing-xl);
@@ -196,6 +204,8 @@ function performDelete() {
   padding: var(--spacing-xs) var(--spacing-md);
   border-radius: var(--radius-lg);
   border: 1px solid var(--glass-border);
+  width: fit-content;
+  margin-left: auto;
 }
 
 .save-slots-lang-container label {
@@ -225,7 +235,6 @@ function performDelete() {
   grid-template-columns: repeat(2, 1fr);
   gap: var(--spacing-md);
   width: 100%;
-  max-width: 900px;
 }
 
 .slot-card {
@@ -471,6 +480,11 @@ function performDelete() {
 
   .btn-delete {
     opacity: 1;
+  }
+
+  .save-slots-lang-container {
+    margin-left: auto;
+    margin-right: auto;
   }
 }
 
