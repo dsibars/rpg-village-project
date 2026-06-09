@@ -5,12 +5,8 @@
 import { waitForVisible, clickNav } from '../utils/nav.mjs'
 import { startNewGame } from '../utils/setup.mjs'
 import { injectHero, refreshUI } from '../utils/state-injector.mjs'
-import { v1Selectors as s1 } from '../selectors/v1.mjs'
-import { v2Selectors as s2 } from '../selectors/v2.mjs'
+import { selectors } from '../selectors/selectors.mjs'
 
-function getSelectors(version) {
-  return version === 'v1' ? s1 : s2
-}
 
 async function dismissModal(page, selectors) {
   const closeBtn = await page.$(selectors.modalCloseBtn)
@@ -21,14 +17,14 @@ async function dismissModal(page, selectors) {
     await page.keyboard.press('Escape')
     await page.waitForTimeout(300)
   }
-  // Wait for v2 overlay to actually leave the DOM
+  // Wait for overlay to actually leave the DOM
   try {
     await page.waitForSelector('.modal-overlay', { state: 'hidden', timeout: 2000 })
   } catch { /* ignore */ }
 }
 
 async function clickActionButton(page, labelSubstring) {
-  // Cross-version: click any button whose text includes the label (case-insensitive)
+  // Click any click any button whose text includes the label (case-insensitive)
   return page.evaluate((label) => {
     const buttons = Array.from(document.querySelectorAll('button'))
     const target = buttons.find((b) =>
@@ -42,26 +38,23 @@ async function clickActionButton(page, labelSubstring) {
   }, labelSubstring)
 }
 
-export async function run({ page, version, snap }) {
-  const selectors = getSelectors(version)
+export async function run({ page, snap }) {
 
-  await startNewGame(page, version, selectors)
-  await injectHero(page, version, { name: 'Aria', origin: 'origin_arcane_initiate', level: 10 })
-  await injectHero(page, version, { name: 'Bran', origin: 'origin_warrior', level: 5 })
+  await startNewGame(page, selectors)
+  await injectHero(page, { name: 'Aria', origin: 'origin_arcane_initiate', level: 10 })
+  await injectHero(page, { name: 'Bran', origin: 'origin_warrior', level: 5 })
 
   // Build required infrastructure for buttons to appear
-  const engineExpr = version === 'v1' ? 'window.engine' : 'window.__ENGINE__'
-  await page.evaluate(({ engineExpr }) => {
-    const getEngine = new Function(`return ${engineExpr}`)
-    const e = getEngine()
+  await page.evaluate(() => {
+    const e = window.__ENGINE__
     if (e?.villageService?.state?.infrastructure) {
       e.villageService.state.infrastructure.arcane_sanctum = 2
       e.villageService.state.infrastructure.witchs_hut = 1
       e.villageService.save()
     }
-  }, { engineExpr })
+  }, {})
 
-  await refreshUI(page, version)
+  await refreshUI(page)
 
   // Navigate to heroes and select first hero
   await clickNav(page, selectors.navHeroes)
@@ -85,7 +78,7 @@ export async function run({ page, version, snap }) {
   }
 
   // --- heroes_modal_consumables ---
-  // v2 button text is "🧪 Use Item"; try both labels
+  // button text is "🧪 Use Item"; try both labels
   if (await clickActionButton(page, 'use item') || await clickActionButton(page, 'consumables')) {
     await page.waitForTimeout(400)
     await snap({ flow: 'hero-modals', state: 'heroes_modal_consumables' })
@@ -111,7 +104,7 @@ export async function run({ page, version, snap }) {
       if (e.heroService.saveAll) e.heroService.saveAll()
     }
   })
-  await refreshUI(page, version)
+  await refreshUI(page)
   await page.waitForTimeout(300)
   if (await clickActionButton(page, 'inscription')) {
     await page.waitForTimeout(400)

@@ -5,38 +5,30 @@
 import { waitForVisible, clickElement, clickNav, clickSubNav } from '../utils/nav.mjs'
 import { startNewGame } from '../utils/setup.mjs'
 import { injectHero, refreshUI } from '../utils/state-injector.mjs'
-import { v1Selectors as s1 } from '../selectors/v1.mjs'
-import { v2Selectors as s2 } from '../selectors/v2.mjs'
+import { selectors } from '../selectors/selectors.mjs'
 
-function getSelectors(version) {
-  return version === 'v1' ? s1 : s2
-}
 
-export async function run({ page, version, snap }) {
-  const selectors = getSelectors(version)
+export async function run({ page, snap }) {
 
-  await startNewGame(page, version, selectors)
+  await startNewGame(page, selectors)
 
   // Inject a hero and assign to tutorial cave expedition
-  await injectHero(page, version, { name: 'Aria', origin: 'origin_arcane_initiate', level: 5 })
-  const engineExpr = version === 'v1' ? 'window.engine' : 'window.__ENGINE__'
+  await injectHero(page, { name: 'Aria', origin: 'origin_arcane_initiate', level: 5 })
 
   // Get actual hero ID for assignment
-  const heroId = await page.evaluate(({ engineExpr }) => {
-    const getEngine = new Function(`return ${engineExpr}`)
-    const e = getEngine()
+  const heroId = await page.evaluate(() => {
+    const e = window.__ENGINE__
     const hero = e?.heroService?.heroes?.find(h => h.name === 'Aria')
     return hero?.id || 'Aria'
-  }, { engineExpr })
+  }, {})
 
-  await page.evaluate(({ engineExpr, heroId }) => {
-    const getEngine = new Function(`return ${engineExpr}`)
-    const e = getEngine()
+  await page.evaluate((heroId) => {
+    const e = window.__ENGINE__
     if (!e?.expeditionService?.assignExpedition) return
     e.expeditionService.assignExpedition('exp_tutorial_cave', [heroId])
-  }, { engineExpr, heroId })
+  }, heroId)
 
-  await refreshUI(page, version)
+  await refreshUI(page)
 
   // Advance days until expedition completes
   // v2 tutorial cave has 2 stages; each day triggers combat that must be won
@@ -63,7 +55,7 @@ export async function run({ page, version, snap }) {
         }
       })
       await page.waitForTimeout(500)
-      await refreshUI(page, version)
+      await refreshUI(page)
       await page.waitForTimeout(300)
 
       // Click close on combat resolution pane if shown
@@ -77,7 +69,7 @@ export async function run({ page, version, snap }) {
       }
     }
 
-    // Check if expedition result modal appeared (v2 fix in App.vue)
+    // Check if expedition result modal appeared (async rendering)
     const hasExpResult = await page.evaluate(() => {
       const modal = document.querySelector('.modal-overlay')
       return modal && modal.textContent.toLowerCase().includes('expedition')

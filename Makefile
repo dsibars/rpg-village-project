@@ -24,13 +24,11 @@ build: docs-hash build-web build-app
 build-web: docs-hash
 	@echo "Building RPG Village (web)..."
 	@npm run build
-	@npm run build:v2
-	@echo "Web build complete! Output: dist/ (index.html + index_v2.html)"
+	@echo "Web build complete! Output: dist/index.html"
 
 build-app: docs-hash
 	@echo "Building RPG Village (electron app)..."
 	@npm run build
-	@npm run build:v2
 	@npm run electron:package
 	@echo "App build complete! Check out/ directory."
 
@@ -74,8 +72,11 @@ deploy-itch: build-web
 		echo "Please copy 'itch.config.example' to 'itch.config' and set your Itch.io username/game slug."; \
 		exit 1; \
 	fi
-	@echo "Zipping web build..."
-	@python3 -c "import shutil; shutil.make_archive('rpg-village-web', 'zip', 'dist')"
-	@echo "Uploading web build to itch.io under $(ITCH_USER)/$(ITCH_GAME)..."
+	@echo "Staging build for itch.io..."
+	@rm -rf .itch-staging && mkdir -p .itch-staging
+	@cp -r dist/* .itch-staging/
+	@python3 -c "import shutil; shutil.make_archive('rpg-village-web', 'zip', '.itch-staging')"
+	@rm -rf .itch-staging
+	@echo "Uploading Vue web build to itch.io under $(ITCH_USER)/$(ITCH_GAME)..."
 	butler push rpg-village-web.zip $(ITCH_USER)/$(ITCH_GAME):web-html
 

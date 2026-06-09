@@ -1,4 +1,4 @@
-import { getEquipmentStats as engineGetEquipmentStats } from '../../../engine/shared/inventory/EquipmentService.js';
+import { getEquipmentStats as engineGetEquipmentStats } from '../../../js/engine/shared/inventory/EquipmentService.js';
 
 /**
  * Generates the localized display name for a piece of equipment.

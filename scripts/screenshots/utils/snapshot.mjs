@@ -11,21 +11,21 @@ export function ensureOutDir(outDir = OUT_DIR) {
   }
 }
 
-export async function snap(page, { version, flow, state, dryRun = false, outDir = OUT_DIR }) {
+export async function snap(page, { flow, state, dryRun = false, outDir = OUT_DIR }) {
   ensureOutDir(outDir)
-  const fileName = `${version}_${flow}_${state}.png`
+  const fileName = `${flow}_${state}.png`
   const filePath = path.join(outDir, fileName)
 
   if (!dryRun) {
     await page.screenshot({ path: filePath, fullPage: false })
   }
 
-  console.log(`[${version}:${flow}] ${state} ${dryRun ? '(dry-run)' : `→ ${fileName}`}`)
+  console.log(`[${flow}] ${state} ${dryRun ? '(dry-run)' : `→ ${fileName}`}`)
   return filePath
 }
 
-export function createSnapshot(page, version, outDir = OUT_DIR) {
+export function createSnapshot(page, outDir = OUT_DIR) {
   ensureOutDir(outDir)
   return ({ flow, state, dryRun = false }) =>
-    snap(page, { version, flow, state, dryRun, outDir })
+    snap(page, { flow, state, dryRun, outDir })
 }

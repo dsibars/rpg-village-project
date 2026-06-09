@@ -5,26 +5,19 @@
 import { waitForVisible, clickElement } from '../utils/nav.mjs'
 import { startNewGame } from '../utils/setup.mjs'
 import { triggerNextDay, setStorageFull, refreshUI } from '../utils/state-injector.mjs'
-import { v1Selectors as s1 } from '../selectors/v1.mjs'
-import { v2Selectors as s2 } from '../selectors/v2.mjs'
+import { selectors } from '../selectors/selectors.mjs'
 
-function getSelectors(version) {
-  return version === 'v1' ? s1 : s2
-}
 
-export async function run({ page, version, snap }) {
-  const selectors = getSelectors(version)
+export async function run({ page, snap }) {
 
-  await startNewGame(page, version, selectors)
+  await startNewGame(page, selectors)
 
   // --- village_main ---
   await snap({ flow: 'village', state: 'village_main' })
 
   // --- village_construction_active ---
-  const engineExpr = version === 'v1' ? 'window.engine' : 'window.__ENGINE__'
-  await page.evaluate(({ engineExpr }) => {
-    const getEngine = new Function(`return ${engineExpr}`)
-    const e = getEngine()
+  await page.evaluate(() => {
+    const e = window.__ENGINE__
     if (!e?.villageService) return
     // Ensure we have enough wood for the farm project
     if (e.inventoryService?.addItem) {
@@ -36,17 +29,17 @@ export async function run({ page, version, snap }) {
     } else if (e.villageService?.startProject) {
       e.villageService.startProject('farm', 1, 30, { material_wood: 10 }, 1)
     }
-  }, { engineExpr })
-  await refreshUI(page, version)
+  }, {})
+  await refreshUI(page)
   await snap({ flow: 'village', state: 'village_construction_active' })
 
   // --- village_storage_warning ---
-  await setStorageFull(page, version, 0.95)
-  await refreshUI(page, version)
+  await setStorageFull(page, 0.95)
+  await refreshUI(page)
   await snap({ flow: 'village', state: 'village_storage_warning' })
 
   // --- village_daily_report ---
-  await triggerNextDay(page, version)
+  await triggerNextDay(page)
   // Wait for daily report modal to appear (Vue async + transition)
   await page.waitForTimeout(800)
   const reportVisible = await page.$(selectors.dailyReportModal)

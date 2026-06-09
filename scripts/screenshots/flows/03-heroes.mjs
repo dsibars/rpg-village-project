@@ -5,15 +5,11 @@
 import { waitForVisible, clickNav, clickElement } from '../utils/nav.mjs'
 import { startNewGame } from '../utils/setup.mjs'
 import { injectHero, refreshUI } from '../utils/state-injector.mjs'
-import { v1Selectors as s1 } from '../selectors/v1.mjs'
-import { v2Selectors as s2 } from '../selectors/v2.mjs'
+import { selectors } from '../selectors/selectors.mjs'
 
-function getSelectors(version) {
-  return version === 'v1' ? s1 : s2
-}
 
 async function dismissAnyModal(page) {
-  // v2 modals use .btn-close inside .modal-overlay; v1 uses various close buttons
+  // modals use .btn-close inside .modal-overlay
   const closeBtn = await page.$('.modal-overlay .btn-close, .modal-frame .btn-close, .modal-close, button[aria-label="close"]')
   if (closeBtn) {
     await closeBtn.click().catch(() => {})
@@ -29,18 +25,17 @@ async function dismissAnyModal(page) {
   } catch { /* ignore */ }
 }
 
-export async function run({ page, version, snap }) {
-  const selectors = getSelectors(version)
+export async function run({ page, snap }) {
 
-  await startNewGame(page, version, selectors)
+  await startNewGame(page, selectors)
   await clickNav(page, selectors.navHeroes)
   await waitForVisible(page, selectors.heroList, 3000)
 
   // Ensure at least 3 heroes exist
-  await injectHero(page, version, { name: 'Aria', origin: 'origin_arcane_initiate', level: 1 })
-  await injectHero(page, version, { name: 'Bran', origin: 'origin_warrior', level: 3 })
-  await injectHero(page, version, { name: 'Cora', origin: 'origin_ranger', level: 5 })
-  await refreshUI(page, version)
+  await injectHero(page, { name: 'Aria', origin: 'origin_arcane_initiate', level: 1 })
+  await injectHero(page, { name: 'Bran', origin: 'origin_warrior', level: 3 })
+  await injectHero(page, { name: 'Cora', origin: 'origin_ranger', level: 5 })
+  await refreshUI(page)
   await page.waitForTimeout(300)
 
   // Dismiss any stray modal before interacting with hero list
@@ -90,7 +85,7 @@ export async function run({ page, version, snap }) {
   }
 
   // --- heroes_modal_consumables ---
-  // v2 button text is "🧪 Use Item"; try both labels
+  // button text is "🧪 Use Item"; try both labels
   if (await clickHeroAction('use item') || await clickHeroAction('consumables')) {
     await waitForVisible(page, selectors.heroConsumablesModal, 2000)
     await snap({ flow: 'heroes', state: 'heroes_modal_consumables' })

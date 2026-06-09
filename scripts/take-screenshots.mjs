@@ -1,22 +1,15 @@
 /**
- * Screenshot Automation for RPG Village Migration Review
+ * Screenshot Automation for RPG Village
  *
  * Usage:
- *   node scripts/take-screenshots.mjs [v1|v2|both]
- *
- * Defaults to 'both' if no argument is provided.
+ *   node scripts/take-screenshots.mjs
  *
  * Prerequisites:
- *   1. Both v1 and v2 must be built:
- *        npx vite build              # builds v1 → dist/index.html
- *        npx vite build --config vite.v2.config.js  # builds v2 → dist/index_v2.html
- *   2. Playwright + Chromium must be installed:
- *        npm install --save-dev playwright
- *        npx playwright install chromium
+ *   npm install --save-dev playwright
+ *   npx playwright install chromium
  *
  * Outputs:
- *   ux/_migration_screenshots/v1_<flow>_<nnn>_<name>.png
- *   ux/_migration_screenshots/v2_<flow>_<nnn>_<name>.png
+ *   scripts/screenshots/output/start_new_game_{nnn}_{name}.png
  */
 
 import { chromium } from 'playwright';
@@ -26,9 +19,7 @@ import path from 'path';
 
 const PORT = 8765;
 const DIST_DIR = path.resolve(process.cwd(), 'dist');
-const OUT_DIR = path.resolve(process.cwd(), 'ux/_migration_screenshots');
-
-const version = process.argv[2] || 'both';
+const OUT_DIR = path.resolve(process.cwd(), 'scripts/screenshots/output');
 
 // ── Simple static file server ─────────────────────────────────────────
 const server = http.createServer((req, res) => {
@@ -141,25 +132,6 @@ async function takeScreenshots(page, selectors, prefix) {
   // Dismiss any modal that may have opened
   await page.keyboard.press('Escape');
   await page.waitForTimeout(300);
-  // Also try clicking modal close button or overlay for v1
-  if (prefix === 'v1') {
-    // v1 BaseModal uses .btn-close-modal inside .modal-overlay
-    const closeBtn = await page.$('.btn-close-modal');
-    if (closeBtn) {
-      await closeBtn.click().catch(() => {});
-      await page.waitForTimeout(400);
-    }
-    // Also try clicking the overlay edge (not center where modal-body is)
-    const overlay = await page.$('.modal-overlay');
-    if (overlay) {
-      // Click at top-left corner of overlay to ensure we hit the overlay itself
-      const box = await overlay.boundingBox();
-      if (box) {
-        await page.mouse.click(box.x + 5, box.y + 5);
-        await page.waitForTimeout(400);
-      }
-    }
-  }
 
   // Bestiary
   await clickSubNav(page, selectors.subNavBestiary);
@@ -201,12 +173,8 @@ async function takeScreenshots(page, selectors, prefix) {
   await page.waitForTimeout(800);
   await snap(page, 'inventory', prefix);
 
-  // Settings (sub-nav in v1 town, separate nav in v2)
-  if (selectors.subNavSettings) {
-    await clickSubNav(page, selectors.subNavSettings);
-    await page.waitForTimeout(800);
-    await snap(page, 'settings', prefix);
-  } else if (selectors.navSettings) {
+  // Settings
+  if (selectors.navSettings) {
     await clickNav(page, selectors.navSettings);
     await page.waitForTimeout(800);
     await snap(page, 'settings', prefix);
@@ -233,11 +201,9 @@ async function clickSubNav(page, selector) {
   if (!selector) return;
   const el = await page.$(selector);
   if (el) {
-    // Try normal click first; if blocked by overlay, force via evaluate
     try {
       await el.click({ timeout: 3000 });
     } catch (e) {
-      // Click directly via JS to bypass overlay interception
       await page.evaluate((sel) => {
         const element = document.querySelector(sel);
         if (element) element.click();
@@ -273,66 +239,32 @@ server.listen(PORT, async () => {
 
   if (!fs.existsSync(OUT_DIR)) fs.mkdirSync(OUT_DIR, { recursive: true });
 
-  // ── v1 (Vanilla JS) ────────────────────────────────────────────────
-  if (version === 'v1' || version === 'both') {
-    const page = await context.newPage();
-    await page.goto(`http://localhost:${PORT}/index.html`);
-    await takeScreenshots(page, {
-      saveSlotScreen: '.save-slots-screen',
-      emptySlot: '.save-slot-card.empty',
-      emptySlotAction: '.slot-action',
-      anySlot: '.save-slot-card',
-      introOverlay: '.presentation-overlay',
-      introSkip: '.presentation-skip',
-      introNext: '.presentation-next',
-      villagePage: '.village-dashboard-grid, #main-content',
-      navHeroes: '.nav-item[data-category="heroes"]',
-      navAdventure: '.nav-item[data-category="adventure"]',
-      navTown: '.nav-item[data-category="town"]',
-      subNavBestiary: '.sub-nav-tab[data-subview="bestiary"]',
-      subNavCodex: '.sub-nav-tab[data-subview="codex"]',
-      subNavChronicle: '.sub-nav-tab[data-subview="chronicle"]',
-      subNavShop: '.sub-nav-tab[data-subview="shop"]',
-      subNavForge: '.sub-nav-tab[data-subview="forge"]',
-      subNavInventory: '.sub-nav-tab[data-subview="inventory"]',
-      subNavSettings: '.sub-nav-tab[data-subview="settings"]',
-      heroCard: '#heroes-list-container .hero-card',
-      buildingCard: '.building-card',
-      expeditionNode: '.tree-node, .expedition-card',
-    }, 'v1');
-    await page.close();
-  }
-
-  // ── v2 (Vue 3) ─────────────────────────────────────────────────────
-  if (version === 'v2' || version === 'both') {
-    const page = await context.newPage();
-    await page.goto(`http://localhost:${PORT}/index_v2.html`);
-    await takeScreenshots(page, {
-      saveSlotScreen: '.save-slot-page, .slot-card',
-      emptySlot: '.slot-card.empty',
-      emptySlotAction: '.slot-action-new, button',
-      anySlot: '.slot-card',
-      introOverlay: '.presentation-overlay',
-      introSkip: '.presentation-skip',
-      introNext: '.presentation-next',
-      villagePage: '.village-page, .dashboard-row',
-      navHeroes: '.footer-nav .nav-item:nth-child(2), .nav-item:nth-child(2)',
-      navAdventure: '.footer-nav .nav-item:nth-child(3), .nav-item:nth-child(3)',
-      navTown: '.footer-nav .nav-item:nth-child(4), .nav-item:nth-child(4)',
-      subNavBestiary: '.tab-nav .tab-btn:nth-child(2)',
-      subNavCodex: '.tab-nav .tab-btn:nth-child(3)',
-      subNavChronicle: '.tab-nav .tab-btn:nth-child(4)',
-      subNavShop: '.tab-nav .tab-btn:nth-child(2)',
-      subNavForge: '.tab-nav .tab-btn:nth-child(3)',
-      subNavInventory: '.tab-nav .tab-btn:nth-child(4)',
-      subNavSettings: null,
-      navSettings: '.top-bar-right .btn-quick:last-child',
-      heroCard: '.hero-list-item',
-      buildingCard: '.building-card',
-      expeditionNode: '.tree-node, .expedition-card',
-    }, 'v2');
-    await page.close();
-  }
+  const page = await context.newPage();
+  await page.goto(`http://localhost:${PORT}/index.html`);
+  await takeScreenshots(page, {
+    saveSlotScreen: '.save-slot-page, .slot-card',
+    emptySlot: '.slot-card.empty',
+    emptySlotAction: '.slot-action-new, button',
+    anySlot: '.slot-card',
+    introOverlay: '.presentation-overlay',
+    introSkip: '.presentation-skip',
+    introNext: '.presentation-next',
+    villagePage: '.village-page, .dashboard-row',
+    navHeroes: '.footer-nav .nav-item:nth-child(2), .nav-item:nth-child(2)',
+    navAdventure: '.footer-nav .nav-item:nth-child(3), .nav-item:nth-child(3)',
+    navTown: '.footer-nav .nav-item:nth-child(4), .nav-item:nth-child(4)',
+    subNavBestiary: '.tab-nav .tab-btn:nth-child(2)',
+    subNavCodex: '.tab-nav .tab-btn:nth-child(3)',
+    subNavChronicle: '.tab-nav .tab-btn:nth-child(4)',
+    subNavShop: '.tab-nav .tab-btn:nth-child(2)',
+    subNavForge: '.tab-nav .tab-btn:nth-child(3)',
+    subNavInventory: '.tab-nav .tab-btn:nth-child(4)',
+    navSettings: '.top-bar-right .btn-quick:last-child',
+    heroCard: '.hero-list-item',
+    buildingCard: '.building-card',
+    expeditionNode: '.tree-node, .expedition-card',
+  }, 'app');
+  await page.close();
 
   await browser.close();
   server.close();

@@ -1,124 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="description" content="RPG Village - Build and Manage Your Hero's Home">
-    <title>RPG Village</title>
-
-    <!-- Fonts (Loaded locally in style.css for 100% offline support) -->
-
-    <!-- Styles -->
-    <link rel="stylesheet" href="./css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="RPG Village - Build and Manage Your Hero's Home">
+  <title>RPG Village</title>
+  <link rel="stylesheet" href="./css/style.css">
 </head>
-
 <body>
-    <div id="app-container">
-        <!-- Global Header: Persistence across views -->
-        <header class="game-header">
-            <div class="brand">
-                <h1>RPG Village</h1>
-            </div>
-            <div class="global-day-cycle">
-                <span class="day-label" data-i18n="shared_uxelm_day"></span>
-                <span id="global-day" class="day-value">--</span>
-                <button id="btn-global-next-day" class="btn btn-primary btn-sm shine-effect"
-                    style="padding: 6px 12px; font-size: 0.85rem;">
-                    <span class="icon">☀️</span> <span data-i18n="shared_uxelm_next_day" class="hide-mobile"></span>
-                </button>
-                <button id="btn-global-codex" class="btn btn-secondary btn-sm"
-                    style="padding: 6px 12px; font-size: 0.85rem; display: flex; align-items: center; gap: 4px;"
-                    title="Codex">
-                    <span class="icon">📖</span> <span data-i18n="shared_uxelm_nav_codex" class="hide-mobile"></span>
-                </button>
-                <button id="btn-global-chronicle" class="btn btn-secondary btn-sm"
-                    style="padding: 6px 12px; font-size: 0.85rem; display: flex; align-items: center; gap: 4px;"
-                    title="Chronicle">
-                    <span class="icon">📜</span> <span data-i18n="nav_chronicle" class="hide-mobile"></span>
-                </button>
-            </div>
-            <div class="stats-bar">
-                <div class="stat-item" title="Gold">
-                    <span class="icon">💰</span>
-                    <span id="gold-count" class="value">0</span>
-                </div>
-                <div class="stat-item" title="Villagers">
-                    <span class="icon">👤</span>
-                    <span id="villager-count" class="value">0</span>
-                </div>
-                <div class="stat-item" title="Materials">
-                    <span class="icon">🪵</span>
-                    <span id="wood-count" class="value">0</span>
-                </div>
-            </div>
-        </header>
-
-        <!-- Main Content Area: Views are injected here -->
-        <main id="main-content">
-            <div class="loader-overlay" id="main-loader">
-                <div class="spinner"></div>
-            </div>
-        </main>
-
-        <!-- Global Navigation -->
-        <nav class="main-nav">
-            <button class="nav-item active" data-category="village" data-default="village">
-                <span class="nav-icon">🏡</span>
-                <span class="nav-label" data-i18n="shared_uxelm_nav_main"></span>
-            </button>
-            <button class="nav-item" data-category="heroes" data-default="heroes">
-                <span class="nav-icon">⚔️</span>
-                <span class="nav-label" data-i18n="shared_uxelm_nav_heroes"></span>
-            </button>
-            <button class="nav-item" data-category="adventure" data-default="explore">
-                <span class="nav-icon">🗺️</span>
-                <span class="nav-label" data-i18n="shared_uxelm_nav_adventure"></span>
-            </button>
-            <button class="nav-item" data-category="town" data-default="buildings">
-                <span class="nav-icon">🏘️</span>
-                <span class="nav-label" data-i18n="shared_uxelm_nav_town"></span>
-            </button>
-        </nav>
-    </div>
-
-    <!-- View Templates (Inlined at build-time) -->
-    <template id="tpl-village">
-        <include src="pages/village.html"></include>
-    </template>
-    <template id="tpl-buildings">
-        <include src="pages/buildings.html"></include>
-    </template>
-    <template id="tpl-heroes">
-        <include src="pages/heroes.html"></include>
-    </template>
-    <template id="tpl-inventory">
-        <include src="pages/inventory.html"></include>
-    </template>
-    <template id="tpl-explore">
-        <include src="pages/explore.html"></include>
-    </template>
-    <template id="tpl-settings">
-        <include src="pages/settings.html"></include>
-    </template>
-    <template id="tpl-shop">
-        <include src="pages/shop.html"></include>
-    </template>
-    <template id="tpl-forge">
-        <include src="pages/forge.html"></include>
-    </template>
-    <template id="tpl-bestiary">
-        <include src="pages/bestiary.html"></include>
-    </template>
-    <template id="tpl-codex">
-        <include src="pages/codex.html"></include>
-    </template>
-    <template id="tpl-chronicle">
-        <include src="pages/chronicle.html"></include>
-    </template>
-
-    <!-- Application Entry Point -->
-    <script type="module" src="./js/main.js"></script>
+  <div id="app"></div>
+  <script type="module" src="./js/main.js"></script>
 </body>
-
 </html>

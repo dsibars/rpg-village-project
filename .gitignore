@@ -155,3 +155,4 @@ itch.config
 
 # PNG Screenshots for AI review
 ux/_migration_screenshots
+scripts/screenshots/output/

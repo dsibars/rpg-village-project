@@ -187,7 +187,7 @@ export function createEngineAdapter(engine, gameStateRef) {
         }
       }
 
-      // Force a state snapshot after the action — matches legacy forceUpdate() behavior.
+      // Force a state snapshot after the action.
       // engine.update() is non-idempotent (see architecture doc §6.3), but this is correct here:
       // the action just mutated engine state, and we need Vue to see the change
       // immediately (not wait for the next 100ms loop tick).

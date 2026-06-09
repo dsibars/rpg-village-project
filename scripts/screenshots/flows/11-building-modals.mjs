@@ -1,19 +1,15 @@
 /**
  * Building Modals flow: Trainer, Witch, Academy, Hall of Fame.
  *
- * In v2 these modals are opened from the hero profile action bar,
+ * These modals are opened from the hero profile action bar,
  * not from the buildings tab.
  */
 
 import { waitForVisible, clickNav } from '../utils/nav.mjs'
 import { startNewGame } from '../utils/setup.mjs'
 import { injectHero, refreshUI } from '../utils/state-injector.mjs'
-import { v1Selectors as s1 } from '../selectors/v1.mjs'
-import { v2Selectors as s2 } from '../selectors/v2.mjs'
+import { selectors } from '../selectors/selectors.mjs'
 
-function getSelectors(version) {
-  return version === 'v1' ? s1 : s2
-}
 
 async function clickActionButton(page, labelSubstring) {
   return page.evaluate((label) => {
@@ -43,27 +39,24 @@ async function dismissAnyModal(page) {
   } catch { /* ignore */ }
 }
 
-export async function run({ page, version, snap }) {
-  const selectors = getSelectors(version)
+export async function run({ page, snap }) {
 
-  await startNewGame(page, version, selectors)
-  await injectHero(page, version, { name: 'Aria', origin: 'origin_arcane_initiate', level: 10 })
-  await injectHero(page, version, { name: 'Bran', origin: 'origin_warrior', level: 10 })
+  await startNewGame(page, selectors)
+  await injectHero(page, { name: 'Aria', origin: 'origin_arcane_initiate', level: 10 })
+  await injectHero(page, { name: 'Bran', origin: 'origin_warrior', level: 10 })
 
   // Build required infrastructure for buttons to appear
-  const engineExpr = version === 'v1' ? 'window.engine' : 'window.__ENGINE__'
-  await page.evaluate(({ engineExpr }) => {
-    const getEngine = new Function(`return ${engineExpr}`)
-    const e = getEngine()
+  await page.evaluate(() => {
+    const e = window.__ENGINE__
     if (e?.villageService?.state?.infrastructure) {
       e.villageService.state.infrastructure.training_grounds = 1
       e.villageService.state.infrastructure.arcane_sanctum = 2
       e.villageService.state.infrastructure.witchs_hut = 1
       e.villageService.save()
     }
-  }, { engineExpr })
+  }, {})
 
-  await refreshUI(page, version)
+  await refreshUI(page)
 
   // Navigate to heroes and select first hero
   await clickNav(page, selectors.navHeroes)

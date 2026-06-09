@@ -191,7 +191,7 @@ onUnmounted(() => {
   window.removeEventListener('resize', handleResize)
 })
 
-// Description parser matching legacy CodexView.js
+// Description parser
 function formatDescription(text) {
   if (!text) return ''
   const cleanedText = text.replace(/\\n/g, '\n')

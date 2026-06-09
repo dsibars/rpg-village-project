@@ -5,7 +5,7 @@ import path from 'path';
 
 const PORT = 8766;
 const DIST_DIR = path.resolve(process.cwd(), 'dist');
-const OUT_DIR = path.resolve(process.cwd(), 'ux/_migration_screenshots');
+const OUT_DIR = path.resolve(process.cwd(), 'scripts/screenshots/output');
 
 const server = http.createServer((req, res) => {
   const url = req.url === '/' ? '/index.html' : req.url;
@@ -45,14 +45,7 @@ async function takeMagicCircleScreenshot(page, url, prefix, selectors) {
   // Wait for village and navigate to settings
   await page.waitForSelector(selectors.villagePage, { timeout: 15000 });
 
-  // Navigate to settings
-  if (selectors.subNavSettings) {
-    // v1: settings is sub-tab under town
-    await clickNav(page, selectors.navTown);
-    await page.waitForTimeout(500);
-    await clickNav(page, selectors.subNavSettings);
-  } else if (selectors.navSettings) {
-    // v2: settings is separate nav
+  if (selectors.navSettings) {
     await clickNav(page, selectors.navSettings);
   }
   await page.waitForTimeout(800);
@@ -114,27 +107,8 @@ server.listen(PORT, async () => {
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({ viewport: { width: 1600, height: 1300 } });
 
-  // v1
-  const page1 = await context.newPage();
-  await takeMagicCircleScreenshot(page1, `http://localhost:${PORT}/index.html`, 'v1', {
-    saveSlotScreen: '.save-slots-screen',
-    emptySlot: '.save-slot-card.empty',
-    emptySlotAction: '.slot-action',
-    introOverlay: '.presentation-overlay',
-    introSkip: '.presentation-skip',
-    villagePage: '.village-dashboard-grid, #main-content',
-    navTown: '.nav-item[data-category="town"]',
-    subNavSettings: '.sub-nav-tab[data-subview="settings"]',
-    magicSimulatorBtn: '#btn-magic-simulator',
-    coreSlot: '[data-slot="0"]',
-    fireGlyphCard: '[data-glyph="glyph_fire"]',
-    ringSlot: '[data-slot="1"]',
-  });
-  await page1.close();
-
-  // v2
-  const page2 = await context.newPage();
-  await takeMagicCircleScreenshot(page2, `http://localhost:${PORT}/index_v2.html`, 'v2', {
+  const page = await context.newPage();
+  await takeMagicCircleScreenshot(page, `http://localhost:${PORT}/index.html`, 'app', {
     saveSlotScreen: '.save-slot-page, .slot-card',
     emptySlot: '.slot-card.empty',
     emptySlotAction: '.slot-action-new, button',
@@ -142,13 +116,12 @@ server.listen(PORT, async () => {
     introSkip: '.presentation-skip',
     villagePage: '.village-page, .dashboard-row',
     navSettings: '.top-bar-right .btn-quick:last-child',
-    subNavSettings: null,
     magicSimulatorBtn: 'button:has(.btn-icon:has-text("🔮"))',
     coreSlot: '.mandala-slot.core-slot',
     fireGlyphCard: '.mc-palette-card',
     ringSlot: '.mandala-slots button:not(.core-slot):not(.locked)',
   });
-  await page2.close();
+  await page.close();
 
   await browser.close();
   server.close();

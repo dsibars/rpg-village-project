@@ -1,8 +1,8 @@
 /**
- * v2 (Vue 3) CSS selectors for screenshot navigation.
+ * App CSS selectors for screenshot navigation.
  * These map to the actual DOM produced by the Vue components.
  */
-export const v2Selectors = {
+export const selectors = {
   // === Global / Onboarding ===
   saveSlotScreen: '.save-slot-page, .slot-card',
   saveSlot: '.slot-card',

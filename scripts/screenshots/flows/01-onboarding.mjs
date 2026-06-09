@@ -3,12 +3,8 @@
  */
 
 import { waitForVisible, clickElement } from '../utils/nav.mjs'
-import { v1Selectors as s1 } from '../selectors/v1.mjs'
-import { v2Selectors as s2 } from '../selectors/v2.mjs'
+import { selectors } from '../selectors/selectors.mjs'
 
-function getSelectors(version) {
-  return version === 'v1' ? s1 : s2
-}
 
 async function resetSaveSlots(page) {
   // Direct localStorage wipe: the save-slot registry and all slot data use this prefix.
@@ -20,8 +16,7 @@ async function resetSaveSlots(page) {
   await page.reload({ waitUntil: 'networkidle' })
 }
 
-async function dismissIntroIfVisible(page, version) {
-  const selectors = getSelectors(version)
+async function dismissIntroIfVisible(page) {
   const visible = await page.$(selectors.introOverlay)
   if (visible) {
     await clickElement(page, selectors.introSkip)
@@ -31,9 +26,6 @@ async function dismissIntroIfVisible(page, version) {
 
 /**
  * Create an occupied slot by writing directly to localStorage.
- * Both v1 and v2 use the same prefix and SaveSlotManager logic,
- * but v1's SaveSlotView requires getSlotSummary to return non-null
- * for the slot to render as occupied.
  */
 async function createOccupiedSlot(page, index) {
   await page.evaluate((idx) => {
@@ -88,8 +80,7 @@ async function createOccupiedSlot(page, index) {
   }, index)
 }
 
-export async function run({ page, version, snap }) {
-  const selectors = getSelectors(version)
+export async function run({ page, snap }) {
 
   // --- save_slot_empty ---
   await resetSaveSlots(page)
@@ -117,7 +108,7 @@ export async function run({ page, version, snap }) {
   await snap({ flow: 'onboarding', state: 'intro_skip_visible' })
 
   // --- village_fresh ---
-  await dismissIntroIfVisible(page, version)
+  await dismissIntroIfVisible(page)
   await page.waitForTimeout(500)
   await waitForVisible(page, selectors.mainView, 3000)
   await snap({ flow: 'onboarding', state: 'village_fresh' })

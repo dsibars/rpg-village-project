@@ -224,11 +224,11 @@ import {
   getEquipmentName,
   getEquipmentStats,
   getFormattedStats
-} from '../../../../js/presentation/ui/shared/EquipmentHelper.js'
+} from '@/core/helpers/EquipmentHelper.js'
 import {
   getItemKey,
   getOwnedBreakdown
-} from '../../../../js/presentation/ui/shop/utils/ShopUtils.js'
+} from '@/core/helpers/ShopUtils.js'
 import {
   CONSUMABLES_CATALOG,
   WEAPONS_CATALOG,

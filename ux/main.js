@@ -6,13 +6,12 @@ import './core/theme.css'
 /**
  * Creates and mounts the Vue application shell.
  *
- * This function is the bridge between the legacy engine and the new Vue UI.
- * It receives the engine instance and persistence managers from js/main.js
- * on switch day, wires up reactive state, starts the throttled game loop,
+ * It receives the engine instance and persistence managers from js/main.js,
+ * wires up reactive state, starts the throttled game loop,
  * and returns the mounted app instance.
  *
  * @param {Object} options
- * @param {Object} options.engine - Legacy game engine instance
+ * @param {Object} options.engine - Game engine instance
  * @param {Object} options.persistence - Slot-aware Persistence instance
  * @param {Object} options.saveSlotManager - SaveSlotManager instance
  * @param {Element} options.container - DOM element to mount the app into
@@ -56,7 +55,7 @@ export function createVueApp({ engine, persistence, saveSlotManager, container }
       const newState = engine?.update() || {}
 
       // Combat Auto-Advance: when it's an enemy turn or auto-battle is on,
-      // advance the battle every 500ms (matches legacy adapter behavior).
+      // advance the battle every 500ms.
       if (newState.activeBattle && !newState.activeBattle.isOver) {
         const battle = newState.activeBattle
         const activeActor = battle.turnOrder?.[battle.currentTurnIndex]

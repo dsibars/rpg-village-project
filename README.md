@@ -1,6 +1,6 @@
 # RPG Village
 
-A premium village management and hero progression game built with Vanilla JS.
+A premium village management and hero progression game built with Vue 3 and a modular, domain-driven architecture.
 
 ## The Concept
 
@@ -23,10 +23,11 @@ Set in a world torn apart by endless conflicts and wars, a small group of villag
 - `css/`: Styling using Vanilla CSS and a premium design system.
 - `js/`:
   - `engine/`: Pure game logic structured in Domain-Driven Design (DDD) bounded contexts (`core`, `models`, `services`).
-  - `presentation/`:
-    - `adapters/`: Orchestration layer (connecting logic to view).
-    - `ui/`: DOM management, event listeners, and UI components.
-- `pages/`: HTML partials injected via Vite.
+- `ux/`: Vue 3 component-based UI.
+  - `adapters/`: Orchestration layer (connecting logic to view).
+  - `components/`: Shared UI primitives.
+  - `features/`: Domain-specific pages and components.
+  - `core/`: Composables, theme tokens, and shared helpers.
 - `tests/`: Unit and behaviour tests.
 
 ## Development

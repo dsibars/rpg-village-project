@@ -5,12 +5,8 @@
 import { waitForVisible, clickNav, clickSubNav } from '../utils/nav.mjs'
 import { startNewGame } from '../utils/setup.mjs'
 import { refreshUI } from '../utils/state-injector.mjs'
-import { v1Selectors as s1 } from '../selectors/v1.mjs'
-import { v2Selectors as s2 } from '../selectors/v2.mjs'
+import { selectors } from '../selectors/selectors.mjs'
 
-function getSelectors(version) {
-  return version === 'v1' ? s1 : s2
-}
 
 async function dismissAnyModal(page) {
   // Try close button first
@@ -19,7 +15,7 @@ async function dismissAnyModal(page) {
     await closeBtn.click().catch(() => {})
     await page.waitForTimeout(400)
   } else {
-    // v1: many modals close by clicking the overlay backdrop itself
+    // Try clicking the overlay backdrop
     const overlay = await page.$('.modal-overlay')
     if (overlay) {
       await overlay.click({ position: { x: 10, y: 10 } }).catch(() => {})
@@ -34,16 +30,13 @@ async function dismissAnyModal(page) {
   } catch { /* ignore */ }
 }
 
-export async function run({ page, version, snap }) {
-  const selectors = getSelectors(version)
+export async function run({ page, snap }) {
 
-  await startNewGame(page, version, selectors)
+  await startNewGame(page, selectors)
 
   // Pre-seed bestiary with some discovered enemies for "mixed" state
-  const engineExpr = version === 'v1' ? 'window.engine' : 'window.__ENGINE__'
-  await page.evaluate(({ engineExpr }) => {
-    const getEngine = new Function(`return ${engineExpr}`)
-    const e = getEngine()
+  await page.evaluate(() => {
+    const e = window.__ENGINE__
     if (e?.expeditionService?.state) {
       e.expeditionService.state.bestiary = ['goblin_grunt', 'slime_green']
       e.expeditionService.save()
@@ -54,8 +47,8 @@ export async function run({ page, version, snap }) {
       e.unlockService.state.unlockedCodexFeatures = ['shop', 'forge']
       e.unlockService.save()
     }
-  }, { engineExpr })
-  await refreshUI(page, version)
+  }, {})
+  await refreshUI(page)
 
   await clickNav(page, selectors.navAdventure)
   await waitForVisible(page, selectors.adventureTab, 3000)

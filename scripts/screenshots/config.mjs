@@ -5,7 +5,7 @@ import path from 'path'
 
 export const PORT = 8765
 export const DIST_DIR = path.resolve(process.cwd(), 'dist')
-export const OUT_DIR = path.resolve(process.cwd(), 'ux/_migration_screenshots')
+export const OUT_DIR = path.resolve(process.cwd(), 'scripts/screenshots/output')
 
 export const VIEWPORT = { width: 1600, height: 1300 }
 
@@ -30,13 +30,11 @@ export const DEFAULT_FLOWS = [
 function parseArgs() {
   const args = process.argv.slice(2)
   return {
-    version: args.includes('--version') ? args[args.indexOf('--version') + 1] : 'both',
     dryRun: args.includes('--dry-run'),
     flowsArg: args.includes('--flows') ? args[args.indexOf('--flows') + 1] : null,
   }
 }
 
 const parsed = parseArgs()
-export const VERSION = parsed.version
 export const DRY_RUN = parsed.dryRun
 export const FLOWS_ARG = parsed.flowsArg

@@ -4,7 +4,7 @@
 
 import { waitForVisible, clickElement } from './nav.mjs'
 
-export async function startNewGame(page, version, selectors) {
+export async function startNewGame(page, selectors) {
   // Direct localStorage wipe: the save-slot registry and all slot data use this prefix.
   // We do this BEFORE reload so the page boots into a clean state.
   await page.evaluate(() => {

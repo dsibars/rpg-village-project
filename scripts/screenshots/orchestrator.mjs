@@ -1,11 +1,11 @@
 /**
  * Screenshot Orchestrator
  *
- * Captures v1/v2 screenshot pairs using a state-injection hybrid approach.
+ * Captures app screenshots using a state-injection hybrid approach.
  *
  * Usage:
  *   node scripts/screenshots/orchestrator.mjs
- *   node scripts/screenshots/orchestrator.mjs --version v2 --flows onboarding,village
+ *   node scripts/screenshots/orchestrator.mjs --flows onboarding,village
  *   node scripts/screenshots/orchestrator.mjs --dry-run
  */
 
@@ -14,7 +14,7 @@ import fs from 'fs'
 import { chromium } from 'playwright'
 import { fileURLToPath } from 'url'
 
-import { DIST_DIR, OUT_DIR, PORT, VIEWPORT, VERSION, DRY_RUN, FLOWS_ARG } from './config.mjs'
+import { DIST_DIR, OUT_DIR, PORT, VIEWPORT, DRY_RUN, FLOWS_ARG } from './config.mjs'
 import { startServer } from './utils/server.mjs'
 import { createSnapshot } from './utils/snapshot.mjs'
 import { screenshotRegistry, getFlows } from './registry.mjs'
@@ -22,7 +22,6 @@ import { runFlow } from './flows/index.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
-const versions = VERSION === 'both' ? ['v1', 'v2'] : [VERSION]
 const selectedFlows = FLOWS_ARG ? FLOWS_ARG.split(',').map((s) => s.trim()) : null
 
 const flowsToRun = selectedFlows
@@ -40,7 +39,7 @@ const registryEntries = selectedFlows
   ? screenshotRegistry.filter((entry) => selectedFlows.includes(entry.flow))
   : screenshotRegistry
 
-console.log(`Orchestrator starting: versions=[${versions.join(',')}] dryRun=${DRY_RUN} flows=${flowsToRun.join(',')} states=${registryEntries.length}`)
+console.log(`Orchestrator starting: dryRun=${DRY_RUN} flows=${flowsToRun.join(',')} states=${registryEntries.length}`)
 
 // Ensure output directory exists
 fs.mkdirSync(OUT_DIR, { recursive: true })
@@ -52,44 +51,39 @@ const results = []
 try {
   browser = await chromium.launch({ headless: true })
   const context = await browser.newContext({ viewport: VIEWPORT })
+  const page = await context.newPage()
 
-  for (const version of versions) {
-    const indexFile = version === 'v1' ? 'index.html' : 'index_v2.html'
-    const page = await context.newPage()
+  for (const flowName of flowsToRun) {
+    const label = flowName
+    console.log(`[${label}] start`)
 
-    for (const flowName of flowsToRun) {
-      const label = `${version}_${flowName}`
-      console.log(`[${label}] start`)
-
-      if (DRY_RUN) {
-        console.log(`[${label}] dry-run skip`)
-        results.push({ label, status: 'dry-run' })
-        continue
-      }
-
-      try {
-        // Navigate to fresh app instance for each flow
-        await page.goto(`http://localhost:${PORT}/${indexFile}`, { waitUntil: 'networkidle' })
-
-        const snap = createSnapshot(page, version, OUT_DIR)
-
-        await runFlow(flowName, {
-          page,
-          version,
-          snap: ({ flow, state }) => snap({ flow, state }),
-        })
-
-        console.log(`[${label}] captured`)
-        results.push({ label, status: 'ok' })
-      } catch (err) {
-        console.error(`[${label}] FAILED: ${err.message}`)
-        results.push({ label, status: 'fail', error: err.message })
-        // Continue with next flow
-      }
+    if (DRY_RUN) {
+      console.log(`[${label}] dry-run skip`)
+      results.push({ label, status: 'dry-run' })
+      continue
     }
 
-    await page.close()
+    try {
+      // Navigate to fresh app instance for each flow
+      await page.goto(`http://localhost:${PORT}/index.html`, { waitUntil: 'networkidle' })
+
+      const snap = createSnapshot(page, OUT_DIR)
+
+      await runFlow(flowName, {
+        page,
+        snap: ({ flow, state }) => snap({ flow, state }),
+      })
+
+      console.log(`[${label}] captured`)
+      results.push({ label, status: 'ok' })
+    } catch (err) {
+      console.error(`[${label}] FAILED: ${err.message}`)
+      results.push({ label, status: 'fail', error: err.message })
+      // Continue with next flow
+    }
   }
+
+  await page.close()
 } finally {
   if (browser) await browser.close()
   server.close()

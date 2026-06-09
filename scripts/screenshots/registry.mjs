@@ -1,8 +1,8 @@
 /**
- * Registry of all screenshot pairs to capture.
+ * Registry of all screenshot states to capture.
  *
- * Each entry defines a named state that both v1 and v2 should produce.
- * The orchestrator calls the matching flow function to generate each pair.
+ * Each entry defines a named state that a flow should produce.
+ * The orchestrator calls the matching flow function to generate each screenshot.
  */
 
 export const screenshotRegistry = [

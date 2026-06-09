@@ -52,15 +52,16 @@ Welcome, Agent. This document defines the architectural principles, documentatio
       - `core/`: Central coordinators and state managers.
       - `models/`: Entities and data structures.
       - `services/`: Business logic and calculations.
-  - `js/presentation/`:
+  - `ux/`: Vue 3 component-based UI (The "Front-end").
     - `adapters/`: Orchestration layer (The "BFF").
-    - `ui/`: DOM management and components (The "Front-end").
-  - `pages/`: HTML partials representing UI sections.
-  - `css/`: Styling system and tokens.
+    - `components/`: Shared UI primitives.
+    - `features/`: Domain-specific pages and components.
+    - `core/`: Composables, theme tokens, and shared helpers.
+  - `css/`: Global styling system (fonts, resets, design tokens).
   - `tests/`: Unit and behaviour tests.
   - `infrastructure/electron/`: Electron main process, preload, and forge config.
 
 ## 5. Iteration Workflow
 1. **Document Phase**: Update specifications in `docs/`.
-2. **Implementation Phase**: Implement in `js/engine/<domain>/` then `js/presentation/`.
+2. **Implementation Phase**: Implement in `js/engine/<domain>/` then `ux/features/<domain>/`.
 3. **Verify**: Ensure the code perfectly matches the doc.

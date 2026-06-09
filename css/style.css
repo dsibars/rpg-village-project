@@ -1,20 +1,3 @@
-@import "views/bestiary.css";
-@import "views/buildings.css";
-@import "views/codex.css";
-@import "views/chronicle.css";
-@import "views/explore.css";
-@import "views/forge.css";
-@import "views/heroes.css";
-@import "views/inventory.css";
-@import "views/save-slots.css";
-@import "views/shop.css";
-@import "views/village.css";
-@import "views/settings.css";
-@import "views/combat.css";
-@import "views/gambit.css";
-@import "views/magic-circle.css";
-@import "components/presentation.css";
-
 /* Local Offline Fonts */
 @font-face {
   font-family: 'Inter';
