@@ -1,41 +1,24 @@
-import fs from 'fs';
 import path from 'path';
 import { defineConfig } from 'vite';
 import { viteSingleFile } from 'vite-plugin-singlefile';
-
-// Simple custom plugin to inject HTML partials natively at build-time
-function htmlPartials() {
-  return {
-    name: 'html-partials',
-    enforce: 'pre',
-    transformIndexHtml(html) {
-      // Matches <include src="..." /> OR <include src="..."></include>
-      return html.replace(/<include src="([^"]+)"\s*(?:\/>|><\/include>)/g, (match, filePath) => {
-        // Resolve relative to the project root directory
-        const absolutePath = path.resolve(process.cwd(), filePath);
-        if (fs.existsSync(absolutePath)) {
-          return fs.readFileSync(absolutePath, 'utf8');
-        }
-        return `<!-- Missing partial: ${filePath} -->`;
-      });
-    }
-  };
-}
+import vue from '@vitejs/plugin-vue';
 
 export default defineConfig(({ mode }) => {
   const isDebug = mode === 'debug';
 
   return {
     root: '.',
-    plugins: [htmlPartials(), viteSingleFile()],
+    plugins: [vue(), viteSingleFile()],
+    resolve: {
+      alias: {
+        '@': path.resolve(process.cwd(), 'ux')
+      }
+    },
     build: {
       outDir: 'dist',
       emptyOutDir: true,
       minify: isDebug ? false : 'esbuild',
       cssMinify: isDebug ? false : 'esbuild',
-      rollupOptions: {
-        input: path.resolve(process.cwd(), 'index.html'),
-      }
     }
   };
 });

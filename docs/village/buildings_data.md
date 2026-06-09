@@ -27,8 +27,8 @@ This registry defines the costs, construction times, and bonuses for all village
 | `arcane_sanctum` | 3 | 3000 | 400 Wood, 200 Stone | 7 | 2 teaching slots, +40% speed |
 | `arcane_sanctum` | 4 | 6000 | 800 Wood, 400 Stone | 10 | 3 students/slot, +60% speed |
 | **Health & Recovery** | | | | | |
-| `infirmary` | 1 | 150 | 100 Wood | 3 | Daily Heal: +10% amount, +1 Hero |
-| `infirmary` | 2 | 400 | 200 Wood, 100 Stone | 5 | Daily Heal: +20% amount, +1 Hero |
-| `infirmary` | 3 | 800 | 300 Wood, 200 Stone | 7 | Daily Heal: +30% amount, +1 Hero |
+| `infirmary` | 1 | 150 | 100 Wood | 3 | Daily Heal: +2 base + 30% max HP, +1 Hero |
+| `infirmary` | 2 | 400 | 200 Wood, 100 Stone | 5 | Daily Heal: +2 base + 40% max HP, +2 Heroes |
+| `infirmary` | 3 | 800 | 300 Wood, 200 Stone | 7 | Daily Heal: +2 base + 50% max HP, +2 Heroes |
 | **Social & Recruitment** | | | | | |
 | `tavern` | 1 | 200 | 100 Wood, 50 Stone | 3 | Unlock Hero Recruitment (gold-based)

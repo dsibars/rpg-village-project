@@ -4,6 +4,9 @@ import { Result } from '../../shared/core/Result.js';
 const SEASONS = ['spring', 'summer', 'autumn', 'winter'];
 const SEASON_LENGTH = 30;
 
+// Configurable threshold for the first raid. Set to 2 for testing, 4 for production.
+const MIN_HEROES_FOR_FIRST_RAID = 4;
+
 const SEASON_EFFECTS = {
     spring: { growthBonus: 0.05, label: 'season_spring' },
     summer: { farmBonus: 0.10, label: 'season_summer' },
@@ -92,11 +95,11 @@ export class CalendarService {
     _isRaidDay(day) {
         if (day < 7) return false;
         
-        // First raid is delayed until the player has at least 2 heroes
-        // This gives new players time to rescue Sir Valen and learn the system
+        // First raid is delayed until the player has at least MIN_HEROES_FOR_FIRST_RAID heroes
+        // This gives new players time to build up a roster and learn the systems
         const heroCount = this.heroService.list().length;
         const totalRaids = this.state.events.filter(e => e.type === 'raid').length;
-        if (totalRaids === 0 && heroCount < 2) return false;
+        if (totalRaids === 0 && heroCount < MIN_HEROES_FOR_FIRST_RAID) return false;
         
         // Use a deterministic pseudo-random based on day + seed
         const seed = day * 1337 + 42;

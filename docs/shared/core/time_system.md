@@ -30,7 +30,8 @@ When the player triggers a "Next Day" event, the following steps occur in order:
     - If food is abundant and there is housing capacity, there is a chance for new villagers to join.
 
 7.  **Recovery Phase**:
-    - Idle/exhausted heroes recover HP (base +20% HP, increased by the `infirmary` level).
+    - All idle heroes recover a base **2 HP** per day.
+    - The `infirmary` adds percentage-based healing (+20% base + 10% per level) on top of the base 2 HP for a limited number of heroes (1 + floor(infirmaryLevel / 2)).
 
 8.  **Meal Buff Tick**:
     - `HeroService.tickAllMealBuffs()` decrements `battlesRemaining` by 1 for all heroes.
