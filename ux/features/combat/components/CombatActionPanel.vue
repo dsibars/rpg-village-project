@@ -20,13 +20,13 @@
       <Button variant="secondary" @click="selectAction('targeting', { type: 'attack', id: 'single_strike', name: t('heroes_info_family_single_strike') })">
         ⚔ {{ t('heroes_info_family_single_strike') }}
       </Button>
-      <Button variant="secondary" :disabled="!hasSkills" @click="setMenu('skills')">
+      <Button v-if="hasSkills" variant="secondary" @click="setMenu('skills')">
         🔮 {{ t('shared_uxelm_skills') }}
       </Button>
-      <Button variant="secondary" :disabled="!canCastSpells" @click="setMenu('magic')">
+      <Button v-if="canCastSpells" variant="secondary" @click="setMenu('magic')">
         ✨ {{ t('shared_uxelm_magic') }}
       </Button>
-      <Button variant="secondary" :disabled="battle?.itemUsedThisTurn" @click="setMenu('items')">
+      <Button v-if="hasConsumables" variant="secondary" :disabled="battle?.itemUsedThisTurn" @click="setMenu('items')">
         🎒 {{ t('combat_uxelm_items') }}
         <span v-if="battle?.itemUsedThisTurn" class="hint">({{ t('shared_uxelm_once_per_turn') }})</span>
       </Button>
@@ -182,6 +182,11 @@ const canCastSpells = computed(() => {
   if (!hero) return false
   const codex = hero.spellCodex || []
   return codex.some(s => props.engine?.canCastSpell?.(hero, s))
+})
+
+const hasConsumables = computed(() => {
+  const consumables = props.inventory?.consumables || {}
+  return Object.values(consumables).some(qty => qty > 0)
 })
 
 const skillFamilies = computed(() => {
