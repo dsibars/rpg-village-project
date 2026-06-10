@@ -147,6 +147,16 @@ export const ca = {
     daily_uxelm_obj_spend_gold: "Gasta {target} d'or",
     daily_uxelm_obj_upgrade_building: "Millora un edifici",
 
+    // ═══ DAILY OBJECTIVES — TUTORIAL ════════════════════════════════════════
+    daily_uxelm_obj_build_farm: "Construir una Granja",
+    daily_uxelm_obj_build_farm_desc: "Construeix una Granja per produir menjar i sostenir el teu poble.",
+    daily_uxelm_obj_assign_worker: "Assignar un treballador",
+    daily_uxelm_obj_assign_worker_desc: "Assigna un treballador a una especialització al Poble.",
+    daily_uxelm_obj_explore_region: "Explorar una regió",
+    daily_uxelm_obj_explore_region_desc: "Envia Arthur en una expedició per explorar els Prats Verds.",
+    daily_uxelm_obj_build_explorer_guild: "Construir el Gremi d'Exploradors",
+    daily_uxelm_obj_build_explorer_guild_desc: "Construeix el Gremi d'Exploradors per desbloquejar noves regions.",
+
     // ═══ EXPLORE ERROR ════════════════════════════════════════════════════
     explore_error_expedition_locked: "Aquesta expedició està bloquejada.",
     explore_error_expedition_none: "No hi ha cap expedició activa amb la qual interactuar.",

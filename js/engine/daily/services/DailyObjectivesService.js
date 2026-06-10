@@ -10,6 +10,38 @@ const OBJECTIVE_TYPES = [
     { id: 'craft_items', label: 'daily_uxelm_obj_craft_items', target: [1, 2, 3], reward: { gold: 35, material_iron: 5 } }
 ];
 
+// Tutorial objectives for first-time players (days 1–7)
+const TUTORIAL_OBJECTIVES = {
+    1: [
+        { id: 'build_farm', label: 'daily_uxelm_obj_build_farm', target: 1, reward: { gold: 50, material_wood: 20 }, description: 'daily_uxelm_obj_build_farm_desc' },
+        { id: 'spend_gold', label: 'daily_uxelm_obj_spend_gold', target: 50, reward: { gold: 20, material_stone: 5 } },
+    ],
+    2: [
+        { id: 'assign_worker', label: 'daily_uxelm_obj_assign_worker', target: 1, reward: { gold: 30, material_wood: 10 }, description: 'daily_uxelm_obj_assign_worker_desc' },
+        { id: 'explore_region', label: 'daily_uxelm_obj_explore_region', target: 1, reward: { gold: 40, material_wood: 15 }, description: 'daily_uxelm_obj_explore_region_desc' },
+    ],
+    3: [
+        { id: 'complete_expeditions', label: 'daily_uxelm_obj_complete_expeditions', target: 1, reward: { gold: 60, material_iron: 5 } },
+        { id: 'defeat_enemies', label: 'daily_uxelm_obj_defeat_enemies', target: 2, reward: { gold: 40, material_wood: 10 } },
+    ],
+    4: [
+        { id: 'build_explorer_guild', label: 'daily_uxelm_obj_build_explorer_guild', target: 1, reward: { gold: 80, material_stone: 20 }, description: 'daily_uxelm_obj_build_explorer_guild_desc' },
+        { id: 'craft_items', label: 'daily_uxelm_obj_craft_items', target: 1, reward: { gold: 35, material_wood: 10 } },
+    ],
+    5: [
+        { id: 'recruit_hero', label: 'daily_uxelm_obj_recruit_hero', target: 1, reward: { gold: 60, material_stone: 15 } },
+        { id: 'upgrade_building', label: 'daily_uxelm_obj_upgrade_building', target: 1, reward: { gold: 50, material_wood: 20 } },
+    ],
+    6: [
+        { id: 'complete_expeditions', label: 'daily_uxelm_obj_complete_expeditions', target: 2, reward: { gold: 80, material_iron: 10 } },
+        { id: 'spend_gold', label: 'daily_uxelm_obj_spend_gold', target: 200, reward: { gold: 30, material_stone: 10 } },
+    ],
+    7: [
+        { id: 'defeat_enemies', label: 'daily_uxelm_obj_defeat_enemies', target: 5, reward: { gold: 60, material_wood: 15 } },
+        { id: 'craft_items', label: 'daily_uxelm_obj_craft_items', target: 2, reward: { gold: 40, material_iron: 8 } },
+    ],
+};
+
 export class DailyObjectivesService {
     constructor(inventoryService, options = {}) {
         this.inventoryService = inventoryService;
@@ -52,6 +84,19 @@ export class DailyObjectivesService {
         this.state.day = day;
         this.state.allCompletedDay = null;
         this.state.objectives = [];
+
+        // Days 1–7: use tutorial objectives for new players (detected by no prior objectives)
+        const isNewPlayer = this.state.objectives.length === 0 && this.state.pendingChoices.length === 0;
+        if (day >= 1 && day <= 7 && isNewPlayer && TUTORIAL_OBJECTIVES[day]) {
+            this.state.pendingChoices = TUTORIAL_OBJECTIVES[day].map(obj => ({
+                ...obj,
+                progress: 0,
+                completed: false,
+                claimed: false
+            }));
+            this.save();
+            return;
+        }
 
         // Generate 4 objective choices; player picks 2
         const shuffled = [...OBJECTIVE_TYPES].sort(() => Math.random() - 0.5);

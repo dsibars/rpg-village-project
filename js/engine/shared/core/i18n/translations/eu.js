@@ -147,6 +147,16 @@ export const eu = {
     daily_uxelm_obj_spend_gold: "Gastatu {target} urre",
     daily_uxelm_obj_upgrade_building: "Hobetu eraikin bat",
 
+    // ═══ DAILY OBJECTIVES — TUTORIAL ════════════════════════════════════════
+    daily_uxelm_obj_build_farm: "Baserri bat eraiki",
+    daily_uxelm_obj_build_farm_desc: "Eraiki Baserri bat janaria ekoizteko eta zure herria mantentzeko.",
+    daily_uxelm_obj_assign_worker: "Langile bat esleitu",
+    daily_uxelm_obj_assign_worker_desc: "Esleitu langile bat espezializazio batera Herrian.",
+    daily_uxelm_obj_explore_region: "Eskualde bat arakatu",
+    daily_uxelm_obj_explore_region_desc: "Bidali Arthur espedizio batera Prado Berdeak arakatzeko.",
+    daily_uxelm_obj_build_explorer_guild: "Esploratzaileen Elkartea eraiki",
+    daily_uxelm_obj_build_explorer_guild_desc: "Eraiki Esploratzaileen Elkartea eskualde berriak desblokeatzeko.",
+
     // ═══ EXPLORE ERROR ════════════════════════════════════════════════════
     explore_error_expedition_locked: "Espedizio hau blokeatuta dago.",
     explore_error_expedition_none: "Ez dago espedizio aktiborik interakzioan aritzeko.",

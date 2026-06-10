@@ -147,6 +147,16 @@ export const en = {
     daily_uxelm_obj_spend_gold: "Spend {target} gold",
     daily_uxelm_obj_upgrade_building: "Upgrade a building",
 
+    // ═══ DAILY OBJECTIVES — TUTORIAL ════════════════════════════════════════
+    daily_uxelm_obj_build_farm: "Build a Farm",
+    daily_uxelm_obj_build_farm_desc: "Construct a Farm to produce food and sustain your village.",
+    daily_uxelm_obj_assign_worker: "Assign a worker",
+    daily_uxelm_obj_assign_worker_desc: "Assign a worker to a specialization in the Village.",
+    daily_uxelm_obj_explore_region: "Explore a region",
+    daily_uxelm_obj_explore_region_desc: "Send Arthur on an expedition to explore the Greenfields.",
+    daily_uxelm_obj_build_explorer_guild: "Build the Explorer Guild",
+    daily_uxelm_obj_build_explorer_guild_desc: "Construct the Explorer Guild to unlock new regions.",
+
     // ═══ EXPLORE ERROR ════════════════════════════════════════════════════
     explore_error_expedition_locked: "This expedition is locked.",
     explore_error_expedition_none: "No active expedition to interact with.",

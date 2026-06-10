@@ -147,6 +147,16 @@ export const es = {
     daily_uxelm_obj_spend_gold: "Gasta {target} de oro",
     daily_uxelm_obj_upgrade_building: "Mejora un edificio",
 
+    // ═══ DAILY OBJECTIVES — TUTORIAL ════════════════════════════════════════
+    daily_uxelm_obj_build_farm: "Construir una Granja",
+    daily_uxelm_obj_build_farm_desc: "Construye una Granja para producir comida y sostener tu aldea.",
+    daily_uxelm_obj_assign_worker: "Asignar un trabajador",
+    daily_uxelm_obj_assign_worker_desc: "Asigna un trabajador a una especialización en la Aldea.",
+    daily_uxelm_obj_explore_region: "Explorar una región",
+    daily_uxelm_obj_explore_region_desc: "Envía a Arthur en una expedición para explorar los Prados Verdes.",
+    daily_uxelm_obj_build_explorer_guild: "Construir el Gremio de Exploradores",
+    daily_uxelm_obj_build_explorer_guild_desc: "Construye el Gremio de Exploradores para desbloquear nuevas regiones.",
+
     // ═══ EXPLORE ERROR ════════════════════════════════════════════════════
     explore_error_expedition_locked: "Esta expedición está bloqueada.",
     explore_error_expedition_none: "No hay ninguna expedición activa para interactuar.",
