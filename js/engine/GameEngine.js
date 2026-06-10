@@ -22,7 +22,7 @@ const DEBUG = false;
 import { i18n } from './shared/core/i18n/I18nService.js';
 import { Result } from './shared/core/Result.js';
 import { SKILLS_DATA } from './shared/data/CombatData.js';
-import { MEAL_RECIPES } from './shared/data/InventoryData.js';
+import { MEAL_RECIPES, CONSUMABLES_DATA } from './shared/data/InventoryData.js';
 import { getRefineCost } from './shared/data/EquipmentData.js';
 import { MagicCircleService } from './magic_circle/MagicCircleService.js';
 import { TrainerService } from './trainer/TrainerService.js';
