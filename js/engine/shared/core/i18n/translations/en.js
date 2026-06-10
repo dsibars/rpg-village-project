@@ -428,6 +428,9 @@ export const en = {
     heroes_uxelm_stat_point_busy: "Unassigned Stat Points: {amount} (Cannot assign on expedition)",
 
     // ═══ HEROES INFO ════════════════════════════════════════════════════
+    heroes_info_hp: "HP",
+    heroes_info_stamina: "Stamina",
+    heroes_info_mp: "MP",
     heroes_info_effect_basic_attack: "Basic attack",
     heroes_info_effect_cleave: "Cleave",
     heroes_info_effect_hits: "hits",

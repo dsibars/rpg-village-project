@@ -14,6 +14,12 @@
       <span class="badge activity-badge" :title="activityTitle">
         <span class="emoji">{{ activityEmoji }}</span>
       </span>
+      <span class="badge hp-badge" :title="t('heroes_info_hp') + ': ' + hero.hp + '/' + hero.maxHp">
+        ❤️ {{ hero.hp }}/{{ hero.maxHp }}
+      </span>
+      <span class="badge stamina-badge" :title="t('heroes_info_stamina') + ': ' + hero.stamina + '/' + hero.maxStamina">
+        ⚡ {{ hero.stamina }}/{{ hero.maxStamina }}
+      </span>
       <span
         v-if="hasMealBuff"
         class="badge meal-badge"
@@ -130,5 +136,17 @@ const hasPoints = computed(() => (props.hero.statPoints || 0) > 0 || (props.hero
   background: rgba(34, 197, 94, 0.15);
   color: #22c55e;
   font-weight: 600;
+}
+
+.hp-badge {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+  font-weight: 500;
+}
+
+.stamina-badge {
+  background: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
+  font-weight: 500;
 }
 </style>
