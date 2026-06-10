@@ -111,6 +111,9 @@ export class GameEngine {
             this._persistPresentationState();
         }
 
+        // ─── Retroactive story mission injection for old saves ───
+        this.regionService.injectMissingStoryMissions(completedIds, villageState);
+
         if (this.expeditionService.getActiveCombatExpeditionId()) {
             if (DEBUG) console.log('Engine: Resuming active combat...');
             this.expeditionService.resumeActiveBattle();
