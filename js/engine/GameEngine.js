@@ -114,6 +114,14 @@ export class GameEngine {
         // ─── Retroactive story mission injection for old saves ───
         this.regionService.injectMissingStoryMissions(completedIds, villageState);
 
+        // ─── Retroactive unlock check: ensure old saves populate Discovery Log ───
+        const unlockState = this._buildUnlockState();
+        const newNarratives = this.unlockService.checkAllUnlocks(unlockState);
+        const newCodexFeatures = this.unlockService.checkNewCodexFeatures(unlockState);
+        if (newNarratives.length > 0) {
+            this.unlockService.markAllAsShown(newNarratives, villageState.day);
+        }
+
         if (this.expeditionService.getActiveCombatExpeditionId()) {
             if (DEBUG) console.log('Engine: Resuming active combat...');
             this.expeditionService.resumeActiveBattle();
