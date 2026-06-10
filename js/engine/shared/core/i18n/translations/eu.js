@@ -292,6 +292,7 @@ export const eu = {
     settings_uxelm_dev_cheat_desc: "Lortu berehala 10k urre, 10k zura/harria, heroiaren EXP eta desblokeatu denda.",
     settings_uxelm_dev_desc: "Proba eta garapenerako tresna aurreratuak.",
     settings_uxelm_dev_options: "Garatzailearen Aukerak",
+    settings_uxelm_debug_hidden: "Tresna debug ezkutuak. Gehitu ?debug=1 URLan gaitzeko.",
     settings_uxelm_language: "Interfazearen Hizkuntza",
     settings_uxelm_language_choose: "Aukeratu zure hizkuntza gogokoa",
     settings_uxelm_magic_simulator: "Zirkulu Magikoaren Simulagailua",

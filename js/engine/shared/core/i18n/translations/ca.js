@@ -292,6 +292,7 @@ export const ca = {
     settings_uxelm_dev_cheat_desc: "Obtingues a l'instant 10k d'or, 10k de fusta/pedra, EXP d'heroi i desbloqueja la botiga.",
     settings_uxelm_dev_desc: "Eines avançades per a proves i desenvolupament.",
     settings_uxelm_dev_options: "Opcions de Desenvolupador",
+    settings_uxelm_debug_hidden: "Eines de debug ocultes. Afegeix ?debug=1 a la URL per activar-les.",
     settings_uxelm_language: "Idioma de la Interfície",
     settings_uxelm_language_choose: "Tria el teu idioma preferit",
     settings_uxelm_magic_simulator: "Simulador de Cercle Màgic",

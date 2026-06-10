@@ -292,6 +292,7 @@ export const en = {
     settings_uxelm_dev_cheat_desc: "Instantly gain 10k Gold, 10k Wood/Stone, Hero XP, and unlock the Shop.",
     settings_uxelm_dev_desc: "Advanced tools for testing and development.",
     settings_uxelm_dev_options: "Developer Options",
+    settings_uxelm_debug_hidden: "Debug tools are hidden. Add ?debug=1 to the URL to enable.",
     settings_uxelm_language: "Interface Language",
     settings_uxelm_language_choose: "Choose your preferred language",
     settings_uxelm_magic_simulator: "Magic Circle Simulator",

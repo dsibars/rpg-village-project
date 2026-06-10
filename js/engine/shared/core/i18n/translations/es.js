@@ -292,6 +292,7 @@ export const es = {
     settings_uxelm_dev_cheat_desc: "Obtén al instante 10k de oro, 10k de madera/piedra, EXP de héroe y desbloquea la tienda.",
     settings_uxelm_dev_desc: "Herramientas avanzadas para pruebas y desarrollo.",
     settings_uxelm_dev_options: "Opciones de Desarrollador",
+    settings_uxelm_debug_hidden: "Herramientas de debug ocultas. Añade ?debug=1 a la URL para activarlas.",
     settings_uxelm_language: "Idioma de la Interfaz",
     settings_uxelm_language_choose: "Elige tu idioma preferido",
     settings_uxelm_magic_simulator: "Simulador de Círculo Mágico",

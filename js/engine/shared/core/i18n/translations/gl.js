@@ -292,6 +292,7 @@ export const gl = {
     settings_uxelm_dev_cheat_desc: "Obtén ao instante 10k de ouro, 10k de madeira/pedra, EXP de heroe e desbloquea a tenda.",
     settings_uxelm_dev_desc: "Ferramentas avanzadas para probas e desenvolvemento.",
     settings_uxelm_dev_options: "Opcións de Desenvolvedor",
+    settings_uxelm_debug_hidden: "Ferramentas de debug agochadas. Engade ?debug=1 á URL para activalas.",
     settings_uxelm_language: "Idioma da Interface",
     settings_uxelm_language_choose: "Escolle o teu idioma preferido",
     settings_uxelm_magic_simulator: "Simulador de Círculo Máxico",
