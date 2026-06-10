@@ -155,4 +155,5 @@ itch.config
 
 # Agent test artifacts
 scripts/screenshots/
+playtest-output/
 test_*
