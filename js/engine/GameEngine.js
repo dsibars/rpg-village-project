@@ -132,7 +132,8 @@ export class GameEngine {
                 origin: "origin_warrior",
                 avatar: "arthur.webp",
                 level: 1,
-                statPoints: 5
+                statPoints: 5,
+                knownFamilies: ['single_strike', 'power_strike']
             });
         }
 
