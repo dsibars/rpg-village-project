@@ -10,6 +10,9 @@
       <span class="hero-name">{{ hero.name }}</span>
       <span class="hero-level">{{ t('shared_uxelm_level') }} {{ hero.level }}</span>
     </div>
+    <div class="item-origin">
+      <span class="origin-badge" :title="originDesc">{{ originName }}</span>
+    </div>
     <div class="item-meta">
       <span class="badge activity-badge" :title="activityTitle">
         <span class="emoji">{{ activityEmoji }}</span>
@@ -54,6 +57,13 @@ const activityTitle = computed(() =>
 )
 const hasMealBuff = computed(() => (props.hero.mealBuffs || []).length > 0)
 const hasPoints = computed(() => (props.hero.statPoints || 0) > 0 || (props.hero.skillPoints || 0) > 0)
+
+const originKey = computed(() => {
+  const origin = props.hero.origin || ''
+  return origin.replace(/^origin_/, '')
+})
+const originName = computed(() => t(`heroes_info_origin_${originKey.value}`) || originKey.value)
+const originDesc = computed(() => t(`heroes_info_origin_${originKey.value}_desc`) || '')
 </script>
 
 <style scoped>
@@ -111,6 +121,25 @@ const hasPoints = computed(() => (props.hero.statPoints || 0) > 0 || (props.hero
   flex-wrap: wrap;
   align-items: center;
   gap: var(--spacing-xs);
+}
+
+.item-origin {
+  margin-bottom: 2px;
+}
+
+.origin-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: rgba(99, 102, 241, 0.1);
+  color: var(--color-primary-light);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  cursor: help;
 }
 
 .badge {
