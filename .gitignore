@@ -153,6 +153,6 @@ itch.config
 .agents_shared_memory/docs_hash
 .agents_shared_memory/docs_hash_history
 
-# PNG Screenshots for AI review
-ux/_migration_screenshots
-scripts/screenshots/output/
+# Agent test artifacts
+scripts/screenshots/
+test_*
