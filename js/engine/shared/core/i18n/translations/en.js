@@ -799,7 +799,7 @@ export const en = {
     village_msg_report_exp_completed: "Expedition {name} completed! Found: {rewards}",
     village_msg_report_exp_completed_title: "Expedition Complete: {name}",
     village_msg_report_exp_completed_rewards: "Rewards: {rewards}",
-    village_msg_report_exp_completed_norewards: "The expedition was completed, but no additional rewards were found.",
+    village_msg_report_exp_completed_norewards: "Expedition complete. The area was scouted, but nothing valuable was found this time.",
     village_msg_report_exp_failed: "Expedition {name} retreated.",
     village_msg_report_exp_failed_title: "Expedition Failed: {name}",
     village_msg_report_exp_failed_body: "Your party was forced to retreat. The expedition has been abandoned.",
