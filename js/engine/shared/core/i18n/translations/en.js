@@ -824,6 +824,7 @@ export const en = {
     village_uxelm_buildings: "Buildings",
     village_uxelm_construction: "Construction",
     village_uxelm_threat_defense_hub: "Threat & Defense Hub",
+    village_uxelm_threat_defense_hint: "Assign heroes to defend against raids. Raids appear on the calendar — defenders protect your village and resources.",
     village_uxelm_defender: "Defenders",
     village_uxelm_defender_assign: "Assign Defender",
     village_uxelm_defender_none: "No defenders assigned. Assign idle heroes to protect the village.",
