@@ -824,6 +824,7 @@ export const ca = {
     village_uxelm_buildings: "Edificis",
     village_uxelm_construction: "Construcció",
     village_uxelm_threat_defense_hub: "Centre d'amenaces i defensa",
+    village_uxelm_threat_defense_hint: "Assigna herois per defensar-te contra les incursions. Les incursions apareixen al calendari — els defensors protegeixen la vila i els recursos.",
     village_uxelm_defender: "Defensors",
     village_uxelm_defender_assign: "Assignar Defensor",
     village_uxelm_defender_none: "No hi ha defensors assignats. Assigna herois inactius per protegir la vila.",

@@ -824,6 +824,7 @@ export const gl = {
     village_uxelm_buildings: "Edificios",
     village_uxelm_construction: "Construción",
     village_uxelm_threat_defense_hub: "Centro de ameazas e defensa",
+    village_uxelm_threat_defense_hint: "Asigna heroes para defender contra incursións. As incursións aparecen no calendario — os defensores protexen a túa vila e recursos.",
     village_uxelm_defender: "Defensores",
     village_uxelm_defender_assign: "Asignar Defensor",
     village_uxelm_defender_none: "Non hai defensores asignados. Asigna heroes inactivos para protexer a vila.",

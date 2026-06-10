@@ -824,6 +824,7 @@ export const es = {
     village_uxelm_buildings: "Edificios",
     village_uxelm_construction: "Construcción",
     village_uxelm_threat_defense_hub: "Centro de amenazas y defensa",
+    village_uxelm_threat_defense_hint: "Asigna héroes para defender contra incursiones. Las incursiones aparecen en el calendario — los defensores protegen tu aldea y recursos.",
     village_uxelm_defender: "Defensores",
     village_uxelm_defender_assign: "Asignar Defensor",
     village_uxelm_defender_none: "No hay defensores asignados. Asigna héroes inactivos para proteger la aldea.",

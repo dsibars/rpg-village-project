@@ -824,6 +824,7 @@ export const eu = {
     village_uxelm_buildings: "Eraikinak",
     village_uxelm_construction: "Eraikuntza",
     village_uxelm_threat_defense_hub: "Mehatxu eta Defentsa Zentroa",
+    village_uxelm_threat_defense_hint: "Esleitu heroiak erasoen aurka defendatzeko. Erasoek egutegian agertzen dira — defendatzaileek zure herrixka eta baliabideak babesten dituzte.",
     village_uxelm_defender: "Defendatzaileak",
     village_uxelm_defender_assign: "Esleitu Defendatzailea",
     village_uxelm_defender_none: "Ez dago defendatzailerik esleituta. Esleitu heroi inaktiboak herrixka babesteko.",
