@@ -74,6 +74,11 @@ export class GameEngine {
         this.academyService.load();
         this.unlockService.load();
 
+        const presentationState = persistence.load('presentation_state');
+        if (presentationState) {
+            this.presentationService = new PresentationService(presentationState);
+        }
+
         const hasHeroes = this.heroService.list().length > 0;
         const hasVillage = this.villageService.getState().day !== undefined;
         
@@ -92,6 +97,19 @@ export class GameEngine {
         }
 
         this.i18n.setLanguage(globalPersistence.load('settings_lang', 'en'));
+
+        // ─── Retroactive fixes for old saves that missed triggers ───
+        const completedIds = this.expeditionService.getCompletedIds();
+        const villageState = this.villageService.getState();
+
+        if (completedIds.length > 0 && !this.presentationService.isSeen('pres_first_victory')) {
+            this.presentationService.checkTriggers({ type: 'first_event', eventId: 'first_expedition_victory' });
+            this._persistPresentationState();
+        }
+        if (villageState.infrastructure?.farm >= 1 && !this.presentationService.isSeen('pres_first_harvest')) {
+            this.presentationService.checkTriggers({ type: 'building_complete', buildingId: 'farm', level: 1 });
+            this._persistPresentationState();
+        }
 
         if (this.expeditionService.getActiveCombatExpeditionId()) {
             if (DEBUG) console.log('Engine: Resuming active combat...');
