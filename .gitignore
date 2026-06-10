@@ -157,3 +157,6 @@ itch.config
 scripts/screenshots/
 playtest-output/
 test_*screenshots/
+screenshots/
+test_*.cjs
+test_*.js
