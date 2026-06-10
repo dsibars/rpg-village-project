@@ -58,6 +58,13 @@
           <p>{{ t('explore_uxelm_select_region') }}</p>
         </div>
 
+        <!-- Empty state when region has no available paths -->
+        <div v-else-if="allNodes.length === 0" class="empty-detail no-paths">
+          <div class="detail-icon-bg">🔒</div>
+          <p>{{ t('explore_uxelm_no_paths') }}</p>
+          <p class="empty-hint">{{ t('explore_uxelm_build_explorer_guild_hint') }}</p>
+        </div>
+
         <!-- Tree View -->
         <div v-else-if="viewMode === 'tree'" class="expedition-tree-root expedition-tree">
           <!-- Region title bar -->
@@ -661,6 +668,15 @@ onUnmounted(() => {
   align-items: center;
   text-align: center;
   color: var(--text-muted);
+}
+.empty-detail.no-paths {
+  gap: 8px;
+}
+.empty-detail .empty-hint {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  max-width: 300px;
+  line-height: 1.4;
 }
 .detail-icon-bg {
   font-size: 4rem;

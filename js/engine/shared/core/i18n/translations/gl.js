@@ -192,6 +192,8 @@ export const gl = {
     explore_uxelm_select_heroes: "Seleccionar Heroes",
     explore_uxelm_select_one_hero: "Por favor, selecciona polo menos un heroe.",
     explore_uxelm_select_region: "Selecciona unha rexión do mapa mundial.",
+    explore_uxelm_no_paths: "Non hai camiños dispoñibles nesta rexión.",
+    explore_uxelm_build_explorer_guild_hint: "Constrúe a Gremio de Exploradores na Aldea para desbloquear expedicións.",
     explore_uxelm_stage: "Etapa",
     explore_uxelm_stages: "Etapas",
     explore_uxelm_story: "Historia",

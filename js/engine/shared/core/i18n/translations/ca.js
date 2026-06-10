@@ -192,6 +192,8 @@ export const ca = {
     explore_uxelm_select_heroes: "Seleccionar Herois",
     explore_uxelm_select_one_hero: "Si us plau, selecciona com a mínim un heroi.",
     explore_uxelm_select_region: "Selecciona una regió del mapa mundial.",
+    explore_uxelm_no_paths: "No hi ha camins disponibles en aquesta regió.",
+    explore_uxelm_build_explorer_guild_hint: "Construeix el Gremi d'Exploradors al Poble per desbloquejar expedicions.",
     explore_uxelm_stage: "Etapa",
     explore_uxelm_stages: "Etapes",
     explore_uxelm_story: "Història",

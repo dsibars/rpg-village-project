@@ -192,6 +192,8 @@ export const en = {
     explore_uxelm_select_heroes: "Select Heroes",
     explore_uxelm_select_one_hero: "Please select at least one hero.",
     explore_uxelm_select_region: "Select a region from the World Map.",
+    explore_uxelm_no_paths: "No paths available in this region.",
+    explore_uxelm_build_explorer_guild_hint: "Build the Explorer Guild in the Town to unlock expeditions.",
     explore_uxelm_stage: "Stage",
     explore_uxelm_stages: "Stages",
     explore_uxelm_story: "Story",

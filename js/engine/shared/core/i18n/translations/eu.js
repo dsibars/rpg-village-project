@@ -192,6 +192,8 @@ export const eu = {
     explore_uxelm_select_heroes: "Hautatu Heroiak",
     explore_uxelm_select_one_hero: "Mesedez, hautatu gutxienez heroi bat.",
     explore_uxelm_select_region: "Hautatu eskualde bat munduko mapatik.",
+    explore_uxelm_no_paths: "Ez dago bide erabilgarririk eskualde honetan.",
+    explore_uxelm_build_explorer_guild_hint: "Eraiki Esploratzaileen Elkartea Herrian espedizioak desblokeatzeko.",
     explore_uxelm_stage: "Etapa",
     explore_uxelm_stages: "Etapak",
     explore_uxelm_story: "Istorioa",
