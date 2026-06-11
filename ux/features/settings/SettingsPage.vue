@@ -139,7 +139,10 @@ const urlParams = new URLSearchParams(window.location.search)
 const isDebugMode = urlParams.get('debug') === '1' || localStorage.getItem('rpgv_debug') === '1'
 const showDevOptions = ref(isDebugMode)
 
-const currentSlotIndex = computed(() => engine?.getCurrentSlotIndex?.() || 0)
+const currentSlotIndex = computed(() => {
+  const result = dispatch('settings', 'getCurrentSlotIndex')
+  return result?.data?.index ?? 0
+})
 
 const confirmDialog = ref({
   show: false,
@@ -183,7 +186,7 @@ function confirmWipeSlot() {
     titleKey: 'settings_uxelm_wipe_slot',
     messageKey: 'settings_uxelm_wipe_slot_confirm',
     onConfirm: () => {
-      engine?.wipeCurrentSlot?.()
+      dispatch('settings', 'wipeSlot')
       setTimeout(() => window.location.reload(), 100)
     }
   }
@@ -195,7 +198,7 @@ function confirmWipeAll() {
     titleKey: 'settings_uxelm_wipe_all',
     messageKey: 'settings_uxelm_wipe_all_confirm',
     onConfirm: () => {
-      engine?.wipeAllSlots?.()
+      dispatch('settings', 'wipeAll')
       setTimeout(() => window.location.reload(), 100)
     }
   }

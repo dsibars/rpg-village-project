@@ -152,7 +152,10 @@ const ACTION_MAP = {
     toggleAuto: (engine) => engine.toggleAutoBattle()
   },
   settings: {
-    devCheatActivate: (engine) => engine.activateDeveloperCheat()
+    devCheatActivate: (engine) => engine.activateDeveloperCheat(),
+    wipeSlot: (engine) => engine.wipeCurrentSlot(),
+    wipeAll: (engine) => engine.wipeAllSlots(),
+    getCurrentSlotIndex: (engine) => ({ success: true, data: { index: engine.getCurrentSlotIndex() || 0 } })
   },
   presentation: {
     getNext: (engine) => {
