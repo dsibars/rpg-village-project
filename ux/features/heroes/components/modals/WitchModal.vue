@@ -48,8 +48,10 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, inject } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useI18n } from '@/core/composables/useI18n.js'
+import { useAdapter } from '@/core/composables/useAdapter.js'
+import { useGameState } from '@/core/composables/useGameState.js'
 import ModalFrame from '@/components/ModalFrame.vue'
 import Button from '@/components/Button.vue'
 
@@ -62,8 +64,8 @@ const props = defineProps({
 const emit = defineEmits(['close'])
 
 const { t } = useI18n()
-const engine = inject('engine')
-const gameState = inject('gameState')
+const { dispatch } = useAdapter()
+const { gameState } = useGameState()
 
 const selectedHeroId = ref(props.selectedHero?.id)
 
@@ -81,10 +83,10 @@ const currentHero = computed(() =>
 const currentDay = computed(() => gameState?.value?.village?.day || 0)
 
 const dialogue = computed(() => {
-  if (!engine || !currentHero.value) {
+  if (!currentHero.value) {
     return { lines: [], category: '', element: 'neutral', masteryHints: [] }
   }
-  return engine.getWitchDialogue?.(currentHero.value, currentDay.value) || {
+  return dispatch('witch', 'getDialogue', { hero: currentHero.value, day: currentDay.value }) || {
     lines: [], category: '', element: 'neutral', masteryHints: []
   }
 })
@@ -116,13 +118,8 @@ const dialogueLines = computed(() => {
 })
 
 function onClose() {
-  if (engine && currentHero.value) {
-    engine.recordWitchVisit?.(currentHero.value, currentDay.value)
-    engine.heroService?.saveAll?.()
-    // Force state snapshot so the visit is persisted
-    if (gameState) {
-      gameState.value = engine.update?.() || gameState.value
-    }
+  if (currentHero.value) {
+    dispatch('witch', 'recordVisit', { hero: currentHero.value, day: currentDay.value })
   }
   emit('close')
 }

@@ -26,7 +26,8 @@
 </template>
 
 <script setup>
-import { computed, inject } from 'vue'
+import { computed } from 'vue'
+import { useAdapter } from '@/core/composables/useAdapter.js'
 import { useI18n } from '@/core/composables/useI18n.js'
 import ModalFrame from '@/components/ModalFrame.vue'
 import Button from '@/components/Button.vue'
@@ -39,11 +40,12 @@ const props = defineProps({
 const emit = defineEmits(['close'])
 
 const { t } = useI18n()
-const engine = inject('engine')
+const { dispatch } = useAdapter()
 
 const dialogue = computed(() => {
-  if (!engine || !props.hero) return { lines: [], category: '' }
-  return engine.getTrainerDialogue?.(props.hero) || { lines: [], category: '' }
+  if (!props.hero) return { lines: [], category: '' }
+  const result = dispatch('trainer', 'getDialogue', { hero: props.hero })
+  return result.success ? result.data : { lines: [], category: '' }
 })
 
 const dialogueLines = computed(() => {

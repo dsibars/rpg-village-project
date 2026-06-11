@@ -205,7 +205,7 @@ import { useAdapter } from '@/core/composables/useAdapter.js'
 import Button from '@/components/Button.vue'
 import ModalFrame from '@/components/ModalFrame.vue'
 import { getEquipmentName, getFormattedStats } from '@/core/helpers/EquipmentHelper.js'
-import { MEAL_RECIPES, GLYPH_TABLET_DATA } from '../../../../js/engine/shared/data/InventoryData.js'
+import { MEAL_RECIPES, GLYPH_TABLET_DATA } from '@/core/data/index.js'
 
 const { t } = useI18n()
 const { gameState, heroes } = useGameState()

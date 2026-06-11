@@ -1,11 +1,11 @@
 import { computed, ref } from 'vue'
-import { inject } from 'vue'
+import { useAdapter } from '@/core/composables/useAdapter.js'
 import {
   GLYPH_DATA,
   computeGlyphEffect,
   computeGlyphCostMult,
   glyphHasGrowthPotential
-} from '../../../../js/engine/shared/data/MagicCircleData.js'
+} from '@/core/data/index.js'
 
 // ─── Slot Geometry ───
 
@@ -225,7 +225,7 @@ export function getGlyphDescription(glyph, tier) {
 // ─── Main Composable ───
 
 export function useMagicCircle(hero, isSimulator = false) {
-  const engine = inject('engine')
+  const { dispatch } = useAdapter()
 
   const composition = ref([])
   const selectedTiers = ref({})
@@ -238,10 +238,8 @@ export function useMagicCircle(hero, isSimulator = false) {
   const maxMp = computed(() => hero.value?.maxMp || hero.value?.stats?.mp || 100)
 
   const maxSlots = computed(() => {
-    if (engine?.getMagicCircleSlotCount) {
-      return engine.getMagicCircleSlotCount(magicTier.value)
-    }
-    return Math.min(25, 1 + magicTier.value * 6)
+    const result = dispatch('magic', 'getSlotCount', { tier: magicTier.value })
+    return result.success ? result.data : Math.min(25, 1 + magicTier.value * 6)
   })
 
   const availableGlyphs = computed(() => {
@@ -259,9 +257,9 @@ export function useMagicCircle(hero, isSimulator = false) {
   })
 
   const spell = computed(() => {
-    if (composition.value.length === 0 || !engine?.composeSpell) return null
-    const result = engine.composeSpell(glyphIds.value, glyphTiers.value, customName.value || null)
-    return result?.success ? result.data : null
+    if (composition.value.length === 0) return null
+    const result = dispatch('magic', 'composeSpell', { glyphIds: glyphIds.value, glyphTiers: glyphTiers.value, customName: customName.value || null })
+    return result.success ? result.data : null
   })
 
   const mpCost = computed(() => spell.value?.mpCost || 0)

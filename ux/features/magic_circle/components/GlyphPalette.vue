@@ -94,7 +94,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useI18n } from '@/core/composables/useI18n.js'
-import { inject } from 'vue'
+import { useAdapter } from '@/core/composables/useAdapter.js'
 import {
   getGlyphIcon,
   getGlyphAbbreviation,
@@ -115,7 +115,7 @@ const props = defineProps({
 const emit = defineEmits(['select', 'remove', 'setTier', 'unfocus'])
 
 const { t } = useI18n()
-const engine = inject('engine')
+const { dispatch } = useAdapter()
 
 const isCoreSlot = computed(() => props.focusedSlotIndex === 0)
 
@@ -159,10 +159,8 @@ const maxTier = computed(() => {
 })
 
 const activeGlyphSymbol = computed(() => {
-  if (engine?.getGlyphSymbol) {
-    return engine.getGlyphSymbol(activeTier.value)
-  }
-  return '+'
+  const result = dispatch('magic', 'getGlyphSymbol', { tier: activeTier.value })
+  return result.success ? result.data : '+'
 })
 
 function isPlacedElsewhere(glyphId) {
@@ -179,10 +177,8 @@ function setActiveTier(tier) {
 }
 
 function getTierSymbol(tier) {
-  if (engine?.getGlyphSymbol) {
-    return engine.getGlyphSymbol(tier)
-  }
-  return String(tier)
+  const result = dispatch('magic', 'getGlyphSymbol', { tier })
+  return result.success ? result.data : String(tier)
 }
 </script>
 

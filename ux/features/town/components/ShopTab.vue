@@ -214,7 +214,7 @@
 </template>
 
 <script setup>
-import { ref, computed, inject } from 'vue'
+import { ref, computed } from 'vue'
 import { useI18n } from '@/core/composables/useI18n.js'
 import { useGameState } from '@/core/composables/useGameState.js'
 import { useAdapter } from '@/core/composables/useAdapter.js'
@@ -233,12 +233,11 @@ import {
   CONSUMABLES_CATALOG,
   WEAPONS_CATALOG,
   ARMOR_CATALOG
-} from '../../../../js/engine/shared/data/ShopCatalog.js'
+} from '@/core/data/index.js'
 
 const { t } = useI18n()
 const { gameState } = useGameState()
 const { dispatch } = useAdapter()
-const engine = inject('engine')
 
 const currentTab = ref('buy')
 const selectedKey = ref(null)
@@ -339,13 +338,15 @@ const sellGroups = computed(() => {
         shopItem = CONSUMABLES_CATALOG.find(c => c.id === `item_${id}`)
       }
       const basePrice = shopItem ? shopItem.cost : 0
+      const result = dispatch('shop', 'getSellPrice', { item: { type: 'consumable', basePrice } })
+      const sellPrice = result.success ? result.data : Math.floor(basePrice * 0.3)
       return {
         id,
         type: 'consumable',
         count,
         i18n_name: shopItem ? shopItem.i18n_name : id,
         i18n_desc: shopItem ? shopItem.i18n_desc : id,
-        sellPrice: engine?.getSellPrice ? engine.getSellPrice({ type: 'consumable', basePrice }) : Math.floor(basePrice * 0.3)
+        sellPrice
       }
     })
 
@@ -369,11 +370,15 @@ const sellGroups = computed(() => {
   ]
 
   eqGroups.forEach(g => {
-    const items = equipment.filter(g.filter).map(eq => ({
-      ...eq,
-      category: 'equipment',
-      sellPrice: engine?.getSellPrice ? engine.getSellPrice(eq) : Math.floor((eq.value || 10) * 0.5)
-    }))
+    const items = equipment.filter(g.filter).map(eq => {
+      const result = dispatch('shop', 'getSellPrice', { item: eq })
+      const sellPrice = result.success ? result.data : Math.floor((eq.value || 10) * 0.5)
+      return {
+        ...eq,
+        category: 'equipment',
+        sellPrice
+      }
+    })
     if (items.length > 0) {
       groups.push({
         id: g.id,

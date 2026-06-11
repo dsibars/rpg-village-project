@@ -9,7 +9,7 @@
 export { TECHNIQUE_FAMILIES } from '../../../js/engine/shared/data/CombatData.js'
 export { MEAL_RECIPES, GLYPH_TABLET_DATA } from '../../../js/engine/shared/data/InventoryData.js'
 export { getEquipmentStats } from '../../../js/engine/shared/inventory/EquipmentService.js'
-export { CONSUMABLES_DATA } from '../../../js/engine/shared/data/InventoryData.js'
+export { CONSUMABLES_DATA, SHOP_CATALOG, CONSUMABLES_CATALOG, WEAPONS_CATALOG, ARMOR_CATALOG } from '../../../js/engine/shared/data/InventoryData.js'
 export {
   GLYPH_DATA,
   GLYPH_TIER_QUALITY,
