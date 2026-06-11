@@ -144,9 +144,16 @@ const skillAlertSuffix = computed(() => {
 .hero-profile {
   display: grid;
   grid-template-columns: 320px 1fr;
+  grid-template-rows: 1fr;
   gap: var(--spacing-lg);
   height: 100%;
   min-height: 0;
+  overflow: hidden;
+}
+
+.hero-profile-left,
+.hero-profile-right {
+  min-width: 0;
 }
 
 .hero-profile-left {
@@ -167,8 +174,9 @@ const skillAlertSuffix = computed(() => {
 
 .hero-portrait-container {
   width: 100%;
+  max-width: 280px;
+  margin: 0 auto;
   aspect-ratio: 1;
-  max-height: 280px;
   border-radius: var(--radius-lg);
   overflow: hidden;
   background: var(--bg-card);
@@ -283,6 +291,13 @@ const skillAlertSuffix = computed(() => {
   background: rgba(245, 158, 11, 0.1);
   border-color: rgba(245, 158, 11, 0.3);
   color: var(--warning, #f59e0b);
+}
+
+@media (max-width: 900px) {
+  .hero-profile {
+    grid-template-columns: 260px 1fr;
+    gap: var(--spacing-md);
+  }
 }
 
 @media (max-width: 768px) {
