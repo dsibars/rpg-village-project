@@ -50,6 +50,6 @@ const tabs = {
 <style scoped>
 .town-page {
   height: 100%;
-  overflow-y: auto;
+  overflow: hidden;
 }
 </style>

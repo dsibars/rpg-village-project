@@ -47,6 +47,6 @@ const tabs = {
 <style scoped>
 .adventure-page {
   height: 100%;
-  overflow-y: auto;
+  overflow: hidden;
 }
 </style>
