@@ -109,15 +109,6 @@ const { dispatch } = useAdapter()
 
 const selectedId = ref(null)
 
-// Auto-select first building (Town Hall / housing) on mount
-watch(() => buildings.value, (buildingsList) => {
-  if (!selectedId.value && buildingsList.length > 0) {
-    // Prefer the first built building, or fallback to first in list
-    const firstBuilt = buildingsList.find(b => b.active)
-    selectedId.value = firstBuilt ? firstBuilt.id : buildingsList[0].id
-  }
-}, { immediate: true })
-
 const village = computed(() => gameState.value.village || {})
 const infrastructure = computed(() => village.value.infrastructure || {})
 const constructionQueue = computed(() => village.value.constructionQueue || [])
@@ -144,6 +135,15 @@ const buildings = computed(() => {
     active: (infrastructure.value[b.id] || 0) > 0
   }))
 })
+
+// Auto-select first building (Town Hall / housing) on mount — MOVED AFTER `buildings` declaration
+watch(() => buildings.value, (buildingsList) => {
+  if (!selectedId.value && buildingsList.length > 0) {
+    // Prefer the first built building, or fallback to first in list
+    const firstBuilt = buildingsList.find(b => b.active)
+    selectedId.value = firstBuilt ? firstBuilt.id : buildingsList[0].id
+  }
+}, { immediate: true })
 
 const visibleBuildings = computed(() => buildings.value)
 
