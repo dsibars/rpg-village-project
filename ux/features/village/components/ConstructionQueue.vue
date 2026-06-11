@@ -8,8 +8,8 @@
 
     <div v-else class="project-list">
       <div
-        v-for="project in queue"
-        :key="project.buildingId"
+        v-for="(project, index) in queue"
+        :key="project.buildingId + '_' + project.targetLevel + '_' + index"
         class="project-card"
         @click="$emit('navigate', project.buildingId)"
       >
