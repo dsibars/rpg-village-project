@@ -142,6 +142,15 @@ const ACTION_MAP = {
     pickObjectives: (engine, p) => engine.dailyObjectivesService.pickObjectives(p.objectiveIds),
     claimReward: (engine, p) => engine.dailyObjectivesService.claimReward(p.objectiveId)
   },
+  combat: {
+    nextTurn: (engine) => engine.nextBattleTurn(),
+    executeAction: (engine, p) => engine.executeBattleAction(p.skillId, p.targetIndex, p.tier),
+    executeSpell: (engine, p) => engine.executeBattleSpell(p.spellIndex, p.targetIndex),
+    useConsumable: (engine, p) => engine.useBattleConsumable(p.consumableId, p.targetId),
+    defend: (engine, p) => engine.heroDefend(p.heroId),
+    skip: (engine) => engine.skipBattle(),
+    toggleAuto: (engine) => engine.toggleAutoBattle()
+  },
   settings: {
     devCheatActivate: (engine) => engine.activateDeveloperCheat()
   },

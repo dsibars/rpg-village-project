@@ -62,6 +62,7 @@
 <script setup>
 import { computed, ref, watch, nextTick, onErrorCaptured, inject } from 'vue'
 import { useI18n } from '@/core/composables/useI18n.js'
+import { useAdapter } from '@/core/composables/useAdapter.js'
 import { useActiveBattle, useExpeditions, useInventory } from '@/core/composables/useGameState.js'
 import FullViewOverlay from '@/components/FullViewOverlay.vue'
 import CombatHeader from './components/CombatHeader.vue'
@@ -71,6 +72,7 @@ import CombatActionPanel from './components/CombatActionPanel.vue'
 const emit = defineEmits(['close'])
 
 const { t } = useI18n()
+const { dispatch } = useAdapter()
 const engine = inject('engine')
 const gameState = inject('gameState')
 
@@ -280,17 +282,17 @@ watch(logEvents, () => {
 })
 
 function toggleAutoBattle() {
-  engine?.toggleAutoBattle?.()
+  dispatch('combat', 'toggleAuto')
 }
 
 function skipBattle() {
-  engine?.skipBattle?.()
+  dispatch('combat', 'skip')
 }
 
 function executeDefend() {
-  const hero = currentHero.value
-  if (!hero || !engine) return
-  engine.heroDefend?.(hero.id)
+  if (!currentHero.value) return
+  // Defend passes the turn (no special buff in v1)
+  dispatch('combat', 'nextTurn')
   menuState.value = 'main'
 }
 
@@ -310,24 +312,23 @@ function onActionSelect(action) {
 
 function handleTarget({ index, isHero }) {
   const action = selectedAction.value
-  if (!action || !engine) return
+  if (!action) return
 
   let result
   if (action.type === 'attack') {
-    result = engine.executeBattleAction?.('single_strike', index)
+    result = dispatch('combat', 'executeAction', { skillId: 'single_strike', targetIndex: index })
   } else if (action.type === 'skill') {
-    result = engine.executeBattleAction?.(action.id, index, action.tier || null)
+    result = dispatch('combat', 'executeAction', { skillId: action.id, targetIndex: index, tier: action.tier || null })
   } else if (action.type === 'spell') {
-    result = engine.executeBattleSpell?.(action.index, index)
+    result = dispatch('combat', 'executeSpell', { spellIndex: action.index, targetIndex: index })
   } else if (action.type === 'item') {
     const targetId = isHero
       ? battle.value?.heroes?.[index]?.id
       : battle.value?.enemies?.[index]?.id
-    result = engine.useBattleConsumable?.(action.id, targetId)
+    result = dispatch('combat', 'useConsumable', { consumableId: action.id, targetId })
   }
 
   if (result && !result.success) {
-    // Show error toast via adapter or console
     console.error('Combat action failed:', result.error)
   }
 
