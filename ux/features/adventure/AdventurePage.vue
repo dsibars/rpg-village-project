@@ -46,7 +46,19 @@ const tabs = {
 
 <style scoped>
 .adventure-page {
+  display: flex;
+  flex-direction: column;
   height: 100%;
   overflow: hidden;
+}
+
+.adventure-page > :deep(.tab-nav) {
+  flex-shrink: 0;
+}
+
+.adventure-page > :deep(.tab-nav) + * {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
 }
 </style>

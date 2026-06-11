@@ -6,7 +6,6 @@ const context = await browser.newContext({ viewport: { width: 1920, height: 1080
 const page = await context.newPage();
 
 const errors = [];
-const warnings = [];
 
 page.on('pageerror', err => {
   errors.push({ message: err.message, stack: err.stack });
@@ -36,13 +35,12 @@ async function skipPresentation() {
 
 await skipPresentation();
 
-// Pages to test
+// Pages to test via footer nav
 const pages = [
   { id: 'village', label: 'Village', nav: 'Main' },
   { id: 'heroes', label: 'Heroes', nav: 'Heroes' },
   { id: 'adventure', label: 'Adventure', nav: 'Adventure' },
   { id: 'town', label: 'Town', nav: 'Town' },
-  { id: 'settings', label: 'Settings', nav: 'Settings' },
 ];
 
 const results = [];
@@ -50,7 +48,6 @@ const results = [];
 for (const p of pages) {
   console.log(`\n=== Testing ${p.label} ===`);
   
-  // Navigate to page
   const navBtn = await page.locator(`nav.footer-nav button:has-text("${p.nav}")`);
   await navBtn.click();
   await page.waitForTimeout(2000);
@@ -58,55 +55,78 @@ for (const p of pages) {
   await skipPresentation();
   await page.waitForTimeout(1000);
   
-  // Check for scroll on the whole document
+  // Check body scroll (should be false now)
   const hasBodyScroll = await page.evaluate(() => {
     const html = document.documentElement;
-    const body = document.body;
-    return html.scrollHeight > html.clientHeight || body.scrollHeight > body.clientHeight;
+    return html.scrollHeight > html.clientHeight;
   });
   
-  // Check for app-main scroll
-  const appMain = await page.locator('.app-main');
-  const hasAppMainScroll = await appMain.evaluate(el => el.scrollHeight > el.clientHeight).catch(() => false);
-  
-  // Check for styled scrollbar (check if custom scrollbar styles exist)
-  const hasCustomScrollbar = await page.evaluate(() => {
-    const styles = getComputedStyle(document.documentElement);
-    return styles.getPropertyValue('--scrollbar-width') !== '' || 
-           document.querySelector('style[data-scrollbar]') !== null;
+  // Check if app-main has scroll capability
+  const appMainScroll = await page.evaluate(() => {
+    const el = document.querySelector('.app-main');
+    if (!el) return 'missing';
+    return {
+      scrollHeight: el.scrollHeight,
+      clientHeight: el.clientHeight,
+      hasScroll: el.scrollHeight > el.clientHeight,
+      overflow: getComputedStyle(el).overflowY
+    };
   });
   
-  // Take screenshot
-  const screenshotPath = `/tmp/page-${p.id}.png`;
+  // Check custom scrollbar styling
+  const scrollbarStyle = await page.evaluate(() => {
+    const el = document.querySelector('.app-main');
+    if (!el) return 'missing';
+    const styles = getComputedStyle(el);
+    return {
+      scrollbarWidth: styles.scrollbarWidth,
+      scrollbarColor: styles.scrollbarColor
+    };
+  });
+  
+  const screenshotPath = `/tmp/audit-${p.id}.png`;
   await page.screenshot({ path: screenshotPath, fullPage: false });
   console.log(`Screenshot: ${screenshotPath}`);
-  
-  // Check for presentation modal
-  const hasPresentation = await page.locator('.presentation-overlay').count() > 0;
   
   results.push({
     page: p.id,
     hasBodyScroll,
-    hasAppMainScroll,
-    hasCustomScrollbar,
-    hasPresentation,
-    errors: errors.length,
-    screenshot: screenshotPath
+    appMainScroll,
+    scrollbarStyle,
+    errors: errors.length
   });
   
-  console.log(`  Body scroll: ${hasBodyScroll}`);
-  console.log(`  App-main scroll: ${hasAppMainScroll}`);
-  console.log(`  Custom scrollbar: ${hasCustomScrollbar}`);
-  console.log(`  Presentation active: ${hasPresentation}`);
+  console.log(`  Body scroll: ${hasBodyScroll ? '⚠️ BAD' : '✅ OK'}`);
+  console.log(`  App-main scroll: ${JSON.stringify(appMainScroll)}`);
+  console.log(`  Scrollbar style: ${JSON.stringify(scrollbarStyle)}`);
 }
 
-console.log('\n\n=== AUDIT RESULTS ===');
+// Test Settings via top-bar gear icon
+console.log(`\n=== Testing Settings ===`);
+const gearBtn = await page.locator('header.top-bar button[title*="Settings"], header.top-bar button:has-text("⚙️")');
+if (await gearBtn.count() > 0) {
+  await gearBtn.click();
+  await page.waitForTimeout(2000);
+  
+  const hasBodyScroll = await page.evaluate(() => {
+    const html = document.documentElement;
+    return html.scrollHeight > html.clientHeight;
+  });
+  
+  const screenshotPath = '/tmp/audit-settings.png';
+  await page.screenshot({ path: screenshotPath, fullPage: false });
+  console.log(`Screenshot: ${screenshotPath}`);
+  console.log(`  Body scroll: ${hasBodyScroll ? '⚠️ BAD' : '✅ OK'}`);
+  
+  results.push({ page: 'settings', hasBodyScroll, errors: errors.length });
+} else {
+  console.log('  Settings gear button not found');
+}
+
+console.log('\n\n=== AUDIT SUMMARY ===');
 for (const r of results) {
   console.log(`\n${r.page.toUpperCase()}:`);
-  console.log(`  Body scroll: ${r.hasBodyScroll ? '⚠️ YES (bad - should be app-main)' : '✅ No'}`);
-  console.log(`  App-main scroll: ${r.hasAppMainScroll ? '✅ Yes (good)' : 'ℹ️ No'}`);
-  console.log(`  Custom scrollbar: ${r.hasCustomScrollbar ? '✅ Yes' : '⚠️ No (vanilla scrollbar)'}`);
-  console.log(`  Presentation: ${r.hasPresentation ? '⚠️ Still showing!' : '✅ None'}`);
+  console.log(`  Body scroll: ${r.hasBodyScroll ? '❌ STILL SCROLLING' : '✅ Contained'}`);
   console.log(`  Errors: ${r.errors > 0 ? '❌ ' + r.errors : '✅ 0'}`);
 }
 
