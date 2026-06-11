@@ -66,6 +66,23 @@ function getSuccessToast(i18n, domain, action, payload, data) {
       return null
     }
 
+    case domain === 'daily' && action === 'pickObjectives': {
+      return i18n.t('daily_uxelm_toast_picked')
+    }
+
+    case domain === 'daily' && action === 'claimReward': {
+      const reward = data?.reward
+      if (reward) {
+        const parts = []
+        if (reward.gold) parts.push(`${reward.gold}g`)
+        if (reward.material_wood) parts.push(`${reward.material_wood} wood`)
+        if (reward.material_stone) parts.push(`${reward.material_stone} stone`)
+        if (reward.material_iron) parts.push(`${reward.material_iron} iron`)
+        return i18n.t('daily_uxelm_toast_reward_claimed', { rewards: parts.join(', ') })
+      }
+      return null
+    }
+
     default:
       return null
   }
@@ -120,6 +137,10 @@ const ACTION_MAP = {
   },
   forge: {
     refineItem: (engine, p) => engine.refineEquipment(p.itemId)
+  },
+  daily: {
+    pickObjectives: (engine, p) => engine.dailyObjectivesService.pickObjectives(p.objectiveIds),
+    claimReward: (engine, p) => engine.dailyObjectivesService.claimReward(p.objectiveId)
   },
   settings: {
     devCheatActivate: (engine) => engine.activateDeveloperCheat()

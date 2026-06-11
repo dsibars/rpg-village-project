@@ -20,7 +20,8 @@ export function useGameState() {
     expeditions: computed(() => gameState.value.expeditions || []),
     activeBattle: computed(() => gameState.value.activeBattle || null),
     day: computed(() => gameState.value.village?.day || 1),
-    gold: computed(() => gameState.value.village?.gold || 0)
+    gold: computed(() => gameState.value.village?.gold || 0),
+    dailyObjectives: computed(() => gameState.value.dailyObjectives || {})
   }
 }
 
