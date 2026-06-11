@@ -7,6 +7,8 @@
  */
 
 export { TECHNIQUE_FAMILIES } from '../../../js/engine/shared/data/CombatData.js'
+export { MEAL_RECIPES, GLYPH_TABLET_DATA } from '../../../js/engine/shared/data/InventoryData.js'
+export { getEquipmentStats } from '../../../js/engine/shared/inventory/EquipmentService.js'
 export { CONSUMABLES_DATA } from '../../../js/engine/shared/data/InventoryData.js'
 export {
   GLYPH_DATA,

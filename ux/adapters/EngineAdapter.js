@@ -128,7 +128,27 @@ const ACTION_MAP = {
   shop: {
     buyItem: (engine, p) => engine.buyItem(p.itemData, p.costGold),
     sellItem: (engine, p) => engine.sellItem(p.itemId, p.itemType, p.sellPrice),
-    sellResource: (engine, p) => engine.sellResource(p.resourceId, p.quantity)
+    sellResource: (engine, p) => engine.sellResource(p.resourceId, p.quantity),
+    getSellPrice: (engine, p) => engine.getSellPrice(p.item)
+  },
+  trainer: {
+    getDialogue: (engine, p) => engine.getTrainerDialogue(p.hero)
+  },
+  witch: {
+    getDialogue: (engine, p) => engine.getWitchDialogue(p.hero, p.day),
+    recordVisit: (engine, p) => {
+      engine.recordWitchVisit(p.hero, p.day)
+      engine.heroService?.saveAll?.()
+      return { success: true }
+    }
+  },
+  academy: {
+    getSpellDesigns: (engine) => engine.getSpellDesigns()
+  },
+  magic: {
+    getGlyphSymbol: (engine, p) => engine.getGlyphSymbol(p.tier),
+    getSlotCount: (engine, p) => engine.getMagicCircleSlotCount(p.tier),
+    composeSpell: (engine, p) => engine.composeSpell(p.glyphIds, p.glyphTiers, p.customName)
   },
   inventory: {
     cookMeal: (engine, p) => engine.cookMeal(p.recipeId),
