@@ -19,7 +19,7 @@
       <select v-model="form.action">
         <optgroup :label="t('gambit_uxelm_techniques')">
           <option v-for="family in hero.knownFamilies" :key="family" :value="`tech:${family}`">
-            {{ family }}
+            {{ t('heroes_info_family_' + family) }}
           </option>
         </optgroup>
         <optgroup :label="t('gambit_uxelm_spells')">

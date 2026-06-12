@@ -253,6 +253,7 @@ export const en = {
     gambit_uxelm_enemy_none_selected: "No enemies selected. Add some from the catalog!",
     gambit_uxelm_fallback: "FALLBACK: ",
     gambit_uxelm_health_score: "Health Score",
+    gambit_uxelm_on: "ON",
     gambit_uxelm_position: "Position",
     gambit_uxelm_preset_suggest: "Suggest Preset",
     gambit_uxelm_simulation_start: "Start Simulation",

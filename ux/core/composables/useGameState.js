@@ -64,7 +64,8 @@ export function useBestiary() {
     enemyTemplates: computed(() => {
       const tpl = gameState.value.enemyTemplates
       if (!tpl) return []
-      return Array.isArray(tpl) ? tpl : Object.values(tpl)
+      if (Array.isArray(tpl)) return tpl
+      return Object.entries(tpl).map(([id, template]) => ({ id, ...template }))
     })
   }
 }

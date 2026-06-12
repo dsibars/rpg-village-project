@@ -141,7 +141,7 @@ const validTargetIndices = computed(() => {
 })
 
 const isLogExpanded = ref(false)
-const logEvents = computed(() => battle.value?.log?.events || [])
+const logEvents = computed(() => battle.value?.log || [])
 
 function translateEnemyName({ name, templateId, isElite, eliteTier }) {
   if (!templateId) return name
@@ -200,7 +200,7 @@ function formatLogEntry(entry) {
       color = ev.actorIsHero ? '#4caf50' : '#f44336'
       if (ev.isCrit) text = '🔥 ' + text
       if (ev.targetDefeated) {
-        const defeatedText = t('combat_log_target_defeated') ? t('combat_log_target_defeated').replace('{target}', '') : 'DEAD'
+        const defeatedText = t('combat_log_target_defeated')?.replace('{target}', '') || ''
         defeatedInfo = `(${defeatedText} 💀)`
       }
     }
@@ -208,7 +208,7 @@ function formatLogEntry(entry) {
     text = t('combat_log_spell_damage', { attacker: ev.actorName, spell: ev.spellName || t('shared_uxelm_magic'), target: ev.targetName, damage: ev.amount })
     color = ev.actorIsHero ? '#9c27b0' : '#f44336'
     if (ev.targetDefeated) {
-      const defeatedText = t('combat_log_target_defeated') ? t('combat_log_target_defeated').replace('{target}', '') : 'DEAD'
+      const defeatedText = t('combat_log_target_defeated')?.replace('{target}', '') || ''
       defeatedInfo = `(${defeatedText} 💀)`
     }
   } else if (ev.type === 'STUN_SKIP') {
@@ -247,18 +247,18 @@ function formatLogEntry(entry) {
     color = '#888'
   } else if (ev.type === 'USE_CONSUMABLE') {
     const itemName = t(ev.consumableId)
-    const stat = ev.healType === 'HEAL_MP' ? 'MP' : 'HP'
+    const stat = ev.healType === 'HEAL_MP' ? t('heroes_info_stat_mp') : t('heroes_info_stat_hp')
     text = t('combat_log_use_consumable', { attacker: ev.actorName, item: itemName, target: ev.targetName, amount: ev.amount, stat })
     color = '#00bcd4'
   } else if (ev.type === 'STAMINA_REGEN') {
-    text = t('combat_log_stamina_regen', { actor: ev.actorName, amount: ev.amount })
+    text = t('combat_log_stamina_restore', { actor: ev.actorName, amount: ev.amount })
     color = '#4caf50'
   } else {
     text = `[${ev.type}]`
   }
 
   if (ev.targetHp !== undefined && ev.targetMaxHp !== undefined && !ev.targetDefeated) {
-    hpInfo = `(HP: ${ev.targetHp}/${ev.targetMaxHp})`
+    hpInfo = `(${t('heroes_info_stat_hp')}: ${ev.targetHp}/${ev.targetMaxHp})`
   }
 
   return { text, color, hpInfo, defeatedInfo }

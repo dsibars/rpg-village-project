@@ -253,6 +253,7 @@ export const ca = {
     gambit_uxelm_enemy_none_selected: "No hi ha enemics seleccionats. Afegeix-ne alguns del catàleg!",
     gambit_uxelm_fallback: "RESERVA: ",
     gambit_uxelm_health_score: "Puntuació de Salut",
+    gambit_uxelm_on: "A",
     gambit_uxelm_position: "Posició",
     gambit_uxelm_preset_suggest: "Sugerir Ajust",
     gambit_uxelm_simulation_start: "Iniciar Simulació",
