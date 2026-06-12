@@ -36,7 +36,7 @@
 
       <!-- Combat Log -->
       <div class="combat-log-section" :class="{ expanded: isLogExpanded }" @click="!isLogExpanded && (isLogExpanded = true)">
-        <div class="log-badge">{{ logEvents.length }}</div>
+        <div class="log-badge">{{ effectiveLog.length }}</div>
         <div v-if="isLogExpanded" class="combat-log-expanded-header">
           <h3>{{ t('combat_uxelm_battle_log') }}</h3>
           <button class="btn-log-close" @click.stop="isLogExpanded = false">✕</button>
@@ -142,6 +142,15 @@ const validTargetIndices = computed(() => {
 
 const isLogExpanded = ref(false)
 const logEvents = computed(() => battle.value?.log || [])
+const lastBattleLog = ref([])
+
+watch(battle, (newVal, oldVal) => {
+  if (oldVal?.log?.length > 0 && (!newVal || newVal.isOver)) {
+    lastBattleLog.value = [...oldVal.log]
+  }
+})
+
+const effectiveLog = computed(() => battle.value?.log || lastBattleLog.value || [])
 
 function translateEnemyName({ name, templateId, isElite, eliteTier }) {
   if (!templateId) return name
@@ -265,14 +274,14 @@ function formatLogEntry(entry) {
 }
 
 const visibleLog = computed(() => {
-  return logEvents.value.slice(-100).map((entry) => {
+  return effectiveLog.value.slice(-100).map((entry) => {
     return formatLogEntry(entry)
   })
 })
 
-watch(logEvents, () => {
-  if (logEvents.value.length !== lastLogLength.value) {
-    lastLogLength.value = logEvents.value.length
+watch(effectiveLog, () => {
+  if (effectiveLog.value.length !== lastLogLength.value) {
+    lastLogLength.value = effectiveLog.value.length
     nextTick(() => {
       if (logConsole.value) {
         logConsole.value.scrollTop = logConsole.value.scrollHeight
