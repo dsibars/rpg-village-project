@@ -62,14 +62,14 @@ const usableItems = computed(() => {
       let disabledReason = ''
 
       if (data.type === 'HEAL_HP') {
-        const amount = Math.floor((props.hero.maxHp || 0) * data.amount)
+        const amount = Math.min(data.amount, (props.hero.maxHp || 0) - props.hero.hp)
         effect = `+${amount} HP`
         if (props.hero.hp >= props.hero.maxHp) {
           disabled = true
           disabledReason = t('heroes_uxelm_consumable_full_hp')
         }
       } else if (data.type === 'HEAL_MP') {
-        const amount = Math.floor((props.hero.maxMp || 0) * data.amount)
+        const amount = Math.min(data.amount, (props.hero.maxMp || 0) - props.hero.mp)
         effect = `+${amount} MP`
         if (props.hero.mp >= props.hero.maxMp) {
           disabled = true

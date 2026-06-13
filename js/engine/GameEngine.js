@@ -309,10 +309,10 @@ export class GameEngine {
 
         let amountRestored = 0;
         if (data.type === 'HEAL_HP') {
-            amountRestored = Math.floor(hero.maxHp * data.amount);
+            amountRestored = Math.min(data.amount, hero.maxHp - hero.hp);
             hero.hp = Math.min(hero.maxHp, hero.hp + amountRestored);
         } else if (data.type === 'HEAL_MP') {
-            amountRestored = Math.floor(hero.maxMp * data.amount);
+            amountRestored = Math.min(data.amount, hero.maxMp - hero.mp);
             hero.mp = Math.min(hero.maxMp, hero.mp + amountRestored);
         } else {
             return Result.fail('combat_error_consumable_invalid');
