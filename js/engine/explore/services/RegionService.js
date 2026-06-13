@@ -315,6 +315,16 @@ export class RegionService {
     // ─── Story Missions ───────────────────────────────────────────────
 
     /**
+     * Injects missing story missions across all regions (public entry for retroactive fix).
+     */
+    injectMissingStoryMissions(completedIds, villageState) {
+        for (const regionId of Object.keys(this.state.regions)) {
+            this._injectStoryMissions(regionId, completedIds, villageState);
+        }
+        this.save();
+    }
+
+    /**
      * Injects story missions into a region based on completion state.
      */
     _injectStoryMissions(regionId, completedIds, villageState) {

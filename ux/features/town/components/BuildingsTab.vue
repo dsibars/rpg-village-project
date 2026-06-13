@@ -96,7 +96,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useI18n } from '@/core/composables/useI18n.js'
 import { useGameState } from '@/core/composables/useGameState.js'
 import { useAdapter } from '@/core/composables/useAdapter.js'
@@ -135,6 +135,15 @@ const buildings = computed(() => {
     active: (infrastructure.value[b.id] || 0) > 0
   }))
 })
+
+// Auto-select first building (Town Hall / housing) on mount — MOVED AFTER `buildings` declaration
+watch(() => buildings.value, (buildingsList) => {
+  if (!selectedId.value && buildingsList.length > 0) {
+    // Prefer the first built building, or fallback to first in list
+    const firstBuilt = buildingsList.find(b => b.active)
+    selectedId.value = firstBuilt ? firstBuilt.id : buildingsList[0].id
+  }
+}, { immediate: true })
 
 const visibleBuildings = computed(() => buildings.value)
 

@@ -8,7 +8,8 @@
         <span class="expedition-result-icon">{{ icon }}</span>
       </div>
       <div class="expedition-result-body" :class="sectionClass">
-        <p>{{ bodyText }}</p>
+        <p v-if="hasRewards">{{ bodyText }}</p>
+        <p v-else class="no-rewards-text">{{ bodyText }}</p>
       </div>
     </div>
     <template #footer>
@@ -64,6 +65,14 @@ const titleText = computed(() => {
     return t('village_msg_report_exp_failed_title').replace('{name}', name)
   }
   return t('village_msg_report_exp_progress_title').replace('{name}', name)
+})
+
+const hasRewards = computed(() => {
+  const exp = props.expedition
+  if (!exp || exp.status !== 'completed') return false
+  const hasReward = exp.reward && (exp.reward.gold || exp.reward.items)
+  const hasDrops = exp.drops && (exp.drops.loot || (exp.drops.consumables?.length > 0) || (exp.drops.glyphs?.length > 0))
+  return hasReward || hasDrops
 })
 
 const bodyText = computed(() => {
@@ -158,7 +167,7 @@ const bodyText = computed(() => {
 }
 
 .expedition-result-body.progress {
-  background: rgba(99, 102, 241, 0.08);
-  border: 1px dashed rgba(99, 102, 241, 0.3);
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px dashed rgba(245, 158, 11, 0.3);
 }
 </style>

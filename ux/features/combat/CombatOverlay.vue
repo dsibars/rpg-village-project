@@ -17,26 +17,32 @@
         :current-actor-id="currentActorId"
         :targeting-mode="targetingMode"
         :valid-target-indices="validTargetIndices"
+        :upcoming-actors="upcomingActors"
+        :actor-animations="actorAnimations"
+        :floating-effects="floatingEffects"
+        :latest-action-text="latestActionText"
         @target="handleTarget"
-      />
-
-      <CombatActionPanel
-        :battle="battle"
-        :current-hero="currentHero"
-        :engine="engine"
-        :inventory="inventory"
-        :menu-state="menuState"
-        :selected-action="selectedAction"
-        :selected-family="selectedFamily"
-        @menu-change="onMenuChange"
-        @action-select="onActionSelect"
-        @defend="executeDefend"
-        @close="onClose"
-      />
+      >
+        <template #action-panel>
+          <CombatActionPanel
+            :battle="battle"
+            :current-hero="currentHero"
+            :engine="engine"
+            :inventory="inventory"
+            :menu-state="menuState"
+            :selected-action="selectedAction"
+            :selected-family="selectedFamily"
+            @menu-change="onMenuChange"
+            @action-select="onActionSelect"
+            @defend="executeDefend"
+            @close="onClose"
+          />
+        </template>
+      </CombatActorGrid>
 
       <!-- Combat Log -->
       <div class="combat-log-section" :class="{ expanded: isLogExpanded }" @click="!isLogExpanded && (isLogExpanded = true)">
-        <div class="log-badge">{{ logEvents.length }}</div>
+        <div class="log-badge">{{ effectiveLog.length }}</div>
         <div v-if="isLogExpanded" class="combat-log-expanded-header">
           <h3>{{ t('combat_uxelm_battle_log') }}</h3>
           <button class="btn-log-close" @click.stop="isLogExpanded = false">✕</button>
@@ -46,8 +52,10 @@
             v-for="(entry, idx) in visibleLog"
             :key="idx"
             class="log-entry"
-            :style="{ color: entry.color }"
+            :class="[`actor-${entry.actorType}`, `event-${entry.eventType}`]"
+            :style="{ color: entry.color, animationDelay: ((visibleLog.length - 1 - idx) * 30) + 'ms' }"
           >
+            <span class="log-icon">{{ entry.icon }}</span>
             <span class="log-text">{{ entry.text }}</span>
             <span v-if="entry.hpInfo" class="log-hp-info"> {{ entry.hpInfo }}</span>
             <span v-if="entry.defeatedInfo" class="log-defeated-info"> {{ entry.defeatedInfo }}</span>
@@ -60,8 +68,9 @@
 </template>
 
 <script setup>
-import { computed, ref, watch, nextTick, onErrorCaptured, inject } from 'vue'
+import { computed, ref, watch, nextTick, onErrorCaptured, inject, onUnmounted } from 'vue'
 import { useI18n } from '@/core/composables/useI18n.js'
+import { useAdapter } from '@/core/composables/useAdapter.js'
 import { useActiveBattle, useExpeditions, useInventory } from '@/core/composables/useGameState.js'
 import FullViewOverlay from '@/components/FullViewOverlay.vue'
 import CombatHeader from './components/CombatHeader.vue'
@@ -71,6 +80,7 @@ import CombatActionPanel from './components/CombatActionPanel.vue'
 const emit = defineEmits(['close'])
 
 const { t } = useI18n()
+const { dispatch } = useAdapter()
 const engine = inject('engine')
 const gameState = inject('gameState')
 
@@ -139,7 +149,16 @@ const validTargetIndices = computed(() => {
 })
 
 const isLogExpanded = ref(false)
-const logEvents = computed(() => battle.value?.log?.events || [])
+const logEvents = computed(() => battle.value?.log || [])
+const lastBattleLog = ref([])
+
+watch(battle, (newVal, oldVal) => {
+  if (oldVal?.log?.length > 0 && (!newVal || newVal.isOver)) {
+    lastBattleLog.value = [...oldVal.log]
+  }
+})
+
+const effectiveLog = computed(() => battle.value?.log || lastBattleLog.value || [])
 
 function translateEnemyName({ name, templateId, isElite, eliteTier }) {
   if (!templateId) return name
@@ -198,7 +217,7 @@ function formatLogEntry(entry) {
       color = ev.actorIsHero ? '#4caf50' : '#f44336'
       if (ev.isCrit) text = '🔥 ' + text
       if (ev.targetDefeated) {
-        const defeatedText = t('combat_log_target_defeated') ? t('combat_log_target_defeated').replace('{target}', '') : 'DEAD'
+        const defeatedText = t('combat_log_target_defeated')?.replace('{target}', '') || ''
         defeatedInfo = `(${defeatedText} 💀)`
       }
     }
@@ -206,7 +225,7 @@ function formatLogEntry(entry) {
     text = t('combat_log_spell_damage', { attacker: ev.actorName, spell: ev.spellName || t('shared_uxelm_magic'), target: ev.targetName, damage: ev.amount })
     color = ev.actorIsHero ? '#9c27b0' : '#f44336'
     if (ev.targetDefeated) {
-      const defeatedText = t('combat_log_target_defeated') ? t('combat_log_target_defeated').replace('{target}', '') : 'DEAD'
+      const defeatedText = t('combat_log_target_defeated')?.replace('{target}', '') || ''
       defeatedInfo = `(${defeatedText} 💀)`
     }
   } else if (ev.type === 'STUN_SKIP') {
@@ -245,32 +264,55 @@ function formatLogEntry(entry) {
     color = '#888'
   } else if (ev.type === 'USE_CONSUMABLE') {
     const itemName = t(ev.consumableId)
-    const stat = ev.healType === 'HEAL_MP' ? 'MP' : 'HP'
+    const stat = ev.healType === 'HEAL_MP' ? t('heroes_info_stat_mp') : t('heroes_info_stat_hp')
     text = t('combat_log_use_consumable', { attacker: ev.actorName, item: itemName, target: ev.targetName, amount: ev.amount, stat })
     color = '#00bcd4'
   } else if (ev.type === 'STAMINA_REGEN') {
-    text = t('combat_log_stamina_regen', { actor: ev.actorName, amount: ev.amount })
+    text = t('combat_log_stamina_restore', { actor: ev.actorName, amount: ev.amount })
     color = '#4caf50'
   } else {
     text = `[${ev.type}]`
   }
 
+  const actorType = ev.actorIsHero ? 'hero' : (ev.actorIsHero === false ? 'enemy' : 'neutral')
+  const eventType = ev.type
+  const icon = logTypeIcon(eventType)
+
   if (ev.targetHp !== undefined && ev.targetMaxHp !== undefined && !ev.targetDefeated) {
-    hpInfo = `(HP: ${ev.targetHp}/${ev.targetMaxHp})`
+    hpInfo = `(${t('heroes_info_stat_hp')}: ${ev.targetHp}/${ev.targetMaxHp})`
   }
 
-  return { text, color, hpInfo, defeatedInfo }
+  return { text, color, hpInfo, defeatedInfo, actorType, eventType, icon }
+}
+
+function logTypeIcon(type) {
+  const map = {
+    DAMAGE: '⚔',
+    SPELL_DAMAGE: '✨',
+    STUN_SKIP: '💫',
+    SLEEP_SKIP: '💤',
+    MAGIC_TIER_UP: '🔮',
+    TECHNIQUE_EVOLVED: '⚡',
+    HEAL: '💚',
+    VAMP: '🦇',
+    TRAIT_REGEN: '🌿',
+    STATUS_TICK: '🌀',
+    STATUS_EXPIRED: '⌛',
+    USE_CONSUMABLE: '🧪',
+    STAMINA_REGEN: '⚡'
+  }
+  return map[type] || '•'
 }
 
 const visibleLog = computed(() => {
-  return logEvents.value.slice(-100).map((entry) => {
+  return effectiveLog.value.slice(-100).map((entry) => {
     return formatLogEntry(entry)
   })
 })
 
-watch(logEvents, () => {
-  if (logEvents.value.length !== lastLogLength.value) {
-    lastLogLength.value = logEvents.value.length
+watch(effectiveLog, () => {
+  if (effectiveLog.value.length !== lastLogLength.value) {
+    lastLogLength.value = effectiveLog.value.length
     nextTick(() => {
       if (logConsole.value) {
         logConsole.value.scrollTop = logConsole.value.scrollHeight
@@ -280,17 +322,17 @@ watch(logEvents, () => {
 })
 
 function toggleAutoBattle() {
-  engine?.toggleAutoBattle?.()
+  dispatch('combat', 'toggleAuto')
 }
 
 function skipBattle() {
-  engine?.skipBattle?.()
+  dispatch('combat', 'skip')
 }
 
 function executeDefend() {
-  const hero = currentHero.value
-  if (!hero || !engine) return
-  engine.heroDefend?.(hero.id)
+  if (!currentHero.value) return
+  // Defend passes the turn (no special buff in v1)
+  dispatch('combat', 'nextTurn')
   menuState.value = 'main'
 }
 
@@ -310,24 +352,23 @@ function onActionSelect(action) {
 
 function handleTarget({ index, isHero }) {
   const action = selectedAction.value
-  if (!action || !engine) return
+  if (!action) return
 
   let result
   if (action.type === 'attack') {
-    result = engine.executeBattleAction?.('single_strike', index)
+    result = dispatch('combat', 'executeAction', { skillId: 'single_strike', targetIndex: index })
   } else if (action.type === 'skill') {
-    result = engine.executeBattleAction?.(action.id, index, action.tier || null)
+    result = dispatch('combat', 'executeAction', { skillId: action.id, targetIndex: index, tier: action.tier || null })
   } else if (action.type === 'spell') {
-    result = engine.executeBattleSpell?.(action.index, index)
+    result = dispatch('combat', 'executeSpell', { spellIndex: action.index, targetIndex: index })
   } else if (action.type === 'item') {
     const targetId = isHero
       ? battle.value?.heroes?.[index]?.id
       : battle.value?.enemies?.[index]?.id
-    result = engine.useBattleConsumable?.(action.id, targetId)
+    result = dispatch('combat', 'useConsumable', { consumableId: action.id, targetId })
   }
 
   if (result && !result.success) {
-    // Show error toast via adapter or console
     console.error('Combat action failed:', result.error)
   }
 
@@ -335,6 +376,157 @@ function handleTarget({ index, isHero }) {
   selectedAction.value = null
   selectedFamily.value = null
 }
+
+// Combat Visual Effects, Animations, and Initiative Timeline Track
+const floatingEffects = ref({})
+const actorAnimations = ref({})
+let effectUniqueId = 0
+const activeTimeouts = []
+
+function safeTimeout(fn, delay) {
+  const id = setTimeout(fn, delay)
+  activeTimeouts.push(id)
+  return id
+}
+
+function clearAllTimeouts() {
+  activeTimeouts.forEach(id => clearTimeout(id))
+  activeTimeouts.length = 0
+}
+
+function triggerFloatingEffect(actorId, text, type) {
+  if (!actorId) return
+  if (!floatingEffects.value[actorId]) {
+    floatingEffects.value[actorId] = []
+  }
+  const id = ++effectUniqueId
+  const effectObj = { id, text, type }
+  floatingEffects.value[actorId].push(effectObj)
+  
+  // Remove after animation finishes
+  safeTimeout(() => {
+    if (floatingEffects.value[actorId]) {
+      floatingEffects.value[actorId] = floatingEffects.value[actorId].filter(e => e.id !== id)
+    }
+  }, 1300)
+}
+
+function triggerActorAnimation(actorId, className) {
+  if (!actorId) return
+  actorAnimations.value[actorId] = className
+  
+  // Clear class after animation finishes
+  safeTimeout(() => {
+    if (actorAnimations.value[actorId] === className) {
+      actorAnimations.value[actorId] = ''
+    }
+  }, 500)
+}
+
+function processLogEntryForVisuals(entry) {
+  if (!entry || typeof entry !== 'object') return
+  
+  const actorId = entry.actorId
+  const targetId = entry.targetId
+  
+  // 1. Attack / Action Lunges
+  if (entry.type === 'DAMAGE' || entry.type === 'SPELL_DAMAGE' || entry.type === 'HEAL') {
+    triggerActorAnimation(actorId, 'animate-lunge')
+  }
+  
+  // 2. Damage impact shakes and float texts
+  if (entry.type === 'DAMAGE' || entry.type === 'SPELL_DAMAGE') {
+    if (entry.isMiss) {
+      triggerFloatingEffect(targetId, t('combat_log_miss')?.split(' ')?.pop() || 'MISS', 'miss')
+    } else {
+      const type = entry.isCrit ? 'crit' : 'damage'
+      const prefix = entry.isCrit ? '🔥 CRIT -' : '-'
+      triggerFloatingEffect(targetId, `${prefix}${entry.amount}`, type)
+      triggerActorAnimation(targetId, 'animate-shake')
+    }
+  }
+  
+  // 3. Heals and Regen
+  if (entry.type === 'HEAL' || entry.type === 'VAMP' || entry.type === 'TRAIT_REGEN') {
+    triggerFloatingEffect(targetId || actorId, `+${entry.amount}`, 'heal')
+  }
+  
+  // 4. Status ticks
+  if (entry.type === 'STATUS_TICK') {
+    const icon = entry.effectType === 'poison' ? '🤢' : '🔥'
+    triggerFloatingEffect(targetId, `-${entry.damage} ${icon}`, 'status')
+    triggerActorAnimation(targetId, 'animate-status-flash')
+  }
+  
+  // 5. Stuns/Sleeps
+  if (entry.type === 'STUN_SKIP') {
+    triggerFloatingEffect(actorId, '💫 ' + t('combat_effect_stunned').toUpperCase(), 'miss')
+  }
+  if (entry.type === 'SLEEP_SKIP') {
+    triggerFloatingEffect(actorId, '💤 ' + t('combat_effect_sleeping').toUpperCase(), 'status')
+  }
+  
+  // 6. Evolutions/Buffs
+  if (entry.type === 'TECHNIQUE_EVOLVED') {
+    triggerFloatingEffect(actorId, '⚡ ' + t('combat_effect_evolved').toUpperCase(), 'system')
+  }
+  if (entry.type === 'MAGIC_TIER_UP') {
+    triggerFloatingEffect(actorId, '✨ ' + t('combat_effect_tier_up').toUpperCase(), 'system')
+  }
+  if (entry.type?.startsWith('BUFF_')) {
+    triggerFloatingEffect(targetId, `+${entry.amount} ` + t('combat_effect_buff').toUpperCase(), 'buff')
+  }
+}
+
+// Watch effectiveLog to trigger floating combat text and animations dynamically
+watch(effectiveLog, (newVal, oldVal) => {
+  const prevLen = oldVal ? oldVal.length : 0
+  const nextLen = newVal ? newVal.length : 0
+  
+  if (nextLen > prevLen) {
+    const newEntries = newVal.slice(prevLen)
+    newEntries.forEach(entry => {
+      processLogEntryForVisuals(entry)
+    })
+  }
+}, { deep: true })
+
+const upcomingActors = computed(() => {
+  const b = battle.value
+  if (!b || !b.turnOrder || b.turnOrder.length === 0 || b.isOver) return []
+  
+  const queue = []
+  const len = b.turnOrder.length
+  
+  const getActorHp = (actorId) => {
+    const all = [...(b.heroes || []), ...(b.enemies || [])]
+    const matched = all.find(a => a.id === actorId)
+    return matched ? matched.hp : 0
+  }
+  
+  for (let i = 0; i < Math.min(5, len); i++) {
+    const idx = (b.currentTurnIndex + i) % len
+    const actor = b.turnOrder[idx]
+    if (actor && getActorHp(actor.id) > 0) {
+      queue.push({
+        id: actor.id,
+        name: actor.name,
+        isHero: actor.type === 'Hero',
+        avatar: actor.type === 'Hero' ? '⚔' : '👾',
+        isCurrent: i === 0
+      })
+    }
+  }
+  return queue
+})
+
+const latestActionText = computed(() => {
+  const log = effectiveLog.value
+  if (log.length === 0) return ''
+  const last = log[log.length - 1]
+  const formatted = formatLogEntry(last)
+  return formatted.text
+})
 
 function onClose() {
   menuState.value = 'main'
@@ -347,6 +539,10 @@ onErrorCaptured((err, instance, info) => {
   console.error('CombatOverlay error:', err, info)
   return false
 })
+
+onUnmounted(() => {
+  clearAllTimeouts()
+})
 </script>
 
 <style scoped>
@@ -355,7 +551,7 @@ onErrorCaptured((err, instance, info) => {
   flex-direction: column;
   height: 100%;
   color: var(--text-primary);
-  background: var(--bg-base);
+  background: transparent;
 }
 
 .combat-log-section {
@@ -436,12 +632,68 @@ onErrorCaptured((err, instance, info) => {
   color: var(--text-secondary);
 }
 
+@keyframes logEntryIn {
+  0% { opacity: 0; transform: translateY(6px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
 .log-entry {
-  padding: 2px 0;
+  padding: 3px 0 3px 8px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.03);
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  gap: 4px;
+  animation: logEntryIn 0.25s ease-out both;
+  border-left: 2px solid transparent;
+  border-radius: 0 3px 3px 0;
+  transition: background 0.15s ease;
+}
+
+.log-entry:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.log-entry.actor-hero {
+  border-left-color: rgba(74, 222, 128, 0.4);
+}
+
+.log-entry.actor-enemy {
+  border-left-color: rgba(245, 158, 11, 0.4);
+}
+
+.log-entry.actor-neutral {
+  border-left-color: rgba(148, 163, 184, 0.3);
+}
+
+.log-entry.event-DAMAGE.log-entry.actor-hero {
+  border-left-color: rgba(74, 222, 128, 0.6);
+}
+
+.log-entry.event-DAMAGE.log-entry.actor-enemy {
+  border-left-color: rgba(239, 68, 68, 0.6);
+}
+
+.log-entry.event-SPELL_DAMAGE {
+  border-left-color: rgba(139, 92, 246, 0.5);
+}
+
+.log-entry.event-HEAL,
+.log-entry.event-VAMP,
+.log-entry.event-TRAIT_REGEN {
+  border-left-color: rgba(59, 130, 246, 0.5);
+}
+
+.log-entry.event-STATUS_TICK {
+  border-left-color: rgba(168, 85, 247, 0.5);
+}
+
+.log-icon {
+  font-size: 0.85em;
+  opacity: 0.7;
+  flex-shrink: 0;
+  width: 1.2em;
+  text-align: center;
 }
 
 .log-hp-info {

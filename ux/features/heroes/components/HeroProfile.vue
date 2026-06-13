@@ -141,6 +141,100 @@ const skillAlertSuffix = computed(() => {
 </script>
 
 <style scoped>
+.hero-profile {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  grid-template-rows: 1fr;
+  gap: var(--spacing-lg);
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.hero-profile-left,
+.hero-profile-right {
+  min-width: 0;
+}
+
+.hero-profile-left {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.hero-profile-right {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.hero-portrait-container {
+  width: 100%;
+  max-width: 280px;
+  margin: 0 auto;
+  aspect-ratio: 1;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--bg-card);
+  border: 2px solid var(--glass-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-portrait-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.portrait-fallback {
+  font-size: 4rem;
+}
+
+.hero-detail-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.profile-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.profile-badge {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.hero-name {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  color: var(--text-primary);
+}
+
+.hero-level-text {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.hero-origin-desc {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
 .hero-status-row {
   display: flex;
   gap: var(--spacing-lg);
@@ -153,10 +247,27 @@ const skillAlertSuffix = computed(() => {
   gap: var(--spacing-xs);
 }
 
+.status-badge {
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.status-badge.idle {
+  background: rgba(76, 175, 80, 0.15);
+  color: #4caf50;
+}
+
+.status-badge.busy {
+  background: rgba(244, 67, 54, 0.15);
+  color: #f44336;
+}
+
 .skill-points-alert {
   margin-top: 6px;
-  background: rgba(99, 102, 241, 0.1);
-  border: 1px solid rgba(99, 102, 241, 0.3);
+  background: rgba(74, 222, 128, 0.1);
+  border: 1px solid rgba(74, 222, 128, 0.3);
   padding: 6px 10px;
   border-radius: var(--radius-md);
   font-size: 0.9rem;
@@ -165,6 +276,34 @@ const skillAlertSuffix = computed(() => {
   background: rgba(245, 158, 11, 0.1);
   border-color: rgba(245, 158, 11, 0.3);
   color: var(--warning, #f59e0b);
+}
+
+.stat-points-alert {
+  background: rgba(76, 175, 80, 0.1);
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  margin-bottom: var(--spacing-sm);
+}
+
+.stat-points-alert.locked {
+  background: rgba(245, 158, 11, 0.1);
+  border-color: rgba(245, 158, 11, 0.3);
+  color: var(--warning, #f59e0b);
+}
+
+@media (max-width: 900px) {
+  .hero-profile {
+    grid-template-columns: 260px 1fr;
+    gap: var(--spacing-md);
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-profile {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
 

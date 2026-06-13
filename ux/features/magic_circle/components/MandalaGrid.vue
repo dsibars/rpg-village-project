@@ -55,7 +55,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useI18n } from '@/core/composables/useI18n.js'
-import { inject } from 'vue'
+import { useAdapter } from '@/core/composables/useAdapter.js'
 import { getSlotCoords, isAdjacent, getGlyphIcon, getGlyphAbbreviation, getElementColor } from '../composables/useMagicCircle.js'
 import { GLYPH_DATA } from '@/core/data/index.js'
 
@@ -71,7 +71,7 @@ const props = defineProps({
 const emit = defineEmits(['focus'])
 
 const { t } = useI18n()
-const engine = inject('engine')
+const { dispatch } = useAdapter()
 
 function getSlotStyle(i) {
   const coords = getSlotCoords(i)
@@ -112,10 +112,8 @@ function getSlotTier(i) {
   const glyph = GLYPH_DATA[comp.glyphId]
   if (!glyph) return ''
   const tier = props.selectedTiers[comp.glyphId] || props.glyphMastery[comp.glyphId]?.tier || 1
-  if (engine?.getGlyphSymbol) {
-    return engine.getGlyphSymbol(tier)
-  }
-  return '+'
+  const result = dispatch('magic', 'getGlyphSymbol', { tier })
+  return result.success ? result.data : '+'
 }
 
 const connections = computed(() => {

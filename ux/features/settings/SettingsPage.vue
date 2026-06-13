@@ -28,8 +28,8 @@
           </Button>
         </div>
 
-        <!-- Developer Options -->
-        <div class="settings-card">
+        <!-- Developer Options (hidden in production unless debug flag is set) -->
+        <div v-if="showDevOptions" class="settings-card dev-card">
           <h3>{{ t('settings_uxelm_dev_options') }}</h3>
           <p class="card-desc">{{ t('settings_uxelm_dev_cheat_desc') }}</p>
           <div class="dev-actions">
@@ -52,6 +52,10 @@
             </Button>
           </div>
           <p class="card-desc simulator-desc">{{ t('settings_uxelm_magic_simulator_desc') }}</p>
+        </div>
+        <!-- Debug Toggle (hidden, activated via konami-style click or URL param) -->
+        <div v-else class="settings-card debug-hint">
+          <p class="debug-hint-text">{{ t('settings_uxelm_debug_hidden') }}</p>
         </div>
       </div>
 
@@ -130,7 +134,15 @@ const selectedLanguage = ref(currentLanguage?.value || 'en')
 const cheatActivated = ref(false)
 const showSimulator = ref(false)
 
-const currentSlotIndex = computed(() => engine?.getCurrentSlotIndex?.() || 0)
+// Check for debug mode via URL param or localStorage
+const urlParams = new URLSearchParams(window.location.search)
+const isDebugMode = urlParams.get('debug') === '1' || localStorage.getItem('rpgv_debug') === '1'
+const showDevOptions = ref(isDebugMode)
+
+const currentSlotIndex = computed(() => {
+  const result = dispatch('settings', 'getCurrentSlotIndex')
+  return result?.data?.index ?? 0
+})
 
 const confirmDialog = ref({
   show: false,
@@ -174,7 +186,7 @@ function confirmWipeSlot() {
     titleKey: 'settings_uxelm_wipe_slot',
     messageKey: 'settings_uxelm_wipe_slot_confirm',
     onConfirm: () => {
-      engine?.wipeCurrentSlot?.()
+      dispatch('settings', 'wipeSlot')
       setTimeout(() => window.location.reload(), 100)
     }
   }
@@ -186,7 +198,7 @@ function confirmWipeAll() {
     titleKey: 'settings_uxelm_wipe_all',
     messageKey: 'settings_uxelm_wipe_all_confirm',
     onConfirm: () => {
-      engine?.wipeAllSlots?.()
+      dispatch('settings', 'wipeAll')
       setTimeout(() => window.location.reload(), 100)
     }
   }
@@ -293,6 +305,27 @@ function openMagicSimulator() {
 .cheat-btn {
   background: linear-gradient(135deg, #e74c3c, #c0392b);
   border: none;
+}
+
+.dev-card {
+  border-color: rgba(231, 76, 60, 0.3);
+}
+
+.dev-card h3 {
+  color: #e74c3c;
+}
+
+.debug-hint {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px dashed var(--glass-border);
+}
+
+.debug-hint-text {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-style: italic;
+  text-align: center;
 }
 
 .simulator-desc {

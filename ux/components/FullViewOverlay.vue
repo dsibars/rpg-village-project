@@ -25,10 +25,18 @@ defineEmits(['close'])
 .fullview-overlay {
   position: fixed;
   inset: 0;
-  background: var(--bg-base);
+  background: rgba(18, 29, 21, 0.82); /* Translucent forest glass */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   display: flex;
   flex-direction: column;
   z-index: 1000;
+  animation: overlayIn 0.3s cubic-bezier(0.25, 1, 0.5, 1) both;
+}
+
+@keyframes overlayIn {
+  0% { opacity: 0; backdrop-filter: blur(0px); }
+  100% { opacity: 1; backdrop-filter: blur(10px); }
 }
 
 .fullview-header {

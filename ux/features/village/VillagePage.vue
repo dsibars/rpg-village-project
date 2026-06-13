@@ -60,6 +60,7 @@
       <div class="dashboard-col col-right">
         <div class="dashboard-card card-hub">
           <h3 class="hub-title">{{ t('village_uxelm_threat_defense_hub') }}</h3>
+          <p class="hub-hint">{{ t('village_uxelm_threat_defense_hint') }}</p>
           <div class="hub-body">
             <VillageCalendar :calendar="calendar" />
             <div class="hub-divider" />
@@ -298,6 +299,15 @@ function navigateToBuildings(buildingId) {
   color: var(--color-primary-light);
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+
+.hub-hint {
+  margin: 0;
+  padding: 0 var(--spacing-md) var(--spacing-xs);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-style: italic;
+  line-height: 1.4;
 }
 
 .hub-body {

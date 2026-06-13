@@ -44,6 +44,30 @@ const visibleActions = computed(() =>
 </script>
 
 <style scoped>
-/* No extra styles needed; uses global .hero-quick-links and .btn styles from heroes.css/style.css */
+.hero-quick-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+  margin-top: var(--spacing-sm);
+}
+
+.btn-secondary {
+  padding: 6px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--glass-border);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn-secondary:hover {
+  border-color: var(--color-primary-light);
+  background: rgba(74, 222, 128, 0.1);
+}
 </style>
 

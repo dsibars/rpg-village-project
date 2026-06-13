@@ -49,11 +49,45 @@ function formatRule(gambit) {
   const action = gambit.action
   const target = gambit.target
 
-  let condText = cond ? t(`gambit_cond_${cond.type}`) : t('gambit_uxelm_always')
-  let actionText = action?.payload || t('gambit_uxelm_defend')
-  let targetText = target ? t(`gambit_target_${target}`) : ''
+  // Map condition type to full translation key
+  function getConditionKey(c) {
+    if (!c) return 'gambit_uxelm_always'
+    const { type, operator, value } = c
+    if (type === 'always') return 'gambit_cond_any_enemy'
+    if (type === 'ally_hp' && operator === '<' && value === 0.5) return 'gambit_cond_ally_hp_lt_50'
+    if (type === 'ally_hp' && operator === '<' && value === 0.25) return 'gambit_cond_ally_hp_lt_25'
+    if (type === 'self_hp' && operator === '<' && value === 0.5) return 'gambit_cond_self_hp_lt_50'
+    if (type === 'self_mp' && operator === '<' && value === 0.25) return 'gambit_cond_self_mp_lt_25'
+    if (type === 'enemy_count' && operator === '>' && value === 2) return 'gambit_cond_enemies_gt_2'
+    return `gambit_cond_${type}`
+  }
 
-  return `${condText} \u2192 ${actionText}${targetText ? ' ON ' + targetText : ''}`
+  const condText = cond ? t(getConditionKey(cond)) : t('gambit_uxelm_always')
+
+  // Translate action text
+  let actionText
+  if (!action || action.type === 'defend') {
+    actionText = t('gambit_uxelm_defend')
+  } else if (action.type === 'skill' && action.payload) {
+    const familyKey = `heroes_info_family_${action.payload}`
+    const translated = t(familyKey)
+    actionText = translated !== familyKey ? translated : action.payload
+  } else if (action.type === 'spell' && action.payload) {
+    const spellKey = `spells_${action.payload}`
+    const translated = t(spellKey)
+    actionText = translated !== spellKey ? translated : action.payload
+  } else if (action.type === 'item' && action.payload) {
+    const itemKey = `items_${action.payload}`
+    const translated = t(itemKey)
+    actionText = translated !== itemKey ? translated : action.payload
+  } else {
+    actionText = action.payload || t('gambit_uxelm_defend')
+  }
+
+  const targetText = target ? t(`gambit_target_${target}`) : ''
+  const onText = targetText ? ` ${t('gambit_uxelm_on')} ` : ''
+
+  return `${condText} \u2192 ${actionText}${onText}${targetText}`
 }
 </script>
 

@@ -228,7 +228,15 @@ const chapterMilestones = computed(() => {
   const getMilestones = (chapterId) => {
     const chapterMilestones = PRESENTATION_CATALOG.filter(p => p.chapter === chapterId)
     
-    return chapterMilestones.map(pres => {
+    // Find the first non-seen milestone to highlight as "next"
+    const firstUnseenIndex = chapterMilestones.findIndex(p => {
+      if (!ps) return false
+      const isSeen = ps.isSeen(p.id)
+      const isPending = (ps.state?.pendingPresentations || []).includes(p.id)
+      return !isSeen && !isPending
+    })
+
+    return chapterMilestones.map((pres, index) => {
       let status = 'locked'
       if (ps) {
         if (ps.isSeen(pres.id)) {
@@ -246,6 +254,7 @@ const chapterMilestones = computed(() => {
       let excerpt = ''
       let hint = ''
       let rowClass = 'state-locked'
+      const isNext = index === firstUnseenIndex
 
       if (status === 'seen') {
         title = t(pres.id)
@@ -260,6 +269,9 @@ const chapterMilestones = computed(() => {
         excerpt = t('chronicle_pending_hint')
       } else {
         hint = getTriggerHint(pres)
+        if (isNext) {
+          rowClass = 'state-locked state-next'
+        }
       }
 
       return {
@@ -269,7 +281,8 @@ const chapterMilestones = computed(() => {
         daySeen,
         excerpt,
         hint,
-        rowClass
+        rowClass,
+        isNext
       }
     })
   }
@@ -399,7 +412,7 @@ function openDiscoveryDetail(entry) {
 }
 
 .btn-replay-icon:hover {
-  background: rgba(99, 102, 241, 0.1);
+  background: rgba(74, 222, 128, 0.1);
   border-color: var(--color-primary-light);
 }
 
@@ -505,6 +518,12 @@ function openDiscoveryDetail(entry) {
 
 .milestone-row.state-locked {
   opacity: 0.45;
+}
+
+.milestone-row.state-next {
+  opacity: 1;
+  background: rgba(74, 222, 128, 0.08);
+  border-left: 3px solid var(--color-primary);
 }
 
 .milestone-main-info {
@@ -635,7 +654,7 @@ function openDiscoveryDetail(entry) {
 
 .discovery-row:hover {
   border-color: var(--color-primary-light);
-  background: rgba(99, 102, 241, 0.05);
+  background: rgba(74, 222, 128, 0.05);
 }
 
 .discovery-title {

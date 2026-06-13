@@ -20,7 +20,8 @@ export function useGameState() {
     expeditions: computed(() => gameState.value.expeditions || []),
     activeBattle: computed(() => gameState.value.activeBattle || null),
     day: computed(() => gameState.value.village?.day || 1),
-    gold: computed(() => gameState.value.village?.gold || 0)
+    gold: computed(() => gameState.value.village?.gold || 0),
+    dailyObjectives: computed(() => gameState.value.dailyObjectives || {})
   }
 }
 
@@ -63,7 +64,8 @@ export function useBestiary() {
     enemyTemplates: computed(() => {
       const tpl = gameState.value.enemyTemplates
       if (!tpl) return []
-      return Array.isArray(tpl) ? tpl : Object.values(tpl)
+      if (Array.isArray(tpl)) return tpl
+      return Object.entries(tpl).map(([id, template]) => ({ id, ...template }))
     })
   }
 }

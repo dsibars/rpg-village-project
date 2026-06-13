@@ -34,7 +34,7 @@ describe('HeroListItem', () => {
 
   it('shows activity badge', () => {
     const wrapper = mountWithProviders({ hero })
-    expect(wrapper.text()).toContain('heroes_status_activity_idle')
+    expect(wrapper.find('.activity-badge').attributes('title')).toBe('heroes_status_activity_idle')
   })
 
   it('shows meal buff badge when hero has meal buffs', () => {

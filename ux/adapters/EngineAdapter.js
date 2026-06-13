@@ -66,6 +66,23 @@ function getSuccessToast(i18n, domain, action, payload, data) {
       return null
     }
 
+    case domain === 'daily' && action === 'pickObjectives': {
+      return i18n.t('daily_uxelm_toast_picked')
+    }
+
+    case domain === 'daily' && action === 'claimReward': {
+      const reward = data?.reward
+      if (reward) {
+        const parts = []
+        if (reward.gold) parts.push(`${reward.gold}g`)
+        if (reward.material_wood) parts.push(`${reward.material_wood} wood`)
+        if (reward.material_stone) parts.push(`${reward.material_stone} stone`)
+        if (reward.material_iron) parts.push(`${reward.material_iron} iron`)
+        return i18n.t('daily_uxelm_toast_reward_claimed', { rewards: parts.join(', ') })
+      }
+      return null
+    }
+
     default:
       return null
   }
@@ -111,7 +128,27 @@ const ACTION_MAP = {
   shop: {
     buyItem: (engine, p) => engine.buyItem(p.itemData, p.costGold),
     sellItem: (engine, p) => engine.sellItem(p.itemId, p.itemType, p.sellPrice),
-    sellResource: (engine, p) => engine.sellResource(p.resourceId, p.quantity)
+    sellResource: (engine, p) => engine.sellResource(p.resourceId, p.quantity),
+    getSellPrice: (engine, p) => engine.getSellPrice(p.item)
+  },
+  trainer: {
+    getDialogue: (engine, p) => engine.getTrainerDialogue(p.hero)
+  },
+  witch: {
+    getDialogue: (engine, p) => engine.getWitchDialogue(p.hero, p.day),
+    recordVisit: (engine, p) => {
+      engine.recordWitchVisit(p.hero, p.day)
+      engine.heroService?.saveAll?.()
+      return { success: true }
+    }
+  },
+  academy: {
+    getSpellDesigns: (engine) => engine.getSpellDesigns()
+  },
+  magic: {
+    getGlyphSymbol: (engine, p) => engine.getGlyphSymbol(p.tier),
+    getSlotCount: (engine, p) => engine.getMagicCircleSlotCount(p.tier),
+    composeSpell: (engine, p) => engine.composeSpell(p.glyphIds, p.glyphTiers, p.customName)
   },
   inventory: {
     cookMeal: (engine, p) => engine.cookMeal(p.recipeId),
@@ -121,8 +158,24 @@ const ACTION_MAP = {
   forge: {
     refineItem: (engine, p) => engine.refineEquipment(p.itemId)
   },
+  daily: {
+    pickObjectives: (engine, p) => engine.dailyObjectivesService.pickObjectives(p.objectiveIds),
+    claimReward: (engine, p) => engine.dailyObjectivesService.claimReward(p.objectiveId)
+  },
+  combat: {
+    nextTurn: (engine) => engine.nextBattleTurn(),
+    executeAction: (engine, p) => engine.executeBattleAction(p.skillId, p.targetIndex, p.tier),
+    executeSpell: (engine, p) => engine.executeBattleSpell(p.spellIndex, p.targetIndex),
+    useConsumable: (engine, p) => engine.useBattleConsumable(p.consumableId, p.targetId),
+    defend: (engine, p) => engine.heroDefend(p.heroId),
+    skip: (engine) => engine.skipBattle(),
+    toggleAuto: (engine) => engine.toggleAutoBattle()
+  },
   settings: {
-    devCheatActivate: (engine) => engine.activateDeveloperCheat()
+    devCheatActivate: (engine) => engine.activateDeveloperCheat(),
+    wipeSlot: (engine) => engine.wipeCurrentSlot(),
+    wipeAll: (engine) => engine.wipeAllSlots(),
+    getCurrentSlotIndex: (engine) => ({ success: true, data: { index: engine.getCurrentSlotIndex() || 0 } })
   },
   presentation: {
     getNext: (engine) => {
@@ -187,11 +240,19 @@ export function createEngineAdapter(engine, gameStateRef) {
         }
       }
 
-      // Force a state snapshot after the action.
+      // Force a state snapshot after the action if it mutated the state.
       // engine.update() is non-idempotent (see architecture doc §6.3), but this is correct here:
       // the action just mutated engine state, and we need Vue to see the change
       // immediately (not wait for the next 100ms loop tick).
-      if (gameStateRef) {
+      const isQuery = (domain === 'trainer' && action === 'getDialogue') ||
+                      (domain === 'witch' && action === 'getDialogue') ||
+                      (domain === 'academy' && action === 'getSpellDesigns') ||
+                      (domain === 'magic' && action === 'getGlyphSymbol') ||
+                      (domain === 'magic' && action === 'getSlotCount') ||
+                      (domain === 'shop' && action === 'getSellPrice') ||
+                      (domain === 'settings' && action === 'getCurrentSlotIndex')
+
+      if (gameStateRef && !isQuery) {
         gameStateRef.value = engine.update()
       }
 

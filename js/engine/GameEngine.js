@@ -22,7 +22,7 @@ const DEBUG = false;
 import { i18n } from './shared/core/i18n/I18nService.js';
 import { Result } from './shared/core/Result.js';
 import { SKILLS_DATA } from './shared/data/CombatData.js';
-import { MEAL_RECIPES } from './shared/data/InventoryData.js';
+import { MEAL_RECIPES, CONSUMABLES_DATA } from './shared/data/InventoryData.js';
 import { getRefineCost } from './shared/data/EquipmentData.js';
 import { MagicCircleService } from './magic_circle/MagicCircleService.js';
 import { TrainerService } from './trainer/TrainerService.js';
@@ -74,6 +74,11 @@ export class GameEngine {
         this.academyService.load();
         this.unlockService.load();
 
+        const presentationState = persistence.load('presentation_state');
+        if (presentationState) {
+            this.presentationService = new PresentationService(presentationState);
+        }
+
         const hasHeroes = this.heroService.list().length > 0;
         const hasVillage = this.villageService.getState().day !== undefined;
         
@@ -93,6 +98,30 @@ export class GameEngine {
 
         this.i18n.setLanguage(globalPersistence.load('settings_lang', 'en'));
 
+        // ─── Retroactive fixes for old saves that missed triggers ───
+        const completedIds = this.expeditionService.getCompletedIds();
+        const villageState = this.villageService.getState();
+
+        if (completedIds.length > 0 && !this.presentationService.isSeen('pres_first_victory')) {
+            this.presentationService.checkTriggers({ type: 'first_event', eventId: 'first_expedition_victory' });
+            this._persistPresentationState();
+        }
+        if (villageState.infrastructure?.farm >= 1 && !this.presentationService.isSeen('pres_first_harvest')) {
+            this.presentationService.checkTriggers({ type: 'building_complete', buildingId: 'farm', level: 1 });
+            this._persistPresentationState();
+        }
+
+        // ─── Retroactive story mission injection for old saves ───
+        this.regionService.injectMissingStoryMissions(completedIds, villageState);
+
+        // ─── Retroactive unlock check: ensure old saves populate Discovery Log ───
+        const unlockState = this._buildUnlockState();
+        const newNarratives = this.unlockService.checkAllUnlocks(unlockState);
+        const newCodexFeatures = this.unlockService.checkNewCodexFeatures(unlockState);
+        if (newNarratives.length > 0) {
+            this.unlockService.markAllAsShown(newNarratives, villageState.day);
+        }
+
         if (this.expeditionService.getActiveCombatExpeditionId()) {
             if (DEBUG) console.log('Engine: Resuming active combat...');
             this.expeditionService.resumeActiveBattle();
@@ -111,7 +140,8 @@ export class GameEngine {
                 origin: "origin_warrior",
                 avatar: "arthur.webp",
                 level: 1,
-                statPoints: 5
+                statPoints: 5,
+                knownFamilies: ['single_strike', 'power_strike']
             });
         }
 
@@ -182,6 +212,7 @@ export class GameEngine {
             currentTurnIndex: this.battleService.currentTurnIndex,
             log: [...this.battleService.log],
             isOver: this.battleService.isOver,
+            winner: this.battleService.winner,
             autoBattle: this.battleService.autoBattle,
             itemUsedThisTurn: this.battleService.itemUsedThisTurn
         } : null;

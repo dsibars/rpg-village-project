@@ -10,9 +10,18 @@
       <span class="hero-name">{{ hero.name }}</span>
       <span class="hero-level">{{ t('shared_uxelm_level') }} {{ hero.level }}</span>
     </div>
+    <div class="item-origin">
+      <span class="origin-badge" :title="originDesc">{{ originName }}</span>
+    </div>
     <div class="item-meta">
       <span class="badge activity-badge" :title="activityTitle">
         <span class="emoji">{{ activityEmoji }}</span>
+      </span>
+      <span class="badge hp-badge" :title="t('heroes_info_hp') + ': ' + hero.hp + '/' + hero.maxHp">
+        ❤️ {{ hero.hp }}/{{ hero.maxHp }}
+      </span>
+      <span class="badge stamina-badge" :title="t('heroes_info_stamina') + ': ' + hero.stamina + '/' + hero.maxStamina">
+        ⚡ {{ hero.stamina }}/{{ hero.maxStamina }}
       </span>
       <span
         v-if="hasMealBuff"
@@ -48,6 +57,13 @@ const activityTitle = computed(() =>
 )
 const hasMealBuff = computed(() => (props.hero.mealBuffs || []).length > 0)
 const hasPoints = computed(() => (props.hero.statPoints || 0) > 0 || (props.hero.skillPoints || 0) > 0)
+
+const originKey = computed(() => {
+  const origin = props.hero.origin || ''
+  return origin.replace(/^origin_/, '')
+})
+const originName = computed(() => t(`heroes_info_origin_${originKey.value}`) || originKey.value)
+const originDesc = computed(() => t(`heroes_info_origin_${originKey.value}_desc`) || '')
 </script>
 
 <style scoped>
@@ -73,7 +89,7 @@ const hasPoints = computed(() => (props.hero.statPoints || 0) > 0 || (props.hero
 
 .hero-list-item.active {
   border-color: var(--color-primary);
-  background: rgba(99, 102, 241, 0.08);
+  background: rgba(74, 222, 128, 0.08);
 }
 
 .item-header {
@@ -107,6 +123,25 @@ const hasPoints = computed(() => (props.hero.statPoints || 0) > 0 || (props.hero
   gap: var(--spacing-xs);
 }
 
+.item-origin {
+  margin-bottom: 2px;
+}
+
+.origin-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: rgba(74, 222, 128, 0.1);
+  color: var(--color-primary-light);
+  border: 1px solid rgba(74, 222, 128, 0.2);
+  cursor: help;
+}
+
 .badge {
   display: inline-flex;
   align-items: center;
@@ -130,5 +165,17 @@ const hasPoints = computed(() => (props.hero.statPoints || 0) > 0 || (props.hero
   background: rgba(34, 197, 94, 0.15);
   color: #22c55e;
   font-weight: 600;
+}
+
+.hp-badge {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+  font-weight: 500;
+}
+
+.stamina-badge {
+  background: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
+  font-weight: 500;
 }
 </style>

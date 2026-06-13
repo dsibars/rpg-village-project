@@ -79,7 +79,7 @@ const tiles = computed(() => {
 
 .village-tile:hover:not(.locked) {
   border-color: var(--color-primary-light);
-  background: rgba(99, 102, 241, 0.08);
+  background: rgba(74, 222, 128, 0.08);
 }
 
 .village-tile.locked {

@@ -66,7 +66,9 @@ const selectedEnemies = ref([])
 const maxEnemyLevel = 50
 
 const availableEnemies = computed(() => {
-  const templates = Array.isArray(props.enemyTemplates) ? props.enemyTemplates : Object.values(props.enemyTemplates)
+  const templates = Array.isArray(props.enemyTemplates)
+    ? props.enemyTemplates
+    : Object.entries(props.enemyTemplates).map(([id, template]) => ({ id, ...template }))
   const availableIds = props.bestiary?.length ? props.bestiary : ['slime_green']
   return templates.filter(t => availableIds.includes(t.id))
 })

@@ -326,7 +326,7 @@ function formatDescription(text) {
 
 .category-btn.active {
   border-color: var(--color-primary);
-  background: rgba(99, 102, 241, 0.1);
+  background: rgba(74, 222, 128, 0.1);
 }
 
 .features-list {
@@ -355,7 +355,7 @@ function formatDescription(text) {
 
 .feature-row.active {
   border-color: var(--color-primary);
-  background: rgba(99, 102, 241, 0.08);
+  background: rgba(74, 222, 128, 0.08);
 }
 
 .feature-row.locked {

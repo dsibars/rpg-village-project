@@ -49,7 +49,19 @@ const tabs = {
 
 <style scoped>
 .town-page {
+  display: flex;
+  flex-direction: column;
   height: 100%;
+  overflow: hidden;
+}
+
+.town-page > :deep(.tab-nav) {
+  flex-shrink: 0;
+}
+
+.town-page > :deep(.tab-nav) + * {
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
 }
 </style>

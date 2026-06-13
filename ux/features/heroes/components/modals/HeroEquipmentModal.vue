@@ -94,7 +94,12 @@ const selectedSlot = ref(null)
 
 const availableGear = computed(() => {
   if (!selectedSlot.value) return []
-  return props.inventoryEquipment.filter((item) => item.slot === selectedSlot.value)
+  return props.inventoryEquipment.filter((item) => {
+    if (item.type === 'weapon') {
+      return selectedSlot.value === 'leftHand' || selectedSlot.value === 'rightHand'
+    }
+    return item.slot === selectedSlot.value
+  })
 })
 
 function equippedName(slot) {

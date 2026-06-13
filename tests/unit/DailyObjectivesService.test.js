@@ -14,7 +14,7 @@ test('DailyObjectivesService: generateForDay creates 4 pending choices', () => {
     const inventory = new InventoryService();
     const service = new DailyObjectivesService(inventory);
 
-    service.generateForDay(1);
+    service.generateForDay(8);
     const state = service.getState();
 
     assert.strictEqual(state.pendingChoices.length, 4);

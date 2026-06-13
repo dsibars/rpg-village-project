@@ -205,7 +205,7 @@ import { useAdapter } from '@/core/composables/useAdapter.js'
 import Button from '@/components/Button.vue'
 import ModalFrame from '@/components/ModalFrame.vue'
 import { getEquipmentName, getFormattedStats } from '@/core/helpers/EquipmentHelper.js'
-import { MEAL_RECIPES, GLYPH_TABLET_DATA } from '../../../../js/engine/shared/data/InventoryData.js'
+import { MEAL_RECIPES, GLYPH_TABLET_DATA } from '@/core/data/index.js'
 
 const { t } = useI18n()
 const { gameState, heroes } = useGameState()
@@ -531,9 +531,9 @@ function teachGlyph(heroId) {
 }
 
 .grid-item.selected {
-  background: rgba(255, 107, 107, 0.15);
+  background: rgba(245, 158, 11, 0.15);
   border-color: var(--accent-color);
-  box-shadow: 0 0 10px rgba(255, 107, 107, 0.2);
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
 }
 
 .item-icon {
@@ -574,7 +574,7 @@ function teachGlyph(heroId) {
 .detail-pane {
   display: flex;
   flex-direction: column;
-  background: rgba(22, 24, 33, 0.4);
+  background: rgba(20, 31, 22, 0.4);
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: var(--radius-lg);
   overflow-y: auto;
@@ -613,7 +613,7 @@ function teachGlyph(heroId) {
 }
 
 .item-inspector-visual {
-  background: linear-gradient(135deg, rgba(30, 41, 59, 0.4) 0%, rgba(15, 23, 42, 0.6) 100%);
+  background: linear-gradient(135deg, rgba(20, 31, 22, 0.5) 0%, rgba(13, 19, 14, 0.7) 100%);
   border: 1px solid var(--glass-border);
   border-radius: 12px;
   width: 90px;

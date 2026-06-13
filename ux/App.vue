@@ -295,9 +295,11 @@ function onPresentationComplete() {
 function onNextDay() {
   if (!props.engine) return
 
+  // Prevent daily report from showing until post-day sequence is complete
+  presentationsDone.value = false
+
   // Run the day
   const report = props.engine.nextDay()
-  presentationsDone.value = false
 
   // Check for expedition battle
   if (report?.expedition?.status === 'battle_started') {
@@ -405,7 +407,7 @@ refreshSaveSlots()
   overflow: hidden;
   font-family: var(--font-body);
   color: var(--text-primary);
-  background: var(--bg-base);
+  background: transparent;
 }
 
 .app-main {

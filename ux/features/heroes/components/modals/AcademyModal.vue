@@ -36,8 +36,9 @@
 </template>
 
 <script setup>
-import { computed, inject } from 'vue'
+import { computed } from 'vue'
 import { useI18n } from '@/core/composables/useI18n.js'
+import { useAdapter } from '@/core/composables/useAdapter.js'
 import ModalFrame from '@/components/ModalFrame.vue'
 import Button from '@/components/Button.vue'
 
@@ -48,11 +49,11 @@ const props = defineProps({
 const emit = defineEmits(['close'])
 
 const { t } = useI18n()
-const engine = inject('engine')
+const { dispatch } = useAdapter()
 
 const designs = computed(() => {
-  if (!engine) return []
-  return engine.getSpellDesigns?.() || []
+  const result = dispatch('academy', 'getSpellDesigns')
+  return result.success ? result.data : []
 })
 </script>
 
