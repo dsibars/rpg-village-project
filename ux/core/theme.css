@@ -1,0 +1,82 @@
+/* Design Tokens — CSS Custom Properties
+ * These are the ONLY global styles in the new architecture.
+ * Components use var(--token-name) for colors, spacing, fonts.
+ */
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+#app {
+  height: 100%;
+}
+
+/* ── Custom Scrollbar (app-wide) ── */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+:root {
+  /* Colors - Mossy Forest & Campfire Wood Theme */
+  --color-primary: #4ade80; /* Moss Green */
+  --color-primary-light: #86efac; /* Lighter Mint Leaf */
+  --accent-color: #f59e0b; /* Campfire Amber */
+  --color-danger: #ff6b6b;
+  --color-success: #10ac84;
+  --color-warning: #f59e0b;
+
+  /* Text */
+  --text-primary: #ffffff; /* Warm Off-white -> Bright White */
+  --text-secondary: #e2ede5; /* Soft Sage Gray -> Crisp Sage Gray */
+  --text-muted: #8ba292; /* Muted Leaf Gray -> Lighter Muted Leaf Gray */
+
+  /* Backgrounds */
+  --bg-base: #0f1811; /* Deep Forest Charcoal -> Vibrant Deep Forest Green */
+  --bg-card: rgba(32, 54, 38, 0.72); /* Translucent Moss Plank - Lighter and shinier glass */
+  --bg-overlay: rgba(13, 19, 14, 0.75);
+
+  /* Borders */
+  --glass-border: rgba(74, 222, 128, 0.28);
+
+  /* Typography */
+  --font-heading: 'Outfit', sans-serif;
+  --font-body: 'Inter', sans-serif;
+
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+
+  /* Radii */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 12px;
+}

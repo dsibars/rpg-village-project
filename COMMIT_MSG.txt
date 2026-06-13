@@ -1,0 +1,10 @@
+fix(gambits): translate action names, condition text, and ON keyword
+
+- GambitRow.vue: translate action types (skill/spell/item/defend), conditions, and targets
+- GambitForm.vue: translate technique family names in dropdown
+- Add gambit_uxelm_on translation key (ca: 'A', en: 'ON')
+- Fix useBestiary to preserve template IDs for simulator
+- Fix CombatOverlay log access (log array vs log.events object)
+- Fix CombatOverlay stamina regen translation key mismatch
+- Fix CombatOverlay hardcoded HP/DEAD strings
+- Add safety checks for translation key lookups
