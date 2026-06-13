@@ -860,9 +860,6 @@ export class GameEngine {
         // Sort by lowest hp percentage first (infirmary prioritises most injured)
         heroesNeedingHeal.sort((a, b) => (a.hp / a.maxHp) - (b.hp / b.maxHp));
 
-        const heroesWithBonus = heroesNeedingHeal.slice(0, maxHeroesWithBonus);
-        const heroesBaseOnly = heroesNeedingHeal.slice(maxHeroesWithBonus);
-
         const healedLog = [];
 
         // Base heal: all idle injured heroes recover 2 HP
@@ -871,18 +868,27 @@ export class GameEngine {
             hero.hp += actualBaseHeal;
         });
 
-        // Infirmary bonus: % heal on top for heroes within slot limit
-        heroesWithBonus.forEach(hero => {
-            const bonusAmount = Math.floor(hero.maxHp * infirmaryHealPercentage);
-            const actualBonus = Math.min(bonusAmount, hero.maxHp - hero.hp);
-            hero.hp += actualBonus;
-            healedLog.push({ heroName: hero.name, amount: baseHealAmount + actualBonus });
-        });
+        // Infirmary bonus: % heal on top for heroes within slot limit (only if infirmary exists)
+        if (infirmaryLevel > 0) {
+            const heroesWithBonus = heroesNeedingHeal.slice(0, maxHeroesWithBonus);
+            const heroesBaseOnly = heroesNeedingHeal.slice(maxHeroesWithBonus);
 
-        // Log base-only heals (when infirmary exists but hero is outside slot limit)
-        heroesBaseOnly.forEach(hero => {
-            healedLog.push({ heroName: hero.name, amount: baseHealAmount });
-        });
+            heroesWithBonus.forEach(hero => {
+                const bonusAmount = Math.floor(hero.maxHp * infirmaryHealPercentage);
+                const actualBonus = Math.min(bonusAmount, hero.maxHp - hero.hp);
+                hero.hp += actualBonus;
+                healedLog.push({ heroName: hero.name, amount: baseHealAmount + actualBonus });
+            });
+
+            heroesBaseOnly.forEach(hero => {
+                healedLog.push({ heroName: hero.name, amount: baseHealAmount });
+            });
+        } else {
+            // No infirmary: log all heals as base-only
+            heroesNeedingHeal.forEach(hero => {
+                healedLog.push({ heroName: hero.name, amount: baseHealAmount });
+            });
+        }
 
         // Restore full stamina for all idle heroes at the village
         const idleHeroes = this.heroService.list().filter(h => h.hp > 0 && this.expeditionService.getHeroActivity(h.id).type === 'idle');
@@ -891,6 +897,9 @@ export class GameEngine {
                 hero.stamina = hero.maxStamina;
             }
         });
+
+        // Persist recovery changes (HP and stamina)
+        this.heroService.saveAll();
 
         // --- Training Grounds Passive XP ---
         const trainingGroundsLevel = this.villageService.getState().infrastructure.training_grounds || 0;

@@ -5,9 +5,9 @@
  */
 
 export const CONSUMABLES_CATALOG = [
-    { id: 'item_tiny_hp_potion', type: 'consumable', cost: 10, i18n_name: 'item_tiny_hp_potion', i18n_desc: 'item_tiny_hp_potion_desc' },
-    { id: 'item_tiny_mp_potion', type: 'consumable', cost: 15, i18n_name: 'item_tiny_mp_potion', i18n_desc: 'item_tiny_mp_potion_desc' },
-    { id: 'item_teleport_scroll', type: 'consumable', cost: 50, i18n_name: 'item_teleport_scroll', i18n_desc: 'item_teleport_scroll_desc' }
+    { id: 'tiny_hp_potion', type: 'consumable', cost: 10, i18n_name: 'item_tiny_hp_potion', i18n_desc: 'item_tiny_hp_potion_desc' },
+    { id: 'tiny_mp_potion', type: 'consumable', cost: 15, i18n_name: 'item_tiny_mp_potion', i18n_desc: 'item_tiny_mp_potion_desc' },
+    { id: 'teleport_scroll', type: 'consumable', cost: 50, i18n_name: 'item_teleport_scroll', i18n_desc: 'item_teleport_scroll_desc' }
 ];
 
 export const WEAPONS_CATALOG = [
@@ -111,9 +111,9 @@ export const ARMOR_CATALOG = [
  * Maps consumable ID → base gold cost.
  */
 export const CONSUMABLE_BASE_PRICES = {
-    'item_tiny_hp_potion': 10,
-    'item_tiny_mp_potion': 15,
-    'item_teleport_scroll': 50
+    'tiny_hp_potion': 10,
+    'tiny_mp_potion': 15,
+    'teleport_scroll': 50
 };
 
 /**
