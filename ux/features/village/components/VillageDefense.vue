@@ -120,8 +120,8 @@ function getHeroName(heroId) {
   align-items: center;
   gap: 4px;
   padding: 2px 8px;
-  background: rgba(99, 102, 241, 0.1);
-  border: 1px solid rgba(99, 102, 241, 0.2);
+  background: rgba(74, 222, 128, 0.1);
+  border: 1px solid rgba(74, 222, 128, 0.2);
   border-radius: var(--radius-sm);
   font-size: 0.8rem;
   color: var(--text-primary);

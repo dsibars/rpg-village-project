@@ -67,7 +67,7 @@ const visibleActions = computed(() =>
 
 .btn-secondary:hover {
   border-color: var(--color-primary-light);
-  background: rgba(99, 102, 241, 0.1);
+  background: rgba(74, 222, 128, 0.1);
 }
 </style>
 

@@ -43,26 +43,26 @@ html, body {
 }
 
 :root {
-  /* Colors */
-  --color-primary: #6366f1;
-  --color-primary-light: #818cf8;
-  --accent-color: #8b5cf6;
+  /* Colors - Mossy Forest & Campfire Wood Theme */
+  --color-primary: #4ade80; /* Moss Green */
+  --color-primary-light: #86efac; /* Lighter Mint Leaf */
+  --accent-color: #f59e0b; /* Campfire Amber */
   --color-danger: #ff6b6b;
   --color-success: #10ac84;
   --color-warning: #f59e0b;
 
   /* Text */
-  --text-primary: #f1f5f9;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
+  --text-primary: #ffffff; /* Warm Off-white -> Bright White */
+  --text-secondary: #e2ede5; /* Soft Sage Gray -> Crisp Sage Gray */
+  --text-muted: #8ba292; /* Muted Leaf Gray -> Lighter Muted Leaf Gray */
 
   /* Backgrounds */
-  --bg-base: #0f172a;
-  --bg-card: rgba(30, 41, 59, 0.7);
-  --bg-overlay: rgba(0, 0, 0, 0.85);
+  --bg-base: #0f1811; /* Deep Forest Charcoal -> Vibrant Deep Forest Green */
+  --bg-card: rgba(32, 54, 38, 0.72); /* Translucent Moss Plank - Lighter and shinier glass */
+  --bg-overlay: rgba(13, 19, 14, 0.75);
 
   /* Borders */
-  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-border: rgba(74, 222, 128, 0.28);
 
   /* Typography */
   --font-heading: 'Outfit', sans-serif;

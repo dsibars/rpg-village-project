@@ -187,7 +187,7 @@ function getTierSymbol(tier) {
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: rgba(7, 7, 10, 0.96);
+  background: rgba(13, 19, 14, 0.96);
 }
 
 .palette-header {
@@ -284,9 +284,9 @@ function getTierSymbol(tier) {
 }
 
 .mc-palette-card.selected {
-  background: rgba(79, 70, 229, 0.15);
-  border-color: #4f46e5;
-  box-shadow: 0 0 10px rgba(79, 70, 229, 0.25);
+  background: rgba(245, 158, 11, 0.15);
+  border-color: #f59e0b;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.25);
 }
 
 .mc-palette-card.already-used::after {
@@ -314,7 +314,7 @@ function getTierSymbol(tier) {
 }
 
 .mc-palette-card.selected .mc-palette-abb {
-  color: #a5b4fc;
+  color: #fef08a;
 }
 
 .empty-state {
@@ -358,10 +358,10 @@ function getTierSymbol(tier) {
   color: #94a3b8;
 }
 
-.mc-info-type.core { background: rgba(99, 102, 241, 0.15); color: #818cf8; }
+.mc-info-type.core { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
 .mc-info-type.power { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
 .mc-info-type.effect { background: rgba(16, 185, 129, 0.15); color: #34d399; }
-.mc-info-type.efficiency { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+.mc-info-type.efficiency { background: rgba(74, 222, 128, 0.15); color: #86efac; }
 
 .mc-info-description {
   font-size: 0.78rem;

@@ -266,8 +266,8 @@ const skillAlertSuffix = computed(() => {
 
 .skill-points-alert {
   margin-top: 6px;
-  background: rgba(99, 102, 241, 0.1);
-  border: 1px solid rgba(99, 102, 241, 0.3);
+  background: rgba(74, 222, 128, 0.1);
+  border: 1px solid rgba(74, 222, 128, 0.3);
   padding: 6px 10px;
   border-radius: var(--radius-md);
   font-size: 0.9rem;

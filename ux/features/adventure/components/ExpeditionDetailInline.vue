@@ -311,11 +311,11 @@ function handleStart() {
 .profile-badge {
   display: inline-block;
   padding: 2px 10px;
-  background: rgba(99, 102, 241, 0.15);
-  border: 1px solid rgba(99, 102, 241, 0.3);
+  background: rgba(74, 222, 128, 0.15);
+  border: 1px solid rgba(74, 222, 128, 0.3);
   border-radius: 12px;
   font-size: 0.75rem;
-  color: var(--accent-color);
+  color: var(--color-primary-light);
   width: fit-content;
 }
 .profile-title-group h2 {
@@ -382,11 +382,11 @@ function handleStart() {
 }
 .hero-checkbox-item:hover {
   background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(99, 102, 241, 0.3);
+  border-color: rgba(74, 222, 128, 0.3);
 }
 .hero-checkbox-item.selected {
   border-color: var(--accent-color);
-  background: rgba(99, 102, 241, 0.08);
+  background: rgba(245, 158, 11, 0.08);
 }
 .hero-checkbox-item.wounded {
   cursor: not-allowed;
@@ -417,7 +417,7 @@ function handleStart() {
 .hero-checkbox-item input[type="checkbox"]:checked {
   background: var(--accent-color);
   border-color: var(--accent-color);
-  box-shadow: 0 0 8px rgba(99, 102, 241, 0.4);
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
 }
 .hero-checkbox-item input[type="checkbox"]:checked::after {
   content: "✓";

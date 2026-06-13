@@ -82,7 +82,7 @@ const stats = computed(() => {
 
 .stat-row.highlight {
   border-color: var(--color-primary-light);
-  background: rgba(99, 102, 241, 0.08);
+  background: rgba(74, 222, 128, 0.08);
 }
 
 .stat-info {

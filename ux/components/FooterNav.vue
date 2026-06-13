@@ -39,8 +39,8 @@ defineEmits(['navigate'])
   height: 76px;
   padding: 0 var(--spacing-md);
   margin: 10px 20px 20px 20px;
-  background: rgba(18, 24, 38, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(20, 31, 22, 0.85);
+  border: 1px solid var(--glass-border);
   border-radius: 18px;
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
@@ -107,7 +107,7 @@ defineEmits(['navigate'])
 
 .nav-item.active {
   color: var(--accent-color);
-  text-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
+  text-shadow: 0 0 15px rgba(245, 158, 11, 0.35);
 }
 
 .nav-item.active .nav-icon {

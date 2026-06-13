@@ -223,8 +223,8 @@ function isTargetable(actor, isHero) {
 }
 
 .initiative-node.is-hero {
-  border-color: rgba(99, 102, 241, 0.4);
-  background: rgba(99, 102, 241, 0.15);
+  border-color: rgba(74, 222, 128, 0.4);
+  background: rgba(74, 222, 128, 0.15);
 }
 
 .initiative-node.is-enemy {
@@ -271,7 +271,7 @@ function isTargetable(actor, isHero) {
   justify-content: center;
   gap: var(--spacing-sm);
   padding: var(--spacing-sm) var(--spacing-md);
-  background: linear-gradient(90deg, rgba(139, 92, 246, 0.05) 0%, rgba(139, 92, 246, 0.12) 50%, rgba(139, 92, 246, 0.05) 100%);
+  background: linear-gradient(90deg, rgba(74, 222, 128, 0.05) 0%, rgba(74, 222, 128, 0.12) 50%, rgba(74, 222, 128, 0.05) 100%);
   border-top: 1px solid var(--glass-border);
   border-bottom: 1px solid var(--glass-border);
   text-align: center;
@@ -306,12 +306,12 @@ function isTargetable(actor, isHero) {
   transform: scale(1.01);
   border-color: var(--accent-color) !important;
   cursor: crosshair;
-  box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);
+  box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
 }
 
 .combat-grid.targeting-active :deep(.combat-card).targetable:hover {
   transform: scale(1.025);
-  box-shadow: 0 0 20px rgba(99, 102, 241, 0.7);
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.7);
   border-color: #ffffff;
 }
 

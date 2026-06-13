@@ -218,7 +218,7 @@ function finish() {
   height: 280px;
   overflow: hidden;
   position: relative;
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(139, 92, 246, 0.06));
+  background: linear-gradient(135deg, rgba(74, 222, 128, 0.08), rgba(245, 158, 11, 0.06));
 }
 
 .presentation-image img {
@@ -308,12 +308,15 @@ function finish() {
 }
 
 .btn-primary {
-  background: var(--color-primary);
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
   color: white;
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  box-shadow: 0 2px 8px rgba(217, 119, 6, 0.3);
 }
 
 .btn-primary:hover {
-  background: var(--color-primary-light);
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.5);
 }
 
 .btn-secondary {

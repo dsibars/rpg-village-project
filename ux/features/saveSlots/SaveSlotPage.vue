@@ -166,7 +166,7 @@ function performDelete() {
   min-height: 100vh;
   padding: var(--spacing-xl) var(--spacing-md);
   color: var(--text-primary);
-  background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+  background: radial-gradient(circle at center, #141f16 0%, #0d130e 100%);
 }
 
 .save-slots-header {
@@ -265,13 +265,13 @@ function performDelete() {
 .slot-card:hover {
   transform: translateY(-2px);
   border-color: var(--color-primary-light);
-  box-shadow: 0 10px 20px -10px rgba(99, 102, 241, 0.4);
+  box-shadow: 0 10px 20px -10px rgba(245, 158, 11, 0.4);
   opacity: 1;
 }
 
 .slot-card.empty:hover {
   border-color: var(--color-primary-light);
-  background: rgba(99, 102, 241, 0.05);
+  background: rgba(245, 158, 11, 0.05);
 }
 
 .slot-header {
@@ -328,7 +328,7 @@ function performDelete() {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: var(--spacing-xs) var(--spacing-sm);
-  background: rgba(15, 23, 42, 0.3);
+  background: rgba(13, 19, 14, 0.4);
   padding: var(--spacing-sm);
   border-radius: var(--radius-md);
   border: 1px solid rgba(255, 255, 255, 0.03);
@@ -401,7 +401,7 @@ function performDelete() {
 }
 
 .modal-body {
-  background: #1e293b;
+  background: var(--bg-card);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
   padding: var(--spacing-lg);

@@ -31,22 +31,22 @@ describe('HeroStatsGrid', () => {
 
   it('shows allocate buttons when idle and has stat points', () => {
     const wrapper = mountWithProviders({ hero: { ...baseHero, statPoints: 3, activity: 'idle' } })
-    expect(wrapper.findAll('.stat-add-btn').length).toBe(6)
+    expect(wrapper.findAll('.btn-assign-stat').length).toBe(6)
   })
 
   it('hides allocate buttons when on expedition', () => {
     const wrapper = mountWithProviders({ hero: { ...baseHero, statPoints: 3, activity: 'expedition' } })
-    expect(wrapper.find('.stat-add-btn').exists()).toBe(false)
+    expect(wrapper.find('.btn-assign-stat').exists()).toBe(false)
   })
 
   it('hides allocate buttons when no stat points', () => {
     const wrapper = mountWithProviders({ hero: { ...baseHero, statPoints: 0, activity: 'idle' } })
-    expect(wrapper.find('.stat-add-btn').exists()).toBe(false)
+    expect(wrapper.find('.btn-assign-stat').exists()).toBe(false)
   })
 
   it('emits allocate with stat id', async () => {
     const wrapper = mountWithProviders({ hero: { ...baseHero, statPoints: 3, activity: 'idle' } })
-    const buttons = wrapper.findAll('.stat-add-btn')
+    const buttons = wrapper.findAll('.btn-assign-stat')
     await buttons[2].trigger('click')
     expect(wrapper.emitted('allocate')).toBeTruthy()
     expect(wrapper.emitted('allocate')[0]).toEqual(['baseStrength'])

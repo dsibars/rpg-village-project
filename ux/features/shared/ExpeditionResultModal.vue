@@ -167,7 +167,7 @@ const bodyText = computed(() => {
 }
 
 .expedition-result-body.progress {
-  background: rgba(99, 102, 241, 0.08);
-  border: 1px dashed rgba(99, 102, 241, 0.3);
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px dashed rgba(245, 158, 11, 0.3);
 }
 </style>

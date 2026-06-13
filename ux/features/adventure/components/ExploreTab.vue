@@ -508,9 +508,11 @@ watch([() => allNodes.value, () => selectedRegion.value, () => viewMode.value], 
 let resizeObserver = null
 
 onMounted(() => {
-  resizeObserver = new ResizeObserver(() => drawConnectors())
-  if (treeScrollContainer.value) {
-    resizeObserver.observe(treeScrollContainer.value)
+  if (typeof ResizeObserver !== 'undefined') {
+    resizeObserver = new ResizeObserver(() => drawConnectors())
+    if (treeScrollContainer.value) {
+      resizeObserver.observe(treeScrollContainer.value)
+    }
   }
   nextTick(() => drawConnectors())
 })
@@ -562,8 +564,9 @@ onUnmounted(() => {
   background: rgba(255,255,255,0.08);
 }
 .view-btn.active {
-  background: rgba(99, 102, 241, 0.3);
-  color: var(--accent-color);
+  background: rgba(74, 222, 128, 0.3);
+  color: #ffffff;
+  font-weight: 700;
 }
 
 /* Status Banner */
@@ -632,12 +635,12 @@ onUnmounted(() => {
 }
 .region-list-item:hover {
   background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(99, 102, 241, 0.3);
+  border-color: rgba(74, 222, 128, 0.3);
 }
 .region-list-item.selected {
-  background: rgba(99, 102, 241, 0.12);
+  background: rgba(74, 222, 128, 0.12);
   border-color: var(--accent-color);
-  box-shadow: 0 0 8px rgba(99, 102, 241, 0.15);
+  box-shadow: 0 0 8px rgba(74, 222, 128, 0.15);
 }
 .region-list-name {
   font-weight: 600;
@@ -761,7 +764,7 @@ onUnmounted(() => {
   border: 2px solid;
   position: relative;
   z-index: 2;
-  background: #0f172a;
+  background: #0d130e;
   user-select: none;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
 }
@@ -777,14 +780,14 @@ onUnmounted(() => {
 
 /* Node states */
 .tree-node.available {
-  background: radial-gradient(circle, rgba(139, 92, 246, 0.2) 0%, #0f172a 100%);
+  background: radial-gradient(circle, rgba(74, 222, 128, 0.2) 0%, #0d130e 100%);
   border-color: var(--accent-color);
-  color: #a78bfa;
-  box-shadow: 0 0 12px rgba(139, 92, 246, 0.3), inset 0 0 8px rgba(139, 92, 246, 0.15);
+  color: #86efac;
+  box-shadow: 0 0 12px rgba(74, 222, 128, 0.3), inset 0 0 8px rgba(74, 222, 128, 0.15);
   animation: pulse-glow-avail 2s infinite alternate;
 }
 .tree-node.active {
-  background: radial-gradient(circle, rgba(251, 191, 36, 0.25) 0%, #0f172a 100%);
+  background: radial-gradient(circle, rgba(251, 191, 36, 0.25) 0%, #0d130e 100%);
   border-color: #fbbf24;
   color: #fbbf24;
   box-shadow: 0 0 20px rgba(251, 191, 36, 0.5), inset 0 0 10px rgba(251, 191, 36, 0.3);
@@ -800,19 +803,19 @@ onUnmounted(() => {
   pointer-events: none;
 }
 .tree-node.completed {
-  background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, #0f172a 100%);
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, #0d130e 100%);
   border-color: var(--success);
   color: var(--success);
   box-shadow: 0 0 10px rgba(16, 185, 129, 0.25), inset 0 0 6px rgba(16, 185, 129, 0.1);
 }
 .tree-node.closed {
-  background: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, #0f172a 100%);
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, #0d130e 100%);
   border-color: #f59e0b;
   color: #f59e0b;
   box-shadow: 0 0 8px rgba(245, 158, 11, 0.2);
 }
 .tree-node.locked {
-  background: #090d16;
+  background: #050806;
   border-color: rgba(255, 255, 255, 0.05);
   color: rgba(255, 255, 255, 0.12);
   font-size: 1rem;
@@ -951,8 +954,8 @@ onUnmounted(() => {
 }
 
 @keyframes pulse-glow-avail {
-  0% { box-shadow: 0 0 6px rgba(139, 92, 246, 0.2), inset 0 0 4px rgba(139, 92, 246, 0.1); }
-  100% { box-shadow: 0 0 16px rgba(139, 92, 246, 0.5), inset 0 0 10px rgba(139, 92, 246, 0.25); }
+  0% { box-shadow: 0 0 6px rgba(74, 222, 128, 0.2), inset 0 0 4px rgba(74, 222, 128, 0.1); }
+  100% { box-shadow: 0 0 16px rgba(74, 222, 128, 0.5), inset 0 0 10px rgba(74, 222, 128, 0.25); }
 }
 @keyframes pulse-glow-active {
   0% { box-shadow: 0 0 10px rgba(251, 191, 36, 0.4), inset 0 0 6px rgba(251, 191, 36, 0.2); }

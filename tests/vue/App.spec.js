@@ -72,7 +72,7 @@ describe('App.vue', () => {
 
     expect(wrapper.find('.village-page').exists()).toBe(true)
 
-    const navButtons = wrapper.findAll('.footer-nav .nav-btn')
+    const navButtons = wrapper.findAll('.footer-nav .nav-item')
     const heroesButton = navButtons.find((btn) => btn.text().includes('shared_uxelm_nav_heroes'))
     expect(heroesButton).toBeDefined()
 

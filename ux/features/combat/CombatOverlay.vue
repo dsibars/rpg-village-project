@@ -510,7 +510,7 @@ onErrorCaptured((err, instance, info) => {
   flex-direction: column;
   height: 100%;
   color: var(--text-primary);
-  background: var(--bg-base);
+  background: transparent;
 }
 
 .combat-log-section {

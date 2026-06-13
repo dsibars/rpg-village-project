@@ -139,21 +139,23 @@ const populationDisplay = computed(() => {
 
 .btn-next-day {
   padding: var(--spacing-sm) var(--spacing-md);
-  background: var(--color-primary);
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
   color: white;
-  border: none;
+  border: 1px solid rgba(251, 191, 36, 0.35);
   border-radius: var(--radius-md);
   cursor: pointer;
   font-family: var(--font-body);
   text-transform: uppercase;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.85rem;
   letter-spacing: 0.5px;
-  transition: background 0.15s ease;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(217, 119, 6, 0.3);
 }
 
 .btn-next-day:hover {
-  background: var(--color-primary-light);
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.5);
 }
 
 @media (max-width: 768px) {

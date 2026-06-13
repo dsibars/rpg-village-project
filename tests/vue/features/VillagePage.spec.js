@@ -19,7 +19,7 @@ function mountWithProviders(component) {
 describe('VillagePage', () => {
   it('renders heading and placeholder', () => {
     const wrapper = mountWithProviders(VillagePage)
-    expect(wrapper.text()).toContain('shared_uxelm_storage')
+    expect(wrapper.text()).toContain('village_uxelm_construction')
     expect(wrapper.text()).toContain('village_info_building_townhall')
   })
 })

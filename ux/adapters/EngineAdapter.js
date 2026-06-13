@@ -240,11 +240,19 @@ export function createEngineAdapter(engine, gameStateRef) {
         }
       }
 
-      // Force a state snapshot after the action.
+      // Force a state snapshot after the action if it mutated the state.
       // engine.update() is non-idempotent (see architecture doc §6.3), but this is correct here:
       // the action just mutated engine state, and we need Vue to see the change
       // immediately (not wait for the next 100ms loop tick).
-      if (gameStateRef) {
+      const isQuery = (domain === 'trainer' && action === 'getDialogue') ||
+                      (domain === 'witch' && action === 'getDialogue') ||
+                      (domain === 'academy' && action === 'getSpellDesigns') ||
+                      (domain === 'magic' && action === 'getGlyphSymbol') ||
+                      (domain === 'magic' && action === 'getSlotCount') ||
+                      (domain === 'shop' && action === 'getSellPrice') ||
+                      (domain === 'settings' && action === 'getCurrentSlotIndex')
+
+      if (gameStateRef && !isQuery) {
         gameStateRef.value = engine.update()
       }
 

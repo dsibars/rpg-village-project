@@ -217,8 +217,7 @@ function onClose() {
   gap: 0;
   height: 100%;
   box-sizing: border-box;
-  position: relative;
-  background: radial-gradient(circle at center, #0f0f18 0%, #050508 100%),
+  background: radial-gradient(circle at center, rgba(20, 38, 25, 0.85) 0%, rgba(8, 12, 9, 0.95) 100%),
               linear-gradient(90deg, rgba(239, 68, 68, 0.05) 0%, transparent 40%);
   background-blend-mode: screen;
   color: #e2e8f0;
@@ -226,8 +225,8 @@ function onClose() {
 }
 
 .magic-circle-editor.mode-support {
-  background: radial-gradient(circle at center, #0a0e14 0%, #040609 100%),
-              linear-gradient(90deg, rgba(16, 185, 129, 0.06) 0%, transparent 40%);
+  background: radial-gradient(circle at center, rgba(16, 32, 23, 0.85) 0%, rgba(6, 9, 7, 0.95) 100%),
+              linear-gradient(90deg, rgba(74, 222, 128, 0.06) 0%, transparent 40%);
 }
 
 /* Element theme classes */
@@ -240,7 +239,7 @@ function onClose() {
 .magic-circle-editor.el-active-earth { --el-color: #84cc16; }
 
 .mc-margin-bar {
-  background: rgba(10, 10, 15, 0.75);
+  background: rgba(13, 19, 14, 0.75);
   border: 1px solid rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -426,7 +425,7 @@ function onClose() {
   right: 0;
   bottom: 80px;
   width: 360px;
-  background: rgba(7, 7, 10, 0.96);
+  background: rgba(13, 19, 14, 0.96);
   border-left: 1px solid rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);

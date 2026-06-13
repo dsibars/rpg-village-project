@@ -89,7 +89,7 @@ const originDesc = computed(() => t(`heroes_info_origin_${originKey.value}_desc`
 
 .hero-list-item.active {
   border-color: var(--color-primary);
-  background: rgba(99, 102, 241, 0.08);
+  background: rgba(74, 222, 128, 0.08);
 }
 
 .item-header {
@@ -136,9 +136,9 @@ const originDesc = computed(() => t(`heroes_info_origin_${originKey.value}_desc`
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  background: rgba(99, 102, 241, 0.1);
+  background: rgba(74, 222, 128, 0.1);
   color: var(--color-primary-light);
-  border: 1px solid rgba(99, 102, 241, 0.2);
+  border: 1px solid rgba(74, 222, 128, 0.2);
   cursor: help;
 }
 

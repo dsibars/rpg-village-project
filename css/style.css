@@ -50,19 +50,19 @@
 }
 
 :root {
-    /* Color Palette - Premium Dark Theme */
-    --bg-primary: #0b0f19;
-    --bg-secondary: #121826;
-    --bg-accent: #1a2336;
+    /* Color Palette - Mossy Forest & Campfire Wood Theme */
+    --bg-primary: #0f1811; /* Vibrant Deep Forest Green */
+    --bg-secondary: #182a1e; /* Dark Mossy Spruce (lighter, greener) */
+    --bg-accent: #223c2a; /* Lighter Moss Slate (lighter) */
     
-    --text-primary: #f8fafc;
-    --text-secondary: #cbd5e1;
-    --text-muted: #64748b;
+    --text-primary: #ffffff; /* Bright White */
+    --text-secondary: #e2ede5; /* Crisp Sage Gray */
+    --text-muted: #8ba292; /* Lighter Muted Leaf Gray */
     
-    --accent-color: #8b5cf6; /* Glowing violet */
-    --accent-hover: #7c3aed;
-    --accent-secondary: #06b6d4; /* Neon Cyan */
-    --accent-glow: rgba(139, 92, 246, 0.4);
+    --accent-color: #4ade80; /* Moss Green Accent */
+    --accent-hover: #22c55e; /* Vibrant Leaf Green */
+    --accent-secondary: #fbbf24; /* Campfire Golden Amber Accent */
+    --accent-glow: rgba(74, 222, 128, 0.35);
     
     --success: #10b981;
     --warning: #fbbf24;
@@ -82,8 +82,8 @@
     --shadow-sm: 0 2px 4px rgba(0,0,0,0.2);
     --shadow-md: 0 8px 24px rgba(0,0,0,0.4);
     --shadow-lg: 0 16px 40px rgba(0,0,0,0.6);
-    --glass-bg: rgba(18, 24, 38, 0.75);
-    --glass-border: rgba(255, 255, 255, 0.06);
+    --glass-bg: rgba(32, 54, 38, 0.75); /* Lighter Translucent Moss */
+    --glass-border: rgba(74, 222, 128, 0.28); /* Brighter leaf green border */
 }
 
 * {
@@ -103,7 +103,7 @@ html {
 
 body {
     font-family: 'Inter', 'Segoe UI Emoji', 'Apple Color Emoji', 'Segoe UI Symbol', 'Noto Color Emoji', sans-serif;
-    background: radial-gradient(circle at 50% 50%, #161d30 0%, #080a0f 100%);
+    background: url('/assets/forest_background.png') center/cover no-repeat fixed;
     color: var(--text-primary);
     line-height: 1.6;
     overflow: hidden;
@@ -111,6 +111,17 @@ body {
     height: 100vh;
     margin: 0;
     padding: 0;
+    position: relative;
+}
+
+body::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 30%, rgba(24, 40, 28, 0.52) 0%, rgba(13, 19, 14, 0.76) 100%);
+    backdrop-filter: blur(4px); /* Soft blur to keep text perfectly legible */
+    -webkit-backdrop-filter: blur(4px);
+    z-index: -1;
 }
 
 #app-container {
@@ -201,18 +212,20 @@ body {
 /* Navigation */
 .main-nav {
     height: 76px;
-    background: rgba(18, 24, 38, 0.75);
+    background: linear-gradient(180deg, rgba(36, 58, 41, 0.9) 0%, rgba(20, 31, 23, 0.96) 100%); /* Lighter, greener wood plank style navigation */
     display: flex;
     justify-content: space-around;
     align-items: center;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(245, 158, 11, 0.35); /* Brighter warm wooden border frame */
     border-radius: 18px;
     padding: 0 var(--spacing-md);
     margin: 10px 20px 20px 20px; /* Floating Dock Margin */
     z-index: 100;
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.05);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6), 
+                inset 0 1px 2px rgba(255, 255, 255, 0.15),
+                0 0 15px rgba(245, 158, 11, 0.12);
     flex-shrink: 0;
     max-width: 1200px;
     width: calc(100% - 40px);
@@ -263,7 +276,7 @@ body {
 }
 .nav-item.active { 
     color: var(--accent-color); 
-    text-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
+    text-shadow: 0 0 15px rgba(245, 158, 11, 0.35);
 }
 .nav-item.active .nav-icon { transform: translateY(-3px) scale(1.15); }
 
@@ -297,9 +310,11 @@ body {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-hover) 100%);
+    background: linear-gradient(135deg, #fbbf24 0%, #d97706 50%, #b45309 100%); /* Campfire amber/brown with golden highlights */
     color: white;
-    box-shadow: 0 4px 15px var(--accent-glow);
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
 }
 
 .btn-primary::after {
@@ -307,13 +322,15 @@ body {
     position: absolute;
     top: 0; left: -100%;
     width: 100%; height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
     transition: 0.5s;
 }
 
 .btn-primary:hover:not(:disabled) {
     transform: translateY(-3px) scale(1.02);
-    box-shadow: 0 8px 25px var(--accent-glow);
+    background: linear-gradient(135deg, #fbbf24 0%, #fbbf24 30%, #f59e0b 100%); /* Brighter campfire golden glow on hover */
+    box-shadow: 0 8px 25px rgba(245, 158, 11, 0.65), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+    border-color: rgba(255, 255, 255, 0.5);
 }
 
 .btn-primary:hover::after { left: 100%; }
@@ -321,6 +338,7 @@ body {
 .btn-secondary {
     background: var(--bg-accent);
     color: var(--text-primary);
+    border: 1px solid rgba(74, 222, 128, 0.15); /* Moss outline */
 }
 
 .btn:active:not(:disabled) { 
@@ -339,18 +357,23 @@ body {
 
 /* Cards & Layout */
 .card {
-    background: var(--glass-bg);
+    background: linear-gradient(135deg, rgba(32, 54, 38, 0.72) 0%, rgba(18, 28, 20, 0.86) 100%); /* More translucent mossy wood plank */
     border-radius: var(--radius-md);
     padding: var(--spacing-md);
-    border: 1px solid var(--glass-border);
+    border: 1px solid rgba(245, 158, 11, 0.32); /* Brighter warm gold outline */
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.05);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 
+                inset 0 1px 2px rgba(255, 255, 255, 0.12),
+                0 0 15px rgba(74, 222, 128, 0.04);
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .card:hover {
-    border-color: rgba(255, 255, 255, 0.12);
+    border-color: rgba(245, 158, 11, 0.55);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5), 
+                inset 0 1px 2px rgba(255, 255, 255, 0.22),
+                0 0 20px rgba(74, 222, 128, 0.18);
 }
 
 .card h3 {
@@ -366,6 +389,11 @@ body {
     display: flex;
     align-items: center;
     gap: 10px;
+}
+
+.card h3::before {
+    content: '🍃'; /* Decorative leaf prefix */
+    font-size: 0.95rem;
 }
 
 .card h3::after {
@@ -394,7 +422,7 @@ body {
 
 .progress-bar {
     height: 100%;
-    background: linear-gradient(90deg, var(--accent-color), #818cf8, var(--accent-color));
+    background: linear-gradient(90deg, var(--accent-color), #f59e0b, var(--accent-color)); /* Moss green to campfire amber shimmer */
     background-size: 200% 200%;
     animation: progressShimmer 3s infinite linear;
     transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
@@ -417,7 +445,7 @@ body {
     background: rgba(255, 255, 255, 0.07);
     border-color: var(--accent-color);
     transform: translateX(6px);
-    box-shadow: 0 4px 20px rgba(99, 102, 241, 0.12);
+    box-shadow: 0 4px 20px rgba(74, 222, 128, 0.12);
 }
 
 .list-item:active {
@@ -425,7 +453,7 @@ body {
 }
 
 .list-item.active {
-    background: rgba(99, 102, 241, 0.15);
+    background: rgba(74, 222, 128, 0.15);
     border-color: var(--accent-color);
     box-shadow: inset 0 0 10px var(--accent-glow);
 }

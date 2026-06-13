@@ -12,17 +12,12 @@ import { selectors } from '../selectors/selectors.mjs'
 
 
 async function clickActionButton(page, labelSubstring) {
-  return page.evaluate((label) => {
-    const buttons = Array.from(document.querySelectorAll('button'))
-    const target = buttons.find((b) =>
-      b.textContent.toLowerCase().includes(label.toLowerCase())
-    )
-    if (target) {
-      target.click()
-      return true
-    }
-    return false
-  }, labelSubstring)
+  const btn = page.locator('button').filter({ hasText: new RegExp(labelSubstring, 'i') }).first()
+  if (await btn.count() > 0) {
+    await btn.click({ force: true })
+    return true
+  }
+  return false
 }
 
 async function dismissAnyModal(page) {
@@ -40,7 +35,6 @@ async function dismissAnyModal(page) {
 }
 
 export async function run({ page, snap }) {
-
   await startNewGame(page, selectors)
   await injectHero(page, { name: 'Aria', origin: 'origin_arcane_initiate', level: 10 })
   await injectHero(page, { name: 'Bran', origin: 'origin_warrior', level: 10 })

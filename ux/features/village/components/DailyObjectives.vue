@@ -186,7 +186,7 @@ function claimReward(objectiveId) {
 
 .choice-card.selected {
   border-color: var(--color-primary);
-  background: rgba(99, 102, 241, 0.08);
+  background: rgba(74, 222, 128, 0.08);
 }
 
 .choice-header {

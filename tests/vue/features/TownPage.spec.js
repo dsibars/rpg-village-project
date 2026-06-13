@@ -23,9 +23,9 @@ describe('TownPage', () => {
     expect(wrapper.find('.tab-nav').exists()).toBe(true)
   })
 
-  it('renders four town tabs', () => {
+  it('renders five town tabs', () => {
     const wrapper = mountWithProviders(TownPage)
     const tabs = wrapper.findAll('.tab-nav .tab-btn')
-    expect(tabs.length).toBe(4)
+    expect(tabs.length).toBe(5)
   })
 })

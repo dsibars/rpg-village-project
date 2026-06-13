@@ -25,7 +25,9 @@ defineEmits(['close'])
 .fullview-overlay {
   position: fixed;
   inset: 0;
-  background: var(--bg-base);
+  background: rgba(18, 29, 21, 0.82); /* Translucent forest glass */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   display: flex;
   flex-direction: column;
   z-index: 1000;

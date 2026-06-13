@@ -55,14 +55,16 @@ describe('HeroProfile', () => {
 
   it('emits allocateStat when stat + button clicked', async () => {
     const wrapper = mountWithProviders({ hero })
-    await wrapper.find('.stat-add-btn').trigger('click')
+    await wrapper.find('.btn-assign-stat').trigger('click')
     expect(wrapper.emitted('allocateStat')).toBeTruthy()
     expect(wrapper.emitted('allocateStat')[0]).toEqual(['baseMaxHp'])
   })
 
   it('emits openAction when action bar button clicked', async () => {
     const wrapper = mountWithProviders({ hero })
-    await wrapper.find('.hero-action-bar .action-btn').trigger('click')
+    const buttons = wrapper.findAll('.hero-quick-links .btn-secondary')
+    // Index 3 is 'skills' in visible actions for this hero
+    await buttons[3].trigger('click')
     expect(wrapper.emitted('openAction')).toBeTruthy()
     expect(wrapper.emitted('openAction')[0]).toEqual(['skills'])
   })

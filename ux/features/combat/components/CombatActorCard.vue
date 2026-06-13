@@ -427,7 +427,7 @@ function statusIcon(type) {
   position: absolute;
   inset: 0;
   border-radius: var(--radius-md);
-  background: rgba(99, 102, 241, 0.15);
+  background: rgba(74, 222, 128, 0.15);
   border: 2px dashed var(--color-primary);
   cursor: crosshair;
   animation: pulse 1.5s ease-in-out infinite;

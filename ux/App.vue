@@ -407,7 +407,7 @@ refreshSaveSlots()
   overflow: hidden;
   font-family: var(--font-body);
   color: var(--text-primary);
-  background: var(--bg-base);
+  background: transparent;
 }
 
 .app-main {

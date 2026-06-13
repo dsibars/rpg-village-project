@@ -412,7 +412,7 @@ function openDiscoveryDetail(entry) {
 }
 
 .btn-replay-icon:hover {
-  background: rgba(99, 102, 241, 0.1);
+  background: rgba(74, 222, 128, 0.1);
   border-color: var(--color-primary-light);
 }
 
@@ -522,7 +522,7 @@ function openDiscoveryDetail(entry) {
 
 .milestone-row.state-next {
   opacity: 1;
-  background: rgba(99, 102, 241, 0.08);
+  background: rgba(74, 222, 128, 0.08);
   border-left: 3px solid var(--color-primary);
 }
 
@@ -654,7 +654,7 @@ function openDiscoveryDetail(entry) {
 
 .discovery-row:hover {
   border-color: var(--color-primary-light);
-  background: rgba(99, 102, 241, 0.05);
+  background: rgba(74, 222, 128, 0.05);
 }
 
 .discovery-title {
