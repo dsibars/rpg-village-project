@@ -91,6 +91,12 @@ export const es = {
     combat_uxelm_items: "Objetos",
     combat_uxelm_log: "Registro de Combate",
     combat_uxelm_rewards: "Recompensas",
+    combat_uxelm_turn_timeline: "Orden de turnos",
+    combat_effect_stunned: "Aturdido",
+    combat_effect_sleeping: "Dormido",
+    combat_effect_evolved: "Evolucionado",
+    combat_effect_tier_up: "Mejorado",
+    combat_effect_buff: "Mejora",
 
     // ═══ COMBAT INFO ════════════════════════════════════════════════════
     combat_info_bat_small: "Murciélago Pequeño",

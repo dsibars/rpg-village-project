@@ -91,6 +91,12 @@ export const ca = {
     combat_uxelm_items: "Objectes",
     combat_uxelm_log: "Registre de Combat",
     combat_uxelm_rewards: "Recompenses",
+    combat_uxelm_turn_timeline: "Ordre de torns",
+    combat_effect_stunned: "Atordit",
+    combat_effect_sleeping: "Adormit",
+    combat_effect_evolved: "Evolucionat",
+    combat_effect_tier_up: "Millorat",
+    combat_effect_buff: "Millora",
 
     // ═══ COMBAT INFO ════════════════════════════════════════════════════
     combat_info_bat_small: "Ratpenat Petit",

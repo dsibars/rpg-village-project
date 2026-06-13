@@ -91,6 +91,12 @@ export const en = {
     combat_uxelm_items: "Items",
     combat_uxelm_log: "Combat Log",
     combat_uxelm_rewards: "Rewards",
+    combat_uxelm_turn_timeline: "Turn Order",
+    combat_effect_stunned: "Stunned",
+    combat_effect_sleeping: "Asleep",
+    combat_effect_evolved: "Evolved",
+    combat_effect_tier_up: "Tier Up",
+    combat_effect_buff: "Buff",
 
     // ═══ COMBAT INFO ════════════════════════════════════════════════════
     combat_info_bat_small: "Small Bat",

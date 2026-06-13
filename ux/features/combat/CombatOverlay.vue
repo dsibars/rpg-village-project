@@ -17,22 +17,28 @@
         :current-actor-id="currentActorId"
         :targeting-mode="targetingMode"
         :valid-target-indices="validTargetIndices"
+        :upcoming-actors="upcomingActors"
+        :actor-animations="actorAnimations"
+        :floating-effects="floatingEffects"
+        :latest-action-text="latestActionText"
         @target="handleTarget"
-      />
-
-      <CombatActionPanel
-        :battle="battle"
-        :current-hero="currentHero"
-        :engine="engine"
-        :inventory="inventory"
-        :menu-state="menuState"
-        :selected-action="selectedAction"
-        :selected-family="selectedFamily"
-        @menu-change="onMenuChange"
-        @action-select="onActionSelect"
-        @defend="executeDefend"
-        @close="onClose"
-      />
+      >
+        <template #action-panel>
+          <CombatActionPanel
+            :battle="battle"
+            :current-hero="currentHero"
+            :engine="engine"
+            :inventory="inventory"
+            :menu-state="menuState"
+            :selected-action="selectedAction"
+            :selected-family="selectedFamily"
+            @menu-change="onMenuChange"
+            @action-select="onActionSelect"
+            @defend="executeDefend"
+            @close="onClose"
+          />
+        </template>
+      </CombatActorGrid>
 
       <!-- Combat Log -->
       <div class="combat-log-section" :class="{ expanded: isLogExpanded }" @click="!isLogExpanded && (isLogExpanded = true)">
@@ -345,6 +351,145 @@ function handleTarget({ index, isHero }) {
   selectedAction.value = null
   selectedFamily.value = null
 }
+
+// Combat Visual Effects, Animations, and Initiative Timeline Track
+const floatingEffects = ref({})
+const actorAnimations = ref({})
+let effectUniqueId = 0
+
+function triggerFloatingEffect(actorId, text, type) {
+  if (!actorId) return
+  if (!floatingEffects.value[actorId]) {
+    floatingEffects.value[actorId] = []
+  }
+  const id = ++effectUniqueId
+  const effectObj = { id, text, type }
+  floatingEffects.value[actorId].push(effectObj)
+  
+  // Remove after animation finishes
+  setTimeout(() => {
+    if (floatingEffects.value[actorId]) {
+      floatingEffects.value[actorId] = floatingEffects.value[actorId].filter(e => e.id !== id)
+    }
+  }, 1300)
+}
+
+function triggerActorAnimation(actorId, className) {
+  if (!actorId) return
+  actorAnimations.value[actorId] = className
+  
+  // Clear class after animation finishes
+  setTimeout(() => {
+    if (actorAnimations.value[actorId] === className) {
+      actorAnimations.value[actorId] = ''
+    }
+  }, 500)
+}
+
+function processLogEntryForVisuals(entry) {
+  if (!entry || typeof entry !== 'object') return
+  
+  const actorId = entry.actorId
+  const targetId = entry.targetId
+  
+  // 1. Attack / Action Lunges
+  if (entry.type === 'DAMAGE' || entry.type === 'SPELL_DAMAGE' || entry.type === 'HEAL') {
+    triggerActorAnimation(actorId, 'animate-lunge')
+  }
+  
+  // 2. Damage impact shakes and float texts
+  if (entry.type === 'DAMAGE' || entry.type === 'SPELL_DAMAGE') {
+    if (entry.isMiss) {
+      triggerFloatingEffect(targetId, t('combat_log_miss')?.split(' ')?.pop() || 'MISS', 'miss')
+    } else {
+      const type = entry.isCrit ? 'crit' : 'damage'
+      const prefix = entry.isCrit ? '🔥 CRIT -' : '-'
+      triggerFloatingEffect(targetId, `${prefix}${entry.amount}`, type)
+      triggerActorAnimation(targetId, 'animate-shake')
+    }
+  }
+  
+  // 3. Heals and Regen
+  if (entry.type === 'HEAL' || entry.type === 'VAMP' || entry.type === 'TRAIT_REGEN') {
+    triggerFloatingEffect(targetId || actorId, `+${entry.amount}`, 'heal')
+  }
+  
+  // 4. Status ticks
+  if (entry.type === 'STATUS_TICK') {
+    const icon = entry.effectType === 'poison' ? '🤢' : '🔥'
+    triggerFloatingEffect(targetId, `-${entry.damage} ${icon}`, 'status')
+    triggerActorAnimation(targetId, 'animate-status-flash')
+  }
+  
+  // 5. Stuns/Sleeps
+  if (entry.type === 'STUN_SKIP') {
+    triggerFloatingEffect(actorId, '💫 ' + t('combat_effect_stunned').toUpperCase(), 'miss')
+  }
+  if (entry.type === 'SLEEP_SKIP') {
+    triggerFloatingEffect(actorId, '💤 ' + t('combat_effect_sleeping').toUpperCase(), 'status')
+  }
+  
+  // 6. Evolutions/Buffs
+  if (entry.type === 'TECHNIQUE_EVOLVED') {
+    triggerFloatingEffect(actorId, '⚡ ' + t('combat_effect_evolved').toUpperCase(), 'system')
+  }
+  if (entry.type === 'MAGIC_TIER_UP') {
+    triggerFloatingEffect(actorId, '✨ ' + t('combat_effect_tier_up').toUpperCase(), 'system')
+  }
+  if (entry.type?.startsWith('BUFF_')) {
+    triggerFloatingEffect(targetId, `+${entry.amount} ` + t('combat_effect_buff').toUpperCase(), 'buff')
+  }
+}
+
+// Watch effectiveLog to trigger floating combat text and animations dynamically
+watch(effectiveLog, (newVal, oldVal) => {
+  const prevLen = oldVal ? oldVal.length : 0
+  const nextLen = newVal ? newVal.length : 0
+  
+  if (nextLen > prevLen) {
+    const newEntries = newVal.slice(prevLen)
+    newEntries.forEach(entry => {
+      processLogEntryForVisuals(entry)
+    })
+  }
+}, { deep: true })
+
+const upcomingActors = computed(() => {
+  const b = battle.value
+  if (!b || !b.turnOrder || b.turnOrder.length === 0 || b.isOver) return []
+  
+  const queue = []
+  const len = b.turnOrder.length
+  
+  const getActorHp = (actorId) => {
+    const all = [...(b.heroes || []), ...(b.enemies || [])]
+    const matched = all.find(a => a.id === actorId)
+    return matched ? matched.hp : 0
+  }
+  
+  for (let i = 0; i < Math.min(5, len); i++) {
+    const idx = (b.currentTurnIndex + i) % len
+    const actor = b.turnOrder[idx]
+    if (actor && getActorHp(actor.id) > 0) {
+      queue.push({
+        id: actor.id,
+        name: actor.name,
+        isHero: actor.type === 'Hero',
+        avatar: actor.type === 'Hero' ? '⚔' : '👾',
+        isCurrent: i === 0
+      })
+    }
+  }
+  return queue
+})
+
+const latestActionText = computed(() => {
+  const log = effectiveLog.value
+  if (log.length === 0) return ''
+  const last = log[log.length - 1]
+  const formatted = formatLogEntry(last)
+  return formatted.text
+})
 
 function onClose() {
   menuState.value = 'main'

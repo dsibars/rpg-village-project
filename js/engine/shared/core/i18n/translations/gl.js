@@ -91,6 +91,12 @@ export const gl = {
     combat_uxelm_items: "Obxectos",
     combat_uxelm_log: "Rexistro de Combate",
     combat_uxelm_rewards: "Recompensas",
+    combat_uxelm_turn_timeline: "Orde de quendas",
+    combat_effect_stunned: "Atordado",
+    combat_effect_sleeping: "Durmido",
+    combat_effect_evolved: "Evolucionado",
+    combat_effect_tier_up: "Mellorado",
+    combat_effect_buff: "Mellora",
 
     // ═══ COMBAT INFO ════════════════════════════════════════════════════
     combat_info_bat_small: "Morcego Pequeno",

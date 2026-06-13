@@ -91,6 +91,12 @@ export const eu = {
     combat_uxelm_items: "Objektuak",
     combat_uxelm_log: "Borrokaren Erregistroa",
     combat_uxelm_rewards: "Sariak",
+    combat_uxelm_turn_timeline: "Txanda-ordena",
+    combat_effect_stunned: "Zorabiatuta",
+    combat_effect_sleeping: "Lo dago",
+    combat_effect_evolved: "Bilatua",
+    combat_effect_tier_up: "Maila Igoera",
+    combat_effect_buff: "Hobekuntza",
 
     // ═══ COMBAT INFO ════════════════════════════════════════════════════
     combat_info_bat_small: "Arratoi Hegalari Txikia",

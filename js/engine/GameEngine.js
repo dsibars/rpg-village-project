@@ -212,6 +212,7 @@ export class GameEngine {
             currentTurnIndex: this.battleService.currentTurnIndex,
             log: [...this.battleService.log],
             isOver: this.battleService.isOver,
+            winner: this.battleService.winner,
             autoBattle: this.battleService.autoBattle,
             itemUsedThisTurn: this.battleService.itemUsedThisTurn
         } : null;

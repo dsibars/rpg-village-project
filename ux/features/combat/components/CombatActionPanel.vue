@@ -1,9 +1,6 @@
 <template>
   <div class="combat-action-panel">
-    <!-- Turn Banner -->
-    <div class="turn-banner">
-      {{ bannerText }}
-    </div>
+
 
     <!-- Battle Over -->
     <div v-if="battle?.isOver" class="resolution-pane">

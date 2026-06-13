@@ -7,9 +7,25 @@ function mountWithProviders(component) {
   return mount(component, {
     global: {
       provide: {
-        gameState: shallowRef({}),
+        gameState: shallowRef({
+          activeBattle: {
+            heroes: [],
+            enemies: [],
+            log: [],
+            turnOrder: [],
+            currentTurnIndex: 0,
+            isOver: false
+          }
+        }),
         i18n: { t: (k) => k },
-        currentLanguage: { value: 'en' }
+        currentLanguage: { value: 'en' },
+        adapter: { dispatch: () => ({ success: true }) },
+        engine: {
+          getSkillTargetType: () => 'single_enemy',
+          getSkillCost: () => ({ staCost: 0, mpCost: 0 }),
+          canAffordSkill: () => true,
+          canCastSpell: () => true
+        }
       }
     }
   })
