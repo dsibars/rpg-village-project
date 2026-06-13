@@ -142,6 +142,17 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
 
+# Agent Shared Memory (entire directory — never commit)
+.agents_shared_memory/
+
+# Scratch / dev artifacts
+scratch/
+
+# Throwaway test scripts (root level only — formal tests/ dir is fine)
+test-engine.js
+test-vue.html
+COMMIT_MSG.txt
+
 # RPG Village Custom Builds & Archives
 out/
 dist/
@@ -154,9 +165,8 @@ itch.config
 .agents_shared_memory/docs_hash_history
 
 # Agent test artifacts
-scripts/screenshots/
 playtest-output/
 test_*screenshots/
 screenshots/
-test_*.cjs
-test_*.js
+
+# Vite build cache
