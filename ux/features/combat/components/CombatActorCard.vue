@@ -104,6 +104,7 @@ const emit = defineEmits(['target'])
 const { t } = useI18n()
 
 const isDead = computed(() => props.actor.hp <= 0)
+const delayTimeout = ref(null)
 
 const displayName = computed(() => {
   if (props.isHero) return props.actor.name

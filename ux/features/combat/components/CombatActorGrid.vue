@@ -315,10 +315,54 @@ function isTargetable(actor, isHero) {
   border-color: #ffffff;
 }
 
+/* Arena Stage: Ground line between heroes and enemies */
+.combat-grid::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 2px;
+  height: 70%;
+  background: linear-gradient(180deg, transparent 0%, rgba(245, 158, 11, 0.15) 30%, rgba(74, 222, 128, 0.1) 50%, rgba(245, 158, 11, 0.15) 70%, transparent 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Hero cards face right, enemy cards face left */
+:deep(.hero-card) {
+  border-radius: var(--radius-md) 6px 6px var(--radius-md) !important;
+  border-left: 3px solid rgba(74, 222, 128, 0.4) !important;
+}
+
+:deep(.enemy-card) {
+  border-radius: 6px var(--radius-md) var(--radius-md) 6px !important;
+  border-right: 3px solid rgba(245, 158, 11, 0.4) !important;
+}
+
+:deep(.hero-card.active) {
+  border-left-color: var(--accent-color) !important;
+  box-shadow: 0 0 15px rgba(74, 222, 128, 0.4) !important;
+}
+
+:deep(.enemy-card.active) {
+  border-right-color: var(--color-danger) !important;
+  box-shadow: 0 0 15px rgba(245, 158, 11, 0.4) !important;
+}
+
 @media (max-width: 768px) {
   .combat-grid {
     grid-template-columns: 1fr;
     grid-template-rows: auto auto auto;
+  }
+  .combat-grid::before {
+    display: none;
+  }
+  :deep(.hero-card),
+  :deep(.enemy-card) {
+    border-radius: var(--radius-md) !important;
+    border-left: none !important;
+    border-right: none !important;
   }
 }
 </style>

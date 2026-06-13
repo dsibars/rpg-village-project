@@ -66,7 +66,7 @@
 </template>
 
 <script setup>
-import { computed, ref, watch, nextTick, onErrorCaptured, inject } from 'vue'
+import { computed, ref, watch, nextTick, onErrorCaptured, inject, onUnmounted } from 'vue'
 import { useI18n } from '@/core/composables/useI18n.js'
 import { useAdapter } from '@/core/composables/useAdapter.js'
 import { useActiveBattle, useExpeditions, useInventory } from '@/core/composables/useGameState.js'
@@ -356,6 +356,18 @@ function handleTarget({ index, isHero }) {
 const floatingEffects = ref({})
 const actorAnimations = ref({})
 let effectUniqueId = 0
+const activeTimeouts = []
+
+function safeTimeout(fn, delay) {
+  const id = setTimeout(fn, delay)
+  activeTimeouts.push(id)
+  return id
+}
+
+function clearAllTimeouts() {
+  activeTimeouts.forEach(id => clearTimeout(id))
+  activeTimeouts.length = 0
+}
 
 function triggerFloatingEffect(actorId, text, type) {
   if (!actorId) return
@@ -367,7 +379,7 @@ function triggerFloatingEffect(actorId, text, type) {
   floatingEffects.value[actorId].push(effectObj)
   
   // Remove after animation finishes
-  setTimeout(() => {
+  safeTimeout(() => {
     if (floatingEffects.value[actorId]) {
       floatingEffects.value[actorId] = floatingEffects.value[actorId].filter(e => e.id !== id)
     }
@@ -379,7 +391,7 @@ function triggerActorAnimation(actorId, className) {
   actorAnimations.value[actorId] = className
   
   // Clear class after animation finishes
-  setTimeout(() => {
+  safeTimeout(() => {
     if (actorAnimations.value[actorId] === className) {
       actorAnimations.value[actorId] = ''
     }
@@ -502,6 +514,10 @@ onErrorCaptured((err, instance, info) => {
   console.error('CombatOverlay error:', err, info)
   return false
 })
+
+onUnmounted(() => {
+  clearAllTimeouts()
+})
 </script>
 
 <style scoped>
@@ -591,12 +607,18 @@ onErrorCaptured((err, instance, info) => {
   color: var(--text-secondary);
 }
 
+@keyframes logEntryIn {
+  0% { opacity: 0; transform: translateY(6px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
 .log-entry {
   padding: 2px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.03);
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  animation: logEntryIn 0.25s ease-out;
 }
 
 .log-hp-info {

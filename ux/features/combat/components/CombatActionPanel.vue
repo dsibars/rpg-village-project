@@ -14,20 +14,20 @@
 
     <!-- Main Menu -->
     <div v-else-if="menuState === 'main'" class="action-buttons">
-      <Button variant="secondary" @click="selectAction('targeting', { type: 'attack', id: 'single_strike', name: t('heroes_info_family_single_strike') })">
+      <Button class="action-attack" variant="secondary" @click="selectAction('targeting', { type: 'attack', id: 'single_strike', name: t('heroes_info_family_single_strike') })">
         ⚔ {{ t('heroes_info_family_single_strike') }}
       </Button>
-      <Button v-if="hasSkills" variant="secondary" @click="setMenu('skills')">
+      <Button v-if="hasSkills" class="action-skill" variant="secondary" @click="setMenu('skills')">
         🔮 {{ t('shared_uxelm_skills') }}
       </Button>
-      <Button v-if="canCastSpells" variant="secondary" @click="setMenu('magic')">
+      <Button v-if="canCastSpells" class="action-magic" variant="secondary" @click="setMenu('magic')">
         ✨ {{ t('shared_uxelm_magic') }}
       </Button>
-      <Button v-if="hasConsumables" variant="secondary" :disabled="battle?.itemUsedThisTurn" @click="setMenu('items')">
+      <Button v-if="hasConsumables" class="action-item" variant="secondary" :disabled="battle?.itemUsedThisTurn" @click="setMenu('items')">
         🎒 {{ t('combat_uxelm_items') }}
         <span v-if="battle?.itemUsedThisTurn" class="hint">({{ t('shared_uxelm_once_per_turn') }})</span>
       </Button>
-      <Button variant="secondary" @click="executeDefend">
+      <Button class="action-defend" variant="secondary" @click="executeDefend">
         🛡️ {{ t('gambit_uxelm_defend') }}
       </Button>
     </div>
@@ -366,5 +366,56 @@ function executeDefend() {
 .tier-low {
   margin-right: 4px;
   opacity: 0.6;
+}
+
+/* Action Button Personalities */
+:deep(.action-attack .btn) {
+  border-color: rgba(239, 68, 68, 0.4);
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(20, 31, 23, 0.6));
+}
+:deep(.action-attack .btn:hover:not(:disabled)) {
+  border-color: rgba(239, 68, 68, 0.7);
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.25);
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(20, 31, 23, 0.7));
+}
+
+:deep(.action-skill .btn) {
+  border-color: rgba(245, 158, 11, 0.4);
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(20, 31, 23, 0.6));
+}
+:deep(.action-skill .btn:hover:not(:disabled)) {
+  border-color: rgba(245, 158, 11, 0.7);
+  box-shadow: 0 0 15px rgba(245, 158, 11, 0.25);
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(20, 31, 23, 0.7));
+}
+
+:deep(.action-magic .btn) {
+  border-color: rgba(139, 92, 246, 0.4);
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.08), rgba(20, 31, 23, 0.6));
+}
+:deep(.action-magic .btn:hover:not(:disabled)) {
+  border-color: rgba(139, 92, 246, 0.7);
+  box-shadow: 0 0 15px rgba(139, 92, 246, 0.25);
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(20, 31, 23, 0.7));
+}
+
+:deep(.action-item .btn) {
+  border-color: rgba(74, 222, 128, 0.4);
+  background: linear-gradient(135deg, rgba(74, 222, 128, 0.08), rgba(20, 31, 23, 0.6));
+}
+:deep(.action-item .btn:hover:not(:disabled)) {
+  border-color: rgba(74, 222, 128, 0.7);
+  box-shadow: 0 0 15px rgba(74, 222, 128, 0.25);
+  background: linear-gradient(135deg, rgba(74, 222, 128, 0.15), rgba(20, 31, 23, 0.7));
+}
+
+:deep(.action-defend .btn) {
+  border-color: rgba(59, 130, 246, 0.4);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(20, 31, 23, 0.6));
+}
+:deep(.action-defend .btn:hover:not(:disabled)) {
+  border-color: rgba(59, 130, 246, 0.7);
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.25);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(20, 31, 23, 0.7));
 }
 </style>
