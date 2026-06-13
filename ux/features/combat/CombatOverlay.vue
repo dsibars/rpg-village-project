@@ -52,8 +52,10 @@
             v-for="(entry, idx) in visibleLog"
             :key="idx"
             class="log-entry"
-            :style="{ color: entry.color }"
+            :class="[`actor-${entry.actorType}`, `event-${entry.eventType}`]"
+            :style="{ color: entry.color, animationDelay: ((visibleLog.length - 1 - idx) * 30) + 'ms' }"
           >
+            <span class="log-icon">{{ entry.icon }}</span>
             <span class="log-text">{{ entry.text }}</span>
             <span v-if="entry.hpInfo" class="log-hp-info"> {{ entry.hpInfo }}</span>
             <span v-if="entry.defeatedInfo" class="log-defeated-info"> {{ entry.defeatedInfo }}</span>
@@ -272,11 +274,34 @@ function formatLogEntry(entry) {
     text = `[${ev.type}]`
   }
 
+  const actorType = ev.actorIsHero ? 'hero' : (ev.actorIsHero === false ? 'enemy' : 'neutral')
+  const eventType = ev.type
+  const icon = logTypeIcon(eventType)
+
   if (ev.targetHp !== undefined && ev.targetMaxHp !== undefined && !ev.targetDefeated) {
     hpInfo = `(${t('heroes_info_stat_hp')}: ${ev.targetHp}/${ev.targetMaxHp})`
   }
 
-  return { text, color, hpInfo, defeatedInfo }
+  return { text, color, hpInfo, defeatedInfo, actorType, eventType, icon }
+}
+
+function logTypeIcon(type) {
+  const map = {
+    DAMAGE: '⚔',
+    SPELL_DAMAGE: '✨',
+    STUN_SKIP: '💫',
+    SLEEP_SKIP: '💤',
+    MAGIC_TIER_UP: '🔮',
+    TECHNIQUE_EVOLVED: '⚡',
+    HEAL: '💚',
+    VAMP: '🦇',
+    TRAIT_REGEN: '🌿',
+    STATUS_TICK: '🌀',
+    STATUS_EXPIRED: '⌛',
+    USE_CONSUMABLE: '🧪',
+    STAMINA_REGEN: '⚡'
+  }
+  return map[type] || '•'
 }
 
 const visibleLog = computed(() => {
@@ -613,12 +638,62 @@ onUnmounted(() => {
 }
 
 .log-entry {
-  padding: 2px 0;
+  padding: 3px 0 3px 8px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.03);
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  animation: logEntryIn 0.25s ease-out;
+  gap: 4px;
+  animation: logEntryIn 0.25s ease-out both;
+  border-left: 2px solid transparent;
+  border-radius: 0 3px 3px 0;
+  transition: background 0.15s ease;
+}
+
+.log-entry:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.log-entry.actor-hero {
+  border-left-color: rgba(74, 222, 128, 0.4);
+}
+
+.log-entry.actor-enemy {
+  border-left-color: rgba(245, 158, 11, 0.4);
+}
+
+.log-entry.actor-neutral {
+  border-left-color: rgba(148, 163, 184, 0.3);
+}
+
+.log-entry.event-DAMAGE.log-entry.actor-hero {
+  border-left-color: rgba(74, 222, 128, 0.6);
+}
+
+.log-entry.event-DAMAGE.log-entry.actor-enemy {
+  border-left-color: rgba(239, 68, 68, 0.6);
+}
+
+.log-entry.event-SPELL_DAMAGE {
+  border-left-color: rgba(139, 92, 246, 0.5);
+}
+
+.log-entry.event-HEAL,
+.log-entry.event-VAMP,
+.log-entry.event-TRAIT_REGEN {
+  border-left-color: rgba(59, 130, 246, 0.5);
+}
+
+.log-entry.event-STATUS_TICK {
+  border-left-color: rgba(168, 85, 247, 0.5);
+}
+
+.log-icon {
+  font-size: 0.85em;
+  opacity: 0.7;
+  flex-shrink: 0;
+  width: 1.2em;
+  text-align: center;
 }
 
 .log-hp-info {

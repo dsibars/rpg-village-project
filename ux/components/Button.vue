@@ -38,12 +38,18 @@ defineEmits(['click'])
   cursor: pointer;
   font-family: var(--font-body);
   font-weight: 500;
-  transition: background 0.15s, opacity 0.15s;
+  transition: background 0.15s, opacity 0.15s, transform 0.08s, box-shadow 0.08s;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.btn:active:not(:disabled) {
+  transform: scale(0.96);
 }
 
 /* Sizes */
@@ -57,36 +63,55 @@ defineEmits(['click'])
   color: white;
   border: 1px solid rgba(251, 191, 36, 0.35);
   box-shadow: 0 2px 8px rgba(217, 119, 6, 0.3);
+  transition: background 0.15s, opacity 0.15s, transform 0.08s, box-shadow 0.08s;
 }
 .btn--primary:hover:not(:disabled) {
   background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
   box-shadow: 0 4px 12px rgba(217, 119, 6, 0.5);
+}
+.btn--primary:active:not(:disabled) {
+  transform: scale(0.96);
+  box-shadow: 0 1px 4px rgba(217, 119, 6, 0.3);
 }
 
 .btn--secondary {
   background: var(--bg-card);
   color: var(--text-primary);
   border: 1px solid var(--glass-border);
+  transition: background 0.15s, opacity 0.15s, transform 0.08s, box-shadow 0.08s;
 }
 .btn--secondary:hover:not(:disabled) {
   background: var(--glass-border);
+}
+.btn--secondary:active:not(:disabled) {
+  transform: scale(0.96);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
 }
 
 .btn--danger {
   background: var(--color-danger);
   color: white;
+  transition: background 0.15s, opacity 0.15s, transform 0.08s, box-shadow 0.08s;
 }
 .btn--danger:hover:not(:disabled) {
   opacity: 0.9;
+}
+.btn--danger:active:not(:disabled) {
+  transform: scale(0.96);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
 }
 
 .btn--ghost {
   background: transparent;
   color: var(--text-secondary);
+  transition: background 0.15s, opacity 0.15s, transform 0.08s, box-shadow 0.08s;
 }
 .btn--ghost:hover:not(:disabled) {
   background: var(--bg-card);
   color: var(--text-primary);
+}
+.btn--ghost:active:not(:disabled) {
+  transform: scale(0.96);
 }
 
 /* Loading */
