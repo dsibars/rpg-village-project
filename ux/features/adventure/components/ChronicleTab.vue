@@ -94,7 +94,7 @@
         </div>
         <div class="discovery-list">
           <div
-            v-for="entry in discoveryLog"
+            v-for="entry in displayedDiscoveryLog"
             :key="entry.id"
             class="discovery-row"
             @click="openDiscoveryDetail(entry)"
@@ -107,6 +107,13 @@
           <div v-if="discoveryLog.length === 0" class="discovery-empty">
             {{ t('chronicle_discovery_empty') }}
           </div>
+          <button
+            v-if="hasMoreDiscovery"
+            class="discovery-toggle-btn"
+            @click="showAllDiscovery = !showAllDiscovery"
+          >
+            {{ showAllDiscovery ? t('chronicle_show_less') : t('chronicle_show_more', { count: discoveryLog.length - DISCOVERY_DISPLAY_LIMIT }) }}
+          </button>
         </div>
       </div>
     </div>
@@ -311,6 +318,9 @@ const recentUnlocks = computed(() => {
 })
 
 // Discovery Log
+const showAllDiscovery = ref(false)
+const DISCOVERY_DISPLAY_LIMIT = 20
+
 const discoveryLog = computed(() => {
   if (!unlockService.value) return []
   const shown = unlockService.value.getShownNarratives() || []
@@ -332,6 +342,13 @@ const discoveryLog = computed(() => {
       }
     })
 })
+
+const displayedDiscoveryLog = computed(() => {
+  if (showAllDiscovery.value) return discoveryLog.value
+  return discoveryLog.value.slice(0, DISCOVERY_DISPLAY_LIMIT)
+})
+
+const hasMoreDiscovery = computed(() => discoveryLog.value.length > DISCOVERY_DISPLAY_LIMIT)
 
 const totalNarratives = computed(() => UNLOCK_NARRATIVES.length)
 
@@ -674,6 +691,26 @@ function openDiscoveryDetail(entry) {
   font-style: italic;
   text-align: center;
   padding: var(--spacing-md);
+}
+
+.discovery-toggle-btn {
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  margin-top: var(--spacing-sm);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: var(--font-body);
+}
+
+.discovery-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--color-primary-light);
+  color: var(--text-primary);
 }
 
 </style>
