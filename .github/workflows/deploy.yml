@@ -35,7 +35,7 @@ jobs:
           # If we are on main, build to root of staging.
           # If we wanted branch-specific subfolders, we could adjust STAGING_DIR here,
           # but note that GitHub Pages (actions/deploy-pages) replaces the entire site.
-          make buil
+          make build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
