@@ -8,6 +8,7 @@
 # Enables temporal queries: "what changed between hash A and hash B?"
 
 docs-hash:
+	@mkdir -p .agents_shared_memory
 	@CURRENT=$$(find docs/ -type f -name "*.md" | sort | xargs md5sum | md5sum | awk '{print $$1}'); \
 	LAST=$$(tail -1 .agents_shared_memory/docs_hash_history 2>/dev/null | awk '{print $$2}'); \
 	if [ "$$CURRENT" != "$$LAST" ]; then \
