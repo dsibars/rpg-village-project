@@ -465,7 +465,8 @@ export class GameEngine {
     equipHeroItem(heroId, slot, equipmentId) {
         const check = this._assertHeroAvailable(heroId);
         if (!check.success) return check;
-        const result = this.heroService.equipItem(heroId, slot, equipmentId);
+        const villageUpgrades = this.villageService.getState().infrastructure;
+        const result = this.heroService.equipItem(heroId, slot, equipmentId, villageUpgrades);
         if (result.success) {
             this.stats.itemsEquipped++;
             this._saveStats();
@@ -480,7 +481,8 @@ export class GameEngine {
     unequipHeroItem(heroId, slot) {
         const check = this._assertHeroAvailable(heroId);
         if (!check.success) return check;
-        return this.heroService.unequipItem(heroId, slot);
+        const villageUpgrades = this.villageService.getState().infrastructure;
+        return this.heroService.unequipItem(heroId, slot, villageUpgrades);
     }
 
     // --- Shop & Forge Facade ---

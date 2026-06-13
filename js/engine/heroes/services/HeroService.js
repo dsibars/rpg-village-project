@@ -176,7 +176,7 @@ export class HeroService {
     }
 
     // --- Equipment ---
-    equipItem(heroId, slot, equipmentId) {
+    equipItem(heroId, slot, equipmentId, villageUpgrades = {}) {
         const hero = this.get(heroId);
         if (!hero) return Result.fail('heroes_error_hero_not_found');
 
@@ -196,7 +196,7 @@ export class HeroService {
 
         // Unequip current if exists
         if (hero.equipment[slot]) {
-            this.unequipItem(heroId, slot);
+            this.unequipItem(heroId, slot, villageUpgrades);
         }
 
         // Move item from inventory to hero
@@ -204,12 +204,12 @@ export class HeroService {
         this.inventory.removeEquipment(equipmentId);
 
         // Update stats
-        hero.recalculateStats({});
+        hero.recalculateStats(villageUpgrades);
         this.saveAll();
         return Result.ok(hero);
     }
 
-    unequipItem(heroId, slot) {
+    unequipItem(heroId, slot, villageUpgrades = {}) {
         const hero = this.get(heroId);
         if (!hero) return Result.fail('heroes_error_hero_not_found');
 
@@ -221,7 +221,7 @@ export class HeroService {
         hero.equipment[slot] = null;
         this.inventory.addEquipment(itemData);
 
-        hero.recalculateStats({});
+        hero.recalculateStats(villageUpgrades);
         this.saveAll();
         return Result.ok(hero);
     }
