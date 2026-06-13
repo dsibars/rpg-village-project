@@ -30,12 +30,13 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      - name: Build all apps
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Web App
         run: |
-          # If we are on main, build to root of staging.
-          # If we wanted branch-specific subfolders, we could adjust STAGING_DIR here,
-          # but note that GitHub Pages (actions/deploy-pages) replaces the entire site.
-          make build
+          # Build only the web version for GitHub Pages deployment
+          make build-web
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
