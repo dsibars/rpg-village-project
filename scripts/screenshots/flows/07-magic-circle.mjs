@@ -33,6 +33,7 @@ export async function run({ page, snap }) {
 
   // Build arcane_sanctum so simulator button is visible
   await page.evaluate(() => {
+    localStorage.setItem('rpgv_debug', '1')
     const e = window.__ENGINE__
     if (e?.villageService?.state?.infrastructure) {
       e.villageService.state.infrastructure.arcane_sanctum = 1
@@ -48,6 +49,7 @@ export async function run({ page, snap }) {
   if (simBtn) {
     await simBtn.click()
     await waitForVisible(page, selectors.magicCircleOverlay, 3000)
+    await page.waitForTimeout(400)
   }
 
   // --- magic_circle_empty ---

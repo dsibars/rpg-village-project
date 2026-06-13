@@ -13,7 +13,7 @@ export function getSlotCoords(i) {
   if (i === 0) return { x: 50, y: 50 }
   const ring = Math.floor((i - 1) / 6) + 1
   const slotInRing = (i - 1) % 6
-  const radius = ring * 11.2
+  const radius = ring * 12.0
   const angle = slotInRing * (2 * Math.PI / 6) - Math.PI / 2
   return {
     x: 50 + radius * Math.cos(angle),

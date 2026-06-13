@@ -29,7 +29,7 @@
           'focused-slot': focusedSlotIndex === i - 1,
           'filled': !!getSlotGlyph(i - 1),
           'empty': !getSlotGlyph(i - 1) && i - 1 < maxSlots,
-          [`el-${getSlotElement(i - 1)}`]: i - 1 === 0 && getSlotGlyph(i - 1)
+          [`el-${getSlotElement(i - 1)}`]: !!getSlotGlyph(i - 1)
         }"
         :style="getSlotStyle(i - 1)"
         :disabled="i - 1 >= maxSlots"
@@ -157,15 +157,14 @@ const connections = computed(() => {
   top: 50%;
   transform: translate(-50%, -50%);
   border-radius: 50%;
-  border: 1px dashed rgba(255, 255, 255, 0.09);
   pointer-events: none;
-  transition: border-color 0.4s ease, border-style 0.4s ease;
+  transition: all 0.4s ease;
 }
 
-.ring-1 { width: 22.4%; height: 22.4%; }
-.ring-2 { width: 44.8%; height: 44.8%; }
-.ring-3 { width: 67.2%; height: 67.2%; }
-.ring-4 { width: 89.6%; height: 89.6%; }
+.ring-1 { width: 24.0%; height: 24.0%; border: 1.5px solid rgba(245, 158, 11, 0.25); box-shadow: 0 0 10px rgba(245, 158, 11, 0.1); }
+.ring-2 { width: 48.0%; height: 48.0%; border: 1.5px dashed rgba(74, 222, 128, 0.2); }
+.ring-3 { width: 72.0%; height: 72.0%; border: 1.5px dashed rgba(245, 158, 11, 0.15); }
+.ring-4 { width: 96.0%; height: 96.0%; border: 2px solid rgba(74, 222, 128, 0.25); box-shadow: 0 0 15px rgba(74, 222, 128, 0.12); }
 
 @keyframes rotate-cw-anim {
   from { transform: translate(-50%, -50%) rotate(0deg); }
@@ -209,12 +208,12 @@ const connections = computed(() => {
 
 .mandala-slot {
   position: absolute;
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   transform: translate(-50%, -50%);
   border-radius: 50%;
-  background: rgba(8, 8, 12, 0.9);
-  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  background: rgba(18, 30, 22, 0.85); /* Translucent forest glass background */
+  border: 1.5px solid rgba(74, 222, 128, 0.35); /* Glowing leaf-green border */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -224,15 +223,16 @@ const connections = computed(() => {
   font-family: var(--font-body);
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   box-sizing: border-box;
-  color: rgba(255, 255, 255, 0.35);
+  color: rgba(255, 255, 255, 0.45);
   font-size: 1rem;
   font-weight: 500;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.08);
 }
 
 .mandala-slot:hover:not(:disabled) {
-  transform: translate(-50%, -50%) scale(1.12);
-  border-color: #ffffff;
-  box-shadow: 0 0 14px rgba(255, 255, 255, 0.25);
+  transform: translate(-50%, -50%) scale(1.15);
+  border-color: var(--color-primary-light);
+  box-shadow: 0 0 15px rgba(134, 239, 172, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.2);
   z-index: 6;
   color: #ffffff;
 }
@@ -242,7 +242,7 @@ const connections = computed(() => {
   width: 76px;
   height: 76px;
   border-radius: 0;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(245, 158, 11, 0.3);
   border: none;
   clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
 }
@@ -251,7 +251,7 @@ const connections = computed(() => {
   content: '';
   position: absolute;
   inset: 1.5px;
-  background: #09090e;
+  background: #0f1a12;
   clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
   z-index: -1;
   transition: background 0.3s ease;
@@ -260,72 +260,73 @@ const connections = computed(() => {
 .mandala-slot.core-slot:hover {
   transform: translate(-50%, -50%) scale(1.08);
   box-shadow: none;
-  background: #ffffff;
+  background: #fbbf24;
 }
 
 .mandala-slot.core-slot.filled::before {
-  background: rgba(14, 12, 22, 0.95);
+  background: rgba(20, 32, 24, 0.9);
 }
 
 .mandala-slot.core-slot.empty {
   font-size: 1.4rem;
-  color: rgba(255, 109, 0, 0.65);
+  color: #fbbf24;
 }
 
 .mandala-slot.core-slot.empty:hover {
-  color: #ffd180;
+  color: #ffffff;
 }
 
 .mandala-slot.focused-slot {
-  border-color: #ffffff;
-  box-shadow: 0 0 18px rgba(255, 255, 255, 0.5);
-  transform: translate(-50%, -50%) scale(1.12);
+  border-color: #fbbf24;
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.65), inset 0 0 8px rgba(251, 191, 36, 0.25);
+  transform: translate(-50%, -50%) scale(1.15);
   z-index: 7;
 }
 
 .mandala-slot.core-slot.focused-slot {
-  background: #ffffff;
+  background: #fbbf24;
   transform: translate(-50%, -50%) scale(1.08);
 }
 
 .mandala-slot.empty {
-  color: rgba(255, 255, 255, 0.35);
-  font-size: 1rem;
-  font-weight: 500;
+  color: rgba(74, 222, 128, 0.4);
+  background: rgba(15, 25, 18, 0.65);
+  border: 1.5px dashed rgba(74, 222, 128, 0.3);
 }
 
 .mandala-slot.empty:hover {
-  color: #ffffff;
+  color: var(--color-primary-light);
+  border-color: var(--color-primary-light);
+  box-shadow: 0 0 12px rgba(134, 239, 172, 0.35);
+  background: rgba(24, 40, 28, 0.8);
 }
 
 .mandala-slot.locked {
-  opacity: 0.25;
-  background: rgba(0, 0, 0, 0.4);
-  border: 1.5px dashed rgba(255, 255, 255, 0.12);
-  color: rgba(255, 255, 255, 0.3);
+  opacity: 0.2;
+  background: rgba(20, 30, 22, 0.4);
+  border: 1px dashed rgba(74, 222, 128, 0.12);
+  color: rgba(74, 222, 128, 0.18);
   cursor: not-allowed;
   pointer-events: none;
 }
 
 .mandala-slot.filled {
-  background: rgba(8, 8, 12, 0.9);
-  border: 1.5px solid rgba(255, 255, 255, 0.5);
-  box-shadow: 0 0 8px rgba(255, 255, 255, 0.15);
+  background: rgba(18, 30, 22, 0.9);
   color: #fff;
 }
 
 .mandala-slot.filled:hover {
-  transform: translate(-50%, -50%) scale(1.12);
+  transform: translate(-50%, -50%) scale(1.15);
 }
 
 /* Element specific filled slot glows */
-.mandala-slot.filled.el-fire { border-color: #ef4444; box-shadow: 0 0 10px rgba(239, 68, 68, 0.35); }
-.mandala-slot.filled.el-water { border-color: #3b82f6; box-shadow: 0 0 10px rgba(59, 130, 246, 0.35); }
-.mandala-slot.filled.el-wind { border-color: #10b981; box-shadow: 0 0 10px rgba(16, 185, 129, 0.35); }
-.mandala-slot.filled.el-storm { border-color: #f59e0b; box-shadow: 0 0 10px rgba(245, 158, 11, 0.35); }
-.mandala-slot.filled.el-light { border-color: #fbbf24; box-shadow: 0 0 10px rgba(251, 191, 36, 0.35); }
-.mandala-slot.filled.el-dark { border-color: #a855f7; box-shadow: 0 0 10px rgba(168, 85, 247, 0.35); }
-.mandala-slot.filled.el-earth { border-color: #84cc16; box-shadow: 0 0 10px rgba(132, 204, 22, 0.35); }
+.mandala-slot.filled.el-fire { border-color: #f87171; box-shadow: 0 0 12px rgba(239, 68, 68, 0.5); color: #fee2e2; text-shadow: 0 0 5px rgba(239, 68, 68, 0.8); }
+.mandala-slot.filled.el-water { border-color: #60a5fa; box-shadow: 0 0 12px rgba(59, 130, 246, 0.5); color: #dbeafe; text-shadow: 0 0 5px rgba(59, 130, 246, 0.8); }
+.mandala-slot.filled.el-wind { border-color: #34d399; box-shadow: 0 0 12px rgba(16, 185, 129, 0.5); color: #d1fae5; text-shadow: 0 0 5px rgba(16, 185, 129, 0.8); }
+.mandala-slot.filled.el-storm { border-color: #fbbf24; box-shadow: 0 0 12px rgba(245, 158, 11, 0.5); color: #fef3c7; text-shadow: 0 0 5px rgba(245, 158, 11, 0.8); }
+.mandala-slot.filled.el-light { border-color: #fde047; box-shadow: 0 0 12px rgba(251, 191, 36, 0.5); color: #fef9c3; text-shadow: 0 0 5px rgba(251, 191, 36, 0.8); }
+.mandala-slot.filled.el-dark { border-color: #c084fc; box-shadow: 0 0 12px rgba(168, 85, 247, 0.5); color: #f3e8ff; text-shadow: 0 0 5px rgba(168, 85, 247, 0.8); }
+.mandala-slot.filled.el-earth { border-color: #a3e635; box-shadow: 0 0 12px rgba(132, 204, 22, 0.5); color: #f0fdf4; text-shadow: 0 0 5px rgba(132, 204, 22, 0.8); }
 
 .slot-icon {
   font-size: 1.1rem;
