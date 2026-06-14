@@ -485,6 +485,8 @@ export const eu = {
     heroes_info_origin_poet_desc: "+%10 Gehieneko MP, +%10 Botere Magikoa | Taldea: +%10 Botere Magikoaren Handitzea",
     heroes_info_origin_thief: "Lapurra",
     heroes_info_origin_thief_desc: "+%10 Abiadura | Taldea: +%10 Urre Irabazia",
+    heroes_info_origin_ranger: "Baserritar Zaindaria",
+    heroes_info_origin_ranger_desc: "+%10 Abiadura, +%5 Saihestea | Taldea: +%10 Saiheste Handitzea",
     heroes_info_origin_warrior: "Gudaria",
     heroes_info_origin_warrior_desc: "+%10 Defentsa, +%5 Gehieneko BP",
     heroes_info_stat_defense: "Defentsa",

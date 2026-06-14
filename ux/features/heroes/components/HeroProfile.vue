@@ -89,8 +89,16 @@ const originKey = computed(() => {
   return id || 'warrior'
 })
 
-const originName = computed(() => t(`heroes_info_origin_${originKey.value}`))
-const originDesc = computed(() => t(`heroes_info_origin_${originKey.value}_desc`))
+const originName = computed(() => {
+  const key = `heroes_info_origin_${originKey.value}`
+  const translated = t(key)
+  return translated === key ? key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : translated
+})
+const originDesc = computed(() => {
+  const key = `heroes_info_origin_${originKey.value}_desc`
+  const translated = t(key)
+  return translated === key ? '' : translated
+})
 
 const showStatAlert = computed(() => (props.hero.statPoints || 0) > 0)
 
@@ -107,7 +115,8 @@ const avatarSrc = computed(() => {
     origin_poet: 'origin_poet.webp',
     origin_farmer: 'origin_farmer.webp',
     origin_cook: 'origin_cook.webp',
-    origin_arcane_initiate: 'origin_arcane_initiate.webp'
+    origin_arcane_initiate: 'origin_arcane_initiate.webp',
+    origin_ranger: 'origin_warrior.webp'
   }
   const mapped = fallbackMap[props.hero.origin] || 'arthur.webp'
   return `assets/heroes/${mapped}`

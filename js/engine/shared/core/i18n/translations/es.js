@@ -485,6 +485,8 @@ export const es = {
     heroes_info_origin_poet_desc: "+10% PM Máx, +10% Poder Mágico | Grupo: +10% Aumento de Poder Mágico",
     heroes_info_origin_thief: "Ladrón",
     heroes_info_origin_thief_desc: "+10% Velocidad | Grupo: +10% Oro Obtenido",
+    heroes_info_origin_ranger: "Guardabosques",
+    heroes_info_origin_ranger_desc: "+%10 Velocidad, +%5 Evasión | Grupo: +%10 Aumento de Evasión",
     heroes_info_origin_warrior: "Guerrero",
     heroes_info_origin_warrior_desc: "+10% Defensa, +5% PV Máx",
     heroes_info_stat_defense: "Defensa",

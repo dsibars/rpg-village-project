@@ -489,6 +489,8 @@ export const en = {
     heroes_info_origin_poet_desc: "+10% Max MP, +10% MagicPower | Party: +10% Magic Power Boost",
     heroes_info_origin_thief: "Thief",
     heroes_info_origin_thief_desc: "+10% Speed | Party: +10% Gold Gain",
+    heroes_info_origin_ranger: "Ranger",
+    heroes_info_origin_ranger_desc: "+10% Speed, +5% Evasion | Party: +10% Evasion Boost",
     heroes_info_origin_warrior: "Warrior",
     heroes_info_origin_warrior_desc: "+10% Defense, +5% Max HP",
     heroes_info_stat_defense: "Defense",

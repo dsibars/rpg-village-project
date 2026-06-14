@@ -486,6 +486,8 @@ export const ca = {
     heroes_info_origin_poet_desc: "+10% PM Màx, +10% Poder Màgic | Grup: +10% Augment de Poder Màgic",
     heroes_info_origin_thief: "Lladró",
     heroes_info_origin_thief_desc: "+10% Velocitat | Grup: +10% Or Obtingut",
+    heroes_info_origin_ranger: "Guardabosc",
+    heroes_info_origin_ranger_desc: "+%10 Velocitat, +%5 Evasió | Grup: +%10 Augment d'Evasió",
     heroes_info_origin_warrior: "Guerrer",
     heroes_info_origin_warrior_desc: "+10% Defensa, +5% PV Màx",
     heroes_info_stat_defense: "Defensa",

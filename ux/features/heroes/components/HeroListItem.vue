@@ -62,8 +62,16 @@ const originKey = computed(() => {
   const origin = props.hero.origin || ''
   return origin.replace(/^origin_/, '')
 })
-const originName = computed(() => t(`heroes_info_origin_${originKey.value}`) || originKey.value)
-const originDesc = computed(() => t(`heroes_info_origin_${originKey.value}_desc`) || '')
+const originName = computed(() => {
+  const key = `heroes_info_origin_${originKey.value}`
+  const translated = t(key)
+  return translated === key ? originKey.value : translated
+})
+const originDesc = computed(() => {
+  const key = `heroes_info_origin_${originKey.value}_desc`
+  const translated = t(key)
+  return translated === key ? '' : translated
+})
 </script>
 
 <style scoped>
