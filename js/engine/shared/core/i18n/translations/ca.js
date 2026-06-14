@@ -924,6 +924,7 @@ export const ca = {
     // ═══ MATERIALS ═════════════════════════════════════════════════════════
     material_iron: "Ferro",
     material_iron_ore: "Mineral de Ferro",
+    material_ore: "Mineral de ferro",
     material_mythril: "Mitril",
     material_steel_ingot: "Lingot d'Acer",
     material_stone: "Pedra",

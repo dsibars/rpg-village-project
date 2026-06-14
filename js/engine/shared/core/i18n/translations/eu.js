@@ -923,6 +923,7 @@ export const eu = {
     // ═══ MATERIALS ═════════════════════════════════════════════════════════
     material_iron: "Burdina",
     material_iron_ore: "Burdin Mea",
+    material_ore: "Meategia",
     material_mythril: "Mithrila",
     material_steel_ingot: "Altzairuzko Lingotea",
     material_stone: "Harria",

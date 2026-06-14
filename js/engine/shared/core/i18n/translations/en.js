@@ -924,6 +924,7 @@ export const en = {
     // ═══ MATERIALS ═════════════════════════════════════════════════════════
     material_iron: "Iron",
     material_iron_ore: "Iron Ore",
+    material_ore: "Ore",
     material_mythril: "Mythril",
     material_steel_ingot: "Steel Ingot",
     material_stone: "Stone",

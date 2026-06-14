@@ -924,6 +924,7 @@ export const es = {
     // ═══ MATERIALS ═════════════════════════════════════════════════════════
     material_iron: "Hierro",
     material_iron_ore: "Mineral de Hierro",
+    material_ore: "Mineral de hierro",
     material_mythril: "Mitril",
     material_steel_ingot: "Lingote de Acero",
     material_stone: "Piedra",
