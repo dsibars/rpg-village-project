@@ -15,9 +15,9 @@ async function setupBattle(page) {
     const e = window.__ENGINE__
     const heroes = e?.heroService?.heroes || []
     const aria = heroes.find(h => h.name === 'Aria')
-    if (aria && !aria.knownFamilies.includes('double_strike')) {
-      aria.knownFamilies.push('double_strike')
-      aria.techniqueTiers.double_strike = 1
+    if (aria && !aria.knownFamilies.includes('power_strike')) {
+      aria.knownFamilies.push('power_strike')
+      aria.techniqueTiers.power_strike = 1
       if (e.heroService.saveAll) e.heroService.saveAll()
     }
   }, {})

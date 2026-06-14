@@ -21,6 +21,7 @@
         :actor-animations="actorAnimations"
         :floating-effects="floatingEffects"
         :latest-action-text="latestActionText"
+        :is-over="battle?.isOver || false"
         @target="handleTarget"
       >
         <template #action-panel>
