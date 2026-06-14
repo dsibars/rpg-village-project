@@ -256,6 +256,7 @@ export const eu = {
     gambit_uxelm_condition: "Baldintza",
     gambit_uxelm_count: "Gambitak",
     gambit_uxelm_defend: "Defentsa",
+    gambit_uxelm_basic_attack: "Oinarrizko eraso",
     gambit_uxelm_desc: "Ezarri borroka jokabide baldintzatuak. Gambitak goitik behera ebaluatzen dira; bat datorren lehen araua betetzen da.",
     gambit_uxelm_disable: "Desgaitu",
     gambit_uxelm_enable: "Gaitu",

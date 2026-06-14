@@ -2,6 +2,7 @@
   <div class="fallback-row">
     <span class="fallback-label">{{ t('gambit_uxelm_fallback') }}</span>
     <select :value="fallbackAction" @change="$emit('update', $event.target.value)">
+      <option value="basic_attack">{{ t('gambit_uxelm_basic_attack') }}</option>
       <option value="defend">{{ t('gambit_uxelm_defend') }}</option>
       <option
         v-for="family in learnedFamilies"

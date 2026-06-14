@@ -256,6 +256,7 @@ export const gl = {
     gambit_uxelm_condition: "Condición",
     gambit_uxelm_count: "Gambitos",
     gambit_uxelm_defend: "Defensa",
+    gambit_uxelm_basic_attack: "Ataque básico",
     gambit_uxelm_desc: "Establece comportamentos condicionais en batalla. Os gambitos avalíanse de arriba a abaixo; a primeira regra que coincida execútase.",
     gambit_uxelm_disable: "Desactivar",
     gambit_uxelm_enable: "Activar",

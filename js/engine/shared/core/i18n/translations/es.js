@@ -256,6 +256,7 @@ export const es = {
     gambit_uxelm_condition: "Condición",
     gambit_uxelm_count: "Gambitos",
     gambit_uxelm_defend: "Defensa",
+    gambit_uxelm_basic_attack: "Ataque básico",
     gambit_uxelm_desc: "Establece comportamientos condicionales en batalla. Los gambitos se evalúan de arriba a abajo; la primera regla que coincida se ejecuta.",
     gambit_uxelm_disable: "Desactivar",
     gambit_uxelm_enable: "Activar",

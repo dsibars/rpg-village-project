@@ -601,9 +601,10 @@ function openDiscoveryDetail(entry) {
 .milestone-excerpt {
   font-size: 0.8rem;
   color: var(--text-secondary);
-  white-space: nowrap;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
   max-width: 500px;
 }
 

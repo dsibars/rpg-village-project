@@ -502,7 +502,7 @@ function teachGlyph(heroId) {
 /* ═══ Item Grid (Master) ═══════════════════════════════════════════ */
 .item-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 10px;
   padding: 5px;
   overflow-y: auto;

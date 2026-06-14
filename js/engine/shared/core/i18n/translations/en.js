@@ -256,6 +256,7 @@ export const en = {
     gambit_uxelm_condition: "Condition",
     gambit_uxelm_count: "Gambits",
     gambit_uxelm_defend: "Defend",
+    gambit_uxelm_basic_attack: "Basic Attack",
     gambit_uxelm_desc: "Set conditional battle behaviors. Gambits are evaluated top-to-bottom; the first matching rule wins.",
     gambit_uxelm_disable: "Disable",
     gambit_uxelm_enable: "Enable",

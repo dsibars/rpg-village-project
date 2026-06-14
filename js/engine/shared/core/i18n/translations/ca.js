@@ -256,6 +256,7 @@ export const ca = {
     gambit_uxelm_condition: "Condició",
     gambit_uxelm_count: "Gambits",
     gambit_uxelm_defend: "Defensa",
+    gambit_uxelm_basic_attack: "Atac bàsic",
     gambit_uxelm_desc: "Estableix comportaments condicionals en batalla. Els gambits s'avaluen de dalt a baix; la primera regla que coincideixi s'executa.",
     gambit_uxelm_disable: "Desactivar",
     gambit_uxelm_enable: "Activar",
