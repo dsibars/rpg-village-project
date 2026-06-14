@@ -4,7 +4,7 @@
 
 import { waitForVisible, clickNav } from '../utils/nav.mjs'
 import { startNewGame } from '../utils/setup.mjs'
-import { injectHero, refreshUI } from '../utils/state-injector.mjs'
+import { injectHero, refreshUI, addInventoryItem } from '../utils/state-injector.mjs'
 import { selectors } from '../selectors/selectors.mjs'
 
 
@@ -78,6 +78,11 @@ export async function run({ page, snap }) {
   }
 
   // --- heroes_modal_consumables ---
+  // Inject consumables so we can see the actual UI state
+  await addInventoryItem(page, { id: 'tiny_hp_potion', quantity: 3 })
+  await addInventoryItem(page, { id: 'tiny_mp_potion', quantity: 2 })
+  await refreshUI(page)
+
   // button text is "🧪 Use Item"; try both labels
   if (await clickActionButton(page, 'use item') || await clickActionButton(page, 'consumables')) {
     await page.waitForTimeout(400)
