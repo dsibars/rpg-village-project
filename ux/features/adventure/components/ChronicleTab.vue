@@ -122,6 +122,7 @@
     <PresentationModal
       v-if="activeReplayPresentation"
       :open="true"
+      :isReplay="true"
       :presentation="activeReplayPresentation"
       @close="activeReplayPresentation = null"
     />

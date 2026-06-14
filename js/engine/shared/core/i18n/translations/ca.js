@@ -1284,6 +1284,8 @@ export const ca = {
     // Discovery Log
     chronicle_discovery_title: "Registre de Descobriments",
     chronicle_discovery_empty: "Encara no hi ha descobriments. Envia herois d'expedició i construeix la teva vila per desvelar els secrets de la vall.",
+    chronicle_show_less: "Mostrar menys",
+    chronicle_show_more: "Mostrar {count} més",
 
     // Milestone titles
     pres_prologue: "Pròleg",

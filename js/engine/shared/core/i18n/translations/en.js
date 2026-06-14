@@ -1286,6 +1286,8 @@ export const en = {
     // Discovery Log
     chronicle_discovery_title: 'Discovery Log',
     chronicle_discovery_empty: 'No discoveries yet. Send heroes on expeditions and build your village to uncover the valley\'s secrets.',
+    chronicle_show_less: 'Show less',
+    chronicle_show_more: 'Show {count} more',
 
     // Milestone titles
     pres_prologue: 'Prologue',

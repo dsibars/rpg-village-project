@@ -1284,7 +1284,8 @@ export const eu = {
     // Discovery Log
     chronicle_discovery_title: "Aurkikuntzen Erregistroa",
     chronicle_discovery_empty: "Oraindik ez dago aurkikuntzarik. Bidali heroia espedizioetara eta eraiki zure herrixka haranaren sekretuak argitzeko.",
-
+    chronicle_show_less: "Erakutsi gutxiago",
+    chronicle_show_more: "Erakutsi {count} gehiago",
     // Milestone titles
     pres_prologue: "Hitzaurrea",
     pres_first_harvest: "Lehen Uzta",

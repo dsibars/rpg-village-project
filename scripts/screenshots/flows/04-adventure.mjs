@@ -43,7 +43,10 @@ export async function run({ page, snap }) {
     }
     // Pre-seed some codex unlocks
     if (e?.unlockService?.state) {
-      e.unlockService.state.shownNarratives = ['first_hero_level_5', 'first_building_complete']
+      e.unlockService.state.unlockedNarratives = [
+        { id: 'nar_first_building', daySeen: 3 },
+        { id: 'nar_tavern_built', daySeen: 5 }
+      ]
       e.unlockService.state.unlockedCodexFeatures = ['shop', 'forge']
       e.unlockService.save()
     }

@@ -1281,6 +1281,8 @@ export const gl = {
     // Discovery Log
     chronicle_discovery_title: "Rexistro de Descubrimentos",
     chronicle_discovery_empty: "Aínda non hai descubrimentos. Envia heroes de expedición e constrúe a túa aldea para desvelar os segredos do val.",
+    chronicle_show_less: "Mostrar menos",
+    chronicle_show_more: "Mostrar {count} máis",
 
     // Milestone titles
     pres_prologue: "Prólogo",
