@@ -44,7 +44,7 @@ const { dispatch } = useAdapter()
 
 const dialogue = computed(() => {
   if (!props.hero) return { lines: [], category: '' }
-  const result = dispatch('trainer', 'getDialogue', { hero: props.hero })
+  const result = dispatch('trainer', 'getDialogue', { hero: props.hero }) || { success: false }
   return result.success ? result.data : { lines: [], category: '' }
 })
 

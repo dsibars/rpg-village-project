@@ -20,7 +20,7 @@
           >
             <strong class="design-name">{{ design.name }}</strong>
             <span class="design-meta">
-              — {{ design.glyphIds?.length || 0 }} glyphs, {{ design.mpCost }} MP
+              — {{ design.glyphIds?.length || 0 }} {{ t('shared_uxelm_glyphs') }}, {{ design.mpCost }} {{ t('shared_uxelm_mp') }}
             </span>
           </div>
         </div>
@@ -52,7 +52,7 @@ const { t } = useI18n()
 const { dispatch } = useAdapter()
 
 const designs = computed(() => {
-  const result = dispatch('academy', 'getSpellDesigns')
+  const result = dispatch('academy', 'getSpellDesigns') || { success: false }
   return result.success ? result.data : []
 })
 </script>

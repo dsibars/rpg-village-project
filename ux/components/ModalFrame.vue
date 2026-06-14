@@ -16,13 +16,28 @@
 </template>
 
 <script setup>
+import { onMounted, onUnmounted } from 'vue'
 import CloseButton from './CloseButton.vue'
 
-defineProps({
+const props = defineProps({
   title: { type: String, default: '' }
 })
 
-defineEmits(['close'])
+const emit = defineEmits(['close'])
+
+function onKeydown(e) {
+  if (e.key === 'Escape') {
+    emit('close')
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', onKeydown)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', onKeydown)
+})
 </script>
 
 <style scoped>

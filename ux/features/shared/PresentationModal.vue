@@ -52,7 +52,7 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, onMounted, onUnmounted } from 'vue'
 import { useI18n } from '@/core/composables/useI18n.js'
 
 const props = defineProps({
@@ -84,6 +84,27 @@ watch(() => props.open, (isOpen) => {
     isVisible.value = false
   }
 }, { immediate: true })
+
+function onKeydown(e) {
+  if (!props.open) return
+  if (e.key === 'Escape') {
+    onSkip()
+  } else if (e.key === 'ArrowRight' || e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault()
+    onNext()
+  } else if (e.key === 'ArrowLeft') {
+    e.preventDefault()
+    if (!isFirstPage.value) currentPageIndex.value--
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', onKeydown)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', onKeydown)
+})
 
 function onNext() {
   if (isLastPage.value) {

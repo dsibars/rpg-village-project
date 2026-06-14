@@ -111,6 +111,10 @@ function elementColor(element) {
     water: '#4dabf7',
     earth: '#8ce99a',
     wind: '#74c0fc',
+    storm: '#a78bfa',
+    light: '#ffd43b',
+    dark: '#c084fc',
+    ice: '#a5d8ff',
     neutral: '#adb5bd'
   }
   return map[element] || map.neutral

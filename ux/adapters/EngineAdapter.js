@@ -13,7 +13,7 @@ function getSuccessToast(i18n, domain, action, payload, data) {
       const hero = data?.hero
       const cost = data?.cost
       if (hero) {
-        return i18n.t('heroes_uxelm_recruit_success') + ' ' + hero.name + '! (-' + cost + 'g)'
+        return i18n.t('heroes_uxelm_recruit_success') + ' ' + hero.name + '! (-' + cost + ' ' + i18n.t('shared_uxelm_gold') + ')'
       }
       return null
     }
@@ -74,10 +74,10 @@ function getSuccessToast(i18n, domain, action, payload, data) {
       const reward = data?.reward
       if (reward) {
         const parts = []
-        if (reward.gold) parts.push(`${reward.gold}g`)
-        if (reward.material_wood) parts.push(`${reward.material_wood} wood`)
-        if (reward.material_stone) parts.push(`${reward.material_stone} stone`)
-        if (reward.material_iron) parts.push(`${reward.material_iron} iron`)
+        if (reward.gold) parts.push(`${reward.gold} ${i18n.t('shared_uxelm_gold')}`)
+        if (reward.material_wood) parts.push(`${reward.material_wood} ${i18n.t('material_wood')}`)
+        if (reward.material_stone) parts.push(`${reward.material_stone} ${i18n.t('material_stone')}`)
+        if (reward.material_iron) parts.push(`${reward.material_iron} ${i18n.t('material_iron')}`)
         return i18n.t('daily_uxelm_toast_reward_claimed', { rewards: parts.join(', ') })
       }
       return null

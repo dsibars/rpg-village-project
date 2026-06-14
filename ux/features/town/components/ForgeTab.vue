@@ -29,14 +29,14 @@
           <h3>{{ selectedItem.name }}</h3>
           <div class="item-stats">
             <p v-for="(val, key) in itemStats" :key="key">
-              {{ key }}: {{ val }}
+              {{ t('shared_uxelm_stat_' + key) || key }}: {{ val }}
             </p>
           </div>
           <div v-if="refineCost" class="refine-cost">
             <h4>{{ t('forge_uxelm_refinement_cost') }}</h4>
-            <p>💰 {{ refineCost.gold }}g</p>
+            <p>💰 {{ refineCost.gold }} {{ t('shared_uxelm_gold') }}</p>
             <p v-for="(amount, mat) in refineCost.materials" :key="mat">
-              {{ mat }}: {{ amount }}
+              {{ t('material_' + mat) || mat }}: {{ amount }}
             </p>
           </div>
           <Button
@@ -109,12 +109,22 @@ const refineCost = computed(() => {
 
 const canRefine = computed(() => {
   if (!selectedItem.value || !refineCost.value) return false
+  const village = gameState.value.village
+  if (!village) return false
+  if (village.gold < refineCost.value.gold) return false
+  const materials = gameState.value.inventory?.materials || {}
+  for (const [mat, amount] of Object.entries(refineCost.value.materials)) {
+    if ((materials[mat] || 0) < amount) return false
+  }
   return true
 })
 
 function refineItem() {
   if (!selectedItem.value) return
-  dispatch('forge', 'refineItem', { itemId: selectedItem.value.id })
+  const result = dispatch('forge', 'refineItem', { itemId: selectedItem.value.id }) || { success: false }
+  if (!result.success) {
+    console.warn('[ForgeTab] Refine failed:', result.message || 'Unknown error')
+  }
 }
 </script>
 
