@@ -1245,6 +1245,7 @@ export const ca = {
     inventory_info_no_stats: "Sense modificació d'atributs.",
     shop_uxelm_stats: "Atributs",
     shop_uxelm_cost: "Cost",
+    shop_uxelm_cost_unit: "Or",
 
     // Navigation
     nav_chronicle: "Crònica",

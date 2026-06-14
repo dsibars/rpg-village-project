@@ -1248,6 +1248,7 @@ export const en = {
     inventory_info_no_stats: "No stats modification.",
     shop_uxelm_stats: "Stats Bonus",
     shop_uxelm_cost: "Cost",
+    shop_uxelm_cost_unit: "Gold",
 
     // Navigation
     nav_chronicle: 'Chronicle',

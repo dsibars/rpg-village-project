@@ -1244,6 +1244,7 @@ export const es = {
     inventory_info_no_stats: "Sin modificación de atributos.",
     shop_uxelm_stats: "Atributos",
     shop_uxelm_cost: "Coste",
+    shop_uxelm_cost_unit: "Oro",
 
     // Navigation
     nav_chronicle: "Crónica",

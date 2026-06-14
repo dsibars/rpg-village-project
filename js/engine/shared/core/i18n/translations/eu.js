@@ -1244,6 +1244,7 @@ export const eu = {
     inventory_info_no_stats: "Ezaugarri aldaketarik gabe.",
     shop_uxelm_stats: "Estatistikak",
     shop_uxelm_cost: "Kostua",
+    shop_uxelm_cost_unit: "Urre",
 
     // Navigation
     nav_chronicle: "Kronika",
