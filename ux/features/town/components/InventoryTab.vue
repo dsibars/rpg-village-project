@@ -40,8 +40,9 @@
           <span class="item-icon">{{ item.icon || '📦' }}</span>
           <span class="item-name">{{ item.name }}</span>
         </div>
-        <div v-if="filteredItems.length === 0" class="grid-empty">
-          {{ t('inventory_uxelm_no_items') }}
+  <div v-if="filteredItems.length === 0" class="grid-empty">
+          <div class="empty-icon">📭</div>
+          <p>{{ t('inventory_uxelm_no_items') }}</p>
         </div>
       </div>
 
@@ -568,6 +569,20 @@ function teachGlyph(heroId) {
   text-align: center;
   padding: var(--spacing-xl);
   color: var(--text-muted);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.grid-empty .empty-icon {
+  font-size: 3rem;
+  opacity: 0.3;
+}
+
+.grid-empty p {
+  margin: 0;
+  font-style: italic;
 }
 
 /* ═══ Detail Pane ══════════════════════════════════════════════════ */
