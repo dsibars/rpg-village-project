@@ -150,8 +150,14 @@ const expandedChapters = ref({
 
 const activeReplayPresentation = ref(null)
 
-const presentationService = computed(() => engine?.presentationService)
-const unlockService = computed(() => engine?.unlockService)
+const presentationService = computed(() => {
+  gameState.value
+  return engine?.presentationService
+})
+const unlockService = computed(() => {
+  gameState.value
+  return engine?.unlockService
+})
 
 // Collapsible toggle
 function toggleChapter(chapterId) {
