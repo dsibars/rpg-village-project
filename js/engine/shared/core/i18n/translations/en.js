@@ -746,6 +746,7 @@ export const en = {
     shared_uxelm_next_day: "Next Day",
     shared_uxelm_on: "ON",
     shared_uxelm_off: "OFF",
+    shared_uxelm_once_per_turn: "Once per turn",
     shared_uxelm_remove: "Remove",
     shared_uxelm_save_slot_title: "Choose Save Slot",
     shared_uxelm_save_slot_subtitle: "Select a slot to continue, or choose an empty slot to start a new game.",

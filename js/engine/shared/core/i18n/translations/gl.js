@@ -92,6 +92,9 @@ export const gl = {
     combat_uxelm_items: "Obxectos",
     combat_uxelm_log: "Rexistro de Combate",
     combat_uxelm_rewards: "Recompensas",
+    combat_uxelm_battle_summary: "Resumo da Batalla",
+    combat_uxelm_defeat_sub: "O bosque reclama outro...",
+    combat_uxelm_victory_sub: "O bosque volve máis silencioso...",
     combat_uxelm_turn_timeline: "Orde de quendas",
     combat_effect_stunned: "Atordado",
     combat_effect_sleeping: "Durmido",
@@ -454,6 +457,9 @@ export const gl = {
     heroes_uxelm_stat_point_busy: "Puntos de Atributo Libres: {amount} (Non asignables en expedición)",
 
     // ═══ HEROES INFO ════════════════════════════════════════════════════
+    heroes_info_hp: "HP",
+    heroes_info_mp: "MP",
+    heroes_info_stamina: "Stamina",
     heroes_info_effect_basic_attack: "Ataque básico",
     heroes_info_effect_cleave: "Fender",
     heroes_info_effect_hits: "golpes",

@@ -457,6 +457,9 @@ export const eu = {
     heroes_uxelm_stat_point_busy: "Esleitu Gabeko Atributu Puntuak: {amount} (Ezin dira esleitu espedizioan)",
 
     // ═══ HEROES INFO ════════════════════════════════════════════════════
+    heroes_info_hp: "HP",
+    heroes_info_mp: "MP",
+    heroes_info_stamina: "Stamina",
     heroes_info_effect_basic_attack: "Oinarrizko erasoa",
     heroes_info_effect_cleave: "Zauri",
     heroes_info_effect_hits: "kolpe",

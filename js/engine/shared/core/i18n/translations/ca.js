@@ -457,6 +457,9 @@ export const ca = {
     heroes_uxelm_stat_point_busy: "Punts d'Atribut Lliures: {amount} (No assignables en expedició)",
 
     // ═══ HEROES INFO ════════════════════════════════════════════════════
+    heroes_info_hp: "PV",
+    heroes_info_mp: "PM",
+    heroes_info_stamina: "Energia",
     heroes_info_effect_basic_attack: "Atac bàsic",
     heroes_info_effect_cleave: "Fendre",
     heroes_info_effect_hits: "cops",

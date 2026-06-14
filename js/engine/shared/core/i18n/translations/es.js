@@ -457,6 +457,9 @@ export const es = {
     heroes_uxelm_stat_point_busy: "Puntos de Atributo Libres: {amount} (No asignables en expedición)",
 
     // ═══ HEROES INFO ════════════════════════════════════════════════════
+    heroes_info_hp: "HP",
+    heroes_info_mp: "MP",
+    heroes_info_stamina: "Stamina",
     heroes_info_effect_basic_attack: "Ataque básico",
     heroes_info_effect_cleave: "Hender",
     heroes_info_effect_hits: "golpes",
