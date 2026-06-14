@@ -11,7 +11,7 @@
         :disabled="isOver"
         @click="$emit('toggleAuto')"
       >
-        {{ t('shared_uxelm_auto_combat') }} {{ autoBattle ? '(ON)' : '(OFF)' }}
+        {{ t('shared_uxelm_auto_combat') }} {{ autoBattle ? t('shared_uxelm_on') : t('shared_uxelm_off') }}
       </Button>
       <Button
         variant="secondary"

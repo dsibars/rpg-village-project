@@ -35,21 +35,46 @@
         </div>
 
         <!-- Recovery -->
-        <div v-if="report.recovery?.length > 0" class="report-section success">
+        <div v-if="report.recovery?.length > 0" class="report-section success" style="flex-wrap: wrap;">
           <span class="report-icon">💖</span>
-          <span>{{ t('village_msg_report_recovery', { healed: recoveryText }) }}</span>
+          <div class="report-body">
+            <div class="report-line">{{ recoveryLabel }}</div>
+            <div class="report-detail-list">
+              <div v-for="(h, i) in recoveryList" :key="i" class="report-detail-item">
+                <span class="detail-name">{{ h.heroName }}</span>
+                <span class="detail-value hp">+{{ h.amount }} HP</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Training -->
-        <div v-if="report.training?.length > 0" class="report-section" :class="{ success: hasLeveledUp }">
+        <div v-if="report.training?.length > 0" class="report-section" :class="{ success: hasLeveledUp }" style="flex-wrap: wrap;">
           <span class="report-icon">💪</span>
-          <span>{{ trainingText }}</span>
+          <div class="report-body">
+            <div class="report-line">{{ trainingSummary }}</div>
+            <div class="report-detail-list">
+              <div v-for="(t, i) in trainingList" :key="i" class="report-detail-item">
+                <span class="detail-name">{{ t.heroName }}</span>
+                <span v-if="t.leveledUp" class="detail-value level-up">🎉 Level Up!</span>
+                <span v-else class="detail-value">Trained</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Expedition -->
-        <div v-if="report.expedition" class="report-section" :class="expeditionClass">
+        <div v-if="report.expedition" class="report-section" :class="expeditionClass" style="flex-wrap: wrap;">
           <span class="report-icon">{{ expeditionIcon }}</span>
-          <span>{{ expeditionText }}</span>
+          <div class="report-body">
+            <div class="report-line">{{ expeditionTitle }}</div>
+            <div v-if="expeditionRewards.length > 0" class="report-detail-list">
+              <div v-for="(r, i) in expeditionRewards" :key="i" class="report-detail-item reward">
+                <span class="reward-bullet">•</span>
+                <span class="detail-value">{{ r }}</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Tavern Recruit -->
@@ -88,6 +113,18 @@ const props = defineProps({
 const emit = defineEmits(['close'])
 const { t } = useI18n()
 
+function safeT(key, fallback) {
+  const translated = t(key)
+  return translated === key ? (fallback || key) : translated
+}
+
+function humanizeId(id) {
+  if (!id) return ''
+  return id
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, c => c.toUpperCase())
+}
+
 const foodText = computed(() => {
   if (!props.report) return ''
   if (props.report.starvation) return t('village_msg_report_starvation')
@@ -103,21 +140,25 @@ const minerYieldText = computed(() => {
   const my = props.report?.minerYield
   if (!my) return ''
   const parts = []
-  if (my.wood > 0) parts.push(`${my.wood} ${t('inventory_info_mat_wood')}`)
-  if (my.stone > 0) parts.push(`${my.stone} ${t('inventory_info_mat_stone')}`)
+  if (my.wood > 0) parts.push(`${my.wood} ${safeT('inventory_info_mat_wood', 'Wood')}`)
+  if (my.stone > 0) parts.push(`${my.stone} ${safeT('inventory_info_mat_stone', 'Stone')}`)
   return parts.join(', ')
 })
 
 const completedBuildings = computed(() => {
   const completed = props.report?.completed
   if (!completed?.length) return ''
-  return completed.map(id => t('village_info_building_' + id)).join(', ')
+  return completed.map(id => safeT('village_info_building_' + id, humanizeId(id))).join(', ')
 })
 
-const recoveryText = computed(() => {
+const recoveryLabel = computed(() => {
+  return t('village_msg_report_recovery', { healed: '' }).replace(/:\s*$/, '').trim()
+})
+
+const recoveryList = computed(() => {
   const rec = props.report?.recovery
-  if (!rec?.length) return ''
-  return rec.map(h => `${h.heroName} (+${h.amount} HP)`).join(', ')
+  if (!rec?.length) return []
+  return rec
 })
 
 const hasLeveledUp = computed(() => {
@@ -126,7 +167,7 @@ const hasLeveledUp = computed(() => {
   return training.some(t => t.leveledUp)
 })
 
-const trainingText = computed(() => {
+const trainingSummary = computed(() => {
   const training = props.report?.training
   if (!training?.length) return ''
   const leveled = training.filter(t => t.leveledUp).map(t => t.heroName)
@@ -134,6 +175,12 @@ const trainingText = computed(() => {
     return t('village_msg_report_training_level', { heroes: leveled.join(', ') })
   }
   return t('village_msg_report_training', { count: training.length })
+})
+
+const trainingList = computed(() => {
+  const training = props.report?.training
+  if (!training?.length) return []
+  return training
 })
 
 const expeditionClass = computed(() => {
@@ -152,49 +199,51 @@ const expeditionIcon = computed(() => {
   return '⚔️'
 })
 
-const expeditionText = computed(() => {
+const expeditionTitle = computed(() => {
   const exp = props.report?.expedition
   if (!exp) return ''
-  const expName = t(exp.expId) !== exp.expId ? t(exp.expId) : (exp.expName || exp.expId)
-
+  const expName = safeT(exp.expId, exp.expName || exp.expId)
   if (exp.status === 'completed') {
-    const rewards = []
-    if (exp.reward) {
-      if (exp.reward.gold) rewards.push(`${exp.reward.gold} ${t('village_info_gold')}`)
-      if (exp.reward.items) {
-        for (const [id, qty] of Object.entries(exp.reward.items)) {
-          const transKey = id.startsWith('material_') || id.startsWith('food_') || id.startsWith('meal_') ? id : 'item_' + id
-          rewards.push(`${qty} ${t(transKey)}`)
-        }
-      }
-    }
-    if (exp.drops) {
-      if (exp.drops.loot) {
-        const loot = exp.drops.loot
-        const matKey = 'inventory_info_tier_' + loot.material
-        const typeKey = 'inventory_info_type_' + loot.type
-        rewards.push(`${t(matKey)} ${t(typeKey)}`)
-      }
-      if (exp.drops.consumables?.length > 0) {
-        exp.drops.consumables.forEach(({ id, qty }) => {
-          rewards.push(`${qty} ${t('item_' + id)}`)
-        })
-      }
-      if (exp.drops.glyphs?.length > 0) {
-        exp.drops.glyphs.forEach(({ tabletId }) => {
-          rewards.push(`1 ${t('item_' + tabletId)}`)
-        })
-      }
-    }
-    const rewardsStr = rewards.join(', ')
-    return t('village_msg_report_exp_completed', { name: expName, rewards: rewardsStr })
+    return t('village_msg_report_exp_completed', { name: expName, rewards: '' }).replace(/!\s*\w+:\s*$/, '!')
   }
-
   if (exp.status === 'failed') {
     return t('village_msg_report_exp_failed', { name: expName })
   }
-
   return t('village_msg_report_exp_progress', { name: expName })
+})
+
+const expeditionRewards = computed(() => {
+  const exp = props.report?.expedition
+  if (!exp || exp.status !== 'completed') return []
+  const rewards = []
+  if (exp.reward) {
+    if (exp.reward.gold) rewards.push(`${exp.reward.gold} ${safeT('village_info_gold', 'Gold')}`)
+    if (exp.reward.items) {
+      for (const [id, qty] of Object.entries(exp.reward.items)) {
+        const transKey = id.startsWith('material_') || id.startsWith('food_') || id.startsWith('meal_') ? id : 'item_' + id
+        rewards.push(`${qty} ${safeT(transKey, humanizeId(id))}`)
+      }
+    }
+  }
+  if (exp.drops) {
+    if (exp.drops.loot) {
+      const loot = exp.drops.loot
+      const matKey = 'inventory_info_tier_' + loot.material
+      const typeKey = 'inventory_info_type_' + loot.type
+      rewards.push(`${safeT(matKey, humanizeId(loot.material))} ${safeT(typeKey, humanizeId(loot.type))}`)
+    }
+    if (exp.drops.consumables?.length > 0) {
+      exp.drops.consumables.forEach(({ id, qty }) => {
+        rewards.push(`${qty} ${safeT('item_' + id, humanizeId(id))}`)
+      })
+    }
+    if (exp.drops.glyphs?.length > 0) {
+      exp.drops.glyphs.forEach(({ tabletId }) => {
+        rewards.push(`1 ${safeT('item_' + tabletId, humanizeId(tabletId))}`)
+      })
+    }
+  }
+  return rewards
 })
 
 const tavernText = computed(() => {
@@ -203,7 +252,7 @@ const tavernText = computed(() => {
   const originKey = 'heroes_info_origin_' + (hero.origin || '').replace('origin_', '')
   return t('village_msg_report_tavern_recruit', {
     name: hero.name,
-    origin: t(originKey)
+    origin: safeT(originKey, humanizeId(hero.origin || ''))
   })
 })
 
@@ -218,7 +267,7 @@ const raidText = computed(() => {
     })
   }
   const damagedStr = raid.damagedBuilding
-    ? t('village_msg_report_raid_damaged', { building: t('village_info_building_' + raid.damagedBuilding) })
+    ? t('village_msg_report_raid_damaged', { building: safeT('village_info_building_' + raid.damagedBuilding, humanizeId(raid.damagedBuilding)) })
     : ''
   return t('village_msg_report_raid_defeat', {
     defense: raid.defensePower,
@@ -271,6 +320,58 @@ const raidText = computed(() => {
 .report-icon {
   font-size: 1.1rem;
   flex-shrink: 0;
+}
+
+.report-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  flex: 1;
+  min-width: 0;
+}
+
+.report-line {
+  font-weight: 500;
+}
+
+.report-detail-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-left: var(--spacing-sm);
+  margin-top: 2px;
+}
+
+.report-detail-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.report-detail-item .detail-name {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.report-detail-item .detail-value {
+  margin-left: auto;
+  font-weight: 500;
+}
+
+.report-detail-item .detail-value.hp {
+  color: #22c55e;
+}
+
+.report-detail-item .detail-value.level-up {
+  color: #f59e0b;
+  font-size: 0.8rem;
+}
+
+.report-detail-item.reward .reward-bullet {
+  color: var(--text-muted);
+  font-size: 0.7rem;
 }
 
 .shine-effect {

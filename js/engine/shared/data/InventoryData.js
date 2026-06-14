@@ -1,6 +1,6 @@
 export const CONSUMABLES_DATA = {
-    tiny_hp_potion: { id: 'tiny_hp_potion', type: 'HEAL_HP', amount: 0.3 },
-    tiny_mp_potion: { id: 'tiny_mp_potion', type: 'HEAL_MP', amount: 0.3 },
+    tiny_hp_potion: { id: 'tiny_hp_potion', type: 'HEAL_HP', amount: 20 },
+    tiny_mp_potion: { id: 'tiny_mp_potion', type: 'HEAL_MP', amount: 10 },
     teleport_scroll: { id: 'teleport_scroll', type: 'ESCAPE', amount: 1.0 }
 };
 

@@ -126,7 +126,8 @@ function capitalize(str) {
   display: flex;
   gap: 8px;
   overflow-x: auto;
-  max-width: 45%;
+  flex: 1;
+  min-width: 0;
   padding: 4px 0;
 }
 

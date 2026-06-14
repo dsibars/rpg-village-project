@@ -12,7 +12,10 @@
           :class="{ active: selectedId === building.id, locked: !building.active }"
           @click="selectBuilding(building.id)"
         >
-          <span class="building-name">{{ building.name }}</span>
+          <div class="building-card-left">
+            <span class="building-icon">{{ building.active ? building.icon : '🔒' }}</span>
+            <span class="building-name">{{ building.name }}</span>
+          </div>
           <span class="level-badge" :class="{ built: building.active }">
             {{ building.active ? t('shared_uxelm_level') + ' ' + building.lvl : t('village_uxelm_not_built') }}
           </span>
@@ -83,7 +86,7 @@
                 @click="startUpgrade"
               >
                 <span class="btn-icon">⚒️</span>
-                {{ t('shared_uxelm_confirm') }}
+                {{ selectedBuilding.lvl > 0 ? t('buildings_uxelm_upgrade') : t('buildings_uxelm_build') }}
               </Button>
             </div>
           </div>
@@ -225,16 +228,10 @@ function getBuildingEffectText(id, level) {
   return parts.label ? `${parts.label}: ${parts.value}` : ''
 }
 
-const currentEffects = computed(() => {
+const nextEffectValue = computed(() => {
   if (!selectedBuilding.value) return ''
-  return getBuildingEffectText(selectedId.value, selectedBuilding.value.lvl)
-})
-
-const nextEffects = computed(() => {
-  if (!selectedBuilding.value) return null
   const next = selectedBuilding.value.lvl + 1
-  const effect = getBuildingEffectText(selectedId.value, next)
-  return effect || null
+  return getBuildingEffectParts(selectedId.value, next).value
 })
 
 const buildingIconLarge = computed(() => {
@@ -250,12 +247,6 @@ const effectLabel = computed(() => {
 const currentEffectValue = computed(() => {
   if (!selectedBuilding.value) return ''
   return getBuildingEffectParts(selectedId.value, selectedBuilding.value.lvl).value
-})
-
-const nextEffectValue = computed(() => {
-  if (!selectedBuilding.value) return ''
-  const next = selectedBuilding.value.lvl + 1
-  return getBuildingEffectParts(selectedId.value, next).value
 })
 
 const hasGold = computed(() => {
@@ -367,12 +358,31 @@ function startUpgrade() {
   transition: all 0.15s ease;
 }
 
-.building-card:hover, .building-card.active {
+.building-card:hover {
   border-color: var(--color-primary-light);
+  background: rgba(74, 222, 128, 0.06);
+}
+
+.building-card.active {
+  border-color: var(--color-primary-light);
+  background: rgba(74, 222, 128, 0.12);
+  box-shadow: 0 0 0 1px var(--color-primary-light);
 }
 
 .building-card.locked {
   opacity: 0.5;
+}
+
+.building-card-left {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.building-icon {
+  font-size: 1.1rem;
+  width: 1.5rem;
+  text-align: center;
 }
 
 .building-name {
@@ -382,12 +392,13 @@ function startUpgrade() {
 
 .level-badge {
   padding: 2px 8px;
-  background: var(--color-primary);
-  border: 1px solid var(--color-primary);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius-sm);
   font-size: 0.7rem;
   font-weight: 600;
-  color: white;
+  color: var(--text-muted);
+  white-space: nowrap;
 }
 
 .level-badge.built {
@@ -552,11 +563,22 @@ function startUpgrade() {
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-sm);
   font-size: 0.85rem;
+  transition: all 0.15s ease;
+}
+
+.cost-item:hover {
+  border-color: var(--glass-border);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .cost-item.insufficient {
-  border-color: rgba(239, 68, 68, 0.5);
-  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.6);
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--color-danger);
+}
+
+.cost-item.insufficient .cost-value {
+  color: var(--color-danger);
 }
 
 .cost-label {

@@ -132,6 +132,14 @@
               <span class="exp-name">{{ exp.name }}</span>
               <span class="exp-badge">{{ exp.stages?.length || 0 }} {{ t('explore_uxelm_stages') }}</span>
             </div>
+            <div class="card-meta">
+              <span class="meta-tag" :class="exp.isStory ? 'story' : 'exploration'">
+                {{ exp.isStory ? t('explore_uxelm_story') : t('explore_uxelm_exploration') }}
+              </span>
+              <span class="meta-tag level">
+                {{ t('explore_uxelm_recommended_level') }} {{ exp.stages?.[0]?.enemyLevel || 1 }}
+              </span>
+            </div>
           </div>
 
           <!-- Inline detail pane for list view -->
@@ -888,6 +896,34 @@ onUnmounted(() => {
   background: var(--bg-card);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
+}
+
+.card-meta {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+.meta-tag {
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+  border: 1px solid;
+  font-weight: 500;
+}
+.meta-tag.story {
+  background: rgba(74, 222, 128, 0.15);
+  border-color: rgba(74, 222, 128, 0.3);
+  color: var(--color-primary-light);
+}
+.meta-tag.exploration {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: rgba(59, 130, 246, 0.3);
+  color: #60a5fa;
+}
+.meta-tag.level {
+  background: rgba(255, 193, 7, 0.15);
+  border-color: rgba(255, 193, 7, 0.3);
+  color: #ffc107;
 }
 
 /* Completed modal */

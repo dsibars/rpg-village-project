@@ -48,7 +48,7 @@ export class GameEngine {
             this.regionService,
             { deferLoad: true }
         );
-        this.dailyObjectivesService = new DailyObjectivesService(this.inventoryService, { deferLoad: true });
+        this.dailyObjectivesService = new DailyObjectivesService(this.inventoryService, this.villageService, { deferLoad: true });
         this.calendarService = new CalendarService(this.villageService, this.heroService, { deferLoad: true });
         this.academyService = new AcademyService(this.heroService, this.villageService, { deferLoad: true });
         this.unlockService = new UnlockService({ deferLoad: true });
@@ -309,10 +309,10 @@ export class GameEngine {
 
         let amountRestored = 0;
         if (data.type === 'HEAL_HP') {
-            amountRestored = Math.floor(hero.maxHp * data.amount);
+            amountRestored = Math.min(data.amount, hero.maxHp - hero.hp);
             hero.hp = Math.min(hero.maxHp, hero.hp + amountRestored);
         } else if (data.type === 'HEAL_MP') {
-            amountRestored = Math.floor(hero.maxMp * data.amount);
+            amountRestored = Math.min(data.amount, hero.maxMp - hero.mp);
             hero.mp = Math.min(hero.maxMp, hero.mp + amountRestored);
         } else {
             return Result.fail('combat_error_consumable_invalid');
@@ -465,7 +465,8 @@ export class GameEngine {
     equipHeroItem(heroId, slot, equipmentId) {
         const check = this._assertHeroAvailable(heroId);
         if (!check.success) return check;
-        const result = this.heroService.equipItem(heroId, slot, equipmentId);
+        const villageUpgrades = this.villageService.getState().infrastructure;
+        const result = this.heroService.equipItem(heroId, slot, equipmentId, villageUpgrades);
         if (result.success) {
             this.stats.itemsEquipped++;
             this._saveStats();
@@ -480,7 +481,8 @@ export class GameEngine {
     unequipHeroItem(heroId, slot) {
         const check = this._assertHeroAvailable(heroId);
         if (!check.success) return check;
-        return this.heroService.unequipItem(heroId, slot);
+        const villageUpgrades = this.villageService.getState().infrastructure;
+        return this.heroService.unequipItem(heroId, slot, villageUpgrades);
     }
 
     // --- Shop & Forge Facade ---
@@ -925,15 +927,8 @@ export class GameEngine {
         }
 
         // Track expedition completions and enemy defeats for daily objectives
-        if (expeditionResult.success && expeditionResult.data) {
-            const expData = expeditionResult.data;
-            if (expData.status === 'completed') {
-                this.dailyObjectivesService.track('complete_expeditions', 1);
-            }
-            if (expData.combatLog && expData.combatLog.isVictory && expData.combatLog.enemies) {
-                this.dailyObjectivesService.track('defeat_enemies', expData.combatLog.enemies.length);
-            }
-        }
+        // NOTE: These are tracked in resolveBattle() when the battle is actually resolved.
+        // The expeditionResult from processDay only returns status='battle_started'.
 
         // --- Tavern Auto-Recruit ---
         let tavernRecruitHero = null;
@@ -1062,6 +1057,14 @@ export class GameEngine {
 
         if (result.success && result.data) {
             const combatLog = result.data.combatLog;
+
+            // Track daily objectives
+            if (result.data.status === 'completed') {
+                this.dailyObjectivesService.track('complete_expeditions', 1);
+            }
+            if (combatLog && combatLog.isVictory && combatLog.enemies) {
+                this.dailyObjectivesService.track('defeat_enemies', combatLog.enemies.length);
+            }
 
             // Trigger: first expedition victory
             if (combatLog && combatLog.isVictory && !this.presentationService.isSeen('pres_first_victory')) {

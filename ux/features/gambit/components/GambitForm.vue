@@ -23,7 +23,7 @@
           </option>
         </optgroup>
         <optgroup :label="t('gambit_uxelm_spells')">
-          <option v-for="(spell, idx) in hero.spellCodex" :key="spell.name || idx" :value="`spell:${idx}`">
+          <option v-for="(spell, idx) in hero.spellCodex" :key="spell.name || idx" :value="`spell:${spell.name || spell}`">
             {{ spell.name || spell }}
           </option>
         </optgroup>
@@ -86,7 +86,7 @@ const TARGET_COMPATIBILITY = {
 
 const form = reactive({
   condition: 'ANY_ENEMY',
-  action: '',
+  action: 'defend',
   tier: 1,
   target: 'weakest_enemy'
 })
@@ -120,7 +120,7 @@ watch(() => form.action, () => {
     const family = form.action.replace('tech:', '')
     form.tier = props.hero.techniqueTiers?.[family] || 1
   }
-})
+}, { immediate: true })
 
 function handleAdd() {
   emit('add', {

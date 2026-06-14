@@ -4,7 +4,7 @@
 
 import { waitForVisible, clickNav } from '../utils/nav.mjs'
 import { startNewGame } from '../utils/setup.mjs'
-import { injectHero, refreshUI } from '../utils/state-injector.mjs'
+import { injectHero, refreshUI, addInventoryItem } from '../utils/state-injector.mjs'
 import { selectors } from '../selectors/selectors.mjs'
 
 
@@ -78,6 +78,11 @@ export async function run({ page, snap }) {
   }
 
   // --- heroes_modal_consumables ---
+  // Inject consumables so we can see the actual UI state
+  await addInventoryItem(page, { id: 'tiny_hp_potion', quantity: 3 })
+  await addInventoryItem(page, { id: 'tiny_mp_potion', quantity: 2 })
+  await refreshUI(page)
+
   // button text is "🧪 Use Item"; try both labels
   if (await clickActionButton(page, 'use item') || await clickActionButton(page, 'consumables')) {
     await page.waitForTimeout(400)
@@ -113,6 +118,31 @@ export async function run({ page, snap }) {
   }
 
   // --- heroes_modal_gambits ---
+  // Give first hero known families, a spell, and a sample gambit for a richer screenshot
+  await page.evaluate(() => {
+    const e = window.__ENGINE__
+    const hero = e?.heroService?.heroes?.[0]
+    if (hero) {
+      if (!hero.knownFamilies.includes('power_strike')) {
+        hero.knownFamilies.push('power_strike')
+        hero.techniqueTiers['power_strike'] = 1
+      }
+      if (hero.spellCodex.length === 0) {
+        hero.spellCodex.push({ name: 'fireball', mpCost: 8, targetType: 'single_enemy' })
+      }
+      if (!hero.gambits || hero.gambits.length === 0) {
+        hero.gambits = [
+          { id: crypto.randomUUID(), enabled: true, conditions: [{ left: { type: 'enemy_count', operator: '>', value: 2 } }], action: { type: 'skill', payload: 'cleave' }, target: 'all_enemies' },
+          { id: crypto.randomUUID(), enabled: true, conditions: [{ left: { type: 'self_hp', operator: '<', value: 0.5 } }], action: { type: 'defend' }, target: 'self' },
+          { id: crypto.randomUUID(), enabled: true, conditions: [{ left: { type: 'always' } }], action: { type: 'skill', payload: 'power_strike' }, target: 'weakest_enemy' }
+        ]
+      }
+      if (e.heroService.saveAll) e.heroService.saveAll()
+    }
+  })
+  await refreshUI(page)
+  await page.waitForTimeout(300)
+
   if (await clickActionButton(page, 'gambits')) {
     await page.waitForTimeout(400)
     await snap({ flow: 'hero-modals', state: 'heroes_modal_gambits' })

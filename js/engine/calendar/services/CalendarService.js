@@ -43,6 +43,7 @@ export class CalendarService {
         // Fallback for fields missing in old saves
         if (!loaded.events) loaded.events = [];
         if (!loaded.defenseAssigned) loaded.defenseAssigned = [];
+        if (loaded.resolvedRaids === undefined) loaded.resolvedRaids = 0;
         return loaded;
     }
 

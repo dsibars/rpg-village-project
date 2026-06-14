@@ -849,10 +849,10 @@ export class BattleService {
         let type = data.type;
 
         if (type === 'HEAL_HP') {
-            amount = Math.floor(target.maxHp * data.amount);
+            amount = Math.min(data.amount, target.maxHp - target.hp);
             target.hp = Math.min(target.maxHp, target.hp + amount);
         } else if (type === 'HEAL_MP') {
-            amount = Math.floor(target.maxMp * data.amount);
+            amount = Math.min(data.amount, target.maxMp - target.mp);
             target.mp = Math.min(target.maxMp, target.mp + amount);
         } else if (type === 'ESCAPE') {
             this.isOver = true;

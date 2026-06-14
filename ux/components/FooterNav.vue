@@ -1,14 +1,16 @@
 <template>
-  <nav class="footer-nav">
+  <nav class="footer-nav" aria-label="Main navigation">
     <button
       v-for="item in items"
       :key="item.id"
       class="nav-item"
       :class="{ active: current === item.id, 'nav-locked': item.locked }"
       :disabled="item.locked"
+      :aria-current="current === item.id ? 'page' : undefined"
+      :aria-disabled="item.locked ? 'true' : undefined"
       @click="!item.locked && $emit('navigate', item.id)"
     >
-      <span class="nav-icon">{{ item.icon }}</span>
+      <span class="nav-icon" aria-hidden="true">{{ item.icon }}</span>
       <span class="nav-label">{{ item.label }}</span>
     </button>
   </nav>
@@ -105,9 +107,20 @@ defineEmits(['navigate'])
   background: rgba(255, 255, 255, 0.03);
 }
 
+.nav-item:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+}
+
 .nav-item.active {
   color: var(--accent-color);
   text-shadow: 0 0 15px rgba(245, 158, 11, 0.35);
+}
+
+.nav-item.active:focus-visible {
+  outline-color: var(--accent-color);
 }
 
 .nav-item.active .nav-icon {
@@ -122,6 +135,25 @@ defineEmits(['navigate'])
 .nav-item.nav-locked:hover {
   color: var(--text-muted);
   background: none;
+}
+
+@media (max-width: 768px) {
+  .footer-nav {
+    margin: 8px 16px 16px 16px;
+    width: calc(100% - 32px);
+    height: 68px;
+    padding: 0 var(--spacing-sm);
+    border-radius: 14px;
+  }
+
+  .nav-icon {
+    font-size: 1.3rem;
+  }
+
+  .nav-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.5px;
+  }
 }
 
 @media (max-width: 480px) {

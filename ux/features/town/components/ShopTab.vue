@@ -44,10 +44,10 @@
       <div class="shop-layout">
         <!-- Catalog Pane -->
         <div class="catalog-list">
-          <!-- Empty state for sell tab -->
-          <div v-if="catalogGroups.length === 0 && currentTab === 'sell'" class="empty-detail">
+          <!-- Empty state for sell/buy tabs -->
+          <div v-if="catalogGroups.length === 0" class="empty-detail">
             <div class="detail-icon-bg">📭</div>
-            <p>{{ t('shop_uxelm_no_items_to_sell') }}</p>
+            <p>{{ currentTab === 'sell' ? t('shop_uxelm_no_items_to_sell') : t('shop_uxelm_no_items') }}</p>
           </div>
 
           <!-- Flat list (resources tab) -->
@@ -142,7 +142,7 @@
               </div>
 
               <!-- Description -->
-              <p class="shop-desc-text">{{ detailDesc }}</p>
+              <p v-if="detailDesc" class="shop-desc-text">{{ detailDesc }}</p>
 
               <!-- Stats -->
               <div v-if="showStats" class="shop-stats-card">
@@ -174,7 +174,7 @@
               <div v-if="currentTab !== 'resources'" class="shop-cost-section">
                 <h4>{{ costLabel }}</h4>
                 <div class="shop-cost-item" :class="{ insufficient: !canAffordSelected }">
-                  <span class="label">GOLD</span>
+                  <span class="label">{{ t('shop_uxelm_cost_unit') }}</span>
                   <span class="value">💰 {{ selectedItem.cost || selectedItem.sellPrice || 0 }}</span>
                 </div>
               </div>
@@ -417,7 +417,14 @@ const flatItems = computed(() => catalogGroups.value.flatMap(g => g.items))
 
 function ensureSelection() {
   const items = currentTab.value === 'buy' ? allBuyItems.value : currentTab.value === 'sell' ? allSellItems.value : resourceItems
-  if (!selectedKey.value && items.length > 0) {
+  if (items.length === 0) {
+    selectedKey.value = null
+    return
+  }
+  const isValid = currentTab.value === 'buy'
+    ? items.some(item => getItemKey(item) === selectedKey.value)
+    : items.some(item => item.id === selectedKey.value)
+  if (!selectedKey.value || !isValid) {
     selectedKey.value = currentTab.value === 'buy' ? getItemKey(items[0]) : items[0].id
   }
 }
@@ -463,6 +470,11 @@ function displayName(item) {
 function getOwnedCount(item) {
   if (currentTab.value === 'sell') {
     return item.count || 1
+  }
+  if (currentTab.value === 'resources') {
+    const materials = inventory.value.materials || {}
+    const food = inventory.value.food || {}
+    return item.id.startsWith('food_') ? (food[item.id] || 0) : (materials[item.id] || 0)
   }
   return getOwnedBreakdown(item, gameState.value).total
 }
@@ -522,13 +534,19 @@ const detailDesc = computed(() => {
   const item = selectedItem.value
   if (currentTab.value === 'resources') return t('desc_' + item.id)
   if (item.type === 'consumable') return t(item.i18n_desc)
-  return getFormattedStats(item, t)
+  // For equipment, show stats as description only if no structured stats card is shown
+  const stats = getEquipmentStats(item)
+  const hasStats = Object.values(stats).some(v => v)
+  if (!hasStats) return t('inventory_info_no_stats')
+  return '' // Stats card handles structured display for equipment with stats
 })
 
 const showStats = computed(() => {
   if (!selectedItem.value || currentTab.value === 'resources') return false
   const item = selectedItem.value
-  return item.type !== 'consumable'
+  if (item.type === 'consumable') return false
+  const stats = getEquipmentStats(item)
+  return Object.values(stats).some(v => v)
 })
 
 const detailStats = computed(() => {

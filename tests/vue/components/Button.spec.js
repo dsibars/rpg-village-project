@@ -33,4 +33,12 @@ describe('Button.vue', () => {
     const wrapper = mount(Button, { props: { loading: true } })
     expect(wrapper.findComponent({ name: 'LoadingSpinner' }).exists()).toBe(true)
   })
+
+  it('wraps button in span with title when title prop is provided', () => {
+    const wrapper = mount(Button, { props: { title: 'Tooltip text', disabled: true } })
+    const span = wrapper.find('span.btn-wrapper')
+    expect(span.exists()).toBe(true)
+    expect(span.attributes('title')).toBe('Tooltip text')
+    expect(span.find('button').attributes('disabled')).toBeDefined()
+  })
 })

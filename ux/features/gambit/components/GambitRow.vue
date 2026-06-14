@@ -72,10 +72,17 @@ function formatRule(gambit) {
     const familyKey = `heroes_info_family_${action.payload}`
     const translated = t(familyKey)
     actionText = translated !== familyKey ? translated : action.payload
-  } else if (action.type === 'spell' && action.payload) {
-    const spellKey = `spells_${action.payload}`
+  } else if (action.type === 'spell' && action.payload !== undefined && action.payload !== null) {
+    const payloadStr = String(action.payload)
+    const spellKey = `spells_${payloadStr}`
     const translated = t(spellKey)
-    actionText = translated !== spellKey ? translated : action.payload
+    if (translated !== spellKey) {
+      actionText = translated
+    } else if (/^\d+$/.test(payloadStr)) {
+      actionText = `${t('gambit_uxelm_spells')} #${payloadStr}`
+    } else {
+      actionText = payloadStr
+    }
   } else if (action.type === 'item' && action.payload) {
     const itemKey = `items_${action.payload}`
     const translated = t(itemKey)

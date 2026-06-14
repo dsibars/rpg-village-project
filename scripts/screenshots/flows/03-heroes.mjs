@@ -34,7 +34,7 @@ export async function run({ page, snap }) {
   // Ensure at least 3 heroes exist
   await injectHero(page, { name: 'Aria', origin: 'origin_arcane_initiate', level: 1 })
   await injectHero(page, { name: 'Bran', origin: 'origin_warrior', level: 3 })
-  await injectHero(page, { name: 'Cora', origin: 'origin_ranger', level: 5 })
+  await injectHero(page, { name: 'Cora', origin: 'origin_guard', level: 5 })
   await refreshUI(page)
   await page.waitForTimeout(300)
 

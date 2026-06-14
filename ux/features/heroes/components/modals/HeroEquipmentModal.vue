@@ -23,7 +23,7 @@
             </div>
             <Button
               v-if="hero.equipment?.[slot]"
-              variant="ghost"
+              variant="secondary"
               size="sm"
               @click.stop="$emit('unequip', slot)"
             >
@@ -117,9 +117,14 @@ function itemName(item) {
 
 function itemStats(item) {
   const stats = []
+  const tier = t('inventory_info_tier_' + item.material)
   if (item.type === 'weapon') {
-    stats.push('DMG scaling')
+    const family = t('inventory_info_family_' + item.family)
+    stats.push(`${family} +${item.level || 0}`)
+    stats.push(t('inventory_info_tier_' + item.material))
   } else {
+    stats.push(`${t('inventory_info_archetype_' + item.archetype)} +${item.level || 0}`)
+    stats.push(t('inventory_info_tier_' + item.material))
     if (item.archetype === 'plate') stats.push('+DEF +HP -SPD')
     if (item.archetype === 'leather') stats.push('+EVA')
     if (item.archetype === 'robes') stats.push('+MP +MAG')
@@ -135,18 +140,21 @@ function itemStats(item) {
 .slots-column { display: flex; flex-direction: column; gap: var(--spacing-xs); overflow-y: auto; }
 .slot-row { display: flex; align-items: center; gap: var(--spacing-sm); padding: var(--spacing-sm) var(--spacing-md); background: var(--bg-card); border: 1px solid var(--glass-border); border-radius: var(--radius-md); cursor: pointer; }
 .slot-row:hover { border-color: var(--color-primary-light); }
-.slot-row.selected { border-color: var(--color-primary); background: rgba(99,102,241,0.08); }
-.slot-row.empty { opacity: 0.85; }
+.slot-row.selected { border-color: var(--color-primary); background: rgba(74, 222, 128, 0.12); }
+.slot-row.empty { opacity: 0.75; border-style: dashed; border-color: var(--text-muted); }
+.slot-row.empty:hover { border-style: solid; border-color: var(--color-primary-light); }
 .slot-icon { font-size: 1.25rem; }
 .slot-info { display: flex; flex-direction: column; flex: 1; min-width: 0; }
 .slot-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; }
 .slot-item { font-weight: 500; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.slot-row.empty .slot-item { color: var(--text-muted); font-style: italic; }
+.slot-row.empty .slot-label { color: var(--text-muted); opacity: 0.7; }
 .gear-column { display: flex; flex-direction: column; min-height: 0; overflow-y: auto; background: var(--bg-card); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: var(--spacing-sm); }
 .gear-placeholder { display: flex; align-items: center; justify-content: center; text-align: center; color: var(--text-muted); font-size: 0.875rem; height: 100%; }
 .gear-list { display: flex; flex-direction: column; gap: var(--spacing-xs); }
 .gear-row { display: flex; justify-content: space-between; align-items: center; gap: var(--spacing-sm); padding: var(--spacing-sm); background: var(--bg-base); border: 1px solid var(--glass-border); border-radius: var(--radius-md); }
 .gear-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.gear-name { font-weight: 500; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gear-name { font-weight: 500; color: var(--text-primary); word-break: break-word; }
 .gear-stats { font-size: 0.75rem; color: var(--text-muted); }
 @media (max-width: 640px) { .equipment-layout { grid-template-columns: 1fr; } }
 </style>

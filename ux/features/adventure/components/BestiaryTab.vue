@@ -4,8 +4,9 @@
       <span class="bestiary-count">{{ t('shared_uxelm_nav_bestiary') }}: {{ discoveredCount }} / {{ totalCount }}</span>
     </div>
 
-    <div v-if="totalCount === 0" class="bestiary-empty">
-      {{ t('bestiary_uxelm_empty') }}
+    <div v-if="discoveredCount === 0" class="bestiary-empty">
+      <div class="empty-icon">👾</div>
+      <p class="empty-title">{{ t('bestiary_uxelm_empty') }}</p>
     </div>
 
     <div v-else class="bestiary-grid">
@@ -147,10 +148,23 @@ function translateElement(element) {
   padding: var(--spacing-xl);
   text-align: center;
   color: var(--text-muted);
-  font-style: italic;
   background: var(--bg-card);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.empty-icon {
+  font-size: 3rem;
+  opacity: 0.3;
+}
+
+.empty-title {
+  margin: 0;
+  font-style: italic;
 }
 
 .bestiary-grid {

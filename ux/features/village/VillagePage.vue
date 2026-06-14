@@ -1,5 +1,13 @@
 <template>
   <div class="village-page">
+    <!-- Error Boundary Banner -->
+    <div v-if="pageError" class="page-error-banner" role="alert">
+      <p>{{ pageError }}</p>
+      <Button size="sm" variant="secondary" @click="pageError = null">
+        {{ t('shared_uxelm_dismiss') }}
+      </Button>
+    </div>
+
     <!-- Header bar matching v1 -->
     <div class="village-header-bar">
       <h2 class="village-title">{{ t('shared_uxelm_nav_village') }}</h2>
@@ -83,7 +91,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, onErrorCaptured, ref } from 'vue'
 import { useI18n } from '@/core/composables/useI18n.js'
 import { useGameState } from '@/core/composables/useGameState.js'
 import { useAdapter } from '@/core/composables/useAdapter.js'
@@ -93,10 +101,19 @@ import ConstructionQueue from './components/ConstructionQueue.vue'
 import DailyObjectives from './components/DailyObjectives.vue'
 import VillageCalendar from './components/VillageCalendar.vue'
 import VillageDefense from './components/VillageDefense.vue'
+import Button from '@/components/Button.vue'
 
 const { t } = useI18n()
 const { gameState, heroes } = useGameState()
 const { dispatch } = useAdapter()
+
+const pageError = ref(null)
+
+onErrorCaptured((err, instance, info) => {
+  console.error('VillagePage error:', err, info)
+  pageError.value = err?.message || 'An error occurred in the Village page.'
+  return false
+})
 
 const emit = defineEmits(['navigate', 'recallDailyReport'])
 
@@ -143,6 +160,23 @@ function navigateToBuildings(buildingId) {
   padding: var(--spacing-md);
   gap: var(--spacing-md);
   color: var(--text-primary);
+}
+
+.page-error-banner {
+  padding: var(--spacing-md);
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-shrink: 0;
+}
+
+.page-error-banner p {
+  margin: 0;
 }
 
 .village-header-bar {
@@ -308,6 +342,8 @@ function navigateToBuildings(buildingId) {
   color: var(--text-muted);
   font-style: italic;
   line-height: 1.4;
+  overflow-wrap: break-word;
+  word-break: normal;
 }
 
 .hub-body {
@@ -321,10 +357,15 @@ function navigateToBuildings(buildingId) {
   padding: var(--spacing-xs) 0;
 }
 
+.hub-body > .village-defense {
+  padding-top: var(--spacing-sm);
+}
+
 .hub-divider {
   height: 1px;
   background: var(--glass-border);
   margin: 0;
+  opacity: 0.6;
 }
 
 /* Scrollable content within cards when needed */

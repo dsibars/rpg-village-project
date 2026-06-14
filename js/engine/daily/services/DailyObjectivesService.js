@@ -43,8 +43,9 @@ const TUTORIAL_OBJECTIVES = {
 };
 
 export class DailyObjectivesService {
-    constructor(inventoryService, options = {}) {
+    constructor(inventoryService, villageService, options = {}) {
         this.inventoryService = inventoryService;
+        this.villageService = villageService;
         this.STORAGE_KEY = 'daily_objectives_state';
         this.state = this._getDefaultState();
         if (!options.deferLoad) {
@@ -191,7 +192,7 @@ export class DailyObjectivesService {
         obj.claimed = true;
 
         if (obj.reward.gold) {
-            // Gold is handled by caller adding to village
+            this.villageService.addGold(obj.reward.gold);
         }
         if (obj.reward.material_wood) {
             this.inventoryService.addItem('material_wood', obj.reward.material_wood);

@@ -57,6 +57,21 @@ export class InventoryService {
             }
         }
 
+        // Migration: Rename old shop-bought consumable IDs to match registry
+        const ID_RENAMES = {
+            'item_tiny_hp_potion': 'tiny_hp_potion',
+            'item_tiny_mp_potion': 'tiny_mp_potion',
+            'item_teleport_scroll': 'teleport_scroll'
+        };
+        if (loaded.consumables) {
+            for (const [oldId, newId] of Object.entries(ID_RENAMES)) {
+                if (loaded.consumables[oldId]) {
+                    loaded.consumables[newId] = (loaded.consumables[newId] || 0) + loaded.consumables[oldId];
+                    delete loaded.consumables[oldId];
+                }
+            }
+        }
+
         // Hydrate equipment models
         loaded.equipment = (loaded.equipment || []).map(e => new Equipment(e));
         return loaded;
