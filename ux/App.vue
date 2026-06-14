@@ -13,7 +13,10 @@
         :day="day"
         :gold="gold"
         :population="population"
+        :max-population="maxPopulation"
         :wood="wood"
+        :storage-used="storageUsed"
+        :storage-max="storageMax"
         @nextDay="onNextDay"
         @openSettings="currentPage = 'settings'"
         @navigate="handleNavigate"
@@ -184,6 +187,9 @@ const wood = computed(() => {
   }
   return village.value.wood || 0
 })
+const maxPopulation = computed(() => village.value.maxPopulation || 0)
+const storageUsed = computed(() => inventory.value.totalUsed || 0)
+const storageMax = computed(() => maxStorage.value)
 
 const pages = {
   village: VillagePage,
