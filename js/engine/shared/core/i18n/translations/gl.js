@@ -1359,4 +1359,6 @@ export const gl = {
     shared_uxelm_toast_glyph_learned: "{hero} aprendeu {glyph}!",
     shared_uxelm_toast_consumable_used: "{hero} +{amount} {stat}",
     combat_log_stamina_regen: "{actor} regenera {amount} de estamina",
+    combat_log_victory: "Vitoria! Inimigos derrotados!",
+    combat_log_defeat: "Derrota... O grupo caíu...",
 };

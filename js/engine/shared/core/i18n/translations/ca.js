@@ -1363,4 +1363,6 @@ export const ca = {
     shared_uxelm_toast_glyph_learned: "{hero} ha après {glyph}!",
     shared_uxelm_toast_consumable_used: "{hero} +{amount} {stat}",
     combat_log_stamina_regen: "{actor} regenera {amount} d'estamina",
+    combat_log_victory: "Victòria! Enemics derrotats!",
+    combat_log_defeat: "Derrota... El grup ha caigut...",
 };

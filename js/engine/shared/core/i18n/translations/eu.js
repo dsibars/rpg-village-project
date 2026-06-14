@@ -1361,5 +1361,7 @@ export const eu = {
     shared_uxelm_toast_preset_applied: "Applied {preset} (+{count} gambits)",
     shared_uxelm_toast_glyph_learned: "{hero} learned {glyph}!",
     shared_uxelm_toast_consumable_used: "{hero} +{amount} {stat}",
-    combat_log_stamina_regen: "{actor} regenerates {amount} stamina",
+    combat_log_stamina_regen: "{actor}-k {amount} estamina berreskuratu du.",
+    combat_log_victory: "Garaipena! Etsaiak garaitu dira!",
+    combat_log_defeat: "Porrota... Taldea erori da...",
 };

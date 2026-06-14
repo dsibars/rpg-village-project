@@ -1362,4 +1362,6 @@ export const es = {
     shared_uxelm_toast_glyph_learned: "¡{hero} aprendió {glyph}!",
     shared_uxelm_toast_consumable_used: "{hero} +{amount} {stat}",
     combat_log_stamina_regen: "{actor} regenera {amount} de estamina",
+    combat_log_victory: "¡Victoria! ¡Enemigos derrotados!",
+    combat_log_defeat: "Derrota... El grupo ha caído...",
 };
