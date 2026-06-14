@@ -110,7 +110,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { useI18n } from '@/core/composables/useI18n.js'
 
 const { t, setLanguage, currentLanguage } = useI18n()
@@ -134,6 +134,20 @@ const normalizedSlots = computed(() => {
       index
     }
   })
+})
+
+function onKeydown(e) {
+  if (deletingSlotIndex.value !== null && e.key === 'Escape') {
+    deletingSlotIndex.value = null
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', onKeydown)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', onKeydown)
 })
 
 function formatDate(isoString) {
