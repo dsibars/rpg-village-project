@@ -18,11 +18,14 @@
           v-for="ev in visibleEvents"
           :key="`${ev.day}-${ev.type}`"
           class="event-item"
-          :class="{ urgent: isUrgent(ev) }"
+          :class="{ urgent: isUrgent(ev), raid: ev.type === 'raid' }"
         >
           <span class="event-icon">{{ ev.type === 'raid' ? '⚔' : '📅' }}</span>
           <span class="event-day">{{ dayLabel(ev) }}</span>
           <span class="event-label">{{ eventLabel(ev) }}</span>
+          <span v-if="ev.type === 'raid' && ev.data" class="event-meta">
+            Lv{{ ev.data.level }} × {{ ev.data.enemyCount }}
+          </span>
         </div>
       </div>
     </div>
@@ -136,9 +139,14 @@ function eventLabel(ev) {
   font-size: 0.8rem;
 }
 
+.event-item.raid {
+  border-left: 3px solid rgba(239, 68, 68, 0.5);
+}
+
 .event-item.urgent {
   border-color: rgba(239, 68, 68, 0.4);
   background: rgba(239, 68, 68, 0.08);
+  border-left: 3px solid rgba(239, 68, 68, 0.7);
 }
 
 .event-icon {
@@ -152,5 +160,12 @@ function eventLabel(ev) {
 
 .event-label {
   color: var(--text-primary);
+  flex: 1;
+}
+
+.event-meta {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  white-space: nowrap;
 }
 </style>

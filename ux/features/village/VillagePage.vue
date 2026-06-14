@@ -308,6 +308,8 @@ function navigateToBuildings(buildingId) {
   color: var(--text-muted);
   font-style: italic;
   line-height: 1.4;
+  overflow-wrap: break-word;
+  word-break: normal;
 }
 
 .hub-body {
@@ -321,10 +323,15 @@ function navigateToBuildings(buildingId) {
   padding: var(--spacing-xs) 0;
 }
 
+.hub-body > .village-defense {
+  padding-top: var(--spacing-sm);
+}
+
 .hub-divider {
   height: 1px;
   background: var(--glass-border);
   margin: 0;
+  opacity: 0.6;
 }
 
 /* Scrollable content within cards when needed */

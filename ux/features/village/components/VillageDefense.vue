@@ -5,6 +5,13 @@
       <span class="defense-count">{{ assigned.length }} / {{ maxDefenders }}</span>
     </div>
 
+    <!-- Compact status line always visible when not showing header -->
+    <div v-else-if="assigned.length > 0 || canAssign" class="defense-status-compact">
+      <span class="status-icon">🛡️</span>
+      <span class="status-count">{{ assigned.length }} / {{ maxDefenders }}</span>
+      <span v-if="assigned.length === 0" class="status-warn">{{ t('village_uxelm_defender_none') }}</span>
+    </div>
+
     <div v-if="assigned.length === 0 && idleHeroes.length === 0" class="empty-state">
       {{ t('village_uxelm_defender_none') }}
     </div>
@@ -19,6 +26,7 @@
           :title="t('shared_uxelm_remove')"
           @click="$emit('unassign', heroId)"
         >
+          <span class="chip-icon">🛡️</span>
           {{ getHeroName(heroId) }}
           <span class="remove-btn">✕</span>
         </span>
@@ -31,11 +39,11 @@
           <Button
             v-for="hero in assignableHeroes"
             :key="hero.id"
-            variant="ghost"
+            variant="secondary"
             size="sm"
             @click="$emit('assign', hero.id)"
           >
-            + {{ hero.name }}
+            <span class="btn-icon">+</span> {{ hero.name }}
           </Button>
         </div>
       </div>
@@ -102,6 +110,28 @@ function getHeroName(heroId) {
   color: var(--text-muted);
 }
 
+.defense-status-compact {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.status-icon {
+  font-size: 0.85rem;
+}
+
+.status-count {
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.status-warn {
+  font-style: italic;
+  color: var(--color-warning);
+}
+
 .empty-state {
   color: var(--text-muted);
   font-size: 0.85rem;
@@ -126,15 +156,27 @@ function getHeroName(heroId) {
   font-size: 0.8rem;
   color: var(--text-primary);
   cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
 }
 
 .defender-chip:hover {
   border-color: var(--color-danger);
+  background: rgba(239, 68, 68, 0.08);
+}
+
+.chip-icon {
+  font-size: 0.75rem;
+  opacity: 0.8;
 }
 
 .remove-btn {
   color: var(--text-muted);
   font-size: 0.75rem;
+  transition: color 0.15s;
+}
+
+.defender-chip:hover .remove-btn {
+  color: var(--color-danger);
 }
 
 .assign-section h5 {
@@ -147,5 +189,10 @@ function getHeroName(heroId) {
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
+}
+
+.btn-icon {
+  font-weight: 700;
+  color: var(--color-primary);
 }
 </style>
