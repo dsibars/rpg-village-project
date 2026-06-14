@@ -124,6 +124,12 @@ const roleEffects = {
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-md);
   gap: var(--spacing-sm);
+  transition: all 0.15s ease;
+}
+
+.role-row:hover {
+  border-color: var(--color-primary-light);
+  background: rgba(74, 222, 128, 0.04);
 }
 
 .role-info {
