@@ -21,7 +21,7 @@
           <span v-if="s.hpLost > 0" class="hp-lost">-{{ s.hpLost }} {{ t('heroes_info_stat_hp') }}</span>
           <span v-else-if="s.hpLost < 0" class="hp-gained">+{{-s.hpLost}} {{ t('heroes_info_stat_hp') }}</span>
           <span v-else class="hp-unchanged">—</span>
-          <span class="exp-gained">+{{ s.expEarned }} EXP</span>
+          <span class="exp-gained">+{{ s.expEarned }} {{ t('shared_uxelm_exp_abbrev') }}</span>
           <span v-if="s.leveledUp" class="level-up">🆙 {{ t('shared_uxelm_level_up') }}</span>
         </div>
       </div>
