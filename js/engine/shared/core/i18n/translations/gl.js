@@ -710,6 +710,8 @@ export const gl = {
     shared_uxelm_choose_target: "Elixir Obxectivo",
     shared_uxelm_clear: "Limpar",
     shared_uxelm_close: "Pechar",
+    shared_uxelm_error_title: "Algo saíu mal",
+    shared_uxelm_error_message: "Produciuse un erro inesperado nesta páxina.",
     shared_uxelm_consumable_none: "Non hai consumibles no inventario.",
     shared_uxelm_day: "Día",
     shared_uxelm_days: "Días",

@@ -713,6 +713,8 @@ export const ca = {
     shared_uxelm_choose_target: "Triar Objectiu",
     shared_uxelm_clear: "Netejar",
     shared_uxelm_close: "Tancar",
+    shared_uxelm_error_title: "Alguna cosa ha anat malament",
+    shared_uxelm_error_message: "S'ha produït un error inesperat en aquesta pàgina.",
     shared_uxelm_consumable_none: "No hi ha consumibles a l'inventari.",
     shared_uxelm_day: "Dia",
     shared_uxelm_days: "Dies",

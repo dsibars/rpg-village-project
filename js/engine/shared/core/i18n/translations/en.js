@@ -716,6 +716,8 @@ export const en = {
     shared_uxelm_choose_target: "Choose Target",
     shared_uxelm_clear: "Clear",
     shared_uxelm_close: "Close",
+    shared_uxelm_error_title: "Something went wrong",
+    shared_uxelm_error_message: "An unexpected error occurred in this page.",
     shared_uxelm_consumable_none: "No consumables in inventory.",
     shared_uxelm_day: "Day",
     shared_uxelm_days: "Days",

@@ -249,6 +249,11 @@ const storagePercent = computed(() => {
   color: var(--text-primary);
 }
 
+.btn-quick:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
 .btn-quick.btn-text {
   display: flex;
   align-items: center;
@@ -280,6 +285,11 @@ const storagePercent = computed(() => {
 .btn-next-day:hover {
   background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
   box-shadow: 0 4px 12px rgba(217, 119, 6, 0.5);
+}
+
+.btn-next-day:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
 }
 
 @media (max-width: 768px) {

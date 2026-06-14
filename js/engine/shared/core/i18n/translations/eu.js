@@ -713,6 +713,8 @@ export const eu = {
     shared_uxelm_choose_target: "Hautatu Helburua",
     shared_uxelm_clear: "Garbitu",
     shared_uxelm_close: "Itxi",
+    shared_uxelm_error_title: "Zerbait gaizki joan da",
+    shared_uxelm_error_message: "Errore bat gertatu da orri honetan.",
     shared_uxelm_consumable_none: "Ez dago kontsumigarririk inbentarioan.",
     shared_uxelm_day: "Eguna",
     shared_uxelm_days: "Egunak",

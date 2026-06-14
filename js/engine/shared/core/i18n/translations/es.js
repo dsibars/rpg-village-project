@@ -713,6 +713,8 @@ export const es = {
     shared_uxelm_choose_target: "Elegir Objetivo",
     shared_uxelm_clear: "Limpiar",
     shared_uxelm_close: "Cerrar",
+    shared_uxelm_error_title: "Algo salió mal",
+    shared_uxelm_error_message: "Ocurrió un error inesperado en esta página.",
     shared_uxelm_consumable_none: "No hay consumibles en el inventario.",
     shared_uxelm_day: "Día",
     shared_uxelm_days: "Días",
