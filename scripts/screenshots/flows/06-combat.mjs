@@ -82,6 +82,8 @@ export async function run({ page, snap }) {
     if (!e?.battleService) return
     e.battleService.isOver = true
     e.battleService.winner = 'heroes'
+    // Zero enemy HP for a realistic victory screen
+    e.battleService.enemies.forEach(en => { en.hp = 0 })
     // Add a victory log entry so the UI has something to show
     e.battleService.log.push({ type: 'VICTORY', text: 'Victory!' })
   }, {})
