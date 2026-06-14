@@ -103,7 +103,7 @@ export async function run({ page, snap }) {
 
   // --- inventory_with_items ---
   await addInventoryItem(page, { id: 'tiny_hp_potion', type: 'consumable', quantity: 3 })
-  await addInventoryItem(page, { id: 'iron_sword', type: 'equipment', quantity: 1 })
+  await addInventoryItem(page, { id: 'test_sword', inventoryType: 'equipment', type: 'weapon', material: 'wooden', family: 'dagger', level: 0 })
   await refreshUI(page)
   await clickSubNav(page, selectors.townInventoryTab)
   await waitForVisible(page, selectors.inventoryGrid, 2000)
