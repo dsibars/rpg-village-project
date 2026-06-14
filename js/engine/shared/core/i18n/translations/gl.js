@@ -260,6 +260,7 @@ export const gl = {
     gambit_uxelm_enemy_none_selected: "Non hai inimigos seleccionados. Engade algúns do catálogo!",
     gambit_uxelm_fallback: "RESERVA: ",
     gambit_uxelm_health_score: "Puntuación de Saúde",
+    gambit_uxelm_on: "SOBRE",
     gambit_uxelm_position: "Posición",
     gambit_uxelm_preset_suggest: "Suxerir Axuste",
     gambit_uxelm_simulation_start: "Iniciar Simulación",

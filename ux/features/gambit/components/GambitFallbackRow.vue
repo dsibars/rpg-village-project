@@ -7,7 +7,7 @@
         v-for="family in learnedFamilies"
         :key="family"
         :value="family"
-      >{{ family }}</option>
+      >{{ t('heroes_info_family_' + family) }}</option>
     </select>
   </div>
 </template>

@@ -263,6 +263,7 @@ export const eu = {
     gambit_uxelm_enemy_none_selected: "Ez dago etsairik hautatuta. Gehitu batzuk bestiariotik!",
     gambit_uxelm_fallback: "ERRESERBA: ",
     gambit_uxelm_health_score: "Osasun Puntuazioa",
+    gambit_uxelm_on: "GAIN",
     gambit_uxelm_position: "Posizioa",
     gambit_uxelm_preset_suggest: "Iradoki Ezarpena",
     gambit_uxelm_simulation_start: "Hasi Simulazioa",

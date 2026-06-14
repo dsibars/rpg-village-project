@@ -263,6 +263,7 @@ export const es = {
     gambit_uxelm_enemy_none_selected: "No hay enemigos seleccionados. ¡Añade algunos del bestiario!",
     gambit_uxelm_fallback: "RESERVA: ",
     gambit_uxelm_health_score: "Puntuación de Salud",
+    gambit_uxelm_on: "SOBRE",
     gambit_uxelm_position: "Posición",
     gambit_uxelm_preset_suggest: "Sugerir Ajuste",
     gambit_uxelm_simulation_start: "Iniciar Simulación",

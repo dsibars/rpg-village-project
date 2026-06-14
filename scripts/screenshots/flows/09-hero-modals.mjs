@@ -118,6 +118,31 @@ export async function run({ page, snap }) {
   }
 
   // --- heroes_modal_gambits ---
+  // Give first hero known families, a spell, and a sample gambit for a richer screenshot
+  await page.evaluate(() => {
+    const e = window.__ENGINE__
+    const hero = e?.heroService?.heroes?.[0]
+    if (hero) {
+      if (!hero.knownFamilies.includes('power_strike')) {
+        hero.knownFamilies.push('power_strike')
+        hero.techniqueTiers['power_strike'] = 1
+      }
+      if (hero.spellCodex.length === 0) {
+        hero.spellCodex.push({ name: 'fireball', mpCost: 8, targetType: 'single_enemy' })
+      }
+      if (!hero.gambits || hero.gambits.length === 0) {
+        hero.gambits = [
+          { id: crypto.randomUUID(), enabled: true, conditions: [{ left: { type: 'enemy_count', operator: '>', value: 2 } }], action: { type: 'skill', payload: 'cleave' }, target: 'all_enemies' },
+          { id: crypto.randomUUID(), enabled: true, conditions: [{ left: { type: 'self_hp', operator: '<', value: 0.5 } }], action: { type: 'defend' }, target: 'self' },
+          { id: crypto.randomUUID(), enabled: true, conditions: [{ left: { type: 'always' } }], action: { type: 'skill', payload: 'power_strike' }, target: 'weakest_enemy' }
+        ]
+      }
+      if (e.heroService.saveAll) e.heroService.saveAll()
+    }
+  })
+  await refreshUI(page)
+  await page.waitForTimeout(300)
+
   if (await clickActionButton(page, 'gambits')) {
     await page.waitForTimeout(400)
     await snap({ flow: 'hero-modals', state: 'heroes_modal_gambits' })
