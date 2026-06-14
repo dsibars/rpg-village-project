@@ -1066,7 +1066,7 @@ export const eu = {
     shared_uxelm_save_slot_delete: "Ezabatu",
     shared_uxelm_save_slot_delete_confirm: "Ezabatu betiko partida hau? Aurrerapen guztiak galduko dira. Ezin da desegin.",
     shared_uxelm_save_slot_day: "{day}. Eguna",
-    shared_uxelm_save_slot_heroes: "{count} Heroi",
+    shared_uxelm_save_slot_heroes: "{count} Heroi(a)",
     shared_uxelm_save_slot_highest_level: "Gehienekoa: Lvl {level}",
     shared_uxelm_save_slot_regions: "{count} Eskualde",
     shared_uxelm_save_slot_last_played_today: "Gaur",

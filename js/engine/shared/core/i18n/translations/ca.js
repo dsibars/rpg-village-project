@@ -1066,7 +1066,7 @@ export const ca = {
     shared_uxelm_save_slot_delete: "Eliminar",
     shared_uxelm_save_slot_delete_confirm: "Eliminar permanentment aquesta partida desada? Tot el progrés es perdrà. Això no es pot desfer.",
     shared_uxelm_save_slot_day: "Dia {day}",
-    shared_uxelm_save_slot_heroes: "{count} Herois",
+    shared_uxelm_save_slot_heroes: "{count} Heroi(s)",
     shared_uxelm_save_slot_highest_level: "Màx: Niv {level}",
     shared_uxelm_save_slot_regions: "{count} Regions",
     shared_uxelm_save_slot_last_played_today: "Avui",

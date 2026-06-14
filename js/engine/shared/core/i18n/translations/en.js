@@ -1066,7 +1066,7 @@ export const en = {
     shared_uxelm_save_slot_delete: "Delete",
     shared_uxelm_save_slot_delete_confirm: "Permanently delete this save? All progress will be lost. This cannot be undone.",
     shared_uxelm_save_slot_day: "Day {day}",
-    shared_uxelm_save_slot_heroes: "{count} Heroes",
+    shared_uxelm_save_slot_heroes: "{count} Hero(es)",
     shared_uxelm_save_slot_highest_level: "Highest: Lv {level}",
     shared_uxelm_save_slot_regions: "{count} Regions",
     shared_uxelm_save_slot_last_played_today: "Today",

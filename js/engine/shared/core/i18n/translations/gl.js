@@ -1066,7 +1066,7 @@ export const gl = {
     shared_uxelm_save_slot_delete: "Eliminar",
     shared_uxelm_save_slot_delete_confirm: "Eliminar permanentemente esta partida gardada? Todo o progreso perderase. Isto no se pode desfacer.",
     shared_uxelm_save_slot_day: "Día {day}",
-    shared_uxelm_save_slot_heroes: "{count} Heroes",
+    shared_uxelm_save_slot_heroes: "{count} Heroe(s)",
     shared_uxelm_save_slot_highest_level: "Máx: Niv {level}",
     shared_uxelm_save_slot_regions: "{count} Rexións",
     shared_uxelm_save_slot_last_played_today: "Hoxe",
