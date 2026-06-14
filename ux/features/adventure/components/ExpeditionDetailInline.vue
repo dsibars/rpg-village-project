@@ -34,13 +34,14 @@
       </header>
       <div class="exp-stats">
         <p><strong>{{ t('explore_uxelm_stages') }}:</strong> {{ expedition.stages?.length || 0 }}</p>
+        <p><strong>{{ t('explore_uxelm_recommended_level') }}:</strong> {{ expedition.stages?.[0]?.enemyLevel || 1 }}</p>
         <p><strong>{{ t('explore_uxelm_base_reward') }}:</strong> {{ expedition.reward?.gold || 0 }} {{ t('village_uxelm_gold') }}</p>
       </div>
       <!-- Combat Intel -->
       <div v-if="uniqueEnemies.length > 0" class="combat-intel">
         <strong class="intel-label">{{ t('explore_uxelm_intel_enemies') }}</strong>
         <div class="enemy-tags">
-          <span v-for="enemy in uniqueEnemies" :key="enemy" class="enemy-tag">{{ enemy }}</span>
+          <span v-for="enemy in uniqueEnemies" :key="enemy" class="enemy-tag" :style="getEnemyStyle(enemy)">{{ enemy }}</span>
         </div>
       </div>
     </div>
@@ -143,6 +144,164 @@ const displayName = computed(() => {
   return trans !== props.expedition.id ? trans : props.expedition.name
 })
 
+const enemyTagColors = {
+  neutral: { bg: 'rgba(255,59,48,0.1)', border: 'rgba(255,59,48,0.3)', text: '#ff3b30' },
+  fire: { bg: 'rgba(255,149,0,0.1)', border: 'rgba(255,149,0,0.3)', text: '#ff9500' },
+  earth: { bg: 'rgba(139,69,19,0.1)', border: 'rgba(139,69,19,0.3)', text: '#a0522d' },
+  water: { bg: 'rgba(0,122,255,0.1)', border: 'rgba(0,122,255,0.3)', text: '#007aff' },
+  storm: { bg: 'rgba(175,82,222,0.1)', border: 'rgba(175,82,222,0.3)', text: '#af52de' },
+  wind: { bg: 'rgba(48,209,88,0.1)', border: 'rgba(48,209,88,0.3)', text: '#30d158' },
+  dark: { bg: 'rgba(88,86,214,0.1)', border: 'rgba(88,86,214,0.3)', text: '#5856d6' },
+  light: { bg: 'rgba(255,204,0,0.1)', border: 'rgba(255,204,0,0.3)', text: '#ffcc00' }
+};
+
+function getEnemyStyle(enemyName) {
+  const templates = {
+    'Green Slime': 'neutral',
+    'Fire Slime': 'fire',
+    'Earth Slime': 'earth',
+    'Wild Boar': 'neutral',
+    'Horned Rabbit': 'neutral',
+    'Goblin Scout': 'neutral',
+    'Goblin Grunt': 'neutral',
+    'Small Bat': 'neutral',
+    'Minor Spider': 'neutral',
+    'Shell Crab': 'neutral',
+    'Minor Water Spirit': 'water',
+    'Shore Murloc': 'water',
+    'Goblin Brute': 'neutral',
+    'Goblin Shaman': 'storm',
+    'Goblin Slinger': 'neutral',
+    'Skeleton Warrior': 'neutral',
+    'Ghost Wisp': 'wind',
+    'Alpha Wolf': 'neutral',
+    'Rotting Zombie': 'neutral',
+    'Ice Elemental': 'water',
+    'Young Drake': 'fire',
+    'Frost Wolf': 'water',
+    'Cultist Acolyte': 'fire',
+    'Stone Golem': 'earth',
+    'Goblin King': 'neutral',
+    'Lich Apprentice': 'storm',
+    'Mountain Troll': 'neutral',
+    'Fierce Green Slime': 'neutral',
+    'Fierce Fire Slime': 'fire',
+    'Fierce Earth Slime': 'earth',
+    'Fierce Wild Boar': 'neutral',
+    'Fierce Horned Rabbit': 'neutral',
+    'Fierce Goblin Scout': 'neutral',
+    'Fierce Goblin Grunt': 'neutral',
+    'Fierce Small Bat': 'neutral',
+    'Fierce Minor Spider': 'neutral',
+    'Fierce Shell Crab': 'neutral',
+    'Fierce Minor Water Spirit': 'water',
+    'Fierce Shore Murloc': 'water',
+    'Fierce Goblin Brute': 'neutral',
+    'Fierce Goblin Shaman': 'storm',
+    'Fierce Goblin Slinger': 'neutral',
+    'Fierce Skeleton Warrior': 'neutral',
+    'Fierce Ghost Wisp': 'wind',
+    'Fierce Alpha Wolf': 'neutral',
+    'Fierce Rotting Zombie': 'neutral',
+    'Fierce Ice Elemental': 'water',
+    'Fierce Young Drake': 'fire',
+    'Fierce Frost Wolf': 'water',
+    'Fierce Cultist Acolyte': 'fire',
+    'Fierce Stone Golem': 'earth',
+    'Fierce Goblin King': 'neutral',
+    'Fierce Lich Apprentice': 'storm',
+    'Fierce Mountain Troll': 'neutral',
+    'Corrupted Green Slime': 'neutral',
+    'Corrupted Fire Slime': 'fire',
+    'Corrupted Earth Slime': 'earth',
+    'Corrupted Wild Boar': 'neutral',
+    'Corrupted Horned Rabbit': 'neutral',
+    'Corrupted Goblin Scout': 'neutral',
+    'Corrupted Goblin Grunt': 'neutral',
+    'Corrupted Small Bat': 'neutral',
+    'Corrupted Minor Spider': 'neutral',
+    'Corrupted Shell Crab': 'neutral',
+    'Corrupted Minor Water Spirit': 'water',
+    'Corrupted Shore Murloc': 'water',
+    'Corrupted Goblin Brute': 'neutral',
+    'Corrupted Goblin Shaman': 'storm',
+    'Corrupted Goblin Slinger': 'neutral',
+    'Corrupted Skeleton Warrior': 'neutral',
+    'Corrupted Ghost Wisp': 'wind',
+    'Corrupted Alpha Wolf': 'neutral',
+    'Corrupted Rotting Zombie': 'neutral',
+    'Corrupted Ice Elemental': 'water',
+    'Corrupted Young Drake': 'fire',
+    'Corrupted Frost Wolf': 'water',
+    'Corrupted Cultist Acolyte': 'fire',
+    'Corrupted Stone Golem': 'earth',
+    'Corrupted Goblin King': 'neutral',
+    'Corrupted Lich Apprentice': 'storm',
+    'Corrupted Mountain Troll': 'neutral',
+    'Ancient Green Slime': 'neutral',
+    'Ancient Fire Slime': 'fire',
+    'Ancient Earth Slime': 'earth',
+    'Ancient Wild Boar': 'neutral',
+    'Ancient Horned Rabbit': 'neutral',
+    'Ancient Goblin Scout': 'neutral',
+    'Ancient Goblin Grunt': 'neutral',
+    'Ancient Small Bat': 'neutral',
+    'Ancient Minor Spider': 'neutral',
+    'Ancient Shell Crab': 'neutral',
+    'Ancient Minor Water Spirit': 'water',
+    'Ancient Shore Murloc': 'water',
+    'Ancient Goblin Brute': 'neutral',
+    'Ancient Goblin Shaman': 'storm',
+    'Ancient Goblin Slinger': 'neutral',
+    'Ancient Skeleton Warrior': 'neutral',
+    'Ancient Ghost Wisp': 'wind',
+    'Ancient Alpha Wolf': 'neutral',
+    'Ancient Rotting Zombie': 'neutral',
+    'Ancient Ice Elemental': 'water',
+    'Ancient Young Drake': 'fire',
+    'Ancient Frost Wolf': 'water',
+    'Ancient Cultist Acolyte': 'fire',
+    'Ancient Stone Golem': 'earth',
+    'Ancient Goblin King': 'neutral',
+    'Ancient Lich Apprentice': 'storm',
+    'Ancient Mountain Troll': 'neutral',
+    'Legendary Green Slime': 'neutral',
+    'Legendary Fire Slime': 'fire',
+    'Legendary Earth Slime': 'earth',
+    'Legendary Wild Boar': 'neutral',
+    'Legendary Horned Rabbit': 'neutral',
+    'Legendary Goblin Scout': 'neutral',
+    'Legendary Goblin Grunt': 'neutral',
+    'Legendary Small Bat': 'neutral',
+    'Legendary Minor Spider': 'neutral',
+    'Legendary Shell Crab': 'neutral',
+    'Legendary Minor Water Spirit': 'water',
+    'Legendary Shore Murloc': 'water',
+    'Legendary Goblin Brute': 'neutral',
+    'Legendary Goblin Shaman': 'storm',
+    'Legendary Goblin Slinger': 'neutral',
+    'Legendary Skeleton Warrior': 'neutral',
+    'Legendary Ghost Wisp': 'wind',
+    'Legendary Alpha Wolf': 'neutral',
+    'Legendary Rotting Zombie': 'neutral',
+    'Legendary Ice Elemental': 'water',
+    'Legendary Young Drake': 'fire',
+    'Legendary Frost Wolf': 'water',
+    'Legendary Cultist Acolyte': 'fire',
+    'Legendary Stone Golem': 'earth',
+    'Legendary Goblin King': 'neutral',
+    'Legendary Lich Apprentice': 'storm',
+    'Legendary Mountain Troll': 'neutral',
+  };
+  const element = templates[enemyName] || 'neutral';
+  const colors = enemyTagColors[element] || enemyTagColors.neutral;
+  return {
+    background: colors.bg,
+    borderColor: colors.border,
+    color: colors.text
+  };
+}
+
 const uniqueEnemies = computed(() => {
   const tags = new Set()
   if (!props.expedition.stages) return []
@@ -226,7 +385,7 @@ function toggleHero(heroId) {
 const canStart = computed(() => {
   if (isLocked.value) return false
   if (!isActiveNode.value && isAtMax.value) return false
-  return isActiveNode.value || selectedIds.value.size > 0
+  return selectedIds.value.size > 0
 })
 
 function handleStart() {
@@ -351,6 +510,7 @@ function handleStart() {
   border-radius: 4px;
   font-size: 0.8rem;
   border: 1px solid rgba(255, 59, 48, 0.3);
+  transition: all 0.2s ease;
 }
 
 .hero-selector {
