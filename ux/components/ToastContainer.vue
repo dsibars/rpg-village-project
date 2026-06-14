@@ -1,5 +1,5 @@
 <template>
-  <div class="toast-container">
+  <div class="toast-container" role="alert" aria-live="polite" aria-atomic="true">
     <TransitionGroup name="toast">
       <div
         v-for="toast in toastState.toasts"
@@ -17,7 +17,8 @@
         </template>
         <!-- Standard toast -->
         <template v-else>
-          {{ toast.message }}
+          <span class="toast-icon">{{ toastIcon(toast.type) }}</span>
+          <span class="toast-message">{{ toast.message }}</span>
         </template>
       </div>
     </TransitionGroup>
@@ -29,6 +30,16 @@ import { toastState, removeToast } from '../core/toast.js'
 import { useI18n } from '../core/composables/useI18n.js'
 
 const { t } = useI18n()
+
+function toastIcon(type) {
+  const icons = {
+    info: 'ℹ️',
+    success: '✅',
+    warning: '⚠️',
+    error: '❌'
+  }
+  return icons[type] || ''
+}
 </script>
 
 <style scoped>
@@ -41,9 +52,14 @@ const { t } = useI18n()
   flex-direction: column;
   gap: var(--spacing-sm);
   pointer-events: none;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 .toast {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
   padding: var(--spacing-sm) var(--spacing-md);
   border-radius: var(--radius-md);
   color: white;
@@ -52,6 +68,15 @@ const { t } = useI18n()
   cursor: pointer;
   max-width: 300px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.toast-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.toast-message {
+  line-height: 1.4;
 }
 
 .toast--info { background: var(--color-primary); }
