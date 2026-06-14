@@ -171,6 +171,10 @@ function confirmInscribe() {
 .empty-glyphs { color: var(--text-muted); font-size: 0.875rem; font-style: italic; }
 .glyph-chips { display: flex; flex-wrap: wrap; gap: var(--spacing-xs); }
 .glyph-chip { display: inline-flex; align-items: center; gap: 4px; padding: var(--spacing-xs) var(--spacing-sm); background: var(--bg-card); border: 1px solid var(--glass-border); border-radius: var(--radius-md); font-size: 0.875rem; color: var(--text-primary); cursor: pointer; }
+.glyph-chip.core { border-color: rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.08); }
+.glyph-chip.power { border-color: rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.08); }
+.glyph-chip.effect { border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.08); }
+.glyph-chip.efficiency { border-color: rgba(74, 222, 128, 0.4); background: rgba(74, 222, 128, 0.08); }
 .glyph-chip:hover { border-color: var(--color-danger); }
 .glyph-chip .tier { color: var(--color-primary-light); font-size: 0.75rem; }
 .glyph-chip .remove { color: var(--text-muted); margin-left: 2px; }
@@ -178,7 +182,11 @@ function confirmInscribe() {
 .glyph-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: var(--spacing-xs); }
 .glyph-option { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: var(--spacing-sm); background: var(--bg-card); border: 1px solid var(--glass-border); border-radius: var(--radius-md); color: var(--text-primary); cursor: pointer; font-family: var(--font-body); }
 .glyph-option:hover:not(:disabled) { border-color: var(--color-primary-light); }
-.glyph-option.selected { border-color: var(--color-primary); background: rgba(99,102,241,0.12); }
+.glyph-option.selected { border-color: var(--color-primary); background: rgba(74, 222, 128, 0.12); }
+.glyph-option.core { border-color: rgba(245, 158, 11, 0.3); }
+.glyph-option.power { border-color: rgba(245, 158, 11, 0.3); }
+.glyph-option.effect { border-color: rgba(16, 185, 129, 0.3); }
+.glyph-option.efficiency { border-color: rgba(74, 222, 128, 0.3); }
 .glyph-option.disabled { opacity: 0.5; cursor: not-allowed; }
 .glyph-option .glyph-icon { font-size: 1.1rem; }
 .glyph-option .glyph-name { font-size: 0.75rem; }

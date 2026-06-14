@@ -59,7 +59,7 @@ export async function run({ page, snap }) {
   const coreSlot = await page.$(selectors.magicCircleCoreSlot)
   if (coreSlot) {
     await coreSlot.click()
-    await page.waitForTimeout(400)
+    await page.waitForTimeout(600)
     await snap({ flow: 'magic-circle', state: 'magic_circle_core_drawer' })
   }
 
@@ -67,7 +67,7 @@ export async function run({ page, snap }) {
   const fireGlyph = await page.$(selectors.magicCircleFireGlyph)
   if (fireGlyph) {
     await fireGlyph.click()
-    await page.waitForTimeout(400)
+    await page.waitForTimeout(600)
     await snap({ flow: 'magic-circle', state: 'magic_circle_fire_selected' })
   }
 
@@ -76,12 +76,12 @@ export async function run({ page, snap }) {
   await dismissAnyModal(page)
   const closeBtn = await page.$('.close-btn')
   if (closeBtn) await closeBtn.click()
-  await page.waitForTimeout(200)
+  await page.waitForTimeout(400)
 
   const ringSlot = await page.$(selectors.magicCircleRingSlot)
   if (ringSlot) {
     await ringSlot.click()
-    await page.waitForTimeout(400)
+    await page.waitForTimeout(600)
     await snap({ flow: 'magic-circle', state: 'magic_circle_ring_drawer' })
   }
 
@@ -90,7 +90,7 @@ export async function run({ page, snap }) {
   await dismissAnyModal(page)
   const closeBtn2 = await page.$('.close-btn')
   if (closeBtn2) await closeBtn2.click()
-  await page.waitForTimeout(300)
+  await page.waitForTimeout(400)
   const composed = await page.$('.mc-element-display, .spell-composed, .composed-spell')
   if (composed) {
     await snap({ flow: 'magic-circle', state: 'magic_circle_spell_composed' })
