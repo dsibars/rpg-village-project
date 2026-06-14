@@ -906,6 +906,10 @@ export const eu = {
     shared_info_element_earth: "Lurra",
     shared_info_element_fire: "Sua",
     shared_info_element_neutral: "Neutroa",
+    shared_info_element_storm: "Ekaitza",
+    shared_info_element_light: "Argia",
+    shared_info_element_dark: "Iluntasuna",
+    shared_info_element_ice: "Izotza",
     shared_info_element_water: "Ura",
     shared_info_element_wind: "Haizea",
 

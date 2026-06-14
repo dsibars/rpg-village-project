@@ -907,6 +907,10 @@ export const es = {
     shared_info_element_earth: "Tierra",
     shared_info_element_fire: "Fuego",
     shared_info_element_neutral: "Arcano",
+    shared_info_element_storm: "Tormenta",
+    shared_info_element_light: "Luz",
+    shared_info_element_dark: "Oscuridad",
+    shared_info_element_ice: "Hielo",
     shared_info_element_water: "Agua",
     shared_info_element_wind: "Viento",
 

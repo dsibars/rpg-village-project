@@ -907,6 +907,10 @@ export const ca = {
     shared_info_element_earth: "Terra",
     shared_info_element_fire: "Foc",
     shared_info_element_neutral: "Neutral",
+    shared_info_element_storm: "Tempesta",
+    shared_info_element_light: "Llum",
+    shared_info_element_dark: "Foscor",
+    shared_info_element_ice: "Gel",
     shared_info_element_water: "Aigua",
     shared_info_element_wind: "Vent",
 

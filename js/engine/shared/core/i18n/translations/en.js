@@ -907,6 +907,10 @@ export const en = {
     shared_info_element_earth: "Earth",
     shared_info_element_fire: "Fire",
     shared_info_element_neutral: "Neutral",
+    shared_info_element_storm: "Storm",
+    shared_info_element_light: "Light",
+    shared_info_element_dark: "Dark",
+    shared_info_element_ice: "Ice",
     shared_info_element_water: "Water",
     shared_info_element_wind: "Wind",
 

@@ -906,6 +906,10 @@ export const gl = {
     shared_info_element_earth: "Terra",
     shared_info_element_fire: "Lume",
     shared_info_element_neutral: "Neutral",
+    shared_info_element_storm: "Tormenta",
+    shared_info_element_light: "Luz",
+    shared_info_element_dark: "Escuridade",
+    shared_info_element_ice: "Xeo",
     shared_info_element_water: "Auga",
     shared_info_element_wind: "Vento",
 
