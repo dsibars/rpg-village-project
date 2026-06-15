@@ -88,7 +88,7 @@ export async function run({ page, snap }) {
     e.battleService.log.push({ type: 'VICTORY', text: 'Victory!' })
   }, {})
   await refreshUI(page)
-  await page.waitForTimeout(300)
+  await page.waitForTimeout(600)
   await snap({ flow: 'combat', state: 'combat_victory' })
 
   // --- combat_defeat ---
@@ -104,6 +104,6 @@ export async function run({ page, snap }) {
     e.battleService.log.push({ type: 'DEFEAT', text: 'Defeat...' })
   }, {})
   await refreshUI(page)
-  await page.waitForTimeout(300)
+  await page.waitForTimeout(600)
   await snap({ flow: 'combat', state: 'combat_defeat' })
 }
