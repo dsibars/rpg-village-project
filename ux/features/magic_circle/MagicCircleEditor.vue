@@ -310,7 +310,7 @@ function onClose() {
 .mc-budget-container {
   display: flex;
   flex-direction: column;
-  width: 140px;
+  width: 160px;
   gap: 4px;
 }
 
@@ -334,6 +334,7 @@ function onClose() {
   font-weight: 600;
   letter-spacing: 0.05em;
   text-align: right;
+  white-space: nowrap;
 }
 
 .mc-left-margin {
