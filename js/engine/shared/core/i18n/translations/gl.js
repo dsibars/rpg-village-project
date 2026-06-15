@@ -469,6 +469,7 @@ export const gl = {
     heroes_info_effect_basic_attack: "Ataque básico",
     heroes_info_effect_cleave: "Fender",
     heroes_info_effect_hits: "golpes",
+    heroes_info_effect_hit: "golpe",
     heroes_info_effect_poison: "Veleno",
     heroes_info_effect_power: "poder",
     heroes_info_effect_steal: "Roubar",

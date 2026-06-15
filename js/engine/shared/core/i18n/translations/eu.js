@@ -469,6 +469,7 @@ export const eu = {
     heroes_info_effect_basic_attack: "Oinarrizko erasoa",
     heroes_info_effect_cleave: "Zauri",
     heroes_info_effect_hits: "kolpe",
+    heroes_info_effect_hit: "kolpe",
     heroes_info_effect_poison: "Pozoia",
     heroes_info_effect_power: "boterea",
     heroes_info_effect_steal: "Lapurtu",

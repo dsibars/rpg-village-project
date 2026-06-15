@@ -470,6 +470,7 @@ export const ca = {
     heroes_info_effect_basic_attack: "Atac bàsic",
     heroes_info_effect_cleave: "Fendre",
     heroes_info_effect_hits: "cops",
+    heroes_info_effect_hit: "cop",
     heroes_info_effect_poison: "Venè",
     heroes_info_effect_power: "poder",
     heroes_info_effect_steal: "Robar",

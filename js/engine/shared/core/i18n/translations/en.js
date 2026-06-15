@@ -470,6 +470,7 @@ export const en = {
     heroes_info_effect_basic_attack: "Basic attack",
     heroes_info_effect_cleave: "Cleave",
     heroes_info_effect_hits: "hits",
+    heroes_info_effect_hit: "hit",
     heroes_info_effect_poison: "Poison",
     heroes_info_effect_power: "power",
     heroes_info_effect_steal: "Steal",
