@@ -64,7 +64,7 @@ export const selectors = {
   exploreListToggle: '.explore-tab .view-toggle button:first-child',
   exploreList: '.explore-tab .expedition-list, .expedition-list',
   expeditionNodeAvailable: '.explore-tab .tree-node.available, .tree-node.available',
-  expeditionDetail: '.modal-overlay .expedition-detail, .explore-tab .detail-pane',
+  expeditionDetail: '.modal-overlay .expedition-detail',
   bestiaryList: '.bestiary-tab .bestiary-grid, .bestiary-grid, .bestiary-list',
   codexList: '.codex-tab .features-list, .codex-nav-pane, .codex-list',
   chronicleList: '.chronicle-tab .chronicle-two-pane, .recent-list, .chronicle-list',
