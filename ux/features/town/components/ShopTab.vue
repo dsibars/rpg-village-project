@@ -283,7 +283,7 @@ const buyGroups = computed(() => {
     {
       id: 'consumables',
       title: t('inventory_uxelm_category_consumables'),
-      icon: '🧪',
+      icon: '💊',
       items: CONSUMABLES_CATALOG.map(item => ({ ...item, _source: 'catalog' }))
     },
     {
@@ -295,13 +295,13 @@ const buyGroups = computed(() => {
     {
       id: 'helmets',
       title: t('inventory_info_slot_head'),
-      icon: '🪖',
+      icon: '⛑️',
       items: ARMOR_CATALOG.filter(a => a.slot === 'head' && a.tier <= maxTier.value).map(item => ({ ...item, _source: 'catalog' }))
     },
     {
       id: 'armors',
       title: t('inventory_info_slot_body'),
-      icon: '🧥',
+      icon: '👕',
       items: ARMOR_CATALOG.filter(a => a.slot === 'body' && a.tier <= maxTier.value).map(item => ({ ...item, _source: 'catalog' }))
     },
     {
@@ -354,7 +354,7 @@ const sellGroups = computed(() => {
     groups.push({
       id: 'consumables',
       title: t('inventory_uxelm_category_consumables'),
-      icon: '🧪',
+      icon: '💊',
       items: consumableItems
     })
   }
@@ -363,8 +363,8 @@ const sellGroups = computed(() => {
   const equipment = inventory.value.equipment || []
   const eqGroups = [
     { id: 'weapons', filter: eq => eq.type === 'weapon', icon: '⚔️' },
-    { id: 'helmets', filter: eq => eq.type === 'armor' && eq.slot === 'head', icon: '🪖' },
-    { id: 'armors', filter: eq => eq.type === 'armor' && eq.slot === 'body', icon: '🧥' },
+    { id: 'helmets', filter: eq => eq.type === 'armor' && eq.slot === 'head', icon: '⛑️' },
+    { id: 'armors', filter: eq => eq.type === 'armor' && eq.slot === 'body', icon: '👕' },
     { id: 'legwear', filter: eq => eq.type === 'armor' && eq.slot === 'legs', icon: '👖' },
     { id: 'shields', filter: eq => eq.type === 'armor' && eq.slot === 'rightHand', icon: '🛡️' }
   ]
@@ -522,11 +522,11 @@ const detailIcon = computed(() => {
   if (!selectedItem.value) return ''
   const item = selectedItem.value
   if (currentTab.value === 'resources') return item.icon || '🌾'
-  if (item.type === 'consumable') return item.id.includes('potion') ? '🧪' : '📜'
-  if (item.type === 'weapon') return item.family === 'wand' ? '🪄' : '⚔️'
-  if (item.slot === 'head') return '🪖'
+  if (item.type === 'consumable') return item.id.includes('potion') ? '💊' : '📜'
+  if (item.type === 'weapon') return item.family === 'wand' ? '🔮' : '⚔️'
+  if (item.slot === 'head') return '⛑️'
   if (item.slot === 'rightHand') return '🛡️'
-  return '🧥'
+  return '👕'
 })
 
 const detailDesc = computed(() => {

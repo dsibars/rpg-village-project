@@ -30,7 +30,7 @@
 
           <div class="editor-actions">
             <button class="btn-test" @click="showTestSetup = true">
-              🧪 {{ t('gambit_uxelm_test_mode') }}
+              💊 {{ t('gambit_uxelm_test_mode') }}
             </button>
           </div>
         </div>

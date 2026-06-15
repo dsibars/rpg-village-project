@@ -303,7 +303,7 @@ function logTypeIcon(type) {
     TRAIT_REGEN: '🌿',
     STATUS_TICK: '🌀',
     STATUS_EXPIRED: '⌛',
-    USE_CONSUMABLE: '🧪',
+    USE_CONSUMABLE: '💊',
     STAMINA_REGEN: '⚡',
     VICTORY: '🏆',
     DEFEAT: '💀'
