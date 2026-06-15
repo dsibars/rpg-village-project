@@ -22,6 +22,7 @@
         :floating-effects="floatingEffects"
         :latest-action-text="latestActionText"
         :is-over="battle?.isOver || false"
+        :is-victory="battle?.winner === 'heroes'"
         @target="handleTarget"
       >
         <template #action-panel>

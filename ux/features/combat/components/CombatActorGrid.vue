@@ -43,7 +43,7 @@
         </div>
       </div>
 
-      <div class="turn-banner">
+      <div class="turn-banner" :class="{ defeat: isOver && !isVictory }">
         <span v-if="isOver">{{ t('combat_uxelm_battle_over') }}</span>
         <span v-else-if="currentActor">{{ t('shared_uxelm_turn', { name: currentActorName }) }}</span>
         <span v-else>{{ t('combat_uxelm_awaiting') }}</span>
@@ -92,7 +92,8 @@ const props = defineProps({
   actorAnimations: { type: Object, default: () => ({}) },
   floatingEffects: { type: Object, default: () => ({}) },
   latestActionText: { type: String, default: '' },
-  isOver: { type: Boolean, default: false }
+  isOver: { type: Boolean, default: false },
+  isVictory: { type: Boolean, default: false }
 })
 
 const emit = defineEmits(['target'])
@@ -178,6 +179,11 @@ function isTargetable(actor, isHero) {
   text-align: center;
   font-weight: 600;
   color: var(--color-primary-light);
+}
+
+.turn-banner.defeat {
+  color: var(--color-danger);
+  border-color: rgba(239, 68, 68, 0.3);
 }
 
 /* Initiative Timeline Track */
