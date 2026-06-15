@@ -293,8 +293,7 @@ const allItems = computed(() => {
       return {
         id: eqId,
         type: 'equipment',
-        name: `${name} +${item.level || 0}`,
-        qty: 1,
+        name: `${name}`,        qty: 1,
         icon,
         rawEquipment: item
       }
