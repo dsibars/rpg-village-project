@@ -369,6 +369,14 @@ function startUpgrade() {
   box-shadow: 0 0 0 1px var(--color-primary-light);
 }
 
+.building-card.active.locked {
+  border-color: var(--glass-border);
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: none;
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .building-card.locked {
   opacity: 0.5;
 }
