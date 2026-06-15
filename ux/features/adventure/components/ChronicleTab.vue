@@ -445,6 +445,9 @@ function openDiscoveryDetail(entry) {
   grid-template-columns: 1fr 300px;
   gap: var(--spacing-lg);
   min-height: 400px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 @media (max-width: 768px) {
