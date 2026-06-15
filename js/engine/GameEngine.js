@@ -858,7 +858,7 @@ export class GameEngine {
         const infirmaryHealPercentage = 0.20 + (infirmaryLevel * 0.10);
         const maxHeroesWithBonus = 1 + Math.floor(infirmaryLevel / 2);
 
-        const heroesNeedingHeal = this.heroService.list().filter(h => h.hp > 0 && h.hp < h.maxHp && this.expeditionService.getHeroActivity(h.id).type === 'idle');
+        const heroesNeedingHeal = this.heroService.list().filter(h => h.hp >= 0 && h.hp < h.maxHp && this.expeditionService.getHeroActivity(h.id).type === 'idle');
         // Sort by lowest hp percentage first (infirmary prioritises most injured)
         heroesNeedingHeal.sort((a, b) => (a.hp / a.maxHp) - (b.hp / b.maxHp));
 
@@ -893,7 +893,7 @@ export class GameEngine {
         }
 
         // Restore full stamina for all idle heroes at the village
-        const idleHeroes = this.heroService.list().filter(h => h.hp > 0 && this.expeditionService.getHeroActivity(h.id).type === 'idle');
+        const idleHeroes = this.heroService.list().filter(h => h.hp >= 0 && this.expeditionService.getHeroActivity(h.id).type === 'idle');
         idleHeroes.forEach(hero => {
             if (hero.maxStamina > 0) {
                 hero.stamina = hero.maxStamina;
@@ -909,7 +909,7 @@ export class GameEngine {
         const xpLog = [];
         
         if (xpGainRate > 0) {
-            const idleHeroes = this.heroService.list().filter(h => h.hp > 0 && this.expeditionService.getHeroActivity(h.id).type === 'idle');
+            const idleHeroes = this.heroService.list().filter(h => h.hp >= 0 && this.expeditionService.getHeroActivity(h.id).type === 'idle');
             idleHeroes.forEach(hero => {
                 const expNeeded = hero.getExpToNextLevel();
                 const xpGain = Math.max(1, Math.floor(expNeeded * xpGainRate));
