@@ -835,7 +835,7 @@ export const en = {
     village_info_role_farmer: "Farmer",
     village_info_role_farmer_effect: "+10% food each",
     village_info_role_miner: "Miner",
-    village_info_role_miner_effect: "20% chance for mats",
+    village_info_role_miner_effect: "20% chance for materials",
     village_info_role_scout: "Scout",
     village_info_role_scout_effect: "-1 stage per 2 scouts",
 
