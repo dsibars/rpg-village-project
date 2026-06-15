@@ -104,7 +104,7 @@ const dialogueCategory = computed(() => {
 
 .trainer-category {
   font-size: 0.8rem;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   text-transform: capitalize;
 }
 </style>

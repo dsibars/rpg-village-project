@@ -193,7 +193,7 @@ function finish() {
   z-index: 10;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font-family: 'Outfit', sans-serif;
   font-size: 0.75rem;
   font-weight: 600;
@@ -298,7 +298,7 @@ function finish() {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.35);
   transition: all 0.3s ease;
 }
 

@@ -107,4 +107,10 @@ const tiles = computed(() => {
   border: 1px solid var(--color-primary);
   border-radius: var(--radius-sm);
 }
+
+.village-tile.locked .tile-level {
+  background: var(--text-muted);
+  border-color: var(--text-muted);
+  color: var(--bg-card);
+}
 </style>

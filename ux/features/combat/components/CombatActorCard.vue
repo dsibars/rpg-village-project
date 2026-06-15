@@ -349,6 +349,8 @@ function statusIcon(type) {
 .card-level {
   font-size: 0.75rem;
   color: var(--text-muted);
+  margin-left: var(--spacing-xs);
+  margin-right: var(--spacing-xs);
 }
 
 .bar-container {

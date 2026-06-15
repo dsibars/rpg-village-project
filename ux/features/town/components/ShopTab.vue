@@ -960,6 +960,9 @@ function sellResource(qty) {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .shop-preview-card {
