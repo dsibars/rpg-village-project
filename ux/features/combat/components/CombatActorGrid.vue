@@ -140,6 +140,7 @@ function isTargetable(actor, isHero) {
   padding: var(--spacing-lg);
   flex: 1;
   min-height: 0;
+  position: relative;
 }
 
 .combat-column {
@@ -324,9 +325,9 @@ function isTargetable(actor, isHero) {
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 2px;
+  width: 1px;
   height: 70%;
-  background: linear-gradient(180deg, transparent 0%, rgba(245, 158, 11, 0.15) 30%, rgba(74, 222, 128, 0.1) 50%, rgba(245, 158, 11, 0.15) 70%, transparent 100%);
+  background: linear-gradient(180deg, transparent 0%, rgba(245, 158, 11, 0.08) 30%, rgba(74, 222, 128, 0.06) 50%, rgba(245, 158, 11, 0.08) 70%, transparent 100%);
   pointer-events: none;
   z-index: 0;
 }
