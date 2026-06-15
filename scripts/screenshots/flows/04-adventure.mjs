@@ -44,8 +44,8 @@ export async function run({ page, snap }) {
     // Pre-seed some codex unlocks
     if (e?.unlockService?.state) {
       e.unlockService.state.unlockedNarratives = [
-        { id: 'nar_first_building', daySeen: 3 },
-        { id: 'nar_tavern_built', daySeen: 5 }
+        { id: 'nar_first_building', daySeen: 1 },
+        { id: 'nar_tavern_built', daySeen: 1 }
       ]
       e.unlockService.state.unlockedCodexFeatures = ['shop', 'forge']
       e.unlockService.save()
