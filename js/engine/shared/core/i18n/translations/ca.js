@@ -1417,6 +1417,8 @@ export const ca = {
     mission_error_reroll_cooldown: "El reroll està en refredament. Torna-ho a provar demà.",
     mission_error_not_found: "Missió no trobada.",
     mission_error_reroll_failed: "El reroll ha fallat. Torna-ho a provar.",
+    mission_uxelm_toast_reward_claimed: "Recompensa de missió reclamada: {rewards}",
+    mission_uxelm_toast_rerolled: "Missió rerollejada!",
 
     shared_uxelm_click_dismiss: "Fes clic per descartar",
     shared_uxelm_era: "Era",

@@ -1416,6 +1416,8 @@ export const gl = {
     mission_error_reroll_cooldown: "O reroll está en enfriamento. Inténtao de novo mañá.",
     mission_error_not_found: "Misión non atopada.",
     mission_error_reroll_failed: "O reroll fallou. Por favor, inténtao de novo.",
+    mission_uxelm_toast_reward_claimed: "Recompensa de misión reclamada: {rewards}",
+    mission_uxelm_toast_rerolled: "¡Misión rerolleada!",
 
     shared_uxelm_click_dismiss: "Fai clic para desbotar",
     shared_uxelm_era: "Era",

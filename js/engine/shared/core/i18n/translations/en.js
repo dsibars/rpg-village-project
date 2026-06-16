@@ -1417,6 +1417,8 @@ export const en = {
     mission_error_reroll_cooldown: "Reroll is on cooldown. Try again tomorrow.",
     mission_error_not_found: "Mission not found.",
     mission_error_reroll_failed: "Reroll failed. Please try again.",
+    mission_uxelm_toast_reward_claimed: "Mission reward claimed: {rewards}",
+    mission_uxelm_toast_rerolled: "Mission rerolled!",
 
     shared_uxelm_click_dismiss: "Click to dismiss",
     shared_uxelm_era: "Era",

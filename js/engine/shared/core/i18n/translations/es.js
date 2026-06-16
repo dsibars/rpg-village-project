@@ -1417,6 +1417,8 @@ export const es = {
     mission_error_reroll_cooldown: "El reroll está en enfriamiento. Inténtalo de nuevo mañana.",
     mission_error_not_found: "Misión no encontrada.",
     mission_error_reroll_failed: "El reroll falló. Por favor, inténtalo de nuevo.",
+    mission_uxelm_toast_reward_claimed: "Recompensa de misión reclamada: {rewards}",
+    mission_uxelm_toast_rerolled: "¡Misión rerolleada!",
 
     shared_uxelm_click_dismiss: "Haz clic para descartar",
     shared_uxelm_era: "Era",

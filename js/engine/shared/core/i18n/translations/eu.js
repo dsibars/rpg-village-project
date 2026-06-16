@@ -1415,6 +1415,8 @@ export const eu = {
     mission_error_reroll_cooldown: "Reroll-a hotzan dago. Saiatu berriro bihar.",
     mission_error_not_found: "Misioa ez da aurkitu.",
     mission_error_reroll_failed: "Reroll-ak huts egin du. Saiatu berriro.",
+    mission_uxelm_toast_reward_claimed: "Misioaren saria eskuratuta: {rewards}",
+    mission_uxelm_toast_rerolled: "Misioa reroll egin da!",
 
     shared_uxelm_click_dismiss: "Klikatu baztertzeko",
     shared_uxelm_era: "Aroa",

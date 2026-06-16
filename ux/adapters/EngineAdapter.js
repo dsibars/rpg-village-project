@@ -83,6 +83,25 @@ function getSuccessToast(i18n, domain, action, payload, data) {
       return null
     }
 
+    case domain === 'mission' && action === 'claimMission': {
+      const reward = data?.reward
+      if (reward) {
+        const parts = []
+        if (reward.gold) parts.push(`${reward.gold} ${i18n.t('shared_uxelm_gold')}`)
+        if (reward.material_wood) parts.push(`${reward.material_wood} ${i18n.t('material_wood')}`)
+        if (reward.material_stone) parts.push(`${reward.material_stone} ${i18n.t('material_stone')}`)
+        if (reward.material_iron) parts.push(`${reward.material_iron} ${i18n.t('material_iron')}`)
+        if (reward.material_crystal) parts.push(`${reward.material_crystal} ${i18n.t('material_crystal')}`)
+        if (reward.material_gold_ore) parts.push(`${reward.material_gold_ore} ${i18n.t('material_gold_ore')}`)
+        return i18n.t('mission_uxelm_toast_reward_claimed', { rewards: parts.join(', ') })
+      }
+      return null
+    }
+
+    case domain === 'mission' && action === 'rerollMission': {
+      return i18n.t('mission_uxelm_toast_rerolled')
+    }
+
     default:
       return null
   }
@@ -157,6 +176,10 @@ const ACTION_MAP = {
   },
   forge: {
     refineItem: (engine, p) => engine.refineEquipment(p.itemId)
+  },
+  mission: {
+    claimMission: (engine, p) => engine.claimMissionReward(p.missionId),
+    rerollMission: (engine, p) => engine.rerollMission(p.missionId)
   },
   daily: {
     pickObjectives: (engine, p) => engine.dailyObjectivesService.pickObjectives(p.objectiveIds),
