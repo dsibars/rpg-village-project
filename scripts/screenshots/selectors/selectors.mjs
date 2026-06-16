@@ -64,7 +64,7 @@ export const selectors = {
   exploreListToggle: '.explore-tab .view-toggle button:first-child',
   exploreList: '.explore-tab .expedition-list, .expedition-list',
   expeditionNodeAvailable: '.explore-tab .tree-node.available, .tree-node.available',
-  expeditionDetail: '.modal-overlay .expedition-detail, .explore-tab .detail-pane',
+  expeditionDetail: '.modal-overlay .expedition-detail',
   bestiaryList: '.bestiary-tab .bestiary-grid, .bestiary-grid, .bestiary-list',
   codexList: '.codex-tab .features-list, .codex-nav-pane, .codex-list',
   chronicleList: '.chronicle-tab .chronicle-two-pane, .recent-list, .chronicle-list',
@@ -98,10 +98,10 @@ export const selectors = {
   openMagicCircleBtn: 'button:has-text("Magic Circle Simulator")',
   magicCircleOverlay: '.modal-overlay, .magic-circle-editor',
   magicCircleCoreSlot: '.mandala-slot.core-slot, .slot-core',
-  magicCircleDrawer: '.glyph-drawer, .drawer-panel, .magic-circle-drawer',
-  magicCircleFireGlyph: '.mc-palette-card[data-glyph="fire"], .glyph-card[data-glyph="fire"], .mc-palette-card:first-child',
-  magicCircleRingSlot: '.mandala-slots button:not(.core-slot):not(.locked), .ring-slot:not(.locked)',
-  magicCircleSpellComposed: '.spell-composed, .composed-spell, .spell-preview',
+  magicCircleDrawer: '.mc-focused-drawer, .glyph-drawer, .drawer-panel',
+  magicCircleFireGlyph: '.mc-palette-card[data-glyph="glyph_fire"], .mc-palette-card:first-child',
+  magicCircleRingSlot: '.mandala-slots .mandala-slot:not(.core-slot):not(.locked), .ring-slot:not(.locked)',
+  magicCircleSpellComposed: '.mc-element-display, .spell-preview, .composed-spell',
 
   // === Building Modals ===
   trainerModal: '.modal-overlay, .trainer-modal',

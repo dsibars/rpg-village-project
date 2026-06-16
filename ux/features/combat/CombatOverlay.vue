@@ -21,6 +21,8 @@
         :actor-animations="actorAnimations"
         :floating-effects="floatingEffects"
         :latest-action-text="latestActionText"
+        :is-over="battle?.isOver || false"
+        :is-victory="battle?.winner === 'heroes'"
         @target="handleTarget"
       >
         <template #action-panel>
@@ -42,7 +44,7 @@
 
       <!-- Combat Log -->
       <div class="combat-log-section" :class="{ expanded: isLogExpanded }" @click="!isLogExpanded && (isLogExpanded = true)">
-        <div class="log-badge">{{ effectiveLog.length }}</div>
+        <div v-if="effectiveLog.length > 0" class="log-badge">{{ effectiveLog.length }}</div>
         <div v-if="isLogExpanded" class="combat-log-expanded-header">
           <h3>{{ t('combat_uxelm_battle_log') }}</h3>
           <button class="btn-log-close" @click.stop="isLogExpanded = false">✕</button>
@@ -217,16 +219,14 @@ function formatLogEntry(entry) {
       color = ev.actorIsHero ? '#4caf50' : '#f44336'
       if (ev.isCrit) text = '🔥 ' + text
       if (ev.targetDefeated) {
-        const defeatedText = t('combat_log_target_defeated')?.replace('{target}', '') || ''
-        defeatedInfo = `(${defeatedText} 💀)`
+        defeatedInfo = `(${t('combat_log_target_defeated', { target: ev.targetName })} 💀)`
       }
     }
   } else if (ev.type === 'SPELL_DAMAGE') {
     text = t('combat_log_spell_damage', { attacker: ev.actorName, spell: ev.spellName || t('shared_uxelm_magic'), target: ev.targetName, damage: ev.amount })
     color = ev.actorIsHero ? '#9c27b0' : '#f44336'
     if (ev.targetDefeated) {
-      const defeatedText = t('combat_log_target_defeated')?.replace('{target}', '') || ''
-      defeatedInfo = `(${defeatedText} 💀)`
+      defeatedInfo = `(${t('combat_log_target_defeated', { target: ev.targetName })} 💀)`
     }
   } else if (ev.type === 'STUN_SKIP') {
     text = t('combat_log_stun_skip', { actor: ev.actorName })
@@ -268,8 +268,14 @@ function formatLogEntry(entry) {
     text = t('combat_log_use_consumable', { attacker: ev.actorName, item: itemName, target: ev.targetName, amount: ev.amount, stat })
     color = '#00bcd4'
   } else if (ev.type === 'STAMINA_REGEN') {
-    text = t('combat_log_stamina_restore', { actor: ev.actorName, amount: ev.amount })
+    text = t('combat_log_stamina_regen', { actor: ev.actorName, amount: ev.amount })
     color = '#4caf50'
+  } else if (ev.type === 'VICTORY') {
+    text = t('combat_log_victory')
+    color = '#ffd700'
+  } else if (ev.type === 'DEFEAT') {
+    text = t('combat_log_defeat')
+    color = '#f44336'
   } else {
     text = `[${ev.type}]`
   }
@@ -298,8 +304,10 @@ function logTypeIcon(type) {
     TRAIT_REGEN: '🌿',
     STATUS_TICK: '🌀',
     STATUS_EXPIRED: '⌛',
-    USE_CONSUMABLE: '🧪',
-    STAMINA_REGEN: '⚡'
+    USE_CONSUMABLE: '💊',
+    STAMINA_REGEN: '⚡',
+    VICTORY: '🏆',
+    DEFEAT: '💀'
   }
   return map[type] || '•'
 }
@@ -319,7 +327,7 @@ watch(effectiveLog, () => {
       }
     })
   }
-})
+}, { deep: true })
 
 function toggleAutoBattle() {
   dispatch('combat', 'toggleAuto')
@@ -668,6 +676,16 @@ onUnmounted(() => {
 
 .log-entry.event-DAMAGE.log-entry.actor-hero {
   border-left-color: rgba(74, 222, 128, 0.6);
+}
+
+.log-entry.event-VICTORY {
+  border-left-color: rgba(255, 215, 0, 0.6);
+  font-weight: 600;
+}
+
+.log-entry.event-DEFEAT {
+  border-left-color: rgba(239, 68, 68, 0.6);
+  font-weight: 600;
 }
 
 .log-entry.event-DAMAGE.log-entry.actor-enemy {

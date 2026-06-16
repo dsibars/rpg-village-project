@@ -126,7 +126,8 @@ function capitalize(str) {
   display: flex;
   gap: 8px;
   overflow-x: auto;
-  max-width: 45%;
+  flex: 1;
+  min-width: 0;
   padding: 4px 0;
 }
 
@@ -209,15 +210,17 @@ function capitalize(str) {
 }
 
 .mc-btn-primary {
-  background: #4f46e5;
+  background: linear-gradient(135deg, #fbbf24 0%, #d97706 50%, #b45309 100%);
   color: #ffffff;
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.25);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
 }
 
 .mc-btn-primary:hover:not(:disabled) {
-  background: #4338ca;
+  background: linear-gradient(135deg, #fbbf24 0%, #fbbf24 30%, #f59e0b 100%);
   transform: translateY(-1px);
-  box-shadow: 0 4px 16px rgba(79, 70, 229, 0.4);
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.65), inset 0 1px 2px rgba(255, 255, 255, 0.4);
 }
 
 .mc-btn-primary:disabled {

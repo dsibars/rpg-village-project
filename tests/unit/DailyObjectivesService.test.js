@@ -185,7 +185,8 @@ test('DailyObjectivesService: all-completed bonus fires only once per day', () =
 
 test('DailyObjectivesService: claimReward success', () => {
     const inventory = new InventoryService();
-    const service = new DailyObjectivesService(inventory);
+    const villageService = { addGold: () => {}, state: { gold: 0 } };
+    const service = new DailyObjectivesService(inventory, villageService);
     service.generateForDay(1);
 
     const choices = service.getState().pendingChoices;
@@ -215,7 +216,8 @@ test('DailyObjectivesService: claimReward fails if not completed', () => {
 
 test('DailyObjectivesService: claimReward fails if already claimed', () => {
     const inventory = new InventoryService();
-    const service = new DailyObjectivesService(inventory);
+    const villageService = { addGold: () => {}, state: { gold: 0 } };
+    const service = new DailyObjectivesService(inventory, villageService);
     service.generateForDay(1);
 
     const choices = service.getState().pendingChoices;

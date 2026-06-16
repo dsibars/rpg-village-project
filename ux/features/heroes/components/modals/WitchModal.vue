@@ -15,7 +15,7 @@
             :key="h.id"
             :value="h.id"
           >
-            {{ h.name }} (Tier {{ h.magicTier || 1 }})
+            {{ h.name }} ({{ t('shared_uxelm_tier') }} {{ h.magicTier || 1 }})
           </option>
         </select>
       </div>

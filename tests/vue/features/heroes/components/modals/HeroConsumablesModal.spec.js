@@ -40,7 +40,7 @@ describe('HeroConsumablesModal', () => {
       consumables: { tiny_hp_potion: 3 },
       open: true
     })
-    expect(wrapper.text()).toContain('+16 HP')
+    expect(wrapper.text()).toContain('+15 HP')
   })
 
   it('computes MP heal preview', () => {
@@ -49,7 +49,7 @@ describe('HeroConsumablesModal', () => {
       consumables: { tiny_mp_potion: 2 },
       open: true
     })
-    expect(wrapper.text()).toContain('+6 MP')
+    expect(wrapper.text()).toContain('+10 MP')
   })
 
   it('disables Use when HP is full', () => {

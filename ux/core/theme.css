@@ -17,29 +17,32 @@ html, body {
 /* ── Custom Scrollbar (app-wide) ── */
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+  scrollbar-color: rgba(74, 222, 128, 0.45) rgba(0, 0, 0, 0.25);
 }
 
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 3px;
+  background: rgba(74, 222, 128, 0.45);
+  border-radius: 5px;
+  border: 1px solid rgba(74, 222, 128, 0.2);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(74, 222, 128, 0.65);
+  border-color: rgba(74, 222, 128, 0.4);
 }
 
 ::-webkit-scrollbar-corner {
-  background: transparent;
+  background: rgba(0, 0, 0, 0.25);
 }
 
 :root {

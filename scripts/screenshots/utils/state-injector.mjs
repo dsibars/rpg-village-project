@@ -85,9 +85,12 @@ export async function addInventoryItem(page, item) {
       const e = window.__ENGINE__
       if (!e?.inventoryService) return false
 
-      if (itemOpts.type === 'equipment') {
+      const isEquipment = itemOpts.inventoryType === 'equipment' || itemOpts.type === 'equipment'
+      if (isEquipment) {
         if (e.inventoryService.addEquipment) {
-          e.inventoryService.addEquipment(itemOpts, Infinity)
+          // Strip the inventory routing key so Equipment gets the real type
+          const { inventoryType, ...equipmentData } = itemOpts
+          e.inventoryService.addEquipment(equipmentData, Infinity)
         }
       } else {
         if (e.inventoryService.addItem) {

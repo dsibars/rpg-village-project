@@ -22,6 +22,14 @@ const mockI18n = {
             combat_log_burn: '{target} takes {damage} burn damage!',
             combat_log_status_expired: "{target}'s {effect} wore off.",
             combat_log_target_defeated: '{target} was defeated!',
+            combat_log_stamina_regen: '{actor} regenerates {amount} stamina',
+            combat_log_victory: 'Victory! Enemies defeated!',
+            combat_log_defeat: 'Defeat... The party has fallen...',
+            combat_log_stun_skip: '{actor} is stunned and skips their turn!',
+            combat_log_sleep_skip: '{actor} is asleep and skips their turn!',
+            combat_log_magic_tier_up: "{actor}'s magic tier increased from {fromTier} to {toTier}!",
+            combat_log_evolved: "{actor}'s {family} evolved to Tier {tier}!",
+            heroes_info_family_power_strike: 'Power Strike',
             combat_log_use_consumable: '{attacker} used {item} on {target}, restoring {amount} {stat}.',
             item_tiny_hp_potion: 'Tiny HP Potion'
         };
@@ -162,6 +170,68 @@ test('CombatLogFormatter: unknown event type fallback', () => {
     const fmt = new CombatLogFormatter(mockI18n);
     const event = { type: 'MYSTERY', foo: 'bar' };
     assert.strictEqual(fmt.format(event), '[MYSTERY] {"type":"MYSTERY","foo":"bar"}');
+});
+
+test('CombatLogFormatter: STAMINA_REGEN event', () => {
+    const fmt = new CombatLogFormatter(mockI18n);
+    const event = {
+        type: 'STAMINA_REGEN',
+        actorName: 'Arthur',
+        amount: 15
+    };
+    assert.strictEqual(fmt.format(event), 'Arthur regenerates 15 stamina');
+});
+
+test('CombatLogFormatter: VICTORY event', () => {
+    const fmt = new CombatLogFormatter(mockI18n);
+    const event = { type: 'VICTORY' };
+    assert.strictEqual(fmt.format(event), 'Victory! Enemies defeated!');
+});
+
+test('CombatLogFormatter: DEFEAT event', () => {
+    const fmt = new CombatLogFormatter(mockI18n);
+    const event = { type: 'DEFEAT' };
+    assert.strictEqual(fmt.format(event), 'Defeat... The party has fallen...');
+});
+
+test('CombatLogFormatter: STUN_SKIP event', () => {
+    const fmt = new CombatLogFormatter(mockI18n);
+    const event = {
+        type: 'STUN_SKIP',
+        actorName: 'Arthur'
+    };
+    assert.strictEqual(fmt.format(event), 'Arthur is stunned and skips their turn!');
+});
+
+test('CombatLogFormatter: SLEEP_SKIP event', () => {
+    const fmt = new CombatLogFormatter(mockI18n);
+    const event = {
+        type: 'SLEEP_SKIP',
+        actorName: 'Arthur'
+    };
+    assert.strictEqual(fmt.format(event), 'Arthur is asleep and skips their turn!');
+});
+
+test('CombatLogFormatter: MAGIC_TIER_UP event', () => {
+    const fmt = new CombatLogFormatter(mockI18n);
+    const event = {
+        type: 'MAGIC_TIER_UP',
+        actorName: 'Arthur',
+        fromTier: 1,
+        toTier: 2
+    };
+    assert.strictEqual(fmt.format(event), "Arthur's magic tier increased from 1 to 2!");
+});
+
+test('CombatLogFormatter: TECHNIQUE_EVOLVED event', () => {
+    const fmt = new CombatLogFormatter(mockI18n);
+    const event = {
+        type: 'TECHNIQUE_EVOLVED',
+        actorName: 'Arthur',
+        family: 'power_strike',
+        tier: 2
+    };
+    assert.strictEqual(fmt.format(event), "Arthur's Power Strike evolved to Tier 2!");
 });
 
 test('CombatLogFormatter: non-object input fallback', () => {

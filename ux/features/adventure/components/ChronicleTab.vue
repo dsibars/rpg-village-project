@@ -94,7 +94,7 @@
         </div>
         <div class="discovery-list">
           <div
-            v-for="entry in discoveryLog"
+            v-for="entry in displayedDiscoveryLog"
             :key="entry.id"
             class="discovery-row"
             @click="openDiscoveryDetail(entry)"
@@ -107,6 +107,13 @@
           <div v-if="discoveryLog.length === 0" class="discovery-empty">
             {{ t('chronicle_discovery_empty') }}
           </div>
+          <button
+            v-if="hasMoreDiscovery"
+            class="discovery-toggle-btn"
+            @click="showAllDiscovery = !showAllDiscovery"
+          >
+            {{ showAllDiscovery ? t('chronicle_show_less') : t('chronicle_show_more', { count: discoveryLog.length - DISCOVERY_DISPLAY_LIMIT }) }}
+          </button>
         </div>
       </div>
     </div>
@@ -115,6 +122,7 @@
     <PresentationModal
       v-if="activeReplayPresentation"
       :open="true"
+      :isReplay="true"
       :presentation="activeReplayPresentation"
       @close="activeReplayPresentation = null"
     />
@@ -142,8 +150,14 @@ const expandedChapters = ref({
 
 const activeReplayPresentation = ref(null)
 
-const presentationService = computed(() => engine?.presentationService)
-const unlockService = computed(() => engine?.unlockService)
+const presentationService = computed(() => {
+  gameState.value
+  return engine?.presentationService
+})
+const unlockService = computed(() => {
+  gameState.value
+  return engine?.unlockService
+})
 
 // Collapsible toggle
 function toggleChapter(chapterId) {
@@ -311,6 +325,9 @@ const recentUnlocks = computed(() => {
 })
 
 // Discovery Log
+const showAllDiscovery = ref(false)
+const DISCOVERY_DISPLAY_LIMIT = 20
+
 const discoveryLog = computed(() => {
   if (!unlockService.value) return []
   const shown = unlockService.value.getShownNarratives() || []
@@ -332,6 +349,13 @@ const discoveryLog = computed(() => {
       }
     })
 })
+
+const displayedDiscoveryLog = computed(() => {
+  if (showAllDiscovery.value) return discoveryLog.value
+  return discoveryLog.value.slice(0, DISCOVERY_DISPLAY_LIMIT)
+})
+
+const hasMoreDiscovery = computed(() => discoveryLog.value.length > DISCOVERY_DISPLAY_LIMIT)
 
 const totalNarratives = computed(() => UNLOCK_NARRATIVES.length)
 
@@ -421,6 +445,9 @@ function openDiscoveryDetail(entry) {
   grid-template-columns: 1fr 300px;
   gap: var(--spacing-lg);
   min-height: 400px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 @media (max-width: 768px) {
@@ -555,8 +582,10 @@ function openDiscoveryDetail(entry) {
 }
 
 .milestone-badge.badge-seen {
-  background: rgba(16, 185, 129, 0.1);
-  color: #10b981;
+  background: rgba(16, 185, 129, 0.2);
+  color: #6ee7b7;
+  text-shadow: 0 0 6px rgba(16, 185, 129, 0.4);
+  border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
 .milestone-badge.badge-pending {
@@ -577,21 +606,19 @@ function openDiscoveryDetail(entry) {
 .milestone-excerpt {
   font-size: 0.8rem;
   color: var(--text-secondary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 500px;
+  line-height: 1.5;
 }
 
 .milestone-trigger-hint {
   font-size: 0.8rem;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font-style: italic;
 }
 
 .hint-label {
   font-weight: 600;
-  color: #ef6c6c;
+  color: #ff8a8a;
+  text-shadow: 0 0 6px rgba(239, 108, 108, 0.25);
 }
 
 .milestone-actions {
@@ -674,6 +701,26 @@ function openDiscoveryDetail(entry) {
   font-style: italic;
   text-align: center;
   padding: var(--spacing-md);
+}
+
+.discovery-toggle-btn {
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  margin-top: var(--spacing-sm);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: var(--font-body);
+}
+
+.discovery-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--color-primary-light);
+  color: var(--text-primary);
 }
 
 </style>

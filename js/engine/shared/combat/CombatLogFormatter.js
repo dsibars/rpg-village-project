@@ -54,6 +54,20 @@ export class CombatLogFormatter {
                 return this._formatMpRestore(ev);
             case 'STAMINA_RESTORE':
                 return this._formatStaminaRestore(ev);
+            case 'STAMINA_REGEN':
+                return this._formatStaminaRegen(ev);
+            case 'STUN_SKIP':
+                return this.i18n.t('combat_log_stun_skip', { actor: ev.actorName });
+            case 'SLEEP_SKIP':
+                return this.i18n.t('combat_log_sleep_skip', { actor: ev.actorName });
+            case 'MAGIC_TIER_UP':
+                return this.i18n.t('combat_log_magic_tier_up', { actor: ev.actorName, fromTier: ev.fromTier, toTier: ev.toTier });
+            case 'TECHNIQUE_EVOLVED':
+                return this._formatTechniqueEvolved(ev);
+            case 'VICTORY':
+                return this.i18n.t('combat_log_victory');
+            case 'DEFEAT':
+                return this.i18n.t('combat_log_defeat');
             case 'DEFEND':
                 return this.i18n.t('combat_log_defend', { actor: ev.actorName });
             case 'FLEE_SUCCESS':
@@ -178,6 +192,23 @@ export class CombatLogFormatter {
             attacker: event.actorName,
             target: event.targetName,
             amount: event.amount
+        });
+    }
+
+    _formatStaminaRegen(event) {
+        return this.i18n.t('combat_log_stamina_regen', {
+            actor: event.actorName,
+            amount: event.amount
+        });
+    }
+
+    _formatTechniqueEvolved(event) {
+        const familyKey = 'heroes_info_family_' + event.family;
+        const translatedFamily = this.i18n.t(familyKey);
+        return this.i18n.t('combat_log_evolved', {
+            actor: event.actorName,
+            family: translatedFamily !== familyKey ? translatedFamily : event.family,
+            tier: event.tier
         });
     }
 

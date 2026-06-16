@@ -61,9 +61,14 @@ export async function run({ page, snap }) {
   await snap({ flow: 'town', state: 'buildings_list' })
 
   // --- buildings_detail_construct ---
-  const building = await page.$(selectors.buildingCard)
-  if (building) {
-    await building.click()
+  const cards = await page.$$(selectors.buildingCard)
+  if (cards.length >= 4) {
+    await cards[3].click() // click a non-built building (e.g., blacksmith) for distinct state
+    await waitForVisible(page, selectors.buildingDetail, 2000)
+    await snap({ flow: 'town', state: 'buildings_detail_construct' })
+    await dismissAnyModal(page)
+  } else if (cards.length > 0) {
+    await cards[0].click()
     await waitForVisible(page, selectors.buildingDetail, 2000)
     await snap({ flow: 'town', state: 'buildings_detail_construct' })
     await dismissAnyModal(page)
@@ -102,8 +107,8 @@ export async function run({ page, snap }) {
   }
 
   // --- inventory_with_items ---
-  await addInventoryItem(page, { id: 'potion_small', type: 'consumable', quantity: 3 })
-  await addInventoryItem(page, { id: 'iron_sword', type: 'equipment', quantity: 1 })
+  await addInventoryItem(page, { id: 'tiny_hp_potion', type: 'consumable', quantity: 3 })
+  await addInventoryItem(page, { id: 'test_sword', inventoryType: 'equipment', type: 'weapon', material: 'wooden', family: 'dagger', level: 0 })
   await refreshUI(page)
   await clickSubNav(page, selectors.townInventoryTab)
   await waitForVisible(page, selectors.inventoryGrid, 2000)

@@ -302,6 +302,7 @@ function getTierSymbol(tier) {
 .mc-palette-icon {
   font-size: 1.2rem;
   margin-bottom: 2px;
+  font-family: 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', 'Noto Sans Symbols', sans-serif;
 }
 
 .mc-palette-abb {

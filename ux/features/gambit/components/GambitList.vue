@@ -43,7 +43,7 @@ const { t } = useI18n()
 
 const props = defineProps({
   gambits: { type: Array, default: () => [] },
-  fallbackAction: { type: String, default: 'single_strike' },
+  fallbackAction: { type: String, default: 'basic_attack' },
   learnedFamilies: { type: Array, default: () => [] }
 })
 

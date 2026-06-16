@@ -54,6 +54,15 @@ export const PRESENTATION_CATALOG = [
         trigger: { type: 'building_complete', buildingId: 'tavern', level: 1 }
     },
     {
+        id: 'pres_mission_board',
+        chapter: 1,
+        pages: [
+            { image: 'assets/story/tavern_dusk.webp', textKey: 'pres_mission_board_p1' },
+            { image: 'assets/story/village_above.webp', textKey: 'pres_mission_board_p2' }
+        ],
+        trigger: { type: 'building_complete', buildingId: 'mission_board', level: 1 }
+    },
+    {
         id: 'pres_discipline',
         chapter: 1,
         pages: [

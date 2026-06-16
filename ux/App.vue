@@ -13,7 +13,10 @@
         :day="day"
         :gold="gold"
         :population="population"
+        :max-population="maxPopulation"
         :wood="wood"
+        :storage-used="storageUsed"
+        :storage-max="storageMax"
         @nextDay="onNextDay"
         @openSettings="currentPage = 'settings'"
         @navigate="handleNavigate"
@@ -21,8 +24,8 @@
 
       <main class="app-main" role="main" :aria-label="currentPageLabel">
         <div v-if="pageError" class="page-error" role="alert">
-          <h2>{{ pageError.title }}</h2>
-          <p>{{ pageError.message }}</p>
+          <h2>{{ t('shared_uxelm_error_title') }}</h2>
+          <p>{{ t('shared_uxelm_error_message') }}</p>
           <button class="btn-retry" @click="clearPageError">
             {{ t('shared_uxelm_close') }}
           </button>
@@ -184,6 +187,9 @@ const wood = computed(() => {
   }
   return village.value.wood || 0
 })
+const maxPopulation = computed(() => village.value.maxPopulation || 0)
+const storageUsed = computed(() => inventory.value.totalUsed || 0)
+const storageMax = computed(() => maxStorage.value)
 
 const pages = {
   village: VillagePage,
@@ -389,8 +395,8 @@ function clearPageError() {
 onErrorCaptured((err, instance, info) => {
   console.error('App page error:', err, info)
   pageError.value = {
-    title: 'Something went wrong',
-    message: err?.message || 'An unexpected error occurred in this page.'
+    title: t('shared_uxelm_error_title'),
+    message: err?.message || t('shared_uxelm_error_message')
   }
   return false
 })
@@ -440,5 +446,10 @@ refreshSaveSlots()
 
 .btn-retry:hover {
   background: var(--color-primary-light);
+}
+
+.btn-retry:focus-visible {
+  outline: 2px solid var(--color-primary-light);
+  outline-offset: 2px;
 }
 </style>

@@ -1,5 +1,13 @@
 <template>
   <div class="village-page">
+    <!-- Error Boundary Banner -->
+    <div v-if="pageError" class="page-error-banner" role="alert">
+      <p>{{ pageError }}</p>
+      <Button size="sm" variant="secondary" @click="pageError = null">
+        {{ t('shared_uxelm_dismiss') }}
+      </Button>
+    </div>
+
     <!-- Header bar matching v1 -->
     <div class="village-header-bar">
       <h2 class="village-title">{{ t('shared_uxelm_nav_village') }}</h2>
@@ -75,7 +83,7 @@
         </div>
 
         <div class="dashboard-card">
-          <DailyObjectives :daily-objectives="dailyObjectives" />
+          <DailyObjectives :daily-objectives="dailyObjectives" :mission-board="missionBoard" />
         </div>
       </div>
     </div>
@@ -83,7 +91,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, onErrorCaptured, ref } from 'vue'
 import { useI18n } from '@/core/composables/useI18n.js'
 import { useGameState } from '@/core/composables/useGameState.js'
 import { useAdapter } from '@/core/composables/useAdapter.js'
@@ -93,10 +101,19 @@ import ConstructionQueue from './components/ConstructionQueue.vue'
 import DailyObjectives from './components/DailyObjectives.vue'
 import VillageCalendar from './components/VillageCalendar.vue'
 import VillageDefense from './components/VillageDefense.vue'
+import Button from '@/components/Button.vue'
 
 const { t } = useI18n()
 const { gameState, heroes } = useGameState()
 const { dispatch } = useAdapter()
+
+const pageError = ref(null)
+
+onErrorCaptured((err, instance, info) => {
+  console.error('VillagePage error:', err, info)
+  pageError.value = err?.message || 'An error occurred in the Village page.'
+  return false
+})
 
 const emit = defineEmits(['navigate', 'recallDailyReport'])
 
@@ -111,6 +128,30 @@ const calendar = computed(() => gameState.value.calendar || null)
 const inventory = computed(() => gameState.value.inventory || {})
 
 const townhallLevel = computed(() => infrastructure.value.townhall || 1)
+const missionBoardLevel = computed(() => infrastructure.value.mission_board || 0)
+const missionBoard = computed(() => {
+  const level = missionBoardLevel.value
+  if (!level || level <= 0) return { level: 0, activeMissions: [], canReroll: false }
+  // Map legacy daily objectives into mission format until engine integration (Subtask 5)
+  const legacyObjectives = dailyObjectives.value?.objectives || []
+  const activeMissions = legacyObjectives.map(obj => ({
+    id: obj.id || `legacy_${Math.random().toString(36).slice(2)}`,
+    seedId: obj.id || 'legacy',
+    titleKey: obj.label || 'mission_uxelm_unknown',
+    icon: '📜',
+    target: obj.target || 1,
+    progress: obj.progress || 0,
+    reward: obj.reward || {},
+    completed: obj.completed || false,
+    claimed: obj.claimed || false
+  }))
+  return {
+    level,
+    activeMissions,
+    canReroll: false, // Will be wired in Subtask 5
+    maxSlots: level // Mission board level = max slots
+  }
+})
 const inventoryUsed = computed(() => inventory.value.totalUsed || 0)
 const maxStorage = computed(() => village.value.maxStorage || 100)
 const storagePercent = computed(() => Math.min(100, (inventoryUsed.value / maxStorage.value) * 100))
@@ -143,6 +184,23 @@ function navigateToBuildings(buildingId) {
   padding: var(--spacing-md);
   gap: var(--spacing-md);
   color: var(--text-primary);
+}
+
+.page-error-banner {
+  padding: var(--spacing-md);
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-shrink: 0;
+}
+
+.page-error-banner p {
+  margin: 0;
 }
 
 .village-header-bar {
@@ -308,6 +366,8 @@ function navigateToBuildings(buildingId) {
   color: var(--text-muted);
   font-style: italic;
   line-height: 1.4;
+  overflow-wrap: break-word;
+  word-break: normal;
 }
 
 .hub-body {
@@ -321,10 +381,15 @@ function navigateToBuildings(buildingId) {
   padding: var(--spacing-xs) 0;
 }
 
+.hub-body > .village-defense {
+  padding-top: var(--spacing-sm);
+}
+
 .hub-divider {
   height: 1px;
   background: var(--glass-border);
   margin: 0;
+  opacity: 0.6;
 }
 
 /* Scrollable content within cards when needed */

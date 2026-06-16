@@ -52,7 +52,7 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, onMounted, onUnmounted } from 'vue'
 import { useI18n } from '@/core/composables/useI18n.js'
 
 const props = defineProps({
@@ -84,6 +84,27 @@ watch(() => props.open, (isOpen) => {
     isVisible.value = false
   }
 }, { immediate: true })
+
+function onKeydown(e) {
+  if (!props.open) return
+  if (e.key === 'Escape') {
+    onSkip()
+  } else if (e.key === 'ArrowRight' || e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault()
+    onNext()
+  } else if (e.key === 'ArrowLeft') {
+    e.preventDefault()
+    if (!isFirstPage.value) currentPageIndex.value--
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', onKeydown)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', onKeydown)
+})
 
 function onNext() {
   if (isLastPage.value) {
@@ -172,7 +193,7 @@ function finish() {
   z-index: 10;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font-family: 'Outfit', sans-serif;
   font-size: 0.75rem;
   font-weight: 600;
@@ -277,7 +298,7 @@ function finish() {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.35);
   transition: all 0.3s ease;
 }
 

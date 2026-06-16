@@ -217,6 +217,7 @@ function onClose() {
   gap: 0;
   height: 100%;
   box-sizing: border-box;
+  position: relative;
   background: radial-gradient(circle at center, rgba(20, 38, 25, 0.85) 0%, rgba(8, 12, 9, 0.95) 100%),
               linear-gradient(90deg, rgba(239, 68, 68, 0.05) 0%, transparent 40%);
   background-blend-mode: screen;
@@ -309,7 +310,7 @@ function onClose() {
 .mc-budget-container {
   display: flex;
   flex-direction: column;
-  width: 140px;
+  width: 160px;
   gap: 4px;
 }
 
@@ -333,6 +334,7 @@ function onClose() {
   font-weight: 600;
   letter-spacing: 0.05em;
   text-align: right;
+  white-space: nowrap;
 }
 
 .mc-left-margin {
@@ -412,6 +414,7 @@ function onClose() {
   justify-content: center;
   position: relative;
   overflow: hidden;
+  right: 0;
   transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 

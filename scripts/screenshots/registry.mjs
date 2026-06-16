@@ -74,6 +74,13 @@ export const screenshotRegistry = [
   { flow: 'post-day', state: 'expedition_result', description: 'Expedition result modal after completion' },
   { flow: 'post-day', state: 'narrative_unlock_toast', description: 'Unlock narrative toast overlay' },
 
+  // === Missions ===
+  { flow: 'missions', state: 'mission_locked', description: 'Mission board in locked state (no building)' },
+  { flow: 'missions', state: 'mission_active_1slot', description: 'Mission board with 1 active mission' },
+  { flow: 'missions', state: 'mission_active_progress', description: 'Mission with partial progress bar' },
+  { flow: 'missions', state: 'mission_completed', description: 'Mission completed with claim button visible' },
+  { flow: 'missions', state: 'mission_reroll', description: 'Mission with reroll button available' },
+
   // === Settings ===
   { flow: 'settings', state: 'settings_main', description: 'Settings page main view' },
   { flow: 'settings', state: 'settings_simulator', description: 'Magic Circle Simulator open from settings' },

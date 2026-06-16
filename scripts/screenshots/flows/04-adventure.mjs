@@ -43,7 +43,10 @@ export async function run({ page, snap }) {
     }
     // Pre-seed some codex unlocks
     if (e?.unlockService?.state) {
-      e.unlockService.state.shownNarratives = ['first_hero_level_5', 'first_building_complete']
+      e.unlockService.state.unlockedNarratives = [
+        { id: 'nar_first_building', daySeen: 1 },
+        { id: 'nar_tavern_built', daySeen: 1 }
+      ]
       e.unlockService.state.unlockedCodexFeatures = ['shop', 'forge']
       e.unlockService.save()
     }
@@ -63,7 +66,9 @@ export async function run({ page, snap }) {
   const node = await page.$(selectors.expeditionNodeAvailable)
   if (node) {
     await node.click()
+    await page.waitForTimeout(300) // allow modal transition
     await waitForVisible(page, selectors.expeditionDetail, 2000)
+    await page.waitForTimeout(200) // allow modal content to render
     await snap({ flow: 'adventure', state: 'explore_available_detail' })
     await dismissAnyModal(page)
   }

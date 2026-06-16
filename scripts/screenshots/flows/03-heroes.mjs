@@ -34,7 +34,7 @@ export async function run({ page, snap }) {
   // Ensure at least 3 heroes exist
   await injectHero(page, { name: 'Aria', origin: 'origin_arcane_initiate', level: 1 })
   await injectHero(page, { name: 'Bran', origin: 'origin_warrior', level: 3 })
-  await injectHero(page, { name: 'Cora', origin: 'origin_ranger', level: 5 })
+  await injectHero(page, { name: 'Cora', origin: 'origin_guard', level: 5 })
   await refreshUI(page)
   await page.waitForTimeout(300)
 
@@ -69,26 +69,4 @@ export async function run({ page, snap }) {
     await page.waitForTimeout(300)
   }
   await snap({ flow: 'heroes', state: 'heroes_detail_stats' })
-
-  // --- heroes_modal_skills ---
-  if (await clickHeroAction('skills')) {
-    await waitForVisible(page, selectors.heroSkillsModal, 2000)
-    await snap({ flow: 'heroes', state: 'heroes_modal_skills' })
-    await dismissAnyModal(page)
-  }
-
-  // --- heroes_modal_equipment ---
-  if (await clickHeroAction('equipment')) {
-    await waitForVisible(page, selectors.heroEquipmentModal, 2000)
-    await snap({ flow: 'heroes', state: 'heroes_modal_equipment' })
-    await dismissAnyModal(page)
-  }
-
-  // --- heroes_modal_consumables ---
-  // button text is "🧪 Use Item"; try both labels
-  if (await clickHeroAction('use item') || await clickHeroAction('consumables')) {
-    await waitForVisible(page, selectors.heroConsumablesModal, 2000)
-    await snap({ flow: 'heroes', state: 'heroes_modal_consumables' })
-    await dismissAnyModal(page)
-  }
 }

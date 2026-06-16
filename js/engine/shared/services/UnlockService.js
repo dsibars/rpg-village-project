@@ -10,6 +10,8 @@ import { persistence } from '../core/Persistence.js';
 
 const STORAGE_KEY = 'unlock_state';
 
+const MAX_STORED_NARRATIVES = 100;
+
 export class UnlockService {
     constructor(options = {}) {
         this.state = this._getDefaultState();
@@ -92,6 +94,16 @@ export class UnlockService {
     }
 
     /**
+     * Trims the unlockedNarratives array to a maximum size, keeping the most recent entries.
+     * @private
+     */
+    _trimNarratives() {
+        if (this.state.unlockedNarratives.length > MAX_STORED_NARRATIVES) {
+            this.state.unlockedNarratives = this.state.unlockedNarratives.slice(-MAX_STORED_NARRATIVES);
+        }
+    }
+
+    /**
      * Marks a single narrative as shown so it never triggers again.
      *
      * @param {string} id — narrative ID to mark
@@ -101,6 +113,7 @@ export class UnlockService {
         const exists = this.state.unlockedNarratives.some(entry => entry.id === id);
         if (!exists) {
             this.state.unlockedNarratives.push({ id, daySeen: day });
+            this._trimNarratives();
             this.save();
         }
     }
@@ -121,6 +134,7 @@ export class UnlockService {
             }
         }
         if (changed) {
+            this._trimNarratives();
             this.save();
         }
     }

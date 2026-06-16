@@ -1,16 +1,18 @@
 <template>
-  <button
-    :type="type"
-    class="btn"
-    :class="[`btn--${variant}`, `btn--${size}`, { 'btn--loading': loading }]"
-    :disabled="disabled || loading"
-    @click="$emit('click', $event)"
-  >
-    <LoadingSpinner v-if="loading" size="sm" class="btn-spinner" />
-    <span :class="{ 'btn-label--hidden': loading }">
-      <slot />
-    </span>
-  </button>
+<span :title="title || undefined" class="btn-wrapper">
+    <button
+      :type="type"
+      class="btn"
+      :class="[`btn--${variant}`, `btn--${size}`, { 'btn--loading': loading }]"
+      :disabled="disabled || loading"
+      @click="$emit('click', $event)"
+    >
+      <LoadingSpinner v-if="loading" size="sm" class="btn-spinner" />
+      <span :class="{ 'btn-label--hidden': loading }">
+        <slot />
+      </span>
+    </button>
+  </span>
 </template>
 
 <script setup>
@@ -21,6 +23,7 @@ defineProps({
   size: { type: String, default: 'md', validator: v => ['sm', 'md', 'lg'].includes(v) },
   disabled: { type: Boolean, default: false },
   loading: { type: Boolean, default: false },
+  title: { type: String, default: null },
   type: { type: String, default: 'button', validator: v => ['button', 'submit'].includes(v) }
 })
 
@@ -28,6 +31,10 @@ defineEmits(['click'])
 </script>
 
 <style scoped>
+.btn-wrapper {
+  display: inline-flex;
+}
+
 .btn {
   display: inline-flex;
   align-items: center;
@@ -44,7 +51,7 @@ defineEmits(['click'])
 }
 
 .btn:disabled {
-  opacity: 0.5;
+  opacity: 0.6;
   cursor: not-allowed;
 }
 

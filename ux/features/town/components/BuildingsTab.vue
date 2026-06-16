@@ -12,7 +12,10 @@
           :class="{ active: selectedId === building.id, locked: !building.active }"
           @click="selectBuilding(building.id)"
         >
-          <span class="building-name">{{ building.name }}</span>
+          <div class="building-card-left">
+            <span class="building-icon">{{ building.active ? building.icon : '🔒' }}</span>
+            <span class="building-name">{{ building.name }}</span>
+          </div>
           <span class="level-badge" :class="{ built: building.active }">
             {{ building.active ? t('shared_uxelm_level') + ' ' + building.lvl : t('village_uxelm_not_built') }}
           </span>
@@ -83,7 +86,7 @@
                 @click="startUpgrade"
               >
                 <span class="btn-icon">⚒️</span>
-                {{ t('shared_uxelm_confirm') }}
+                {{ selectedBuilding.lvl > 0 ? t('buildings_uxelm_upgrade') : t('buildings_uxelm_build') }}
               </Button>
             </div>
           </div>
@@ -125,6 +128,7 @@ const buildingDefs = [
   { id: 'witchs_hut', name: t('village_info_building_witchs_hut'), icon: '🔮' },
   { id: 'arcane_sanctum', name: t('village_info_building_arcane_sanctum'), icon: '✨' },
   { id: 'infirmary', name: t('village_info_building_infirmary'), icon: '🏥' },
+  { id: 'mission_board', name: t('village_info_building_mission_board'), icon: '📋' },
   { id: 'tavern', name: t('village_info_building_tavern'), icon: '🍺' }
 ]
 
@@ -145,7 +149,13 @@ watch(() => buildings.value, (buildingsList) => {
   }
 }, { immediate: true })
 
-const visibleBuildings = computed(() => buildings.value)
+const visibleBuildings = computed(() => {
+  const tavernLevel = infrastructure.value.tavern || 0
+  return buildings.value.filter(b => {
+    if (b.id === 'mission_board') return tavernLevel >= 1
+    return true
+  })
+})
 
 const selectedBuilding = computed(() =>
   buildings.value.find((b) => b.id === selectedId.value)
@@ -159,6 +169,7 @@ function getUpgradeCost(buildingId, nextLevel) {
     blacksmith: { 1: { gold: 150, wood: 50, stone: 30, duration: 3 } },
     infirmary: { 1: { gold: 150, wood: 100, stone: 0, duration: 3 }, 2: { gold: 400, wood: 200, stone: 100, duration: 5 }, 3: { gold: 800, wood: 300, stone: 200, duration: 7 } },
     tavern: { 1: { gold: 200, wood: 100, stone: 50, duration: 3 } },
+    mission_board: { 1: { gold: 50, wood: 30, stone: 10, duration: 1 }, 2: { gold: 120, wood: 60, stone: 25, duration: 1 }, 3: { gold: 250, wood: 100, stone: 50, duration: 2 }, 4: { gold: 400, wood: 150, stone: 80, duration: 2 } },
     witchs_hut: { 1: { gold: 200, wood: 80, stone: 30, duration: 2 } },
     arcane_sanctum: { 1: { gold: 500, wood: 100, stone: 50, duration: 3 }, 2: { gold: 1500, wood: 200, stone: 100, duration: 5 }, 3: { gold: 3000, wood: 400, stone: 200, duration: 7 }, 4: { gold: 6000, wood: 800, stone: 400, duration: 10 } },
     explorer_guild: { 1: { gold: 300, wood: 200, stone: 100, duration: 4 }, 2: { gold: 800, wood: 400, stone: 200, duration: 7 } },
@@ -217,6 +228,9 @@ function getBuildingEffectParts(id, level) {
   if (id === 'training_grounds') {
     return { label: t('village_info_building_training_grounds_effect_passive_experience'), value: level >= 1 ? `+${level * 5}%` : t('shared_uxelm_locked') }
   }
+  if (id === 'mission_board') {
+    return { label: t('village_info_building_mission_board_effect_mission_slots'), value: level >= 1 ? `${level}` : t('shared_uxelm_locked') }
+  }
   return { label: '', value: '' }
 }
 
@@ -225,16 +239,10 @@ function getBuildingEffectText(id, level) {
   return parts.label ? `${parts.label}: ${parts.value}` : ''
 }
 
-const currentEffects = computed(() => {
+const nextEffectValue = computed(() => {
   if (!selectedBuilding.value) return ''
-  return getBuildingEffectText(selectedId.value, selectedBuilding.value.lvl)
-})
-
-const nextEffects = computed(() => {
-  if (!selectedBuilding.value) return null
   const next = selectedBuilding.value.lvl + 1
-  const effect = getBuildingEffectText(selectedId.value, next)
-  return effect || null
+  return getBuildingEffectParts(selectedId.value, next).value
 })
 
 const buildingIconLarge = computed(() => {
@@ -250,12 +258,6 @@ const effectLabel = computed(() => {
 const currentEffectValue = computed(() => {
   if (!selectedBuilding.value) return ''
   return getBuildingEffectParts(selectedId.value, selectedBuilding.value.lvl).value
-})
-
-const nextEffectValue = computed(() => {
-  if (!selectedBuilding.value) return ''
-  const next = selectedBuilding.value.lvl + 1
-  return getBuildingEffectParts(selectedId.value, next).value
 })
 
 const hasGold = computed(() => {
@@ -367,12 +369,39 @@ function startUpgrade() {
   transition: all 0.15s ease;
 }
 
-.building-card:hover, .building-card.active {
+.building-card:hover {
   border-color: var(--color-primary-light);
+  background: rgba(74, 222, 128, 0.06);
+}
+
+.building-card.active {
+  border-color: var(--color-primary-light);
+  background: rgba(74, 222, 128, 0.12);
+  box-shadow: 0 0 0 1px var(--color-primary-light);
+}
+
+.building-card.active.locked {
+  border-color: var(--glass-border);
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: none;
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .building-card.locked {
   opacity: 0.5;
+}
+
+.building-card-left {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.building-icon {
+  font-size: 1.1rem;
+  width: 1.5rem;
+  text-align: center;
 }
 
 .building-name {
@@ -382,12 +411,13 @@ function startUpgrade() {
 
 .level-badge {
   padding: 2px 8px;
-  background: var(--color-primary);
-  border: 1px solid var(--color-primary);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius-sm);
   font-size: 0.7rem;
   font-weight: 600;
-  color: white;
+  color: var(--text-muted);
+  white-space: nowrap;
 }
 
 .level-badge.built {
@@ -552,11 +582,22 @@ function startUpgrade() {
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-sm);
   font-size: 0.85rem;
+  transition: all 0.15s ease;
+}
+
+.cost-item:hover {
+  border-color: var(--glass-border);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .cost-item.insufficient {
-  border-color: rgba(239, 68, 68, 0.5);
-  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.6);
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--color-danger);
+}
+
+.cost-item.insufficient .cost-value {
+  color: var(--color-danger);
 }
 
 .cost-label {

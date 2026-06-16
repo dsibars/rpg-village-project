@@ -30,7 +30,7 @@
 
           <div class="editor-actions">
             <button class="btn-test" @click="showTestSetup = true">
-              🧪 {{ t('gambit_uxelm_test_mode') }}
+              💊 {{ t('gambit_uxelm_test_mode') }}
             </button>
           </div>
         </div>
@@ -77,7 +77,7 @@ const emit = defineEmits(['close', 'action'])
 
 // Local mutable copies of gambit state
 const localGambits = ref([...props.hero.gambits])
-const localFallback = ref(props.hero.fallbackAction || 'single_strike')
+const localFallback = ref(props.hero.fallbackAction || 'basic_attack')
 
 // Modal visibility
 const showTestSetup = ref(false)

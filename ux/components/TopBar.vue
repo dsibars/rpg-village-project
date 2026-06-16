@@ -24,9 +24,35 @@
     </div>
 
     <div class="top-bar-right">
-      <span class="stat">💰 {{ gold }}</span>
-      <span class="stat">👥 {{ populationDisplay }}</span>
-      <span class="stat">🪵 {{ wood }}</span>
+      <div class="stat-group" :title="t('village_uxelm_tooltip_gold')">
+        <span class="stat-icon stat-gold">💰</span>
+        <span class="stat-value">{{ gold }}</span>
+      </div>
+      <div class="stat-group" :title="t('village_uxelm_tooltip_population')">
+        <span class="stat-icon stat-pop">👥</span>
+        <span class="stat-value">{{ populationDisplay }} / {{ maxPopulationDisplay }}</span>
+      </div>
+      <div class="stat-group" :title="t('village_uxelm_tooltip_wood')">
+        <span class="stat-icon stat-wood">🪵</span>
+        <span class="stat-value">{{ wood }}</span>
+      </div>
+      <div
+        v-if="storageMax > 0"
+        class="stat-group storage-group"
+        :title="t('village_uxelm_tooltip_storage', { used: storageUsed, max: storageMax })"
+        :class="{ 'storage-warning': storagePercent > 75, 'storage-danger': storagePercent > 90 }"
+      >
+        <span class="stat-icon">📦</span>
+        <div class="storage-mini">
+          <div class="storage-mini-track">
+            <div
+              class="storage-mini-fill"
+              :style="{ width: `${storagePercent}%` }"
+            />
+          </div>
+          <span class="storage-mini-text">{{ storageUsed }} / {{ storageMax }}</span>
+        </div>
+      </div>
       <button class="btn-quick" :title="t('shared_uxelm_nav_settings')" @click="$emit('openSettings')">
         ⚙️
       </button>
@@ -42,7 +68,10 @@ const props = defineProps({
   day: { type: Number, default: 1 },
   gold: { type: Number, default: 0 },
   population: { type: [Number, Object], default: 0 },
-  wood: { type: Number, default: 0 }
+  maxPopulation: { type: Number, default: 0 },
+  wood: { type: Number, default: 0 },
+  storageUsed: { type: Number, default: 0 },
+  storageMax: { type: Number, default: 0 }
 })
 
 defineEmits(['nextDay', 'openSettings', 'navigate'])
@@ -54,6 +83,18 @@ const populationDisplay = computed(() => {
     return props.population.total || 0
   }
   return props.population
+})
+
+const maxPopulationDisplay = computed(() => {
+  if (typeof props.population === 'object' && props.population !== null) {
+    return props.population.max || 0
+  }
+  return props.maxPopulation
+})
+
+const storagePercent = computed(() => {
+  if (props.storageMax <= 0) return 0
+  return Math.min(100, (props.storageUsed / props.storageMax) * 100)
 })
 </script>
 
@@ -101,10 +142,93 @@ const populationDisplay = computed(() => {
   gap: var(--spacing-md);
 }
 
-.stat {
+.stat-group {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-md);
+  transition: all 0.15s ease;
+  cursor: default;
+  user-select: none;
+}
+
+.stat-group:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.stat-icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.stat-gold {
+  filter: drop-shadow(0 0 2px rgba(217, 119, 6, 0.4));
+}
+
+.stat-wood {
+  filter: drop-shadow(0 0 2px rgba(120, 53, 15, 0.4));
+}
+
+.stat-pop {
+  filter: drop-shadow(0 0 2px rgba(34, 197, 94, 0.3));
+}
+
+.stat-value {
   color: var(--text-primary);
   font-weight: 500;
   font-size: 0.95rem;
+}
+
+/* Storage mini indicator */
+.storage-group {
+  gap: var(--spacing-xs);
+  min-width: 80px;
+}
+
+.storage-mini {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 60px;
+}
+
+.storage-mini-track {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.storage-mini-fill {
+  height: 100%;
+  background: var(--color-success, #22c55e);
+  border-radius: 2px;
+  transition: width 0.3s ease, background 0.3s ease;
+}
+
+.storage-warning .storage-mini-fill {
+  background: var(--color-warning, #f59e0b);
+}
+
+.storage-danger .storage-mini-fill {
+  background: var(--color-danger, #ef4444);
+}
+
+.storage-mini-text {
+  font-size: 0.65rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+  text-align: right;
+  letter-spacing: 0.3px;
+}
+
+.storage-warning .storage-mini-text {
+  color: var(--color-warning, #f59e0b);
+}
+
+.storage-danger .storage-mini-text {
+  color: var(--color-danger, #ef4444);
 }
 
 .btn-quick {
@@ -123,6 +247,11 @@ const populationDisplay = computed(() => {
   background: rgba(255, 255, 255, 0.05);
   border-color: var(--color-primary-light);
   color: var(--text-primary);
+}
+
+.btn-quick:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
 .btn-quick.btn-text {
@@ -158,6 +287,11 @@ const populationDisplay = computed(() => {
   box-shadow: 0 4px 12px rgba(217, 119, 6, 0.5);
 }
 
+.btn-next-day:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
 @media (max-width: 768px) {
   .top-bar {
     flex-wrap: wrap;
@@ -168,6 +302,24 @@ const populationDisplay = computed(() => {
     order: 3;
     width: 100%;
     justify-content: center;
+  }
+  
+  .storage-group {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .top-bar-right {
+    gap: var(--spacing-sm);
+  }
+  
+  .stat-group {
+    padding: var(--spacing-xs);
+  }
+  
+  .stat-value {
+    font-size: 0.85rem;
   }
 }
 </style>

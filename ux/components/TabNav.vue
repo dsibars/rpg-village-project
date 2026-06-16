@@ -1,13 +1,15 @@
 <template>
-  <div class="tab-nav">
+  <div class="tab-nav" role="tablist" aria-label="Section tabs">
     <button
       v-for="tab in tabs"
       :key="tab.id"
       class="tab-btn"
       :class="{ active: modelValue === tab.id }"
+      role="tab"
+      :aria-selected="modelValue === tab.id ? 'true' : 'false'"
       @click="$emit('update:modelValue', tab.id)"
     >
-      <span v-if="tab.icon" class="tab-icon">{{ tab.icon }}</span>
+      <span v-if="tab.icon" class="tab-icon" aria-hidden="true">{{ tab.icon }}</span>
       <span class="tab-label">{{ tab.label }}</span>
     </button>
   </div>
@@ -48,6 +50,15 @@ defineEmits(['update:modelValue'])
 .tab-btn.active {
   background: var(--color-primary);
   color: white;
+}
+
+.tab-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.tab-btn.active:focus-visible {
+  outline-color: white;
 }
 
 .tab-btn:hover:not(.active) {

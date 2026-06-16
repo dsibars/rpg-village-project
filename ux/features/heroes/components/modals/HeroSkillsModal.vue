@@ -142,10 +142,14 @@ function effectLabel(family, tierOverride) {
     case 'multiple_attack': {
       const hits = Math.max(1, tier)
       const perHit = Math.max(0.4, family.baseMult - family.hitDecay * Math.max(0, tier - 2))
-      return `${hits} ${t('heroes_info_effect_hits')} · ${(hits * perHit).toFixed(1)}×`
+      const hitLabel = hits === 1 ? t('heroes_info_effect_hit') : t('heroes_info_effect_hits')
+      return `${hits} ${hitLabel} · ${(hits * perHit).toFixed(1)}×`
     }
     case 'power_strike': return `${(family.baseMult + family.growth * (tier - 1)).toFixed(1)}× ${t('heroes_info_effect_power')}`
-    case 'cleave': return t('heroes_info_effect_cleave')
+    case 'cleave': {
+      const mult = (family.baseMult + family.growth * (tier - 1)).toFixed(2)
+      return `${mult}×`
+    }
     case 'shield_bash': return t('heroes_info_effect_stun')
     case 'poison_strike': return t('heroes_info_effect_poison')
     case 'plunder': return t('heroes_info_effect_steal')

@@ -518,6 +518,7 @@ export class ExpeditionService {
         const combatLog = {
             heroes: heroes.map(h => h.name),
             enemies: enemies.map(e => e.name),
+            enemyDetails: enemies.map(e => ({ isElite: e.isElite, isBoss: e.isBoss })),
             events: [...this.battleService.log],
             summary: [],
             isVictory

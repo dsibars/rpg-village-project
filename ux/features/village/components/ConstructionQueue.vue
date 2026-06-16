@@ -1,9 +1,9 @@
 <template>
   <div class="construction-queue">
-    <h4>{{ t('village_uxelm_construction') }}</h4>
+    <h4>🔨 {{ t('village_uxelm_construction') }}</h4>
 
     <div v-if="queue.length === 0" class="empty-state">
-      {{ t('village_uxelm_project_none') }}
+      🏗️ {{ t('village_uxelm_project_none') }}
     </div>
 
     <div v-else class="project-list">
@@ -66,6 +66,8 @@ function progressPercent(project) {
   color: var(--text-muted);
   font-size: 0.85rem;
   font-style: italic;
+  text-align: center;
+  padding: var(--spacing-sm) 0;
 }
 
 .project-list {
@@ -85,6 +87,7 @@ function progressPercent(project) {
 
 .project-card:hover {
   border-color: var(--color-primary-light);
+  background: rgba(74, 222, 128, 0.06);
 }
 
 .project-header {
