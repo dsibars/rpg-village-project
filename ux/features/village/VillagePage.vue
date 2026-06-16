@@ -83,7 +83,7 @@
         </div>
 
         <div class="dashboard-card">
-          <DailyObjectives :daily-objectives="dailyObjectives" />
+          <DailyObjectives :daily-objectives="dailyObjectives" :mission-board="missionBoard" />
         </div>
       </div>
     </div>
@@ -128,6 +128,30 @@ const calendar = computed(() => gameState.value.calendar || null)
 const inventory = computed(() => gameState.value.inventory || {})
 
 const townhallLevel = computed(() => infrastructure.value.townhall || 1)
+const missionBoardLevel = computed(() => infrastructure.value.mission_board || 0)
+const missionBoard = computed(() => {
+  const level = missionBoardLevel.value
+  if (!level || level <= 0) return { level: 0, activeMissions: [], canReroll: false }
+  // Map legacy daily objectives into mission format until engine integration (Subtask 5)
+  const legacyObjectives = dailyObjectives.value?.objectives || []
+  const activeMissions = legacyObjectives.map(obj => ({
+    id: obj.id || `legacy_${Math.random().toString(36).slice(2)}`,
+    seedId: obj.id || 'legacy',
+    titleKey: obj.label || 'mission_uxelm_unknown',
+    icon: '📜',
+    target: obj.target || 1,
+    progress: obj.progress || 0,
+    reward: obj.reward || {},
+    completed: obj.completed || false,
+    claimed: obj.claimed || false
+  }))
+  return {
+    level,
+    activeMissions,
+    canReroll: false, // Will be wired in Subtask 5
+    maxSlots: level // Mission board level = max slots
+  }
+})
 const inventoryUsed = computed(() => inventory.value.totalUsed || 0)
 const maxStorage = computed(() => village.value.maxStorage || 100)
 const storagePercent = computed(() => Math.min(100, (inventoryUsed.value / maxStorage.value) * 100))

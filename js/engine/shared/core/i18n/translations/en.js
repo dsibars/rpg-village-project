@@ -1379,6 +1379,16 @@ export const en = {
     daily_report_uxelm_expenses: "Expenses",
     daily_report_uxelm_net: "Net Balance",
     daily_report_uxelm_events: "Events & Discoveries",
+
+    // ═══ MISSION UXELM ════════════════════════════════════════════════════
+    mission_uxelm_locked_title: "Missions",
+    mission_uxelm_locked_hint: "The village is quiet... Perhaps building a Mission Board would attract more opportunities?",
+    mission_uxelm_locked_requires: "Requires: Tavern Level 1",
+    mission_uxelm_reroll: "Reroll",
+    mission_uxelm_reroll_cooldown: "Reroll available tomorrow",
+    mission_uxelm_upgrade_hint: "Upgrade to Lv{level}: +1 Slot",
+    mission_uxelm_empty: "No active missions.",
+    mission_uxelm_unknown: "Unknown Mission",
     shared_uxelm_click_dismiss: "Click to dismiss",
     shared_uxelm_era: "Era",
     heroes_uxelm_inscription_available: "Available Glyphs",

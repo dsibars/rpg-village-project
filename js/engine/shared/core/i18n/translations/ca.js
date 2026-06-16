@@ -1379,6 +1379,16 @@ export const ca = {
     daily_report_uxelm_expenses: "Despeses",
     daily_report_uxelm_net: "Balanç Net",
     daily_report_uxelm_events: "Esdeveniments i Descobriments",
+
+    // ═══ MISSION UXELM ════════════════════════════════════════════════════
+    mission_uxelm_locked_title: "Missions",
+    mission_uxelm_locked_hint: "El poble està tranquil... Potser construir un Tauler de Missions atrauria més oportunitats?",
+    mission_uxelm_locked_requires: "Requereix: Taverna Nivell 1",
+    mission_uxelm_reroll: "Canviar",
+    mission_uxelm_reroll_cooldown: "Canvi disponible demà",
+    mission_uxelm_upgrade_hint: "Millorar a Nv{level}: +1 Espai",
+    mission_uxelm_empty: "No hi ha missions actives.",
+    mission_uxelm_unknown: "Missió Desconeguda",
     shared_uxelm_click_dismiss: "Fes clic per descartar",
     shared_uxelm_era: "Era",
     heroes_uxelm_inscription_available: "Glifs Disponibles",

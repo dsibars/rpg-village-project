@@ -1378,6 +1378,16 @@ export const gl = {
     daily_report_uxelm_expenses: "Gastos",
     daily_report_uxelm_net: "Balance Neto",
     daily_report_uxelm_events: "Eventos e Descubrimentos",
+
+    // ═══ MISSION UXELM ════════════════════════════════════════════════════
+    mission_uxelm_locked_title: "Missions",
+    mission_uxelm_locked_hint: "A aldea está tranquila... Quizais construir un Taboleiro de Missions atraia máis oportunidades?",
+    mission_uxelm_locked_requires: "Requírese: Taberna Nivel 1",
+    mission_uxelm_reroll: "Cambiar",
+    mission_uxelm_reroll_cooldown: "Cambio dispoñible mañá",
+    mission_uxelm_upgrade_hint: "Mellorar a Nv{level}: +1 Espazo",
+    mission_uxelm_empty: "Non hai missions activas.",
+    mission_uxelm_unknown: "Mision Descoñecida",
     shared_uxelm_click_dismiss: "Fai clic para desbotar",
     shared_uxelm_era: "Era",
     heroes_uxelm_inscription_available: "Glifos Dispoñibles",

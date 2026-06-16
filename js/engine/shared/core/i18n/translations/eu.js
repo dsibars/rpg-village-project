@@ -1377,6 +1377,16 @@ export const eu = {
     daily_report_uxelm_expenses: "Gastuak",
     daily_report_uxelm_net: "Balantze Garbia",
     daily_report_uxelm_events: "Gertaerak eta Aurkikuntzak",
+
+    // ═══ MISSION UXELM ════════════════════════════════════════════════════
+    mission_uxelm_locked_title: "Misioak",
+    mission_uxelm_locked_hint: "Herria lasai dago... Agian Misioen Taula bat eraikitzeko aukera gehiago erakarriko lituzke?",
+    mission_uxelm_locked_requires: "Beharrezkoa: Taberna 1. Maila",
+    mission_uxelm_reroll: "Aldatu",
+    mission_uxelm_reroll_cooldown: "Aldaketa bihar eskuragarri",
+    mission_uxelm_upgrade_hint: "{level}. Mailara igotzea: +1 Toki",
+    mission_uxelm_empty: "Ez dago misio aktiborik.",
+    mission_uxelm_unknown: "Misio Ezezaguna",
     shared_uxelm_click_dismiss: "Klikatu baztertzeko",
     shared_uxelm_era: "Aroa",
     heroes_uxelm_inscription_available: "Glifo Eskuragarriak",
