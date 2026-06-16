@@ -204,11 +204,17 @@ function statusIcon(type) {
 
 /* Defeated grayscale state */
 .combat-card.dead {
-  opacity: 0.35 !important;
-  filter: grayscale(1) blur(0.5px) !important;
+  opacity: 0.4 !important;
+  filter: grayscale(1) !important;
   transform: scale(0.95);
   border-color: rgba(255, 255, 255, 0.02) !important;
   box-shadow: none !important;
+}
+
+.combat-card.dead .card-name,
+.combat-card.dead .card-level,
+.combat-card.dead .bar-text {
+  color: rgba(255, 255, 255, 0.55);
 }
 
 /* Card Impact Shake Animation */
@@ -349,6 +355,8 @@ function statusIcon(type) {
 .card-level {
   font-size: 0.75rem;
   color: var(--text-muted);
+  margin-left: var(--spacing-xs);
+  margin-right: var(--spacing-xs);
 }
 
 .bar-container {

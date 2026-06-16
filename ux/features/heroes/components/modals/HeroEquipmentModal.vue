@@ -82,8 +82,8 @@ const { t } = useI18n()
 
 const slots = ['head', 'body', 'legs', 'leftHand', 'rightHand', 'accessory']
 const slotIcons = {
-  head: '🪖',
-  body: '🦺',
+  head: '⛑️',
+  body: '👕',
   legs: '🥾',
   leftHand: '⚔',
   rightHand: '🛡',

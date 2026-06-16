@@ -69,26 +69,4 @@ export async function run({ page, snap }) {
     await page.waitForTimeout(300)
   }
   await snap({ flow: 'heroes', state: 'heroes_detail_stats' })
-
-  // --- heroes_modal_skills ---
-  if (await clickHeroAction('skills')) {
-    await waitForVisible(page, selectors.heroSkillsModal, 2000)
-    await snap({ flow: 'heroes', state: 'heroes_modal_skills' })
-    await dismissAnyModal(page)
-  }
-
-  // --- heroes_modal_equipment ---
-  if (await clickHeroAction('equipment')) {
-    await waitForVisible(page, selectors.heroEquipmentModal, 2000)
-    await snap({ flow: 'heroes', state: 'heroes_modal_equipment' })
-    await dismissAnyModal(page)
-  }
-
-  // --- heroes_modal_consumables ---
-  // button text is "🧪 Use Item"; try both labels
-  if (await clickHeroAction('use item') || await clickHeroAction('consumables')) {
-    await waitForVisible(page, selectors.heroConsumablesModal, 2000)
-    await snap({ flow: 'heroes', state: 'heroes_modal_consumables' })
-    await dismissAnyModal(page)
-  }
 }

@@ -445,6 +445,9 @@ function openDiscoveryDetail(entry) {
   grid-template-columns: 1fr 300px;
   gap: var(--spacing-lg);
   min-height: 400px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 @media (max-width: 768px) {
@@ -579,8 +582,10 @@ function openDiscoveryDetail(entry) {
 }
 
 .milestone-badge.badge-seen {
-  background: rgba(16, 185, 129, 0.1);
-  color: #10b981;
+  background: rgba(16, 185, 129, 0.2);
+  color: #6ee7b7;
+  text-shadow: 0 0 6px rgba(16, 185, 129, 0.4);
+  border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
 .milestone-badge.badge-pending {
@@ -601,21 +606,19 @@ function openDiscoveryDetail(entry) {
 .milestone-excerpt {
   font-size: 0.8rem;
   color: var(--text-secondary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 500px;
+  line-height: 1.5;
 }
 
 .milestone-trigger-hint {
   font-size: 0.8rem;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font-style: italic;
 }
 
 .hint-label {
   font-weight: 600;
-  color: #ef6c6c;
+  color: #ff8a8a;
+  text-shadow: 0 0 6px rgba(239, 108, 108, 0.25);
 }
 
 .milestone-actions {

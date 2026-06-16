@@ -41,6 +41,7 @@ const tiles = computed(() => {
     { id: 'witchs_hut', name: t('village_info_building_witchs_hut'), icon: '🔮', lvl: infra.witchs_hut || 0, active: (infra.witchs_hut || 0) > 0 },
     { id: 'arcane_sanctum', name: t('village_info_building_arcane_sanctum'), icon: '✨', lvl: infra.arcane_sanctum || 0, active: (infra.arcane_sanctum || 0) > 0 },
     { id: 'infirmary', name: t('village_info_building_infirmary'), icon: '🏥', lvl: infra.infirmary || 0, active: (infra.infirmary || 0) > 0 },
+    { id: 'mission_board', name: t('village_info_building_mission_board'), icon: '📋', lvl: infra.mission_board || 0, active: (infra.mission_board || 0) > 0 },
     { id: 'tavern', name: t('village_info_building_tavern'), icon: '🍺', lvl: infra.tavern || 0, active: (infra.tavern || 0) > 0 }
   ]
 })
@@ -106,5 +107,11 @@ const tiles = computed(() => {
   background: var(--color-primary);
   border: 1px solid var(--color-primary);
   border-radius: var(--radius-sm);
+}
+
+.village-tile.locked .tile-level {
+  background: var(--text-muted);
+  border-color: var(--text-muted);
+  color: var(--bg-card);
 }
 </style>

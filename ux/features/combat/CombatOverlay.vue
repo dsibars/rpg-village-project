@@ -22,6 +22,7 @@
         :floating-effects="floatingEffects"
         :latest-action-text="latestActionText"
         :is-over="battle?.isOver || false"
+        :is-victory="battle?.winner === 'heroes'"
         @target="handleTarget"
       >
         <template #action-panel>
@@ -303,7 +304,7 @@ function logTypeIcon(type) {
     TRAIT_REGEN: '🌿',
     STATUS_TICK: '🌀',
     STATUS_EXPIRED: '⌛',
-    USE_CONSUMABLE: '🧪',
+    USE_CONSUMABLE: '💊',
     STAMINA_REGEN: '⚡',
     VICTORY: '🏆',
     DEFEAT: '💀'

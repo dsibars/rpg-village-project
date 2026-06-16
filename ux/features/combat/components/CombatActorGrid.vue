@@ -43,7 +43,7 @@
         </div>
       </div>
 
-      <div class="turn-banner">
+      <div class="turn-banner" :class="{ defeat: isOver && !isVictory }">
         <span v-if="isOver">{{ t('combat_uxelm_battle_over') }}</span>
         <span v-else-if="currentActor">{{ t('shared_uxelm_turn', { name: currentActorName }) }}</span>
         <span v-else>{{ t('combat_uxelm_awaiting') }}</span>
@@ -92,7 +92,8 @@ const props = defineProps({
   actorAnimations: { type: Object, default: () => ({}) },
   floatingEffects: { type: Object, default: () => ({}) },
   latestActionText: { type: String, default: '' },
-  isOver: { type: Boolean, default: false }
+  isOver: { type: Boolean, default: false },
+  isVictory: { type: Boolean, default: false }
 })
 
 const emit = defineEmits(['target'])
@@ -140,6 +141,7 @@ function isTargetable(actor, isHero) {
   padding: var(--spacing-lg);
   flex: 1;
   min-height: 0;
+  position: relative;
 }
 
 .combat-column {
@@ -177,6 +179,11 @@ function isTargetable(actor, isHero) {
   text-align: center;
   font-weight: 600;
   color: var(--color-primary-light);
+}
+
+.turn-banner.defeat {
+  color: var(--color-danger);
+  border-color: rgba(239, 68, 68, 0.3);
 }
 
 /* Initiative Timeline Track */
@@ -324,9 +331,9 @@ function isTargetable(actor, isHero) {
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 2px;
+  width: 1px;
   height: 70%;
-  background: linear-gradient(180deg, transparent 0%, rgba(245, 158, 11, 0.15) 30%, rgba(74, 222, 128, 0.1) 50%, rgba(245, 158, 11, 0.15) 70%, transparent 100%);
+  background: linear-gradient(180deg, transparent 0%, rgba(245, 158, 11, 0.08) 30%, rgba(74, 222, 128, 0.06) 50%, rgba(245, 158, 11, 0.08) 70%, transparent 100%);
   pointer-events: none;
   z-index: 0;
 }

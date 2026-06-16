@@ -24,7 +24,7 @@
           <span class="event-day">{{ dayLabel(ev) }}</span>
           <span class="event-label">{{ eventLabel(ev) }}</span>
           <span v-if="ev.type === 'raid' && ev.data" class="event-meta">
-            Lv{{ ev.data.level }} × {{ ev.data.enemyCount }}
+            Lv{{ ev.data.level }}×{{ ev.data.enemyCount }}
           </span>
         </div>
       </div>

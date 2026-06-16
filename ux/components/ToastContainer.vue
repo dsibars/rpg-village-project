@@ -77,6 +77,7 @@ function toastIcon(type) {
 
 .toast-message {
   line-height: 1.4;
+  word-break: break-word;
 }
 
 .toast--info { background: var(--color-primary); }

@@ -280,7 +280,7 @@ const allItems = computed(() => {
   }
   if (activeFilter.value === 'all' || activeFilter.value === 'consumables') {
     items.push(...entriesToItems(inventory.value.consumables, 'consumables', (id) =>
-      id.startsWith('tablet_glyph_') ? '🪧' : (id === 'teleport_scroll' ? '📜' : '🧪')
+      id.startsWith('tablet_glyph_') ? '🪧' : (id === 'teleport_scroll' ? '📜' : '💊')
     ))
   }
   if (activeFilter.value === 'all' || activeFilter.value === 'equipment') {
@@ -288,13 +288,12 @@ const allItems = computed(() => {
       const eqId = item.id || `eq_${item.type}_${item.material}_${index}`
       const name = getEquipmentName(item, t)
       const icon = item.type === 'weapon'
-        ? (item.family === 'wand' ? '🪄' : '🗡️')
-        : (item.slot === 'head' ? '🪖' : (item.slot === 'body' ? '👕' : (item.slot === 'rightHand' ? '🛡️' : '🥾')))
+        ? (item.family === 'wand' ? '🔮' : '🗡️')
+        : (item.slot === 'head' ? '⛑️' : (item.slot === 'body' ? '👕' : (item.slot === 'rightHand' ? '🛡️' : '🥾')))
       return {
         id: eqId,
         type: 'equipment',
-        name: `${name} +${item.level || 0}`,
-        qty: 1,
+        name: `${name}`,        qty: 1,
         icon,
         rawEquipment: item
       }
@@ -502,7 +501,7 @@ function teachGlyph(heroId) {
 /* ═══ Item Grid (Master) ═══════════════════════════════════════════ */
 .item-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 10px;
   padding: 5px;
   overflow-y: auto;

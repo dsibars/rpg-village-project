@@ -35,7 +35,7 @@ const allActions = computed(() => [
   { id: 'gambits', icon: '🎲', label: t('gambit_uxelm_title'), visible: props.heroes.some((h) => h.level >= 5) },
   { id: 'equipment', icon: '🛡️', label: t('inventory_uxelm_equipment') },
   { id: 'skills', icon: '⚔️', label: t('heroes_uxelm_skills') },
-  { id: 'consumables', icon: '🧪', label: t('heroes_uxelm_consumables') }
+  { id: 'consumables', icon: '💊', label: t('heroes_uxelm_consumables') }
 ])
 
 const visibleActions = computed(() =>

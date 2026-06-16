@@ -2,30 +2,9 @@
  * Magic Circle flow: empty simulator, core drawer, Fire selected, ring drawer, spell composed.
  */
 
-import { waitForVisible, clickNav, clickSubNav } from '../utils/nav.mjs'
+import { waitForVisible, clickNav } from '../utils/nav.mjs'
 import { startNewGame } from '../utils/setup.mjs'
 import { selectors } from '../selectors/selectors.mjs'
-
-
-async function dismissAnyModal(page) {
-  const closeBtn = await page.$('.modal-overlay .btn-close, .modal-frame .btn-close, .modal-close, button[aria-label="close"]')
-  if (closeBtn) {
-    await closeBtn.click().catch(() => {})
-    await page.waitForTimeout(400)
-  } else {
-    const overlay = await page.$('.modal-overlay')
-    if (overlay) {
-      await overlay.click({ position: { x: 10, y: 10 } }).catch(() => {})
-      await page.waitForTimeout(400)
-    } else {
-      await page.keyboard.press('Escape')
-      await page.waitForTimeout(300)
-    }
-  }
-  try {
-    await page.waitForSelector('.modal-overlay', { state: 'hidden', timeout: 2000 })
-  } catch { /* ignore */ }
-}
 
 export async function run({ page, snap }) {
 
@@ -72,11 +51,12 @@ export async function run({ page, snap }) {
   }
 
   // --- magic_circle_ring_drawer ---
-  // Close current drawer first
-  await dismissAnyModal(page)
-  const closeBtn = await page.$('.close-btn')
-  if (closeBtn) await closeBtn.click()
-  await page.waitForTimeout(400)
+  // Close the glyph palette drawer first, then click a ring slot
+  const closeBtn = await page.$('.mc-focused-drawer .close-btn')
+  if (closeBtn) {
+    await closeBtn.click()
+    await page.waitForTimeout(400)
+  }
 
   const ringSlot = await page.$(selectors.magicCircleRingSlot)
   if (ringSlot) {
@@ -86,11 +66,12 @@ export async function run({ page, snap }) {
   }
 
   // --- magic_circle_spell_composed ---
-  // Close drawer and look for composed spell preview
-  await dismissAnyModal(page)
-  const closeBtn2 = await page.$('.close-btn')
-  if (closeBtn2) await closeBtn2.click()
-  await page.waitForTimeout(400)
+  // Close the ring drawer and take a screenshot of the composed spell
+  const closeBtn2 = await page.$('.mc-focused-drawer .close-btn')
+  if (closeBtn2) {
+    await closeBtn2.click()
+    await page.waitForTimeout(400)
+  }
   const composed = await page.$('.mc-element-display, .spell-composed, .composed-spell')
   if (composed) {
     await snap({ flow: 'magic-circle', state: 'magic_circle_spell_composed' })

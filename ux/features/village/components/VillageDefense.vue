@@ -108,6 +108,7 @@ function getHeroName(heroId) {
 .defense-count {
   font-size: 0.85rem;
   color: var(--text-muted);
+  white-space: nowrap;
 }
 
 .defense-status-compact {
@@ -125,6 +126,7 @@ function getHeroName(heroId) {
 .status-count {
   font-weight: 600;
   color: var(--text-secondary);
+  white-space: nowrap;
 }
 
 .status-warn {
