@@ -70,6 +70,11 @@ export class MissionSeedService {
         persistence.save(this.STORAGE_KEY, this.state);
     }
 
+    getBoardSlots() {
+        const buildingLevels = this.villageService.getState().infrastructure || {};
+        return buildingLevels.mission_board || 0;
+    }
+
     // ─── Unlock Logic ───────────────────────────────────────────────
 
     checkUnlocks(currentChapter, buildingLevels) {
@@ -212,16 +217,6 @@ export class MissionSeedService {
 
             // Match action type and targetType
             if (seedDef.action.type === type && seedDef.action.targetType === targetType) {
-                mission.progress += count;
-                if (mission.progress >= mission.target) {
-                    mission.progress = mission.target;
-                    mission.completed = true;
-                    anyCompleted = true;
-                }
-            }
-
-            // Special case: spend_gold accumulates (spend is cumulative)
-            if (seedDef.action.type === 'spend' && type === 'spend') {
                 mission.progress += count;
                 if (mission.progress >= mission.target) {
                     mission.progress = mission.target;

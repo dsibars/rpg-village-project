@@ -9,6 +9,7 @@ import { VillageService } from './village/services/VillageService.js';
 import { ExpeditionService } from './explore/services/ExpeditionService.js';
 import { RegionService } from './explore/services/RegionService.js';
 import { DailyObjectivesService } from './daily/services/DailyObjectivesService.js';
+import { MissionSeedService } from './mission/services/MissionSeedService.js';
 import { CalendarService } from './calendar/services/CalendarService.js';
 import { AcademyService } from './academy/AcademyService.js';
 import { TitleService } from './hall_of_fame/TitleService.js';
@@ -49,6 +50,7 @@ export class GameEngine {
             { deferLoad: true }
         );
         this.dailyObjectivesService = new DailyObjectivesService(this.inventoryService, this.villageService, { deferLoad: true });
+        this.missionSeedService = new MissionSeedService(this.inventoryService, this.villageService, { deferLoad: true });
         this.calendarService = new CalendarService(this.villageService, this.heroService, { deferLoad: true });
         this.academyService = new AcademyService(this.heroService, this.villageService, { deferLoad: true });
         this.unlockService = new UnlockService({ deferLoad: true });
@@ -70,6 +72,7 @@ export class GameEngine {
         this.regionService.load();
         this.expeditionService.load();
         this.dailyObjectivesService.load();
+        this.missionSeedService.load();
         this.calendarService.load();
         this.academyService.load();
         this.unlockService.load();
@@ -126,6 +129,11 @@ export class GameEngine {
             if (DEBUG) console.log('Engine: Resuming active combat...');
             this.expeditionService.resumeActiveBattle();
         }
+
+        // Initialize Mission Board for existing saves (backfill)
+        const vState = this.villageService.getState();
+        this.missionSeedService.checkUnlocks(vState.day, vState.infrastructure || {});
+        this.missionSeedService.fillSlots(this.missionSeedService.getBoardSlots());
     }
 
 
@@ -230,6 +238,7 @@ export class GameEngine {
             bestiary: this.expeditionService.getBestiary(),
             enemyTemplates: this.expeditionService.getEnemyTemplates(),
             dailyObjectives: this.dailyObjectivesService.getState(),
+            missionBoard: this.missionSeedService.getState(),
             calendar: this.calendarService.getState(currentDay),
             expeditionRegions: this.regionService.getRegions(),
             unlockedNarratives: this.unlockService.getShownNarratives()
@@ -257,8 +266,8 @@ export class GameEngine {
         const result = this.heroService.generateRandomHero();
 
         if (result.success) {
-            this.dailyObjectivesService.track('recruit_hero', 1);
-            this.dailyObjectivesService.track('spend_gold', cost);
+            this.missionSeedService.trackProgress('recruit', 'hero', 1);
+            this.missionSeedService.trackProgress('spend', 'gold', cost);
 
             // Trigger Point 4: Hero Recruitment
             this.presentationService.checkTriggers({
@@ -470,6 +479,7 @@ export class GameEngine {
         if (result.success) {
             this.stats.itemsEquipped++;
             this._saveStats();
+            this.missionSeedService.trackProgress('equip', 'equipment', 1);
             if (!this.presentationService.isSeen('pres_first_equip')) {
                 this.presentationService.checkTriggers({ type: 'first_event', eventId: 'first_item_equipped' });
                 this._persistPresentationState();
@@ -507,7 +517,7 @@ export class GameEngine {
         // Deduct Gold
         this.villageService.state.gold -= costGold;
         this.villageService.save();
-        this.dailyObjectivesService.track('spend_gold', costGold);
+        this.missionSeedService.trackProgress('spend', 'gold', costGold);
 
         // Deliver item
         if (itemData.type === 'consumable') {
@@ -686,8 +696,8 @@ export class GameEngine {
         // Spend resources
         this.villageService.state.gold -= cost.gold;
         this.villageService.save();
-        this.dailyObjectivesService.track('spend_gold', cost.gold);
-        this.dailyObjectivesService.track('craft_items', 1);
+        this.missionSeedService.trackProgress('spend', 'gold', cost.gold);
+        this.missionSeedService.trackProgress('craft', 'item', 1);
 
         for (const [matId, qty] of Object.entries(cost.materials)) {
             this.inventoryService.useItem(matId, qty);
@@ -725,7 +735,7 @@ export class GameEngine {
 
         // Add meal to food inventory
         this.inventoryService.addItem(recipeId, 1);
-        this.dailyObjectivesService.track('craft_items', 1);
+        this.missionSeedService.trackProgress('craft', 'item', 1);
 
         return Result.ok({ recipeId, mealId: recipeId });
     }
@@ -784,9 +794,12 @@ export class GameEngine {
         const spell = actor.spellCodex?.[spellIndex];
         if (!spell) return Result.fail('combat_error_spell_not_found');
         const result = this.battleService.castSpell(actor, spell, targetIndex);
-        if (result.success && !this.presentationService.isSeen('pres_first_spell_cast')) {
-            this.presentationService.checkTriggers({ type: 'first_event', eventId: 'first_spell_cast_combat' });
-            this._persistPresentationState();
+        if (result.success) {
+            this.missionSeedService.trackProgress('cast', 'spell', 1);
+            if (!this.presentationService.isSeen('pres_first_spell_cast')) {
+                this.presentationService.checkTriggers({ type: 'first_event', eventId: 'first_spell_cast_combat' });
+                this._persistPresentationState();
+            }
         }
         return result;
     }
@@ -816,6 +829,14 @@ export class GameEngine {
     // --- Time & Construction ---
     nextDay() {
         const villageState = this.villageService.getState();
+        
+        // Mission Board: unlock checks, slot fill, and daily reroll reset
+        const buildingLevels = villageState.infrastructure || {};
+        this.missionSeedService.checkUnlocks(villageState.day, buildingLevels);
+        this.missionSeedService.fillSlots(this.missionSeedService.getBoardSlots());
+        this.missionSeedService.resetRerollForNewDay();
+
+        // Legacy daily objectives (still available for fallback UI)
         this.dailyObjectivesService.generateForDay(villageState.day);
 
         const villageReport = this.villageService.nextDay();
@@ -936,7 +957,7 @@ export class GameEngine {
             const heroResult = this.heroService.generateRandomHero();
             if (heroResult.success) {
                 tavernRecruitHero = heroResult.data;
-                this.dailyObjectivesService.track('recruit_hero', 1);
+                this.missionSeedService.trackProgress('recruit', 'hero', 1);
             }
         }
 
@@ -1042,8 +1063,8 @@ export class GameEngine {
     startProject(buildingId, targetLevel, costGold, costMaterials, duration) {
         const result = this.villageService.startProject(buildingId, targetLevel, costGold, costMaterials, duration);
         if (result.success) {
-            this.dailyObjectivesService.track('spend_gold', costGold);
-            this.dailyObjectivesService.track('upgrade_building', 1);
+            this.missionSeedService.trackProgress('spend', 'gold', costGold);
+            this.missionSeedService.trackProgress('upgrade', 'building', 1);
         }
         return result;
     }
@@ -1058,12 +1079,18 @@ export class GameEngine {
         if (result.success && result.data) {
             const combatLog = result.data.combatLog;
 
-            // Track daily objectives
+            // Track mission board progress
             if (result.data.status === 'completed') {
-                this.dailyObjectivesService.track('complete_expeditions', 1);
+                this.missionSeedService.trackProgress('complete', 'expedition', 1);
             }
             if (combatLog && combatLog.isVictory && combatLog.enemies) {
-                this.dailyObjectivesService.track('defeat_enemies', combatLog.enemies.length);
+                this.missionSeedService.trackProgress('defeat', 'enemy', combatLog.enemies.length);
+                if (combatLog.enemyDetails) {
+                    const eliteCount = combatLog.enemyDetails.filter(e => e.isElite).length;
+                    if (eliteCount > 0) {
+                        this.missionSeedService.trackProgress('defeat', 'elite', eliteCount);
+                    }
+                }
             }
 
             // Trigger: first expedition victory
@@ -1098,6 +1125,15 @@ export class GameEngine {
         }
 
         return result;
+    }
+
+    // --- Mission Board Facade ---
+    claimMissionReward(missionId) {
+        return this.missionSeedService.completeMission(missionId);
+    }
+
+    rerollMission(missionId) {
+        return this.missionSeedService.rerollMission(missionId);
     }
 
     // --- Explore Facade ---
