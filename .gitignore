@@ -167,6 +167,7 @@ itch.config
 # Agent test artifacts
 playtest-output/
 test_*screenshots/
-screenshots/
+/screenshots/
+scripts/screenshots/output/
 
 # Vite build cache
