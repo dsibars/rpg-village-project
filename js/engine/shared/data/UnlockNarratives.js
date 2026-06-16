@@ -51,6 +51,14 @@ export const UNLOCK_NARRATIVES = [
         checkPredicate: (state) => (state.village?.infrastructure?.tavern || 0) >= 1
     },
 
+    {
+        id: 'nar_mission_board_built',
+        titleKey: 'nar_mission_board_built_title',
+        loreKey: 'nar_mission_board_built_lore',
+        era: 1,
+        checkPredicate: (state) => (state.village?.infrastructure?.mission_board || 0) >= 1
+    },
+
     // ─── ERA II: The Flood ───
     {
         id: 'nar_dark_forest_found',
