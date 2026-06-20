@@ -1437,6 +1437,7 @@ export const ca = {
     shared_uxelm_gold: "Or",
     shared_uxelm_toast_gold_earned: "+{amount}g",
     shared_uxelm_toast_resource_sold: "+{amount}g ({count} {resource})",
+    shared_uxelm_toast_resource_bought: "-{amount}g (+{count} {resource})",
     shared_uxelm_toast_preset_applied: "Aplicat {preset} (+{count} gambits)",
     shared_uxelm_toast_glyph_learned: "{hero} ha après {glyph}!",
     shared_uxelm_toast_consumable_used: "{hero} +{amount} {stat}",

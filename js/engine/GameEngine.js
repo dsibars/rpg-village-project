@@ -504,6 +504,12 @@ export class GameEngine {
         'material_stone':  3
     };
 
+    // Buy prices per unit (5x sell price — expensive emergency stock)
+    static BUY_PRICES = {
+        'material_wood':  10,
+        'material_stone': 15
+    };
+
     buyItem(itemData, costGold) {
         if (this.villageService.state.gold < costGold) {
             return Result.fail('village_error_gold_not_enough');
@@ -530,6 +536,33 @@ export class GameEngine {
         this._saveStats();
 
         return Result.ok();
+    }
+
+    /**
+     * Buy a raw resource (wood, stone) for gold.
+     * @param {string} resourceId  - e.g. 'material_wood'
+     * @param {number} quantity    - number of units to buy (1 / 10 / 100)
+     */
+    buyResource(resourceId, quantity) {
+        const pricePerUnit = GameEngine.BUY_PRICES[resourceId];
+        if (!pricePerUnit) {
+            return Result.fail('inventory_error_item_not_found');
+        }
+
+        const totalCost = quantity * pricePerUnit;
+        if (this.villageService.state.gold < totalCost) {
+            return Result.fail('village_error_gold_not_enough');
+        }
+
+        // Deduct gold
+        this.villageService.state.gold -= totalCost;
+        this.villageService.save();
+        this.missionSeedService.trackProgress('spend', 'gold', totalCost);
+
+        // Add resources
+        this.villageService.addItemToInventory(resourceId, quantity);
+
+        return Result.ok({ bought: quantity, goldSpent: totalCost });
     }
 
     /**

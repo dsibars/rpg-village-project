@@ -48,6 +48,15 @@ function getSuccessToast(i18n, domain, action, payload, data) {
       })
     }
 
+    case domain === 'shop' && action === 'buyResource': {
+      const resName = i18n.t(payload?.resourceId)
+      return i18n.t('shared_uxelm_toast_resource_bought', {
+        amount: data?.goldSpent,
+        count: data?.bought,
+        resource: resName
+      })
+    }
+
     case domain === 'inventory' && action === 'cookMeal': {
       return i18n.t('inventory_uxelm_cooked') + ' ' + i18n.t(payload?.recipeId)
     }
@@ -147,6 +156,7 @@ const ACTION_MAP = {
   shop: {
     buyItem: (engine, p) => engine.buyItem(p.itemData, p.costGold),
     sellItem: (engine, p) => engine.sellItem(p.itemId, p.itemType, p.sellPrice),
+    buyResource: (engine, p) => engine.buyResource(p.resourceId, p.quantity),
     sellResource: (engine, p) => engine.sellResource(p.resourceId, p.quantity),
     getSellPrice: (engine, p) => engine.getSellPrice(p.item)
   },

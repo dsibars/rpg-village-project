@@ -179,6 +179,19 @@
                 </div>
               </div>
 
+              <!-- Resource Buy/Sell Cost Section -->
+              <div v-if="currentTab === 'resources'" class="shop-cost-section">
+                <h4>{{ t('shop_uxelm_cost') }}</h4>
+                <div v-if="selectedItem.buyPrice" class="shop-cost-item" :class="{ insufficient: !canAffordBuy(1) }">
+                  <span class="label">{{ t('shop_uxelm_buy') }}</span>
+                  <span class="value">💰 {{ selectedItem.buyPrice }}</span>
+                </div>
+                <div class="shop-cost-item">
+                  <span class="label">{{ t('shop_uxelm_sell') }}</span>
+                  <span class="value">💰 {{ selectedItem.price || 0 }}</span>
+                </div>
+              </div>
+
               <!-- Action Buttons -->
               <!-- Buy / Sell standard button -->
               <div v-if="currentTab !== 'resources'" class="shop-action-footer">
@@ -195,9 +208,22 @@
 
               <!-- Resource quantity buttons -->
               <div v-else class="shop-action-footer resource-buttons">
+                <!-- Buy buttons (only for items with buyPrice) -->
+                <template v-if="selectedItem.buyPrice">
+                  <Button
+                    v-for="qty in [1, 10, 100]"
+                    :key="'buy-' + qty"
+                    :variant="canAffordBuy(qty) ? 'primary' : 'secondary'"
+                    :disabled="!canAffordBuy(qty)"
+                    @click="buyResource(qty)"
+                  >
+                    {{ t('shop_uxelm_buy') }} {{ qty }} ({{ qty * selectedItem.buyPrice }}g)
+                  </Button>
+                </template>
+                <!-- Sell buttons -->
                 <Button
                   v-for="qty in [1, 10, 100]"
-                  :key="qty"
+                  :key="'sell-' + qty"
                   :variant="resourceOwnedCount >= qty ? 'primary' : 'secondary'"
                   :disabled="resourceOwnedCount < qty"
                   @click="sellResource(qty)"
@@ -398,8 +424,8 @@ const allSellItems = computed(() => sellGroups.value.flatMap(g => g.items))
 
 const resourceItems = [
   { id: 'food_raw_grain', price: 1, icon: '🌾' },
-  { id: 'material_wood', price: 2, icon: '🪵' },
-  { id: 'material_stone', price: 3, icon: '🪨' }
+  { id: 'material_wood', price: 2, buyPrice: 10, icon: '🪵' },
+  { id: 'material_stone', price: 3, buyPrice: 15, icon: '🪨' }
 ]
 
 // ─── Catalog Groups (active tab) ────────────────────────────────────
@@ -482,6 +508,11 @@ function getOwnedCount(item) {
 function canAffordItem(item) {
   const cost = item.cost || 0
   return gold.value >= cost
+}
+
+function canAffordBuy(qty) {
+  if (!selectedItem.value || !selectedItem.value.buyPrice) return false
+  return gold.value >= (qty * selectedItem.value.buyPrice)
 }
 
 const canAffordSelected = computed(() => {
@@ -655,6 +686,14 @@ function sellResource(qty) {
     resourceId: selectedItem.value.id,
     quantity: qty,
     pricePerUnit: selectedItem.value.price
+  })
+}
+
+function buyResource(qty) {
+  if (!selectedItem.value) return
+  dispatch('shop', 'buyResource', {
+    resourceId: selectedItem.value.id,
+    quantity: qty
   })
 }
 </script>

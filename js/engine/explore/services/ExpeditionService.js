@@ -700,6 +700,20 @@ export class ExpeditionService {
             });
         }
 
+        // Closure bonus (path sealed)
+        if (exp.reward.closureBonus) {
+            if (exp.reward.closureBonus.gold) {
+                this.villageService.addGold(exp.reward.closureBonus.gold);
+                drops.closureGold = exp.reward.closureBonus.gold;
+            }
+            if (exp.reward.closureBonus.items) {
+                Object.entries(exp.reward.closureBonus.items).forEach(([id, qty]) => {
+                    this.villageService.addItemToInventory(id, qty);
+                    drops.items[id] = (drops.items[id] || 0) + qty;
+                });
+            }
+        }
+
         // Loot drop (equipment)
         const loot = this.lootService.generateLootDrop(exp.regionId);
         if (loot) {

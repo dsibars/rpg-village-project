@@ -302,8 +302,22 @@ export class RegionService {
         if (childrenToSpawn === 0 && exp) {
             exp.status = 'closed';
             if (exp.reward) {
+                const regionData = this.getRegionData(regionId);
+                const lp = regionData.lootProfile;
+                const closureItems = {};
+                if (lp && lp.materials) {
+                    for (const mat of lp.materials) {
+                        if (mat.chance >= 0.5) {
+                            const qty = Math.floor(mat.max * 2);
+                            if (qty > 0) {
+                                closureItems[mat.id] = qty;
+                            }
+                        }
+                    }
+                }
                 exp.reward.closureBonus = {
                     gold: Math.floor((exp.reward.gold || 0) * 1.5),
+                    items: closureItems,
                     message: 'Path Sealed'
                 };
             }
