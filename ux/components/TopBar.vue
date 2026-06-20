@@ -36,6 +36,14 @@
         <span class="stat-icon stat-wood">🪵</span>
         <span class="stat-value">{{ wood }}</span>
       </div>
+      <div class="stat-group" :title="t('village_uxelm_tooltip_stone')">
+        <span class="stat-icon stat-stone">🪨</span>
+        <span class="stat-value">{{ stone }}</span>
+      </div>
+      <div v-if="iron > 0" class="stat-group" :title="t('village_uxelm_tooltip_iron')">
+        <span class="stat-icon stat-iron">⚙️</span>
+        <span class="stat-value">{{ iron }}</span>
+      </div>
       <div
         v-if="storageMax > 0"
         class="stat-group storage-group"
@@ -70,6 +78,8 @@ const props = defineProps({
   population: { type: [Number, Object], default: 0 },
   maxPopulation: { type: Number, default: 0 },
   wood: { type: Number, default: 0 },
+  stone: { type: Number, default: 0 },
+  iron: { type: Number, default: 0 },
   storageUsed: { type: Number, default: 0 },
   storageMax: { type: Number, default: 0 }
 })
@@ -170,6 +180,14 @@ const storagePercent = computed(() => {
   filter: drop-shadow(0 0 2px rgba(120, 53, 15, 0.4));
 }
 
+.stat-stone {
+  filter: drop-shadow(0 0 2px rgba(100, 100, 100, 0.4));
+}
+
+.stat-iron {
+  filter: drop-shadow(0 0 2px rgba(160, 160, 180, 0.4));
+}
+
 .stat-pop {
   filter: drop-shadow(0 0 2px rgba(34, 197, 94, 0.3));
 }
@@ -183,20 +201,20 @@ const storagePercent = computed(() => {
 /* Storage mini indicator */
 .storage-group {
   gap: var(--spacing-xs);
-  min-width: 80px;
+  min-width: 140px;
 }
 
 .storage-mini {
   display: flex;
   flex-direction: column;
-  gap: 1px;
-  min-width: 60px;
+  gap: 2px;
+  min-width: 100px;
 }
 
 .storage-mini-track {
-  height: 4px;
+  height: 6px;
   background: rgba(255, 255, 255, 0.1);
-  border-radius: 2px;
+  border-radius: 3px;
   overflow: hidden;
 }
 

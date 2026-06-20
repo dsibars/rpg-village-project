@@ -884,6 +884,8 @@ export const gl = {
     village_uxelm_population: "Poboación",
     village_uxelm_tooltip_gold: "Ouro dispoñible para gastar",
     village_uxelm_tooltip_wood: "Materiais de madeira no inventario",
+    village_uxelm_tooltip_stone: "Materiais de pedra no inventario",
+    village_uxelm_tooltip_iron: "Materiais de ferro no inventario",
     village_uxelm_tooltip_population: "Aldeáns actuais / Capacidade de vivenda",
     village_uxelm_tooltip_storage: "Almacenamento usado: {used} / {max}",
     village_uxelm_storage_warning: "¡Almacenamento case cheo!",

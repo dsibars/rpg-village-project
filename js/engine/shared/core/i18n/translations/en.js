@@ -885,6 +885,8 @@ export const en = {
     village_uxelm_population: "Population",
     village_uxelm_tooltip_gold: "Available gold for spending",
     village_uxelm_tooltip_wood: "Wood materials in inventory",
+    village_uxelm_tooltip_stone: "Stone materials in inventory",
+    village_uxelm_tooltip_iron: "Iron materials in inventory",
     village_uxelm_tooltip_population: "Current villagers / Housing capacity",
     village_uxelm_tooltip_storage: "Storage used: {used} / {max}",
     village_uxelm_storage_warning: "Storage nearly full!",

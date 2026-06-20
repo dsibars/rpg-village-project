@@ -885,6 +885,8 @@ export const ca = {
     village_uxelm_population: "Població",
     village_uxelm_tooltip_gold: "Or disponible per gastar",
     village_uxelm_tooltip_wood: "Materials de fusta a l'inventari",
+    village_uxelm_tooltip_stone: "Materials de pedra a l'inventari",
+    village_uxelm_tooltip_iron: "Materials de ferro a l'inventari",
     village_uxelm_tooltip_population: "Pagesos actuals / Capacitat d'habitatge",
     village_uxelm_tooltip_storage: "Emmagatzematge usat: {used} / {max}",
     village_uxelm_storage_warning: "Emmagatzematge gairebé ple!",

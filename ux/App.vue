@@ -15,6 +15,8 @@
         :population="population"
         :max-population="maxPopulation"
         :wood="wood"
+        :stone="stone"
+        :iron="iron"
         :storage-used="storageUsed"
         :storage-max="storageMax"
         @nextDay="onNextDay"
@@ -186,6 +188,20 @@ const wood = computed(() => {
     return mats.material_wood || village.value.wood || 0
   }
   return village.value.wood || 0
+})
+const stone = computed(() => {
+  const mats = gameState.value.inventory?.materials
+  if (typeof mats === 'object' && mats !== null && !Array.isArray(mats)) {
+    return mats.material_stone || 0
+  }
+  return 0
+})
+const iron = computed(() => {
+  const mats = gameState.value.inventory?.materials
+  if (typeof mats === 'object' && mats !== null && !Array.isArray(mats)) {
+    return mats.material_iron || 0
+  }
+  return 0
 })
 const maxPopulation = computed(() => village.value.maxPopulation || 0)
 const storageUsed = computed(() => inventory.value.totalUsed || 0)

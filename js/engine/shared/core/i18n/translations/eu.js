@@ -884,6 +884,8 @@ export const eu = {
     village_uxelm_population: "Biztanleria",
     village_uxelm_tooltip_gold: "Gastatzeko urri eskuragarria",
     village_uxelm_tooltip_wood: "Inbentarioko egur materialak",
+    village_uxelm_tooltip_stone: "Inbentarioko harri materialak",
+    village_uxelm_tooltip_iron: "Inbentarioko burdina materialak",
     village_uxelm_tooltip_population: "Oraingo herritarrak / Etxebizitza kapazitatea",
     village_uxelm_tooltip_storage: "Biltegia erabilia: {used} / {max}",
     village_uxelm_storage_warning: "Biltegia ia beteta!",
