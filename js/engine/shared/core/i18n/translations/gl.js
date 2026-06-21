@@ -1153,6 +1153,8 @@ export const gl = {
     book_update_raid_defended: "¡A vila defendeu con éxito contra un ataque!",
     book_update_raid_lost: "A vila foi atacada. Perdéronse recursos.",
     book_update_quiet_day: "O día pasou tranquilamente na vila.",
+    book_history_combat_victory: "{heroes} gañaron unha batalla contra {enemyCount} {enemies}.",
+    book_history_combat_defeat: "{heroes} foron derrotados en batalla.",
 
     book_milestone_first_victory: "Primeira Vitoria",
     book_milestone_first_boss: "Primeiro Xefe Derrotado",

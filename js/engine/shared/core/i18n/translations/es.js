@@ -1154,6 +1154,8 @@ export const es = {
     book_update_raid_defended: "¡El pueblo defendió exitosamente contra un ataque!",
     book_update_raid_lost: "El pueblo fue atacado. Se perdieron recursos.",
     book_update_quiet_day: "El día pasó tranquilamente en el pueblo.",
+    book_history_combat_victory: "{heroes} ganaron una batalla contra {enemyCount} {enemies}.",
+    book_history_combat_defeat: "{heroes} fueron derrotados en batalla.",
 
     book_milestone_first_victory: "Primera Victoria",
     book_milestone_first_boss: "Primer Jefe Derrotado",

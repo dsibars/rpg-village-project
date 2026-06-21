@@ -1153,6 +1153,8 @@ export const eu = {
     book_update_raid_defended: "Herriak eraso bat defendatu zuen arrakastaz!",
     book_update_raid_lost: "Herria eraso egin zioten. Baliabideak galdu ziren.",
     book_update_quiet_day: "Egun lasaia igaro zen herrian.",
+    book_history_combat_victory: "{heroes}-ek garaipena lortu dute {enemyCount} {enemies} aurka.",
+    book_history_combat_defeat: "{heroes} borrokan galdu ziren.",
 
     book_milestone_first_victory: "Lehen Garaipena",
     book_milestone_first_boss: "Lehen Buruzagia Garaitua",

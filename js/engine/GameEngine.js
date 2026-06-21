@@ -267,6 +267,7 @@ export class GameEngine {
                 this.villageService.getState().infrastructure?.blacksmith || 0
             ),
             book: this.bookService.getState(),
+            hasBookAutoOpen: this.bookService.hasAutoOpenContent(),
             unlockedNarratives: this.unlockService.getShownNarratives()
         };
     }
@@ -1369,6 +1370,7 @@ export class GameEngine {
             }
 
             // Chronicle: record battle outcome
+            // TODO(Book): Replace Chronicle call with Book section after Chronicle refactor
             if (combatLog) {
                 const villageDay = this.villageService.getState().day || 1;
                 const heroes = combatLog.heroes?.map(h => h.name).join(', ') || 'Heroes';
@@ -1380,6 +1382,24 @@ export class GameEngine {
                         `${heroes} won a battle against ${combatLog.enemies?.length || 0} enemies.`,
                         { victory: true, enemyCount: combatLog.enemies?.length || 0 }
                     );
+                    // Push victory history_event to Book
+                    this.bookService.addSection({
+                        id: `combat_victory_${villageDay}_${Date.now()}`,
+                        category: 'history_event',
+                        day: villageDay,
+                        blocks: [
+                            {
+                                textKey: 'book_history_combat_victory',
+                                values: {
+                                    heroes,
+                                    enemyCount: combatLog.enemies?.length || 0,
+                                    enemies: combatLog.enemies?.map(e => e.name).join(', ') || 'enemies'
+                                },
+                                weight: 6
+                            }
+                        ],
+                        metadata: { combatLog: true, victory: true }
+                    });
                 } else {
                     this.chronicleService.recordEntry(
                         villageDay,
@@ -1388,6 +1408,20 @@ export class GameEngine {
                         `${heroes} were defeated in battle.`,
                         { victory: false }
                     );
+                    // Push defeat history_event to Book
+                    this.bookService.addSection({
+                        id: `combat_defeat_${villageDay}_${Date.now()}`,
+                        category: 'history_event',
+                        day: villageDay,
+                        blocks: [
+                            {
+                                textKey: 'book_history_combat_defeat',
+                                values: { heroes },
+                                weight: 6
+                            }
+                        ],
+                        metadata: { combatLog: true, victory: false }
+                    });
                 }
             }
 

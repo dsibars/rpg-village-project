@@ -1154,6 +1154,8 @@ export const ca = {
     book_update_raid_defended: "¡El poble ha defensat amb èxit contra un atac!",
     book_update_raid_lost: "El poble va ser atacat. Es van perdre recursos.",
     book_update_quiet_day: "El dia va passar tranquil·lament al poble.",
+    book_history_combat_victory: "{heroes} van guanyar una batalla contra {enemyCount} {enemies}.",
+    book_history_combat_defeat: "{heroes} van ser derrotats en batalla.",
 
     book_milestone_first_victory: "Primera Victòria",
     book_milestone_first_boss: "Primer Cap Derrotat",

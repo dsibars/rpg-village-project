@@ -34,6 +34,10 @@ export const BOOK_KEYS = {
     UPDATE_RAID_LOST: 'book_update_raid_lost',
     UPDATE_QUIET_DAY: 'book_update_quiet_day',
 
+    // History events (narrative blocks)
+    HISTORY_COMBAT_VICTORY: 'book_history_combat_victory',
+    HISTORY_COMBAT_DEFEAT: 'book_history_combat_defeat',
+
     // Milestones
     MILESTONE_FIRST_VICTORY: 'book_milestone_first_victory',
     MILESTONE_FIRST_BOSS: 'book_milestone_first_boss',

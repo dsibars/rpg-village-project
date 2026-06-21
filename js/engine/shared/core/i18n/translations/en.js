@@ -1156,6 +1156,8 @@ export const en = {
     book_update_raid_defended: "The village successfully defended against a raid!",
     book_update_raid_lost: "The village was raided. Resources were lost.",
     book_update_quiet_day: "The day passed quietly in the village.",
+    book_history_combat_victory: "{heroes} won a battle against {enemyCount} {enemies}.",
+    book_history_combat_defeat: "{heroes} were defeated in battle.",
 
     book_milestone_first_victory: "First Victory",
     book_milestone_first_boss: "First Boss Defeated",

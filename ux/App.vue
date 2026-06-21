@@ -309,9 +309,16 @@ function showNextPresentation() {
     currentPresentation.value = null
     showPresentation.value = false
     presentationsDone.value = true
-    // Now allow daily report to show
-    if (dailyReport.value && dailyReport.value.day !== dismissedReportDay.value) {
-      showDailyReport.value = true
+    // Now allow daily report to show, or auto-open Book if there's auto-open content
+    const report = dailyReport.value
+    if (report && report.day !== dismissedReportDay.value) {
+      const hasAutoOpen = gameState.value?.hasBookAutoOpen
+      if (hasAutoOpen) {
+        // Auto-open the Book instead of showing daily report
+        currentPage.value = 'book'
+      } else {
+        showDailyReport.value = true
+      }
     }
     return
   }
