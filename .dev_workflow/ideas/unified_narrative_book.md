@@ -174,22 +174,25 @@ A PageContentSection can optionally override its weight via the engine section's
 
 When `addSection(engineSection)` is called:
 
-1. **Split the engineSection into PageContentSections:**
+1. **Guard: reject empty sections.** If a `history_event` or `chapter_history_event` has no `blocks`, the BookService skips it entirely. No PageSection or PageContentSections are created. This prevents orphaned empty metadata.
+
+2. **Split the engineSection into PageContentSections:**
    - `chapter_history_event`: one `chapter_title` PCS (weight 2) + one `history_block` PCS per block (weight 6 each, overridable)
    - `history_event`: one `history_block` PCS per block (weight 6 each, overridable)
    - `milestone`: one `milestone` PCS (weight 4, overridable)
    - `village_updates`: one `village_update_title` PCS (weight 2) + one `village_update_bullet` PCS per entry (weight 1 each, overridable per entry)
 
-2. **Create a PageSection** with the section's id, category, day, and empty arrays for `pages` and `pageContentSectionIds`.
+3. **Create a PageSection** with the section's id, category, day, and empty arrays for `pages` and `pageContentSectionIds`.
 
-3. **Place each PCS in order:**
+4. **Place each PCS in order:**
    - If the current page has enough remaining budget, append the PCS.
    - If not, start a new page and append the PCS.
+   - If a single PCS exceeds the page budget, it is placed on its own page and allowed to overflow rather than looping or being dropped.
    - If the PCS is a `chapter_title`, also close the current chapter and start a new chapter.
 
-4. **Update the PageSection** with the `pages[]` and `pageContentSectionIds[]` of all its PCSs.
+5. **Update the PageSection** with the `pages[]` and `pageContentSectionIds[]` of all its PCSs.
 
-5. **Persist** the updated BookState.
+6. **Persist** the updated BookState.
 
 This makes page numbers deterministic and stable across languages. The layout depends only on the ordered list of PCSs and their weights, never on viewport, CSS, or rendered text length.
 

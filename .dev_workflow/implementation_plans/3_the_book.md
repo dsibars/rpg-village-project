@@ -248,17 +248,19 @@ When `addSection(engineSection)` is called:
 
 ### 6.1 Split the Engine Section into PageContentSections
 
-1. **If `category === 'chapter_history_event'`:**
+1. **Guard: reject empty sections.** If a `history_event` or `chapter_history_event` has no `blocks`, the BookService skips it entirely. No PageSection or PageContentSections are created. This prevents orphaned empty metadata.
+
+2. **If `category === 'chapter_history_event'`:**
    - Create a `chapter_title` PCS with `weight: 2`, `textKey: engineSection.metadata.titleKey || 'book_chapter_default_title'`.
    - For each block in `engineSection.blocks`, create a `history_block` PCS with `weight: block.weight || 6`.
 
-2. **If `category === 'history_event'`:**
+3. **If `category === 'history_event'`:**
    - For each block in `engineSection.blocks`, create a `history_block` PCS with `weight: block.weight || 6`.
 
-3. **If `category === 'milestone'`:**
+4. **If `category === 'milestone'`:**
    - Create a single `milestone` PCS with `weight: engineSection.entry.weight || 4`.
 
-4. **If `category === 'village_updates'`:**
+5. **If `category === 'village_updates'`:**
    - Create a `village_update_title` PCS with `weight: 2`, `textKey: 'book_village_updates_title'` (interpolated with day).
    - For each entry in `engineSection.entries`, create a `village_update_bullet` PCS with `weight: entry.weight || 1`.
 
@@ -287,7 +289,14 @@ for each pcs in pageContentSections:
     // Start a new page for the chapter title
     currentPage = createNewPage(currentChapter.chapterNumber);
   
-  if (currentPage.remainingBudget >= pcs.weight):
+  // Guard: if a single PCS exceeds the page budget, allow overflow rather than looping
+  if (pcs.weight > pageBudget):
+    // Force the PCS onto its own page, even if it exceeds the budget
+    if (currentPage.pageContentSections.length > 0):
+      currentPage = createNewPage(currentChapter.chapterNumber);
+    currentPage.pageContentSections.push(pcs);
+    // Do not deduct weight; overflow is allowed for single oversized PCSs
+  else if (currentPage.remainingBudget >= pcs.weight):
     currentPage.pageContentSections.push(pcs);
     currentPage.remainingBudget -= pcs.weight;
   else:
@@ -349,6 +358,8 @@ class BookService {
 - `markRead` advances the read cursor forward only.
 - `hasUnreadContent()` returns true if any PCS has been added since the last read spread.
 - `hasAutoOpenContent()` returns true if any PCS with `autoOpen: true` category has been added since the last read spread.
+- **Overflow guard:** If a single PCS has `weight > pageBudget`, the layout algorithm places it on its own page and allows it to overflow rather than looping or dropping it.
+- **Empty section guard:** If a `history_event` or `chapter_history_event` has zero blocks, `addSection()` skips it entirely and returns `null` (no PageSection created).
 
 ---
 
@@ -533,7 +544,9 @@ The Chronicle catalog is initialized from:
 | Layout breaks on language change | Use deterministic visual budget; UI handles minor overflow gracefully |
 | Post-day sequence bugs | Add integration tests covering combat-deferred flow |
 | Page numbers drift | Visual budget depends only on section data, not rendering |
-| PCS weight overrides break layout | Clamp overrides to a reasonable range (e.g., 0.5x to 2x default) |
+| PCS weight overrides break layout | Clamp overrides to a reasonable range (e.g., 0.5x to 2x default). Allow overflow for single PCSs that exceed page budget. |
+| Single PCS exceeds page budget | Layout algorithm places it on its own page and allows overflow rather than looping or dropping it. |
+| Empty history_event with no blocks | `addSection()` skips the section entirely and returns `null`. No orphaned metadata created. |
 
 ---
 
@@ -542,7 +555,8 @@ The Chronicle catalog is initialized from:
 - [ ] `ChronicleService` stores a catalog of entries with labels, requirements, status, and Book links; no day-to-day narrative text.
 - [ ] `BookService` is created, tested, and persisted per save slot.
 - [ ] Only four section categories exist: `history_event`, `chapter_history_event`, `milestone`, `village_updates`.
-- [ ] Layout algorithm splits history events and village updates into PageContentSections across pages when needed.
+- [ ] Layout algorithm splits engine sections into PageContentSections, places them on pages using weight-based budget, and handles overflow for single PCSs that exceed the page budget.
+- [ ] Empty sections (e.g., `history_event` with no blocks) are skipped without creating orphaned metadata.
 - [ ] `TheBookModal` renders two-page spreads with page-turn animation.
 - [ ] `BookTopBarButton` shows glow and badge states correctly.
 - [ ] `GameEngine.nextDay()` pushes Book sections instead of Chronicle entries.
