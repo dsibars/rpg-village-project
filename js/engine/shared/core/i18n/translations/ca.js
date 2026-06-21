@@ -1123,6 +1123,11 @@ export const ca = {
     nav_codex: "Còdex",
 
     // ═══ THE BOOK ════════════════════════════════════════════════════════
+    book_uxelm_title: "El Llibre",
+    book_uxelm_prev: "Anterior",
+    book_uxelm_next: "Següent",
+    book_uxelm_spread: "{current} / {total}",
+    book_uxelm_milestone: "Fita",
     book_chapter_default_title: "Capítol {chapter}",
     book_chapter_1_title: "Capítol I: Les Cendres del Passat",
     book_chapter_2_title: "Capítol II: L'Edat Arcana",

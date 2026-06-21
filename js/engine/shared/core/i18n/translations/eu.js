@@ -1122,6 +1122,11 @@ export const eu = {
     nav_codex: "Kodexa",
 
     // ═══ THE BOOK ════════════════════════════════════════════════════════
+    book_uxelm_title: "Liburua",
+    book_uxelm_prev: "Aurrekoa",
+    book_uxelm_next: "Hurrengoa",
+    book_uxelm_spread: "{current} / {total}",
+    book_uxelm_milestone: "Mugarria",
     book_chapter_default_title: "{chapter}. Kapitulua",
     book_chapter_1_title: "I. Kapitulua: Iraganaren Hondarrak",
     book_chapter_2_title: "II. Kapitulua: Aro Arkanoa",

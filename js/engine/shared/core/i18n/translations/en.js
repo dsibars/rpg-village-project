@@ -1125,6 +1125,11 @@ export const en = {
     nav_codex: "Codex",
 
     // ═══ THE BOOK ════════════════════════════════════════════════════════
+    book_uxelm_title: "The Book",
+    book_uxelm_prev: "Previous",
+    book_uxelm_next: "Next",
+    book_uxelm_spread: "{current} / {total}",
+    book_uxelm_milestone: "Milestone",
     book_chapter_default_title: "Chapter {chapter}",
     book_chapter_1_title: "Chapter I: The Ashes of the Past",
     book_chapter_2_title: "Chapter II: The Arcane Age",

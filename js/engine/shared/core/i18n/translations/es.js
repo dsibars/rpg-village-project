@@ -1123,6 +1123,11 @@ export const es = {
     nav_codex: "Códice",
 
     // ═══ THE BOOK ════════════════════════════════════════════════════════
+    book_uxelm_title: "El Libro",
+    book_uxelm_prev: "Anterior",
+    book_uxelm_next: "Siguiente",
+    book_uxelm_spread: "{current} / {total}",
+    book_uxelm_milestone: "Hito",
     book_chapter_default_title: "Capítulo {chapter}",
     book_chapter_1_title: "Capítulo I: Las Cenizas del Pasado",
     book_chapter_2_title: "Capítulo II: La Era Arcana",

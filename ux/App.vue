@@ -90,6 +90,7 @@ import TopBar from './components/TopBar.vue'
 import FooterNav from './components/FooterNav.vue'
 import ToastContainer from './components/ToastContainer.vue'
 import SaveSlotPage from './features/saveSlots/SaveSlotPage.vue'
+import BookPage from './features/book/BookPage.vue'
 import VillagePage from './features/village/VillagePage.vue'
 import HeroesPage from './features/heroes/HeroesPage.vue'
 import AdventurePage from './features/adventure/AdventurePage.vue'
@@ -212,6 +213,7 @@ const pages = {
   heroes: HeroesPage,
   adventure: AdventurePage,
   town: TownPage,
+  book: BookPage,
   settings: SettingsPage
 }
 
@@ -222,6 +224,7 @@ const currentPageLabel = computed(() => {
     heroes: 'shared_uxelm_nav_heroes',
     adventure: 'shared_uxelm_nav_adventure',
     town: 'shared_uxelm_nav_town',
+    book: 'book_uxelm_title',
     settings: 'shared_uxelm_nav_settings'
   }
   return t(labels[currentPage.value] || 'shared_uxelm_nav_main')
@@ -231,7 +234,8 @@ const navItems = computed(() => [
   { id: 'village', label: t('shared_uxelm_nav_main'), icon: '🏡' },
   { id: 'heroes', label: t('shared_uxelm_nav_heroes'), icon: '⚔' },
   { id: 'adventure', label: t('shared_uxelm_nav_adventure'), icon: '🗺' },
-  { id: 'town', label: t('shared_uxelm_nav_town'), icon: '🏘' }
+  { id: 'town', label: t('shared_uxelm_nav_town'), icon: '🏘' },
+  { id: 'book', label: t('book_uxelm_title'), icon: '📖' }
 ])
 
 function refreshSaveSlots() {
