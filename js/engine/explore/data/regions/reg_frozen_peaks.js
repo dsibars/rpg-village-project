@@ -14,12 +14,12 @@ export const reg_frozen_peaks = {
     },
     lootProfile: {
         materials: [
-            { id: 'material_steel_ingot', min: 1, max: 3, chance: 1.0 },
-            { id: 'material_iron_ore', min: 1, max: 3, chance: 0.4 },
-            { id: 'material_mythril', min: 1, max: 1, chance: 0.1 }
+            { id: 'material_steel_ingot', min: 2, max: 5, chance: 1.0 },
+            { id: 'material_iron_ore', min: 2, max: 5, chance: 0.5 },
+            { id: 'material_mythril', min: 1, max: 2, chance: 0.2 }
         ],
-        goldBase: 40,
-        goldPerClear: 8
+        goldBase: 160,
+        goldPerClear: 32
     },
     narrative: {
         firstClear: {

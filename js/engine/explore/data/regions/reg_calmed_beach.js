@@ -14,12 +14,12 @@ export const reg_calmed_beach = {
     },
     lootProfile: {
         materials: [
-            { id: 'material_stone', min: 3, max: 5, chance: 1.0 },
-            { id: 'material_wood', min: 3, max: 5, chance: 1.0 },
-            { id: 'material_iron_ore', min: 1, max: 1, chance: 0.2 }
+            { id: 'material_stone', min: 5, max: 10, chance: 1.0 },
+            { id: 'material_wood', min: 5, max: 10, chance: 1.0 },
+            { id: 'material_iron_ore', min: 2, max: 4, chance: 0.35 }
         ],
-        goldBase: 40,
-        goldPerClear: 8
+        goldBase: 80,
+        goldPerClear: 16
     },
     narrative: null,
     glyphDropTable: null,

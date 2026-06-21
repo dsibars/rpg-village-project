@@ -14,12 +14,12 @@ export const reg_mystic_ruins = {
     },
     lootProfile: {
         materials: [
-            { id: 'material_iron_ore', min: 2, max: 4, chance: 1.0 },
-            { id: 'material_stone', min: 2, max: 4, chance: 0.4 },
-            { id: 'material_mythril', min: 1, max: 1, chance: 0.15 }
+            { id: 'material_iron_ore', min: 4, max: 8, chance: 1.0 },
+            { id: 'material_stone', min: 4, max: 8, chance: 0.5 },
+            { id: 'material_mythril', min: 1, max: 2, chance: 0.25 }
         ],
-        goldBase: 40,
-        goldPerClear: 8
+        goldBase: 140,
+        goldPerClear: 28
     },
     narrative: null,
     glyphDropChance: 0.40,
