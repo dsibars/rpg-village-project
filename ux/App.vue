@@ -40,7 +40,6 @@
           :active-tab="activeTab"
           @openSettings="currentPage = 'settings'"
           @navigate="handleNavigate"
-          @recallDailyReport="showDailyReport = true"
         />
       </main>
 
@@ -56,13 +55,6 @@
     <CombatOverlay
       v-if="showCombatOverlay"
       @close="showCombatOverlay = false"
-    />
-
-    <DailyReportModal
-      v-if="showDailyReport"
-      :open="true"
-      :report="dailyReport"
-      @close="onCloseDailyReport"
     />
 
     <ExpeditionResultModal
@@ -98,7 +90,6 @@ import AdventurePage from './features/adventure/AdventurePage.vue'
 import TownPage from './features/town/TownPage.vue'
 import SettingsPage from './features/settings/SettingsPage.vue'
 import CombatOverlay from './features/combat/CombatOverlay.vue'
-import DailyReportModal from './features/village/components/modals/DailyReportModal.vue'
 import PresentationModal from './features/shared/PresentationModal.vue'
 import ExpeditionResultModal from './features/shared/ExpeditionResultModal.vue'
 import { useAdapter } from './core/composables/useAdapter.js'
@@ -117,7 +108,6 @@ useNarrativeToasts()
 const currentPage = ref('village')
 const activeTab = ref(null)
 const showCombatOverlay = ref(false)
-const showDailyReport = ref(false)
 const pageError = shallowRef(null)
 const saveSlots = ref([])
 const slotIndex = ref(props.persistence?.slotIndex ?? null)
@@ -171,15 +161,6 @@ watch(showCombatOverlay, (newVal, oldVal) => {
 })
 
 // Daily report watcher — gated behind presentation completion
-const dailyReport = computed(() => gameState.value.village?.lastDailyReport || null)
-const dismissedReportDay = ref(null)
-
-watch(dailyReport, (report) => {
-  if (report && report.day !== dismissedReportDay.value && presentationsDone.value && !showExpeditionResult.value) {
-    showDailyReport.value = true
-  }
-})
-
 const hasSlotSelected = computed(() => slotIndex.value !== null)
 
 const gold = computed(() => village.value.gold || 0)
@@ -309,16 +290,10 @@ function showNextPresentation() {
     currentPresentation.value = null
     showPresentation.value = false
     presentationsDone.value = true
-    // Now allow daily report to show, or auto-open Book if there's auto-open content
-    const report = dailyReport.value
-    if (report && report.day !== dismissedReportDay.value) {
-      const hasAutoOpen = gameState.value?.hasBookAutoOpen
-      if (hasAutoOpen) {
-        // Auto-open the Book instead of showing daily report
-        currentPage.value = 'book'
-      } else {
-        showDailyReport.value = true
-      }
+    // Auto-open the Book if there's auto-open content
+    const hasAutoOpen = gameState.value?.book?.hasAutoOpen
+    if (hasAutoOpen) {
+      currentPage.value = 'book'
     }
     return
   }
@@ -390,13 +365,6 @@ function onCloseExpeditionResult() {
   proceedToPresentations()
 }
 
-function onCloseDailyReport() {
-  showDailyReport.value = false
-  if (dailyReport.value) {
-    dismissedReportDay.value = dailyReport.value.day
-  }
-}
-
 function handleNavigate({ page, tab }) {
   if (page && pages[page]) {
     currentPage.value = page
@@ -421,14 +389,9 @@ function proceedToPresentations() {
     showNextPresentation()
   } else {
     presentationsDone.value = true
-    const report = pendingReport.value
-    if (report && report.day !== dismissedReportDay.value) {
-      const hasAutoOpen = gameState.value?.hasBookAutoOpen
-      if (hasAutoOpen) {
-        currentPage.value = 'book'
-      } else {
-        showDailyReport.value = true
-      }
+    const hasAutoOpen = gameState.value?.book?.hasAutoOpen
+    if (hasAutoOpen) {
+      currentPage.value = 'book'
     }
   }
 }

@@ -1247,24 +1247,9 @@ export class GameEngine {
             }
         }
 
-        const dailyReport = {
-            ...villageReport,
-            expedition: expeditionResult.success ? expeditionResult.data : null,
-            recovery: healedLog,
-            training: xpLog,
-            actions: actionLog,
-            raid: raidResult,
-            tavernRecruit: tavernRecruitHero,
-            villageEvent: eventResult
-        };
-
         // ─── Expedition narrative queue ───
         const pendingNarratives = this.expeditionService.getPendingNarratives();
         for (const n of pendingNarratives) {
-            dailyReport.newNarratives = dailyReport.newNarratives || [];
-            dailyReport.newNarratives.push(n);
-        }
-        if (pendingNarratives.length > 0) {
             this.expeditionService.consumePendingNarratives();
         }
         
@@ -1277,11 +1262,18 @@ export class GameEngine {
             this.unlockService.markAllAsShown(newNarratives, villageState.day);
         }
 
-        dailyReport.newNarratives = newNarratives;
-        dailyReport.newCodexFeatures = newCodexFeatures;
-
-        this.villageService.setDailyReport(dailyReport);
-        return dailyReport;
+        return {
+            villageReport,
+            expedition: expeditionResult.success ? expeditionResult.data : null,
+            recovery: healedLog,
+            training: xpLog,
+            actions: actionLog,
+            raid: raidResult,
+            tavernRecruit: tavernRecruitHero,
+            villageEvent: eventResult,
+            newNarratives,
+            newCodexFeatures
+        };
     }
 
     setWorkerRole(role, delta) {
