@@ -139,7 +139,6 @@ const showPresentation = ref(false)
 const presentationsDone = ref(true)
 
 // Post-day sequencing state
-const pendingReport = ref(null)
 const pendingPostCombatReport = ref(null)
 const expeditionResultReport = ref(null)
 const showExpeditionResult = ref(false)
@@ -331,8 +330,6 @@ function onNextDay() {
 }
 
 function runPostDaySequence(report) {
-  pendingReport.value = report
-
   // Step 1: Expedition result modal
   let expData = report?.expedition
   // If the stale report says battle_started, check if combat actually resolved the expedition
