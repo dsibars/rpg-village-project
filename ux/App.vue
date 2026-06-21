@@ -421,8 +421,14 @@ function proceedToPresentations() {
     showNextPresentation()
   } else {
     presentationsDone.value = true
-    if (pendingReport.value) {
-      showDailyReport.value = true
+    const report = pendingReport.value
+    if (report && report.day !== dismissedReportDay.value) {
+      const hasAutoOpen = gameState.value?.hasBookAutoOpen
+      if (hasAutoOpen) {
+        currentPage.value = 'book'
+      } else {
+        showDailyReport.value = true
+      }
     }
   }
 }

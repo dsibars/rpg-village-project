@@ -1096,6 +1096,16 @@ export class GameEngine {
             }
         }
 
+        // --- Tavern Auto-Recruit (must happen BEFORE village-updates block) ---
+        let tavernRecruitHero = null;
+        if (villageReport.tavernRecruit && villageReport.tavernRecruit.ready) {
+            const heroResult = this.heroService.generateRandomHero();
+            if (heroResult.success) {
+                tavernRecruitHero = heroResult.data;
+                this.missionSeedService.trackProgress('recruit', 'hero', 1);
+            }
+        }
+
         // --- Book: Record Village Updates ---
         const bookEntries = [];
         if (villageReport.foodConsumed) {
@@ -1165,16 +1175,6 @@ export class GameEngine {
         // --- Track expedition completions and enemy defeats for daily objectives
         // NOTE: These are tracked in resolveBattle() when the battle is actually resolved.
         // The expeditionResult from processDay only returns status='battle_started'.
-
-        // --- Tavern Auto-Recruit ---
-        let tavernRecruitHero = null;
-        if (villageReport.tavernRecruit && villageReport.tavernRecruit.ready) {
-            const heroResult = this.heroService.generateRandomHero();
-            if (heroResult.success) {
-                tavernRecruitHero = heroResult.data;
-                this.missionSeedService.trackProgress('recruit', 'hero', 1);
-            }
-        }
 
         // Trigger Point 5: First Hero Reaches Level 5
         const hasLevel5EventFired = this.presentationService.isSeen('pres_discipline');

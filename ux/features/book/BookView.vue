@@ -82,11 +82,13 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useI18n } from '@/core/composables/useI18n.js'
 import BookPcs from './BookPcs.vue'
 
 const { t } = useI18n()
+
+const emit = defineEmits(['markRead'])
 
 const props = defineProps({
   bookState: { type: Object, required: true }
@@ -127,12 +129,16 @@ const progressPercent = computed(() => {
 function prevSpread() {
   if (currentSpread.value > 1) {
     currentSpread.value--
+    const firstPage = (currentSpread.value - 1) * 2 + 1
+    emit('markRead', firstPage)
   }
 }
 
 function nextSpread() {
   if (currentSpread.value < maxSpread.value) {
     currentSpread.value++
+    const firstPage = (currentSpread.value - 1) * 2 + 1
+    emit('markRead', firstPage)
   }
 }
 
@@ -141,6 +147,14 @@ function onKeyDown(e) {
   if (e.key === 'ArrowLeft') prevSpread()
   if (e.key === 'ArrowRight') nextSpread()
 }
+
+onMounted(() => {
+  window.addEventListener('keydown', onKeyDown)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', onKeyDown)
+})
 
 // Auto-navigate to first unread spread on mount
 function goToFirstUnread() {

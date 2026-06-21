@@ -77,17 +77,12 @@ const text = computed(() => {
   const pcs = props.pcs
   if (!pcs) return ''
 
-  // For Stage 2, we display raw textKey. In Stage 3, this will resolve via i18n.
   const key = pcs.textKey || ''
   const values = pcs.values || {}
 
-  // Simple template replacement for now
-  let result = key
-  for (const [k, v] of Object.entries(values)) {
-    result = result.replace(new RegExp(`{${k}}`, 'g'), v)
-  }
-
-  return result
+  // Use i18n composable for translation, with template replacement
+  const translated = t(key, values)
+  return translated
 })
 </script>
 
