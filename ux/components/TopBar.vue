@@ -61,6 +61,13 @@
           <span class="storage-mini-text">{{ storageUsed }} / {{ storageMax }}</span>
         </div>
       </div>
+      <button
+        class="btn-quick btn-text"
+        :class="{ 'btn-glow': hasBookGlow }"
+        @click="$emit('navigate', { page: 'book' })"
+      >
+        📖 {{ t('book_uxelm_title') }}
+      </button>
       <button class="btn-quick" :title="t('shared_uxelm_nav_settings')" @click="$emit('openSettings')">
         ⚙️
       </button>
@@ -81,7 +88,8 @@ const props = defineProps({
   stone: { type: Number, default: 0 },
   iron: { type: Number, default: 0 },
   storageUsed: { type: Number, default: 0 },
-  storageMax: { type: Number, default: 0 }
+  storageMax: { type: Number, default: 0 },
+  hasBookGlow: { type: Boolean, default: false }
 })
 
 defineEmits(['nextDay', 'openSettings', 'navigate'])
@@ -308,6 +316,17 @@ const storagePercent = computed(() => {
 .btn-next-day:focus-visible {
   outline: 2px solid var(--accent-color);
   outline-offset: 2px;
+}
+
+.btn-glow {
+  animation: glow-pulse 1.5s ease-in-out infinite alternate;
+  border-color: var(--color-primary-light);
+  color: var(--color-primary-light);
+}
+
+@keyframes glow-pulse {
+  0% { box-shadow: 0 0 4px rgba(245, 158, 11, 0.3); }
+  100% { box-shadow: 0 0 12px rgba(245, 158, 11, 0.6); }
 }
 
 @media (max-width: 768px) {

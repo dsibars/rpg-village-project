@@ -1,0 +1,1 @@
+Stage 3 complete with 67 tests passing. GameEngine now wires BookService for village_updates on nextDay, and Book UI components receive live data via gameState.book. Proceeding to Stage 4: glow states and auto-open behavior.

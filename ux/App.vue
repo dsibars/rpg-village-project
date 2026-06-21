@@ -19,6 +19,7 @@
         :iron="iron"
         :storage-used="storageUsed"
         :storage-max="storageMax"
+        :has-book-glow="hasBookUnread"
         @nextDay="onNextDay"
         @openSettings="currentPage = 'settings'"
         @navigate="handleNavigate"
@@ -207,6 +208,17 @@ const iron = computed(() => {
 const maxPopulation = computed(() => village.value.maxPopulation || 0)
 const storageUsed = computed(() => inventory.value.totalUsed || 0)
 const storageMax = computed(() => maxStorage.value)
+
+const hasBookUnread = computed(() => {
+  const book = gameState.value?.book
+  if (!book) return false
+  for (const page of book.pages || []) {
+    for (const pcs of page.pageContentSections || []) {
+      if (!pcs.read) return true
+    }
+  }
+  return false
+})
 
 const pages = {
   village: VillagePage,
