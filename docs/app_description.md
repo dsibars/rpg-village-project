@@ -11,12 +11,13 @@ The game is divided into the following core domains:
 - **Inventory System**: Stackable resources (materials, food, consumables) and unique equipment with storage limits.
 - **Expedition System**: Region-based discovery, story and procedural nodes, multi-stage expeditions with combat resolution.
 - **Economy (Shop & Forge)**: Purchase consumables and gear, sell resources and inventory items, refine equipment up to +10.
+- **Book & Chronicle**: In-fiction journal that records every notable event as readable pages, plus an achievement index that links back to those pages.
 
 ## User Interface Layout
 The application follows a single-page layout with a persistent header and navigation bar.
 
 ### Main View Sections
-- **Village**: Primary area for village status, daily reports, and visual representation.
+- **Village**: Primary area for village status and visual representation.
 - **Buildings**: Interface for constructing and upgrading village structures.
 - **Heroes**: Management of village heroes, stat allocation, and equipment.
 - **Inventory**: Overview of all items, materials, food, consumables, and gear.
@@ -26,7 +27,9 @@ The application follows a single-page layout with a persistent header and naviga
 - **Settings**: Game configurations, language selection, data persistence, and developer options.
 
 ## Global Mechanics
-- **Day Cycle**: Each day consumes food, advances construction, triggers farm production, and may cause population growth or starvation.
+- **Day Cycle**: Each day consumes food, advances construction, triggers farm production, and may cause population growth or starvation. Notable events are recorded in the Book.
+- **Book**: The village journal. Battles, expeditions, hero actions, building completion, raids, and milestones become structured, localizable pages. Dramatic events auto-open the Book; routine days simply glow the Book button.
+- **Chronicle**: The achievement/index view. Tracks unlocked story events and milestones, shows requirement hints for locked entries, and links each unlock to its exact Book page.
 - **Persistence**: All game state is saved to `localStorage` automatically.
 - **Internationalization**: Full UI translation support for English, Spanish, Catalan, Basque, and Galician.
 - **Offline-First**: The game is designed to function without any server or internet connection after initial load.

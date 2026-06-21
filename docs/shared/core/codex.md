@@ -41,7 +41,16 @@ The Codex tracks the following features across 4 categories:
 | `feature_villagers` | `👤` | Villagers & Labor | Always unlocked (`() => true`) |
 | `feature_hero_attributes` | `🦸` | Hero Attributes & Stats | Always unlocked (`() => true`) |
 | `feature_daily_actions` | `📋` | Daily Hero Actions | Tavern building level $\ge$ 1 |
-| `feature_chronicle` | `📜` | Chronicle | Any expedition completed |
+| `feature_chronicle` | `📜` | Chronicle & Book | Any expedition completed |
+
+#### `feature_chronicle` — Chronicle & Book
+
+Unlocking this feature reveals two linked narrative surfaces:
+
+- **The Book** is the readable journal. It receives every notable event as a structured, localizable section, splits it into pages, and renders it as an open book with two-page spreads. The Book is accessed from the top-bar button and auto-opens after dramatic events.
+- **The Chronicle** is the achievement/index view. It lists major story events and milestones, shows which are locked or unlocked, and provides a requirement hint for locked entries. Each unlocked entry links to the exact Book page where it is narrated. The Chronicle is accessed from the Explore page.
+
+See the full specs: [Book System](../book/book_system.md) | [Chronicle System](../chronicle/chronicle_system.md).
 
 ### Category: `combat` (⚔️)
 

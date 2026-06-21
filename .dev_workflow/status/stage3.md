@@ -29,7 +29,9 @@
 ## Next Steps (Post-Plan)
 
 - [x] Add translations for Spanish, Catalan, Galician, Basque
-- [ ] Write game design doc (`docs/shared/book/book_system.md`)
+- [x] Write game design doc (`docs/shared/book/book_system.md`)
+- [x] Write Chronicle spec (`docs/shared/chronicle/chronicle_system.md`)
+- [x] Update Codex, Save Slots, App Description, and AGENTS.md index
 - [ ] Add integration tests for full post-day flow
 - [ ] Verify full playthrough with Book auto-open
 - [ ] Remove orphaned `DailyReportModal.vue` component file
