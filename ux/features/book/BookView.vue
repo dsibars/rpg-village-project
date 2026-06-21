@@ -150,6 +150,7 @@ function onKeyDown(e) {
 
 onMounted(() => {
   window.addEventListener('keydown', onKeyDown)
+  goToFirstUnread()
 })
 
 onUnmounted(() => {
@@ -166,7 +167,10 @@ function goToFirstUnread() {
 
     const hasUnread = page.pageContentSections.some(pcs => !pcs.read)
     if (hasUnread) {
-      currentSpread.value = Math.floor(i / 2) + 1
+      const spreadNum = Math.floor(i / 2) + 1
+      currentSpread.value = spreadNum
+      const firstPage = (spreadNum - 1) * 2 + 1
+      emit('markRead', firstPage)
       return
     }
   }

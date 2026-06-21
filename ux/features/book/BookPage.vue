@@ -5,21 +5,20 @@
 </template>
 
 <script setup>
-import { computed, ref, watch, nextTick, inject } from 'vue'
+import { computed, ref, watch, nextTick } from 'vue'
 import { useGameState } from '@/core/composables/useGameState.js'
+import { useAdapter } from '@/core/composables/useAdapter.js'
 import BookView from './BookView.vue'
 
 const bookView = ref(null)
-const engine = inject('engine')
+const { dispatch } = useAdapter()
 
 const { gameState } = useGameState()
 
 const bookState = computed(() => gameState.value?.book || null)
 
 function handleMarkRead(spreadFirstPage) {
-  if (engine?.markBookRead) {
-    engine.markBookRead(spreadFirstPage)
-  }
+  dispatch('book', 'markRead', { spreadFirstPage })
 }
 
 // When new content arrives (page count increases), navigate to first unread
