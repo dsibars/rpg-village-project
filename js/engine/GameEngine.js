@@ -15,6 +15,7 @@ import { AcademyService } from './academy/AcademyService.js';
 import { TitleService } from './hall_of_fame/TitleService.js';
 import { UnlockService } from './shared/services/UnlockService.js';
 import { PresentationService } from './shared/services/PresentationService.js';
+import { getPresentationById } from './shared/data/PresentationCatalog.js';
 import { MarketService } from './market/MarketService.js';
 import { ChronicleService } from './shared/chronicle/ChronicleService.js';
 import { DailyHeroActionsService } from './heroes/services/DailyHeroActionsService.js';
@@ -130,12 +131,10 @@ export class GameEngine {
         const villageState = this.villageService.getState();
 
         if (completedIds.length > 0 && !this.presentationService.isSeen('pres_first_victory')) {
-            this.presentationService.checkTriggers({ type: 'first_event', eventId: 'first_expedition_victory' });
-            this._persistPresentationState();
+            this._processPresentationTriggers({ type: 'first_event', eventId: 'first_expedition_victory' });
         }
         if (villageState.infrastructure?.farm >= 1 && !this.presentationService.isSeen('pres_first_harvest')) {
-            this.presentationService.checkTriggers({ type: 'building_complete', buildingId: 'farm', level: 1 });
-            this._persistPresentationState();
+            this._processPresentationTriggers({ type: 'building_complete', buildingId: 'farm', level: 1 });
         }
 
         // ─── Retroactive story mission injection for old saves ───
@@ -367,7 +366,7 @@ export class GameEngine {
             }
 
             // Trigger Point 4: Hero Recruitment
-            this.presentationService.checkTriggers({
+            this._processPresentationTriggers({
                 type: 'hero_recruited',
                 origin: result.data.origin,
                 heroName: result.data.name
@@ -445,8 +444,7 @@ export class GameEngine {
 
         // Trigger Point 6: First Spell Inscribed
         if (result.success && !this.presentationService.isSeen('pres_name_flame')) {
-            this.presentationService.checkTriggers({ type: 'first_event', eventId: 'first_spell_inscribed' });
-            this._persistPresentationState();
+            this._processPresentationTriggers({ type: 'first_event', eventId: 'first_spell_inscribed' });
         }
 
         return result;
@@ -578,8 +576,7 @@ export class GameEngine {
             this._saveStats();
             this.missionSeedService.trackProgress('equip', 'equipment', 1);
             if (!this.presentationService.isSeen('pres_first_equip')) {
-                this.presentationService.checkTriggers({ type: 'first_event', eventId: 'first_item_equipped' });
-                this._persistPresentationState();
+                this._processPresentationTriggers({ type: 'first_event', eventId: 'first_item_equipped' });
             }
         }
         return result;
@@ -958,8 +955,7 @@ export class GameEngine {
         if (result.success) {
             this.missionSeedService.trackProgress('cast', 'spell', 1);
             if (!this.presentationService.isSeen('pres_first_spell_cast')) {
-                this.presentationService.checkTriggers({ type: 'first_event', eventId: 'first_spell_cast_combat' });
-                this._persistPresentationState();
+                this._processPresentationTriggers({ type: 'first_event', eventId: 'first_spell_cast_combat' });
             }
         }
         return result;
@@ -1006,7 +1002,7 @@ export class GameEngine {
         if (villageReport.completed && villageReport.completed.length > 0) {
             for (const buildingId of villageReport.completed) {
                 const level = this.villageService.getState().infrastructure[buildingId] || 1;
-                this.presentationService.checkTriggers({
+                this._processPresentationTriggers({
                     type: 'building_complete',
                     buildingId,
                     level
@@ -1184,8 +1180,7 @@ export class GameEngine {
             raidResult = this.calendarService.resolveRaid(villageState.day);
             // Trigger: first successful raid defense (at least 1 defender present)
             if (raidResult && raidResult.isVictory && raidResult.defenders && raidResult.defenders.length > 0 && !this.presentationService.isSeen('pres_first_raid_victory')) {
-                this.presentationService.checkTriggers({ type: 'first_event', eventId: 'first_raid_victory' });
-                this._persistPresentationState();
+                this._processPresentationTriggers({ type: 'first_event', eventId: 'first_raid_victory' });
             }
         }
 
@@ -1264,15 +1259,14 @@ export class GameEngine {
         if (!hasLevel5EventFired) {
             const anyHeroAtLevel5 = this.heroService.list().some(h => h.level >= 5);
             if (anyHeroAtLevel5) {
-                this.presentationService.checkTriggers({ type: 'first_event', eventId: 'first_hero_level_5' });
-                this._persistPresentationState();
+                this._processPresentationTriggers({ type: 'first_event', eventId: 'first_hero_level_5' });
             }
         }
 
         // Trigger Point 7: Chapter Milestones
         const chapter1Milestones = this._evaluateChapterMilestones(1);
         if (chapter1Milestones.met >= 3) {
-            this.presentationService.checkTriggers({
+            this._processPresentationTriggers({
                 type: 'chapter_milestones',
                 chapter: 1,
                 met: chapter1Milestones.met
@@ -1280,7 +1274,7 @@ export class GameEngine {
         }
         const chapter2Milestones = this._evaluateChapterMilestones(2);
         if (chapter2Milestones.met >= 3) {
-            this.presentationService.checkTriggers({
+            this._processPresentationTriggers({
                 type: 'chapter_milestones',
                 chapter: 2,
                 met: chapter2Milestones.met
@@ -1420,14 +1414,12 @@ export class GameEngine {
 
             // Trigger: first expedition victory
             if (combatLog && combatLog.isVictory && !this.presentationService.isSeen('pres_first_victory')) {
-                this.presentationService.checkTriggers({ type: 'first_event', eventId: 'first_expedition_victory' });
-                this._persistPresentationState();
+                this._processPresentationTriggers({ type: 'first_event', eventId: 'first_expedition_victory' });
             }
 
             // Trigger: first expedition defeat
             if (combatLog && !combatLog.isVictory && !this.presentationService.isSeen('pres_first_defeat')) {
-                this.presentationService.checkTriggers({ type: 'first_event', eventId: 'first_expedition_defeat' });
-                this._persistPresentationState();
+                this._processPresentationTriggers({ type: 'first_event', eventId: 'first_expedition_defeat' });
             }
 
             // Book + Chronicle: record battle outcome
@@ -1487,8 +1479,7 @@ export class GameEngine {
             if (combatLog && combatLog.isVictory && combatLog.enemies) {
                 const hadBoss = combatLog.enemies.some(e => e.isBoss);
                 if (hadBoss && !this.presentationService.isSeen('pres_first_boss_defeated')) {
-                    this.presentationService.checkTriggers({ type: 'first_event', eventId: 'first_boss_defeated' });
-                    this._persistPresentationState();
+                    this._processPresentationTriggers({ type: 'first_event', eventId: 'first_boss_defeated' });
                 }
             }
 
@@ -1511,7 +1502,7 @@ export class GameEngine {
                         chapterNumber: bookResult.chapterNumber
                     });
                 }
-                this.presentationService.checkTriggers({
+                this._processPresentationTriggers({
                     type: 'mission_complete',
                     missionId: result.data.expId
                 });
@@ -1785,8 +1776,78 @@ export class GameEngine {
             { id: 'hero_recruited', labelKey: 'chronicle_hero_recruited', requirementKey: 'chronicle_req_recruit', category: 'milestone' },
             { id: 'combat_victory', labelKey: 'chronicle_combat_victory', requirementKey: 'chronicle_req_combat_victory', category: 'milestone' },
             { id: 'combat_defeat', labelKey: 'chronicle_combat_defeat', requirementKey: 'chronicle_req_combat_defeat', category: 'milestone' },
+            // Presentations (now in Book)
+            { id: 'pres_prologue', labelKey: 'chronicle_prologue', requirementKey: 'chronicle_hint_newgame', category: 'milestone' },
+            { id: 'pres_first_harvest', labelKey: 'chronicle_first_harvest', requirementKey: 'chronicle_hint_building', category: 'milestone' },
+            { id: 'pres_shield_dark', labelKey: 'chronicle_shield_dark', requirementKey: 'chronicle_hint_mission', category: 'milestone' },
+            { id: 'pres_warm_fire', labelKey: 'chronicle_warm_fire', requirementKey: 'chronicle_hint_building', category: 'milestone' },
+            { id: 'pres_mission_board', labelKey: 'chronicle_mission_board', requirementKey: 'chronicle_hint_building', category: 'milestone' },
+            { id: 'pres_discipline', labelKey: 'chronicle_discipline', requirementKey: 'chronicle_hint_hero', category: 'milestone' },
+            { id: 'pres_first_spark', labelKey: 'chronicle_first_spark', requirementKey: 'chronicle_hint_hero', category: 'milestone' },
+            { id: 'pres_first_victory', labelKey: 'chronicle_first_victory', requirementKey: 'chronicle_hint_event', category: 'milestone' },
+            { id: 'pres_first_equip', labelKey: 'chronicle_first_equip', requirementKey: 'chronicle_hint_event', category: 'milestone' },
+            { id: 'pres_first_defeat', labelKey: 'chronicle_first_defeat', requirementKey: 'chronicle_hint_event', category: 'milestone' },
+            { id: 'pres_chapter1_finale', labelKey: 'chronicle_chapter1_finale', requirementKey: 'chronicle_hint_finale', category: 'milestone' },
+            { id: 'pres_language_world', labelKey: 'chronicle_language_world', requirementKey: 'chronicle_hint_building', category: 'milestone' },
+            { id: 'pres_name_flame', labelKey: 'chronicle_name_flame', requirementKey: 'chronicle_hint_event', category: 'milestone' },
+            { id: 'pres_veil_thins', labelKey: 'chronicle_veil_thins', requirementKey: 'chronicle_hint_building', category: 'milestone' },
+            { id: 'pres_world_opens', labelKey: 'chronicle_world_opens', requirementKey: 'chronicle_hint_building', category: 'milestone' },
+            { id: 'pres_first_spell_cast', labelKey: 'chronicle_first_spell_cast', requirementKey: 'chronicle_hint_event', category: 'milestone' },
+            { id: 'pres_first_boss_defeated', labelKey: 'chronicle_first_boss_defeated', requirementKey: 'chronicle_hint_event', category: 'milestone' },
+            { id: 'pres_first_raid_victory', labelKey: 'chronicle_first_raid_victory', requirementKey: 'chronicle_hint_event', category: 'milestone' },
+            { id: 'pres_chapter2_finale', labelKey: 'chronicle_chapter2_finale', requirementKey: 'chronicle_hint_finale', category: 'milestone' },
         ];
         this.chronicleService.registerEntriesFromCatalog(catalog);
+    }
+
+    /**
+     * Process presentation triggers and migrate them to the Book.
+     * All presentations now live in the Book, not as popups.
+     * @param {Object} triggerEvent — The trigger event to evaluate.
+     * @returns {string[]} — IDs of presentations that were added to the Book.
+     */
+    _processPresentationTriggers(triggerEvent) {
+        const newlyTriggered = this.presentationService.checkTriggers(triggerEvent);
+        if (newlyTriggered.length === 0) return [];
+
+        const currentDay = this.villageService?.getState?.()?.day ?? null;
+
+        for (const presId of newlyTriggered) {
+            const pres = getPresentationById(presId);
+            if (!pres) continue;
+
+            // Mark as seen so it never pops up
+            this.presentationService.markAsSeen(presId, currentDay);
+
+            // Convert to Book chapter_history_event
+            const blocks = pres.pages.map((page, idx) => ({
+                image: page.image,
+                textKey: page.textKey,
+                weight: 1,
+            }));
+
+            const bookResult = this.bookService.addSection({
+                id: presId,
+                category: 'chapter_history_event',
+                day: currentDay || 1,
+                blocks,
+                metadata: { titleKey: `book_chapter_${pres.chapter}_title`, presentationId: presId }
+            });
+
+            // Link to chronicle
+            if (bookResult) {
+                this.chronicleService.unlockEntry(presId, currentDay || 1, {
+                    pageSectionId: bookResult.pageSectionId,
+                    pageNumber: bookResult.pages[0] ?? 1,
+                    chapterNumber: bookResult.chapterNumber
+                });
+            }
+        }
+
+        this._persistPresentationState();
+        this.bookService.save();
+        this.chronicleService.save();
+        return newlyTriggered;
     }
 
     _loadStats() {

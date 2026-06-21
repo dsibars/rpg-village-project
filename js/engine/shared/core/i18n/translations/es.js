@@ -1395,6 +1395,27 @@ export const es = {
     chronicle_req_combat_victory: 'Gana una batalla',
     chronicle_req_combat_defeat: 'Sufre una derrota',
 
+    // Presentation chronicle entries
+    chronicle_prologue: 'Prólogo',
+    chronicle_first_harvest: 'La Primera Cosecha',
+    chronicle_shield_dark: 'Un Escudo en la Oscuridad',
+    chronicle_warm_fire: 'Un Fuego Caliente',
+    chronicle_mission_board: 'El Tablón de Misiones',
+    chronicle_discipline: 'Disciplina',
+    chronicle_first_spark: 'La Primera Chispa',
+    chronicle_first_victory: 'Primera Victoria',
+    chronicle_first_equip: 'Primer Equipo',
+    chronicle_first_defeat: 'Primera Derrota',
+    chronicle_chapter1_finale: 'Finale del Capítulo 1',
+    chronicle_language_world: 'El Lenguaje del Mundo',
+    chronicle_name_flame: 'El Nombre y la Llama',
+    chronicle_veil_thins: 'El Velo se Adelgaza',
+    chronicle_world_opens: 'El Mundo se Abre',
+    chronicle_first_spell_cast: 'Primer Hechizo Lanzado',
+    chronicle_first_boss_defeated: 'Primer Jefe Derrotado',
+    chronicle_first_raid_victory: 'Primera Victoria de Incursión',
+    chronicle_chapter2_finale: 'Finale del Capítulo 2',
+
     // Discovery Log
     chronicle_discovery_title: "Registro de Descubrimientos",
     chronicle_discovery_empty: "Aún no hay descubrimientos. Envía héroes de expedición y construye tu aldea para desvelar los secretos del valle.",

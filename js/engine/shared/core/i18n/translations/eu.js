@@ -1394,6 +1394,27 @@ export const eu = {
     chronicle_req_combat_victory: 'Irabazi borroka bat',
     chronicle_req_combat_defeat: 'Jasan porrota bat',
 
+    // Presentation chronicle entries
+    chronicle_prologue: 'Aurkezpena',
+    chronicle_first_harvest: 'Lehen Uzta',
+    chronicle_shield_dark: 'Ezkutu Bat Ilunpetan',
+    chronicle_warm_fire: 'Su Berotu Bat',
+    chronicle_mission_board: 'Misioen Taula',
+    chronicle_discipline: 'Diziplina',
+    chronicle_first_spark: 'Lehen Txinparta',
+    chronicle_first_victory: 'Lehen Garaipena',
+    chronicle_first_equip: 'Lehen Ekipamendua',
+    chronicle_first_defeat: 'Lehen Porrota',
+    chronicle_chapter1_finale: '1. Kapituluaren Amaiera',
+    chronicle_language_world: 'Mundaren Hizkuntza',
+    chronicle_name_flame: 'Izena eta Garra',
+    chronicle_veil_thins: 'Belauna Mehetzen Da',
+    chronicle_world_opens: 'Mundua Zabaltzen Da',
+    chronicle_first_spell_cast: 'Lehen Aztia Bota',
+    chronicle_first_boss_defeated: 'Lehen Burua Garaitua',
+    chronicle_first_raid_victory: 'Lehen Eraso Garaipena',
+    chronicle_chapter2_finale: '2. Kapituluaren Amaiera',
+
     // Discovery Log
     chronicle_discovery_title: "Aurkikuntzen Erregistroa",
     chronicle_discovery_empty: "Oraindik ez dago aurkikuntzarik. Bidali heroia espedizioetara eta eraiki zure herrixka haranaren sekretuak argitzeko.",

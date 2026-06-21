@@ -1395,6 +1395,27 @@ export const ca = {
     chronicle_req_combat_victory: 'Guanya una batalla',
     chronicle_req_combat_defeat: 'Sofreix una derrota',
 
+    // Presentation chronicle entries
+    chronicle_prologue: 'Pròleg',
+    chronicle_first_harvest: 'La Primera Collita',
+    chronicle_shield_dark: 'Un Escut a la Foscor',
+    chronicle_warm_fire: 'Un Foc Calent',
+    chronicle_mission_board: 'El Tauler de Missions',
+    chronicle_discipline: 'Disciplina',
+    chronicle_first_spark: 'La Primera Guspira',
+    chronicle_first_victory: 'Primera Victòria',
+    chronicle_first_equip: 'Primer Equipament',
+    chronicle_first_defeat: 'Primera Derrota',
+    chronicle_chapter1_finale: 'Final del Capítol 1',
+    chronicle_language_world: 'El Llenguatge del Món',
+    chronicle_name_flame: 'El Nom i la Flama',
+    chronicle_veil_thins: 'El Vel s\'Afebleix',
+    chronicle_world_opens: 'El Món s\'Obre',
+    chronicle_first_spell_cast: 'Primer Encanteri Llançat',
+    chronicle_first_boss_defeated: 'Primer Cap Derrotat',
+    chronicle_first_raid_victory: 'Primera Victòria d\'Incursió',
+    chronicle_chapter2_finale: 'Final del Capítol 2',
+
     // Discovery Log
     chronicle_discovery_title: "Registre de Descobriments",
     chronicle_discovery_empty: "Encara no hi ha descobriments. Envia herois d'expedició i construeix la teva vila per desvelar els secrets de la vall.",

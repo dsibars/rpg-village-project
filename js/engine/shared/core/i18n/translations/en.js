@@ -1397,6 +1397,27 @@ export const en = {
     chronicle_req_combat_victory: 'Win a battle',
     chronicle_req_combat_defeat: 'Suffer a defeat',
 
+    // Presentation chronicle entries
+    chronicle_prologue: 'Prologue',
+    chronicle_first_harvest: 'The First Harvest',
+    chronicle_shield_dark: 'A Shield in the Dark',
+    chronicle_warm_fire: 'A Warm Fire',
+    chronicle_mission_board: 'The Mission Board',
+    chronicle_discipline: 'Discipline',
+    chronicle_first_spark: 'The First Spark',
+    chronicle_first_victory: 'First Victory',
+    chronicle_first_equip: 'First Equipment',
+    chronicle_first_defeat: 'First Defeat',
+    chronicle_chapter1_finale: 'Chapter 1 Finale',
+    chronicle_language_world: 'The Language of the World',
+    chronicle_name_flame: 'The Name and the Flame',
+    chronicle_veil_thins: 'The Veil Thins',
+    chronicle_world_opens: 'The World Opens',
+    chronicle_first_spell_cast: 'First Spell Cast',
+    chronicle_first_boss_defeated: 'First Boss Defeated',
+    chronicle_first_raid_victory: 'First Raid Victory',
+    chronicle_chapter2_finale: 'Chapter 2 Finale',
+
     // Discovery Log
     chronicle_discovery_title: 'Discovery Log',
     chronicle_discovery_empty: 'No discoveries yet. Send heroes on expeditions and build your village to uncover the valley\'s secrets.',

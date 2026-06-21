@@ -1394,6 +1394,27 @@ export const gl = {
     chronicle_req_combat_victory: 'Gaña unha batalla',
     chronicle_req_combat_defeat: 'Sufre unha derrota',
 
+    // Presentation chronicle entries
+    chronicle_prologue: 'Prólogo',
+    chronicle_first_harvest: 'A Primeira Colleita',
+    chronicle_shield_dark: 'Un Escudo no Escuro',
+    chronicle_warm_fire: 'Un Lume Cálido',
+    chronicle_mission_board: 'O Taboleiro de Misións',
+    chronicle_discipline: 'Disciplina',
+    chronicle_first_spark: 'A Primeira Chispa',
+    chronicle_first_victory: 'Primeira Victoria',
+    chronicle_first_equip: 'Primeiro Equipamento',
+    chronicle_first_defeat: 'Primeira Derrota',
+    chronicle_chapter1_finale: 'Final do Capítulo 1',
+    chronicle_language_world: 'A Lingua do Mundo',
+    chronicle_name_flame: 'O Nome e a Chama',
+    chronicle_veil_thins: 'O Véu Adelaíza',
+    chronicle_world_opens: 'O Mundo Ábrese',
+    chronicle_first_spell_cast: 'Primeiro Feitizo Lanzado',
+    chronicle_first_boss_defeated: 'Primeiro Xefe Derrotado',
+    chronicle_first_raid_victory: 'Primeira Victoria de Incursión',
+    chronicle_chapter2_finale: 'Final do Capítulo 2',
+
     // Discovery Log
     chronicle_discovery_title: "Rexistro de Descubrimentos",
     chronicle_discovery_empty: "Aínda non hai descubrimentos. Envia heroes de expedición e constrúe a túa aldea para desvelar os segredos do val.",
