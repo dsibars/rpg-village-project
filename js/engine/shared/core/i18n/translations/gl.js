@@ -1136,6 +1136,7 @@ export const gl = {
     book_chapter_5_title: "Capítulo V: A Derradeira Defensa",
 
     book_village_updates_title: "Día {day} — Actualizacións da Vila",
+    book_update_village_founded: "Fundouse un novo poboado no val.",
     book_update_food_consumed: "Consumíronse {amount} unidades de comida.",
     book_update_villager_joined: "¡{amount} veciño(s) uníronse á vila!",
     book_update_hero_rested: "{hero} descansou e recuperou {hp} PV.",

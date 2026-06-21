@@ -1137,6 +1137,7 @@ export const es = {
     book_chapter_5_title: "Capítulo V: La Última Defensa",
 
     book_village_updates_title: "Día {day} — Actualizaciones del Pueblo",
+    book_update_village_founded: "Se ha fundado un nuevo pueblo en el valle.",
     book_update_food_consumed: "Se consumieron {amount} unidades de comida.",
     book_update_villager_joined: "¡{amount} aldeano(s) se unieron al pueblo!",
     book_update_hero_rested: "{hero} descansó y recuperó {hp} PV.",

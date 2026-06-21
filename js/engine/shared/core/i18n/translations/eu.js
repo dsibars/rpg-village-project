@@ -1136,6 +1136,7 @@ export const eu = {
     book_chapter_5_title: "V. Kapitulua: Azken Aurkakoa",
 
     book_village_updates_title: "{day}. Eguna — Herriaren Egunerokoa",
+    book_update_village_founded: "Herri berri bat sortu da haranean.",
     book_update_food_consumed: "{amount} janari unitate kontsumitu ziren.",
     book_update_villager_joined: "{amount} herrikoidek herriari batu zitzaizkion!",
     book_update_hero_rested: "{hero}k atsedena hartu eta {hp} HP berreskuratu zituen.",

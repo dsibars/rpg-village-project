@@ -1137,6 +1137,7 @@ export const ca = {
     book_chapter_5_title: "Capítol V: L'Última Defensa",
 
     book_village_updates_title: "Dia {day} — Actualitzacions del Poble",
+    book_update_village_founded: "S'ha fundat un nou poble a la vall.",
     book_update_food_consumed: "S'han consumit {amount} unitats de menjar.",
     book_update_villager_joined: "¡{amount} veí(s) s'han unit al poble!",
     book_update_hero_rested: "{hero} ha descansat i recuperat {hp} PV.",

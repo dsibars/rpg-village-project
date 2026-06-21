@@ -122,7 +122,14 @@ export class BookService {
             // If this is a chapter title, close current chapter and start new one
             if (pcs.type === PCS_TYPES.CHAPTER_TITLE) {
                 currentChapter = this._createNewChapter(pcs.textKey);
-                currentPage = this._createNewPage(currentChapter.chapterNumber);
+                // Reuse page 1 if it's empty (fresh book), otherwise create new page
+                const firstPage = this.state.pages[0];
+                if (firstPage && firstPage.pageContentSections.length === 0) {
+                    firstPage.chapterNumber = currentChapter.chapterNumber;
+                    currentPage = firstPage;
+                } else {
+                    currentPage = this._createNewPage(currentChapter.chapterNumber);
+                }
             }
 
             // Guard: if a single PCS exceeds the page budget, allow overflow
@@ -316,7 +323,11 @@ export class BookService {
      */
     _createNewChapter(titleKey) {
         const chapterNumber = this.state.chapters.length + 1;
-        const startPageNumber = this.state.pages.length + 1;
+        // If page 1 exists and is empty, chapter starts there
+        const firstPage = this.state.pages[0];
+        const startPageNumber = (firstPage && firstPage.pageContentSections.length === 0)
+            ? 1
+            : this.state.pages.length + 1;
         const chapter = {
             chapterNumber,
             startPageNumber,

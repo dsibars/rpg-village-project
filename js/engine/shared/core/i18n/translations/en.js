@@ -1139,6 +1139,7 @@ export const en = {
     book_chapter_5_title: "Chapter V: The Final Stand",
 
     book_village_updates_title: "Day {day} — Village Updates",
+    book_update_village_founded: "A new village has been founded in the valley.",
     book_update_food_consumed: "{amount} food units were consumed.",
     book_update_villager_joined: "{amount} villager(s) joined the village!",
     book_update_hero_rested: "{hero} rested and recovered {hp} HP.",

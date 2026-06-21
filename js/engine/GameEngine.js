@@ -177,10 +177,55 @@ export class GameEngine {
             });
         }
 
-        // Queue the prologue presentation for new games
+        // ── Prologue: Book, not popup ──
+        // Mark the legacy presentation as seen so it never pops up
         this.presentationService = new PresentationService();
-        this.presentationService.checkTriggers({ type: 'new_game' });
+        this.presentationService.markAsSeen('pres_prologue', 1);
         this._persistPresentationState();
+
+        // Add prologue to the Book as Chapter 1 history event
+        const prologueResult = this.bookService.addSection({
+            id: 'prologue',
+            category: 'chapter_history_event',
+            day: 1,
+            blocks: [
+                { image: 'assets/story/valley_dawn.webp', textKey: 'pres_prologue_p1', weight: 1 },
+                { image: 'assets/story/arthur_trail.webp', textKey: 'pres_prologue_p2', weight: 1 },
+                { image: 'assets/story/village_stake.webp', textKey: 'pres_prologue_p3', weight: 1 }
+            ],
+            metadata: { titleKey: 'book_chapter_1_title', presentationId: 'pres_prologue' }
+        });
+
+        // Link prologue to chronicle
+        if (prologueResult) {
+            this.chronicleService.unlockEntry('pres_prologue', 1, {
+                pageSectionId: prologueResult.pageSectionId,
+                pageNumber: prologueResult.pages[0] ?? 1,
+                chapterNumber: prologueResult.chapterNumber
+            });
+        }
+
+        // Add Day 1 village update to the Book
+        const day1Result = this.bookService.addSection({
+            id: 'village_day_1',
+            category: 'village_updates',
+            day: 1,
+            entries: [
+                { key: 'book_update_village_founded', values: {}, weight: 1 }
+            ],
+            metadata: {}
+        });
+
+        if (day1Result) {
+            this.chronicleService.unlockEntry('village_day_1', 1, {
+                pageSectionId: day1Result.pageSectionId,
+                pageNumber: day1Result.pages[0] ?? 1,
+                chapterNumber: day1Result.chapterNumber
+            });
+        }
+
+        this.bookService.save();
+        this.chronicleService.save();
     }
 
     activateDeveloperCheat() {
