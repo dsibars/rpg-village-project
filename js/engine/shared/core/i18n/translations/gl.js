@@ -791,6 +791,7 @@ export const gl = {
     shop_uxelm_title: "Tenda da Vila",
 
     // ═══ VILLAGE INFO ════════════════════════════════════════════════════
+    village_info_building_level: 'Nivel',
     village_info_building_arcane_sanctum: "Sagrario Arcano",
     village_info_building_arcane_sanctum_desc: "Unha torre mística dedicada ao estudo e ao ensino de glifos máxicos. Desbloquea a Academia de Glifos.",
     village_info_building_arcane_sanctum_effect_academy: "Academia de Glifos",

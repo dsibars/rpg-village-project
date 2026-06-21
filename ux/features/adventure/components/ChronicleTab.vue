@@ -136,6 +136,58 @@ const chronicleService = computed(() => {
   return engine?.chronicleService
 })
 
+// Parse auto-generated chronicle IDs into human-readable labels
+function formatChronicleLabel(id) {
+  if (!id) return id
+
+  // building_{id}_{level}
+  const buildingMatch = id.match(/^building_(.+)_(\d+)$/)
+  if (buildingMatch) {
+    const [, buildingId, level] = buildingMatch
+    const buildingName = t('village_info_building_' + buildingId)
+    return `${buildingName} ${t('village_info_building_level')} ${level}`
+  }
+
+  // expedition_{expId}
+  const expMatch = id.match(/^expedition_(.+)$/)
+  if (expMatch) {
+    const expId = expMatch[1]
+    const expName = t('expedition_name_' + expId)
+    return expName !== 'expedition_name_' + expId ? expName : `Expedition: ${expId}`
+  }
+
+  // event_{eventId}
+  const eventMatch = id.match(/^event_(.+)$/)
+  if (eventMatch) {
+    return `Event: ${eventMatch[1]}`
+  }
+
+  return id
+}
+
+function formatChronicleRequirement(id) {
+  if (!id) return t('chronicle_hint_event')
+
+  const buildingMatch = id.match(/^building_(.+)_(\d+)$/)
+  if (buildingMatch) {
+    const [, buildingId, level] = buildingMatch
+    const buildingName = t('village_info_building_' + buildingId)
+    return t('chronicle_hint_building', { building: buildingName, level })
+  }
+
+  const expMatch = id.match(/^expedition_(.+)$/)
+  if (expMatch) {
+    return t('chronicle_hint_mission', { mission: expMatch[1] })
+  }
+
+  const eventMatch = id.match(/^event_(.+)$/)
+  if (eventMatch) {
+    return t('chronicle_hint_event')
+  }
+
+  return t('chronicle_hint_event')
+}
+
 // ── Chronicle Catalog ──
 
 const totalEntries = computed(() => {
@@ -149,12 +201,16 @@ const unlockedEntries = computed(() => {
   const entries = cs.getEntries({ status: 'unlocked' })
   return entries
     .sort((a, b) => (b.dayUnlocked || 0) - (a.dayUnlocked || 0))
-    .map(entry => ({
-      id: entry.id,
-      label: entry.labelKey ? t(entry.labelKey) : entry.id,
-      dayUnlocked: entry.dayUnlocked,
-      bookLink: entry.bookLink
-    }))
+    .map(entry => {
+      const label = entry.labelKey ? t(entry.labelKey) : null
+      const hasValidLabel = label && label !== entry.labelKey
+      return {
+        id: entry.id,
+        label: hasValidLabel ? label : formatChronicleLabel(entry.id),
+        dayUnlocked: entry.dayUnlocked,
+        bookLink: entry.bookLink
+      }
+    })
 })
 
 const lockedEntries = computed(() => {
@@ -163,11 +219,17 @@ const lockedEntries = computed(() => {
 
   const entries = cs.getEntries({ status: 'locked' })
   return entries
-    .map(entry => ({
-      id: entry.id,
-      label: entry.labelKey ? t(entry.labelKey) : entry.id,
-      requirement: entry.requirementKey ? t(entry.requirementKey) : t('chronicle_hint_event')
-    }))
+    .map(entry => {
+      const label = entry.labelKey ? t(entry.labelKey) : null
+      const req = entry.requirementKey ? t(entry.requirementKey) : null
+      const hasValidLabel = label && label !== entry.labelKey
+      const hasValidReq = req && req !== entry.requirementKey
+      return {
+        id: entry.id,
+        label: hasValidLabel ? label : formatChronicleLabel(entry.id),
+        requirement: hasValidReq ? req : formatChronicleRequirement(entry.id)
+      }
+    })
 })
 
 const recentUnlocks = computed(() => {

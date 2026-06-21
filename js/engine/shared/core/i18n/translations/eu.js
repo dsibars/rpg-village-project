@@ -791,6 +791,7 @@ export const eu = {
     shop_uxelm_title: "Herrixkako Denda",
 
     // ═══ VILLAGE INFO ════════════════════════════════════════════════════
+    village_info_building_level: 'Maila',
     village_info_building_arcane_sanctum: "Santuario Arkanoa",
     village_info_building_arcane_sanctum_desc: "Glifo magikoen azterketara eta irakaskuntzara bideratutako dorre mistikoa. Glifoen Akademia desblokeatzen du.",
     village_info_building_arcane_sanctum_effect_academy: "Glifoen Akademia",

@@ -794,6 +794,7 @@ export const en = {
     shop_uxelm_title: "Village Shop",
 
     // ═══ VILLAGE INFO ════════════════════════════════════════════════════
+    village_info_building_level: 'Level',
     village_info_building_arcane_sanctum: "Arcane Sanctum",
     village_info_building_arcane_sanctum_desc: "A mystical tower dedicated to the study and teaching of magical glyphs. Unlocks the Glyph Academy.",
     village_info_building_arcane_sanctum_effect_academy: "Glyph Academy",

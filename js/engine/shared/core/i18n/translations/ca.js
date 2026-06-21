@@ -792,6 +792,7 @@ export const ca = {
     shop_uxelm_title: "Botiga de la Vila",
 
     // ═══ VILLAGE INFO ════════════════════════════════════════════════════
+    village_info_building_level: 'Nivell',
     village_info_building_arcane_sanctum: "Sagrari Arcà",
     village_info_building_arcane_sanctum_desc: "Una torre mística dedicada a l'estudi i l'ensenyament de glifs màgics. Desbloqueja l'Acadèmia de Glifs.",
     village_info_building_arcane_sanctum_effect_academy: "Acadèmia de Glifs",

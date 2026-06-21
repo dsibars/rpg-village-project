@@ -192,9 +192,10 @@ const storageMax = computed(() => maxStorage.value)
 const hasBookUnread = computed(() => {
   const book = gameState.value?.book
   if (!book) return false
+  const autoOpenTypes = ['history_block', 'milestone']
   for (const page of book.pages || []) {
     for (const pcs of page.pageContentSections || []) {
-      if (!pcs.read) return true
+      if (!pcs.read && autoOpenTypes.includes(pcs.type)) return true
     }
   }
   return false
@@ -290,7 +291,7 @@ function showNextPresentation() {
     showPresentation.value = false
     presentationsDone.value = true
     // Auto-open the Book if there's auto-open content
-    const hasAutoOpen = gameState.value?.book?.hasAutoOpen
+    const hasAutoOpen = gameState.value?.hasBookAutoOpen
     if (hasAutoOpen) {
       currentPage.value = 'book'
     }
@@ -386,7 +387,7 @@ function proceedToPresentations() {
     showNextPresentation()
   } else {
     presentationsDone.value = true
-    const hasAutoOpen = gameState.value?.book?.hasAutoOpen
+    const hasAutoOpen = gameState.value?.hasBookAutoOpen
     if (hasAutoOpen) {
       currentPage.value = 'book'
     }

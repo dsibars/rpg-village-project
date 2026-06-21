@@ -792,6 +792,7 @@ export const es = {
     shop_uxelm_title: "Tienda de la Aldea",
 
     // ═══ VILLAGE INFO ════════════════════════════════════════════════════
+    village_info_building_level: 'Nivel',
     village_info_building_arcane_sanctum: "Sagrario Arcano",
     village_info_building_arcane_sanctum_desc: "Una torre mística dedicada al estudio y la enseñanza de glifos mágicos. Desbloquea la Academia de Glifos.",
     village_info_building_arcane_sanctum_effect_academy: "Academia de Glifos",

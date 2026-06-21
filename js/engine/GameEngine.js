@@ -972,7 +972,7 @@ export class GameEngine {
                     category: 'village_updates',
                     day: villageState.day,
                     entries: [
-                        { key: 'book_update_building_completed', values: { building: buildingId }, weight: 1 }
+                        { key: 'book_update_building_completed', values: { building: this.i18n.t('village_info_building_' + buildingId) }, weight: 1 }
                     ],
                     metadata: { buildingId, level }
                 });
@@ -1153,7 +1153,7 @@ export class GameEngine {
             bookEntries.push({ key: 'book_update_villager_joined', values: { amount: villageReport.newVillagers }, weight: 1 });
         }
         if (villageReport.buildingCompleted) {
-            bookEntries.push({ key: 'book_update_building_completed', values: { building: villageReport.buildingCompleted }, weight: 1 });
+            bookEntries.push({ key: 'book_update_building_completed', values: { building: this.i18n.t('village_info_building_' + villageReport.buildingCompleted) }, weight: 1 });
         }
         if (raidResult) {
             if (raidResult.isVictory) {
