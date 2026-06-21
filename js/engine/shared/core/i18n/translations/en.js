@@ -1377,6 +1377,24 @@ export const en = {
     chronicle_day_prefix: 'Day',
     chronicle_day_unknown: '—',
 
+    // New catalog (post-refactor)
+    chronicle_catalog_title: 'Chronicle',
+    chronicle_catalog_empty: 'No chronicle entries unlocked yet.',
+    chronicle_unlocked: 'Unlocked',
+    chronicle_open_in_book: 'Open in Book',
+    chronicle_chapter: 'Chapter',
+    chronicle_page: 'Page',
+
+    // Chronicle entry labels
+    chronicle_hero_recruited: 'Hero Recruited',
+    chronicle_combat_victory: 'Victory in Battle',
+    chronicle_combat_defeat: 'Defeat in Battle',
+
+    // Chronicle requirement labels
+    chronicle_req_recruit: 'Recruit a hero',
+    chronicle_req_combat_victory: 'Win a battle',
+    chronicle_req_combat_defeat: 'Suffer a defeat',
+
     // Discovery Log
     chronicle_discovery_title: 'Discovery Log',
     chronicle_discovery_empty: 'No discoveries yet. Send heroes on expeditions and build your village to uncover the valley\'s secrets.',

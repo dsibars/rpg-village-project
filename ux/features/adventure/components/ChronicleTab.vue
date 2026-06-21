@@ -13,9 +13,9 @@
         >
           <div class="recent-info">
             <span class="recent-title">{{ item.title }}</span>
-            <span class="recent-day">{{ t('chronicle_day_prefix') }} {{ item.daySeen }}</span>
+            <span class="recent-day">{{ t('chronicle_day_prefix') }} {{ item.dayUnlocked }}</span>
           </div>
-          <button class="btn-replay-icon" :title="t('chronicle_replay')" @click="replayPresentation(item.id)">
+          <button class="btn-replay-icon" :title="t('chronicle_open_in_book')" @click="openInBook(item.bookLink)">
             <span>📖</span>
           </button>
         </div>
@@ -24,63 +24,40 @@
 
     <!-- Two-pane layout -->
     <div class="chronicle-two-pane">
-      <!-- Main/Left Pane: Chapters -->
+      <!-- Main/Left Pane: Chronicle Catalog -->
       <div class="chronicle-main-pane">
-        <div class="chapters-list">
+        <div class="catalog-header">
+          <h3>{{ t('chronicle_catalog_title') }}</h3>
+          <span class="catalog-count">{{ unlockedEntries.length }} / {{ totalEntries }}</span>
+        </div>
+
+        <div v-if="unlockedEntries.length === 0" class="catalog-empty">
+          {{ t('chronicle_catalog_empty') }}
+        </div>
+
+        <div class="catalog-list">
           <div
-            v-for="chapterId in [1, 2]"
-            :key="chapterId"
-            class="chronicle-chapter-group"
+            v-for="entry in unlockedEntries"
+            :key="entry.id"
+            class="catalog-row"
+            @click="openInBook(entry.bookLink)"
           >
-            <button
-              class="chapter-header"
-              :class="{ collapsed: !expandedChapters[chapterId] }"
-              @click="toggleChapter(chapterId)"
-            >
-              <div class="chapter-header-left">
-                <span class="chapter-toggle-icon">▼</span>
-                <span class="chapter-title-text">{{ t(`chronicle_chapter_${chapterId}_title`) }}</span>
+            <div class="catalog-main-info">
+              <div class="catalog-header-line">
+                <span class="catalog-title">{{ entry.label }}</span>
+                <span class="catalog-badge badge-unlocked">{{ t('chronicle_unlocked') }}</span>
               </div>
-              <span class="chapter-progress-badge">
-                {{ chapterProgress[chapterId].seen }} / {{ chapterProgress[chapterId].total }}
-              </span>
-            </button>
-
-            <div v-if="expandedChapters[chapterId]" class="chapter-content">
-              <div
-                v-for="milestone in chapterMilestones[chapterId]"
-                :key="milestone.id"
-                class="milestone-row"
-                :class="milestone.rowClass"
-              >
-                <div class="milestone-main-info">
-                  <div class="milestone-header-line">
-                    <span class="milestone-title">{{ milestone.title }}</span>
-                    <span class="milestone-badge" :class="'badge-' + milestone.status">
-                      {{ t('chronicle_' + milestone.status) }}
-                    </span>
-                    <span v-if="milestone.daySeen !== null" class="milestone-day">
-                      {{ t('chronicle_day_prefix') }} {{ milestone.daySeen }}
-                    </span>
-                    <span v-else-if="milestone.status === 'pending'" class="milestone-day">
-                      {{ t('chronicle_pending_hint') }}
-                    </span>
-                  </div>
-                  
-                  <div v-if="milestone.status === 'locked'" class="milestone-trigger-hint">
-                    <span class="hint-label">{{ t('chronicle_hint_prefix') }}</span> {{ milestone.hint }}
-                  </div>
-                  <div v-else class="milestone-excerpt" :title="milestone.excerpt">
-                    {{ milestone.excerpt }}
-                  </div>
-                </div>
-
-                <div v-if="milestone.status !== 'locked'" class="milestone-actions">
-                  <Button variant="secondary" size="sm" @click="replayPresentation(milestone.id)">
-                    <span class="icon">📖</span> <span>{{ t('chronicle_replay') }}</span>
-                  </Button>
-                </div>
+              <div class="catalog-meta">
+                <span class="catalog-day">{{ t('chronicle_day_prefix') }} {{ entry.dayUnlocked }}</span>
+                <span v-if="entry.bookLink" class="catalog-book-ref">
+                  {{ t('chronicle_chapter') }} {{ entry.bookLink.chapterNumber }} · {{ t('chronicle_page') }} {{ entry.bookLink.pageNumber }}
+                </span>
               </div>
+            </div>
+            <div class="catalog-actions">
+              <button class="btn-book-icon" :title="t('chronicle_open_in_book')">
+                <span>📖</span>
+              </button>
             </div>
           </div>
         </div>
@@ -117,15 +94,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Custom Replay Modal (when playing from the chronicle view) -->
-    <PresentationModal
-      v-if="activeReplayPresentation"
-      :open="true"
-      :isReplay="true"
-      :presentation="activeReplayPresentation"
-      @close="activeReplayPresentation = null"
-    />
   </div>
 </template>
 
@@ -133,205 +101,64 @@
 import { ref, computed, inject } from 'vue'
 import { useI18n } from '@/core/composables/useI18n.js'
 import { useGameState } from '@/core/composables/useGameState.js'
-import { PRESENTATION_CATALOG } from '@/core/data/index.js'
 import { UNLOCK_NARRATIVES } from '@/core/data/index.js'
-import Button from '@/components/Button.vue'
-import PresentationModal from '../../shared/PresentationModal.vue'
 import { queueNarrative } from '@/core/toast.js'
 
 const { t } = useI18n()
 const { gameState } = useGameState()
 const engine = inject('engine')
+const emit = defineEmits(['navigate'])
 
-const expandedChapters = ref({
-  1: true,
-  2: true
-})
-
-const activeReplayPresentation = ref(null)
-
-const presentationService = computed(() => {
-  gameState.value
-  return engine?.presentationService
-})
 const unlockService = computed(() => {
   gameState.value
   return engine?.unlockService
 })
 
-// Collapsible toggle
-function toggleChapter(chapterId) {
-  expandedChapters.value[chapterId] = !expandedChapters.value[chapterId]
-}
-
-// Replay a presentation
-function replayPresentation(id) {
-  if (presentationService.value) {
-    const pres = presentationService.value.replayPresentation(id)
-    if (pres) {
-      activeReplayPresentation.value = pres
-    }
-  }
-}
-
-// Chapter progress computation
-const chapterProgress = computed(() => {
-  const ps = presentationService.value
-  const getProgress = (chapterNum) => {
-    const milestones = PRESENTATION_CATALOG.filter(
-      p => p.chapter === chapterNum && p.trigger.type !== 'chapter_milestones'
-    )
-    const seen = ps ? milestones.filter(p => ps.isSeen(p.id)).length : 0
-    return { seen, total: milestones.length }
-  }
-  return {
-    1: getProgress(1),
-    2: getProgress(2)
-  }
+const chronicleService = computed(() => {
+  gameState.value
+  return engine?.chronicleService
 })
 
-// Trigger hint resolver
-function getTriggerHint(presentation) {
-  const trigger = presentation.trigger
-  if (!trigger) return ''
-  
-  let text = ''
-  switch (trigger.type) {
-    case 'new_game':
-      text = t('chronicle_hint_newgame')
-      break
-    case 'building_complete': {
-      const bldKey = `village_info_building_${trigger.buildingId}`
-      const bldName = t(bldKey) !== bldKey ? t(bldKey) : 
-                      trigger.buildingId.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
-      text = t('chronicle_hint_building', { building: bldName, level: trigger.level })
-      break
-    }
-    case 'mission_complete': {
-      const cleanId = trigger.missionId.replace(/^exp_/, '')
-      const possibleKey = `nar_${cleanId}_title`
-      const missionName = t(possibleKey) !== possibleKey ? t(possibleKey) : 
-                          (trigger.missionId === 'exp_rescue_mission' ? 'The Captured Guard' : 
-                           trigger.missionId.replace(/^exp_/, '').split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '))
-      text = t('chronicle_hint_mission', { mission: missionName })
-      break
-    }
-    case 'hero_recruited': {
-      const originKey = `heroes_info_origin_${trigger.origin.replace(/^origin_/, '')}`
-      const originName = t(originKey) !== originKey ? t(originKey) : 
-                         trigger.origin.replace(/^origin_/, '').split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
-      text = t('chronicle_hint_hero', { origin: originName })
-      break
-    }
-    case 'first_event':
-      text = t('chronicle_hint_event')
-      break
-    case 'chapter_milestones':
-      text = t('chronicle_hint_finale', { chapter: trigger.chapter })
-      break
-    default:
-      text = t('chronicle_hint_event')
-  }
-  return text
-}
+// ── Chronicle Catalog ──
 
-// Milestone state builder
-const chapterMilestones = computed(() => {
-  const ps = presentationService.value
-  
-  const getMilestones = (chapterId) => {
-    const chapterMilestones = PRESENTATION_CATALOG.filter(p => p.chapter === chapterId)
-    
-    // Find the first non-seen milestone to highlight as "next"
-    const firstUnseenIndex = chapterMilestones.findIndex(p => {
-      if (!ps) return false
-      const isSeen = ps.isSeen(p.id)
-      const isPending = (ps.state?.pendingPresentations || []).includes(p.id)
-      return !isSeen && !isPending
-    })
-
-    return chapterMilestones.map((pres, index) => {
-      let status = 'locked'
-      if (ps) {
-        if (ps.isSeen(pres.id)) {
-          status = 'seen'
-        } else {
-          const pending = ps.state?.pendingPresentations || []
-          if (pending.includes(pres.id)) {
-            status = 'pending'
-          }
-        }
-      }
-
-      let title = '???'
-      let daySeen = null
-      let excerpt = ''
-      let hint = ''
-      let rowClass = 'state-locked'
-      const isNext = index === firstUnseenIndex
-
-      if (status === 'seen') {
-        title = t(pres.id)
-        rowClass = 'state-seen'
-        daySeen = ps ? ps.getDaySeen(pres.id) : null
-        
-        const firstPageKey = pres.pages?.[0]?.textKey
-        excerpt = firstPageKey ? t(firstPageKey) : ''
-      } else if (status === 'pending') {
-        title = t(pres.id)
-        rowClass = 'state-pending'
-        excerpt = t('chronicle_pending_hint')
-      } else {
-        hint = getTriggerHint(pres)
-        if (isNext) {
-          rowClass = 'state-locked state-next'
-        }
-      }
-
-      return {
-        id: pres.id,
-        status,
-        title,
-        daySeen,
-        excerpt,
-        hint,
-        rowClass,
-        isNext
-      }
-    })
-  }
-
-  return {
-    1: getMilestones(1),
-    2: getMilestones(2)
-  }
+const totalEntries = computed(() => {
+  return chronicleService.value?.getEntries()?.length || 0
 })
 
-// Recently unlocked presentations
-const recentUnlocks = computed(() => {
-  const ps = presentationService.value
-  if (!ps) return []
-  
-  const seenList = ps.state?.seenPresentations || []
-  return seenList
-    .filter(entry => entry.daySeen !== null)
-    .sort((a, b) => b.daySeen - a.daySeen)
-    .slice(0, 3)
+const unlockedEntries = computed(() => {
+  const cs = chronicleService.value
+  if (!cs) return []
+
+  const entries = cs.getEntries({ status: 'unlocked' })
+  return entries
+    .sort((a, b) => (b.dayUnlocked || 0) - (a.dayUnlocked || 0))
     .map(entry => ({
       id: entry.id,
-      title: t(entry.id),
-      daySeen: entry.daySeen
+      label: entry.labelKey ? t(entry.labelKey) : entry.id,
+      dayUnlocked: entry.dayUnlocked,
+      bookLink: entry.bookLink
     }))
 })
 
-// Discovery Log
+const recentUnlocks = computed(() => {
+  return unlockedEntries.value.slice(0, 3)
+})
+
+function openInBook(bookLink) {
+  if (!bookLink) return
+  const pageNumber = bookLink.pageNumber || 1
+  emit('navigate', { page: 'book', tab: String(pageNumber) })
+}
+
+// ── Discovery Log ──
+
 const showAllDiscovery = ref(false)
 const DISCOVERY_DISPLAY_LIMIT = 20
 
 const discoveryLog = computed(() => {
   if (!unlockService.value) return []
   const shown = unlockService.value.getShownNarratives() || []
-  
+
   return [...shown]
     .sort((a, b) => {
       if (a.daySeen === null && b.daySeen === null) return 0
@@ -376,6 +203,7 @@ function openDiscoveryDetail(entry) {
   height: 100%;
 }
 
+/* Recently Unlocked */
 .recent-section h3 {
   margin: 0 0 var(--spacing-sm);
   font-size: 0.9rem;
@@ -440,11 +268,11 @@ function openDiscoveryDetail(entry) {
   border-color: var(--color-primary-light);
 }
 
+/* Two-pane layout */
 .chronicle-two-pane {
   display: grid;
   grid-template-columns: 1fr 300px;
   gap: var(--spacing-lg);
-  min-height: 400px;
   flex: 1;
   min-height: 0;
   overflow-y: auto;
@@ -456,124 +284,93 @@ function openDiscoveryDetail(entry) {
   }
 }
 
+/* Main Pane: Catalog */
 .chronicle-main-pane {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
-}
-
-.chapters-list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
-}
-
-.chronicle-chapter-group {
   background: var(--bg-card);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
-  overflow: hidden;
-}
-
-.chapter-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
   padding: var(--spacing-md);
-  background: none;
-  border: none;
-  color: var(--text-primary);
-  cursor: pointer;
-  font-family: var(--font-body);
-  transition: background-color 0.15s ease;
 }
 
-.chapter-header:hover {
-  background: rgba(255, 255, 255, 0.02);
-}
-
-.chapter-header-left {
+.catalog-header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: var(--spacing-sm);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding-bottom: var(--spacing-sm);
 }
 
-.chapter-toggle-icon {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  transition: transform 0.2s ease;
-}
-
-.chapter-header.collapsed .chapter-toggle-icon {
-  transform: rotate(-90deg);
-}
-
-.chapter-title-text {
-  font-size: 1rem;
-  font-weight: 600;
+.catalog-header h3 {
+  margin: 0;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-primary-light);
   font-family: var(--font-heading);
 }
 
-.chapter-progress-badge {
+.catalog-count {
   font-size: 0.8rem;
-  background: rgba(255, 255, 255, 0.05);
-  padding: 2px 8px;
-  border-radius: var(--radius-sm);
-  color: var(--text-secondary);
+  color: var(--text-muted);
 }
 
-.chapter-content {
+.catalog-empty {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-style: italic;
+  text-align: center;
+  padding: var(--spacing-lg);
+}
+
+.catalog-list {
   display: flex;
   flex-direction: column;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-  background: rgba(0, 0, 0, 0.1);
+  gap: var(--spacing-xs);
+  overflow-y: auto;
 }
 
-.milestone-row {
+.catalog-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-md);
   padding: var(--spacing-md);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
 }
 
-.milestone-row:last-child {
-  border-bottom: none;
+.catalog-row:hover {
+  border-color: var(--color-primary-light);
+  background: rgba(74, 222, 128, 0.05);
 }
 
-.milestone-row.state-locked {
-  opacity: 0.45;
-}
-
-.milestone-row.state-next {
-  opacity: 1;
-  background: rgba(74, 222, 128, 0.08);
-  border-left: 3px solid var(--color-primary);
-}
-
-.milestone-main-info {
+.catalog-main-info {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xs);
   flex: 1;
 }
 
-.milestone-header-line {
+.catalog-header-line {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
   flex-wrap: wrap;
 }
 
-.milestone-title {
+.catalog-title {
   font-size: 0.9rem;
   font-weight: 600;
   color: var(--text-primary);
 }
 
-.milestone-badge {
+.catalog-badge {
   font-size: 0.65rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -581,52 +378,55 @@ function openDiscoveryDetail(entry) {
   border-radius: var(--radius-sm);
 }
 
-.milestone-badge.badge-seen {
+.catalog-badge.badge-unlocked {
   background: rgba(16, 185, 129, 0.2);
   color: #6ee7b7;
   text-shadow: 0 0 6px rgba(16, 185, 129, 0.4);
   border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
-.milestone-badge.badge-pending {
-  background: rgba(245, 158, 11, 0.1);
-  color: #f59e0b;
+.catalog-meta {
+  display: flex;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
 }
 
-.milestone-badge.badge-locked {
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--text-muted);
-}
-
-.milestone-day {
+.catalog-day {
   font-size: 0.75rem;
   color: var(--text-muted);
 }
 
-.milestone-excerpt {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-  line-height: 1.5;
-}
-
-.milestone-trigger-hint {
-  font-size: 0.8rem;
+.catalog-book-ref {
+  font-size: 0.75rem;
   color: var(--text-secondary);
   font-style: italic;
 }
 
-.hint-label {
-  font-weight: 600;
-  color: #ff8a8a;
-  text-shadow: 0 0 6px rgba(239, 108, 108, 0.25);
-}
-
-.milestone-actions {
+.catalog-actions {
   display: flex;
   align-items: center;
 }
 
-/* Discovery Log Styles */
+.btn-book-icon {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--glass-border);
+  color: var(--text-primary);
+  border-radius: var(--radius-sm);
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-book-icon:hover {
+  background: rgba(74, 222, 128, 0.1);
+  border-color: var(--color-primary-light);
+}
+
+/* Discovery Log (same as before) */
 .chronicle-discovery-pane {
   background: var(--bg-card);
   border: 1px solid var(--glass-border);
@@ -722,5 +522,4 @@ function openDiscoveryDetail(entry) {
   border-color: var(--color-primary-light);
   color: var(--text-primary);
 }
-
 </style>

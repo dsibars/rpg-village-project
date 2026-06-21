@@ -177,7 +177,15 @@ function goToFirstUnread() {
 }
 
 // Expose for parent control
-defineExpose({ goToFirstUnread, prevSpread, nextSpread })
+defineExpose({ goToFirstUnread, goToPage, prevSpread, nextSpread })
+
+function goToPage(pageNumber) {
+  if (!props.bookState?.pages || pageNumber < 1) return
+  const maxPage = props.bookState.pages.length
+  if (pageNumber > maxPage) pageNumber = maxPage
+  const spreadNum = Math.floor((pageNumber - 1) / 2) + 1
+  currentSpread.value = spreadNum
+}
 </script>
 
 <style scoped>
