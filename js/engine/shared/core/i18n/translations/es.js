@@ -1122,6 +1122,42 @@ export const es = {
     // ═══ NAVIGATION ═══════════════════════════════════════════════════════
     nav_codex: "Códice",
 
+    // ═══ THE BOOK ════════════════════════════════════════════════════════
+    book_chapter_default_title: "Capítulo {chapter}",
+    book_chapter_1_title: "Capítulo I: Las Cenizas del Pasado",
+    book_chapter_2_title: "Capítulo II: La Era Arcana",
+    book_chapter_3_title: "Capítulo III: El Norte Helado",
+    book_chapter_4_title: "Capítulo IV: El Umbral Astral",
+    book_chapter_5_title: "Capítulo V: La Última Defensa",
+
+    book_village_updates_title: "Día {day} — Actualizaciones del Pueblo",
+    book_update_food_consumed: "Se consumieron {amount} unidades de comida.",
+    book_update_villager_joined: "¡{amount} aldeano(s) se unieron al pueblo!",
+    book_update_hero_rested: "{hero} descansó y recuperó {hp} PV.",
+    book_update_hero_trained: "{hero} entrenó y ganó {xp} XP.",
+    book_update_hero_scouted: "{hero} exploró los alrededores y descubrió {region}.",
+    book_update_hero_crafted: "{hero} fabricó {item}.",
+    book_update_hero_socialized: "{hero} socializó con los aldeanos, mejorando la moral.",
+    book_update_building_completed: "¡La construcción de {building} ha terminado!",
+    book_update_region_unlocked: "Se ha desbloqueado una nueva región: {region}.",
+    book_update_expedition_started: "Ha comenzado una expedición a {region}.",
+    book_update_expedition_completed: "La expedición a {region} ha regresado.",
+    book_update_combat_victory: "¡Victoria! El grupo derrotó a {enemies}.",
+    book_update_combat_defeat: "Derrota... El grupo cayó ante {enemies}.",
+    book_update_hero_recruited: "¡{hero} se ha unido al pueblo!",
+    book_update_market_rotation: "El mercado se ha reabastecido con nuevos productos.",
+    book_update_raid_defended: "¡El pueblo defendió exitosamente contra un ataque!",
+    book_update_raid_lost: "El pueblo fue atacado. Se perdieron recursos.",
+    book_update_quiet_day: "El día pasó tranquilamente en el pueblo.",
+
+    book_milestone_first_victory: "Primera Victoria",
+    book_milestone_first_boss: "Primer Jefe Derrotado",
+    book_milestone_first_region: "Primera Región Explorada",
+    book_milestone_first_building: "Primera Construcción",
+    book_milestone_first_spell: "Primer Hechizo Compuesto",
+    book_milestone_first_academy: "Primera Sesión de la Academia",
+    book_milestone_first_body_inscription: "Primera Inscripción Corporal",
+
     // ═══ NARRATIVE / PROLOGUE ═════════════════════════════════════════════
     intro_btn: "Comenzar Viaje",
     prologue_title_1: "Capítulo I: Las Cenizas del Pasado",

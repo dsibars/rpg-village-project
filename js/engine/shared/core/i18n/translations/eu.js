@@ -1121,6 +1121,42 @@ export const eu = {
     // ═══ NAVIGATION ═══════════════════════════════════════════════════════
     nav_codex: "Kodexa",
 
+    // ═══ THE BOOK ════════════════════════════════════════════════════════
+    book_chapter_default_title: "{chapter}. Kapitulua",
+    book_chapter_1_title: "I. Kapitulua: Iraganaren Hondarrak",
+    book_chapter_2_title: "II. Kapitulua: Aro Arkanoa",
+    book_chapter_3_title: "III. Kapitulua: Ipar Izoztua",
+    book_chapter_4_title: "IV. Kapitulua: Atari Astrala",
+    book_chapter_5_title: "V. Kapitulua: Azken Aurkakoa",
+
+    book_village_updates_title: "{day}. Eguna — Herriaren Egunerokoa",
+    book_update_food_consumed: "{amount} janari unitate kontsumitu ziren.",
+    book_update_villager_joined: "{amount} herrikoidek herriari batu zitzaizkion!",
+    book_update_hero_rested: "{hero}k atsedena hartu eta {hp} HP berreskuratu zituen.",
+    book_update_hero_trained: "{hero}k entrenatu eta {xp} XP irabazi zituen.",
+    book_update_hero_scouted: "{hero}k inguruak aztertu eta {region} aurkitu zuen.",
+    book_update_hero_crafted: "{hero}k {item} egin zuen.",
+    book_update_hero_socialized: "{hero}k herrikoideekin harremanak sendotu zituen.",
+    book_update_building_completed: "{building} eraikuntza amaitu da!",
+    book_update_region_unlocked: "Eskualde berri bat desblokeatu da: {region}.",
+    book_update_expedition_started: "Esplorazio bat hasi da {region}-era.",
+    book_update_expedition_completed: "{region}-era esplorazioa bueltatu da.",
+    book_update_combat_victory: "Garaipena! Taldeak {enemies} menderatu zituen.",
+    book_update_combat_defeat: "Porrota... Taldeak {enemies}-ren aurrean erori ziren.",
+    book_update_hero_recruited: "{hero} herriari batu zaio!",
+    book_update_market_rotation: "Merkatua hornitu egin da produktu berriekin.",
+    book_update_raid_defended: "Herriak eraso bat defendatu zuen arrakastaz!",
+    book_update_raid_lost: "Herria eraso egin zioten. Baliabideak galdu ziren.",
+    book_update_quiet_day: "Egun lasaia igaro zen herrian.",
+
+    book_milestone_first_victory: "Lehen Garaipena",
+    book_milestone_first_boss: "Lehen Buruzagia Garaitua",
+    book_milestone_first_region: "Lehen Eskualde Esploratua",
+    book_milestone_first_building: "Lehen Eraikuntza",
+    book_milestone_first_spell: "Lehen Aztia Osatua",
+    book_milestone_first_academy: "Lehen Akademiako Saioa",
+    book_milestone_first_body_inscription: "Lehen Gorputz-Inskripzioa",
+
     // ═══ NARRATIVE / PROLOGUE ═════════════════════════════════════════════
     intro_btn: "Hasi Bidaia",
     prologue_title_1: "I. Kapitulua: Iraganeko Tuhak",

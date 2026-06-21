@@ -1121,6 +1121,42 @@ export const gl = {
     // ═══ NAVIGATION ═══════════════════════════════════════════════════════
     nav_codex: "Códice",
 
+    // ═══ THE BOOK ════════════════════════════════════════════════════════
+    book_chapter_default_title: "Capítulo {chapter}",
+    book_chapter_1_title: "Capítulo I: As Cinzas do Pasado",
+    book_chapter_2_title: "Capítulo II: A Era Arcana",
+    book_chapter_3_title: "Capítulo III: O Norte Xeado",
+    book_chapter_4_title: "Capítulo IV: O Umbral Astral",
+    book_chapter_5_title: "Capítulo V: A Derradeira Defensa",
+
+    book_village_updates_title: "Día {day} — Actualizacións da Vila",
+    book_update_food_consumed: "Consumíronse {amount} unidades de comida.",
+    book_update_villager_joined: "¡{amount} veciño(s) uníronse á vila!",
+    book_update_hero_rested: "{hero} descansou e recuperou {hp} PV.",
+    book_update_hero_trained: "{hero} adestrou e gañou {xp} XP.",
+    book_update_hero_scouted: "{hero} explorou os arredores e descubriu {region}.",
+    book_update_hero_crafted: "{hero} fabricou {item}.",
+    book_update_hero_socialized: "{hero} socializou cos veciños, mellorando a moral.",
+    book_update_building_completed: "A construción de {building} rematou!",
+    book_update_region_unlocked: "Desbloqueouse unha nova rexión: {region}.",
+    book_update_expedition_started: "Comezou unha expedición a {region}.",
+    book_update_expedition_completed: "A expedición a {region} volveu.",
+    book_update_combat_victory: "Vitoria! O grupo derrotou a {enemies}.",
+    book_update_combat_defeat: "Derrota... O grupo caeu ante {enemies}.",
+    book_update_hero_recruited: "¡{hero} uníuse á vila!",
+    book_update_market_rotation: "O mercado reabasteceuse con novos produtos.",
+    book_update_raid_defended: "¡A vila defendeu con éxito contra un ataque!",
+    book_update_raid_lost: "A vila foi atacada. Perdéronse recursos.",
+    book_update_quiet_day: "O día pasou tranquilamente na vila.",
+
+    book_milestone_first_victory: "Primeira Vitoria",
+    book_milestone_first_boss: "Primeiro Xefe Derrotado",
+    book_milestone_first_region: "Primeira Rexión Explorada",
+    book_milestone_first_building: "Primeira Construción",
+    book_milestone_first_spell: "Primeiro Feitizo Composto",
+    book_milestone_first_academy: "Primeira Sesión da Academia",
+    book_milestone_first_body_inscription: "Primeira Inscrición Corporal",
+
     // ═══ NARRATIVE / PROLOGUE ═════════════════════════════════════════════
     intro_btn: "Comezar Viaxe",
     prologue_title_1: "Capítulo I: As Cinzas do Pasado",

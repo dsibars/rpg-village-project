@@ -1124,6 +1124,42 @@ export const en = {
     // ═══ NAVIGATION ═══════════════════════════════════════════════════════
     nav_codex: "Codex",
 
+    // ═══ THE BOOK ════════════════════════════════════════════════════════
+    book_chapter_default_title: "Chapter {chapter}",
+    book_chapter_1_title: "Chapter I: The Ashes of the Past",
+    book_chapter_2_title: "Chapter II: The Arcane Age",
+    book_chapter_3_title: "Chapter III: The Frozen North",
+    book_chapter_4_title: "Chapter IV: The Astral Threshold",
+    book_chapter_5_title: "Chapter V: The Final Stand",
+
+    book_village_updates_title: "Day {day} — Village Updates",
+    book_update_food_consumed: "{amount} food units were consumed.",
+    book_update_villager_joined: "{amount} villager(s) joined the village!",
+    book_update_hero_rested: "{hero} rested and recovered {hp} HP.",
+    book_update_hero_trained: "{hero} trained and gained {xp} XP.",
+    book_update_hero_scouted: "{hero} scouted the surroundings and discovered {region}.",
+    book_update_hero_crafted: "{hero} crafted {item}.",
+    book_update_hero_socialized: "{hero} socialized with the villagers, improving morale.",
+    book_update_building_completed: "The {building} construction is complete!",
+    book_update_region_unlocked: "A new region has been unlocked: {region}.",
+    book_update_expedition_started: "An expedition to {region} has begun.",
+    book_update_expedition_completed: "The expedition to {region} has returned.",
+    book_update_combat_victory: "Victory! The party defeated {enemies}.",
+    book_update_combat_defeat: "Defeat... The party fell to {enemies}.",
+    book_update_hero_recruited: "{hero} has joined the village!",
+    book_update_market_rotation: "The market has restocked with new goods.",
+    book_update_raid_defended: "The village successfully defended against a raid!",
+    book_update_raid_lost: "The village was raided. Resources were lost.",
+    book_update_quiet_day: "The day passed quietly in the village.",
+
+    book_milestone_first_victory: "First Victory",
+    book_milestone_first_boss: "First Boss Defeated",
+    book_milestone_first_region: "First Region Explored",
+    book_milestone_first_building: "First Building Constructed",
+    book_milestone_first_spell: "First Spell Composed",
+    book_milestone_first_academy: "First Academy Session",
+    book_milestone_first_body_inscription: "First Body Inscription",
+
     // ═══ NARRATIVE / PROLOGUE ═════════════════════════════════════════════
     intro_btn: "Start Journey",
     prologue_title_1: "Chapter I: The Ashes of the Past",

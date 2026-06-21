@@ -1122,6 +1122,42 @@ export const ca = {
     // ═══ NAVIGATION ═══════════════════════════════════════════════════════
     nav_codex: "Còdex",
 
+    // ═══ THE BOOK ════════════════════════════════════════════════════════
+    book_chapter_default_title: "Capítol {chapter}",
+    book_chapter_1_title: "Capítol I: Les Cendres del Passat",
+    book_chapter_2_title: "Capítol II: L'Edat Arcana",
+    book_chapter_3_title: "Capítol III: El Nord Gelat",
+    book_chapter_4_title: "Capítol IV: El Llindar Astral",
+    book_chapter_5_title: "Capítol V: L'Última Defensa",
+
+    book_village_updates_title: "Dia {day} — Actualitzacions del Poble",
+    book_update_food_consumed: "S'han consumit {amount} unitats de menjar.",
+    book_update_villager_joined: "¡{amount} veí(s) s'han unit al poble!",
+    book_update_hero_rested: "{hero} ha descansat i recuperat {hp} PV.",
+    book_update_hero_trained: "{hero} ha entrenat i guanyat {xp} XP.",
+    book_update_hero_scouted: "{hero} ha explorat els voltants i descobert {region}.",
+    book_update_hero_crafted: "{hero} ha fabricat {item}.",
+    book_update_hero_socialized: "{hero} ha socialitzat amb els veïns, millorant la moral.",
+    book_update_building_completed: "La construcció de {building} ha acabat!",
+    book_update_region_unlocked: "S'ha desbloquejat una nova regió: {region}.",
+    book_update_expedition_started: "Ha començat una expedició a {region}.",
+    book_update_expedition_completed: "L'expedició a {region} ha tornat.",
+    book_update_combat_victory: "Victòria! El grup ha derrotat {enemies}.",
+    book_update_combat_defeat: "Derrota... El grup ha caigut davant {enemies}.",
+    book_update_hero_recruited: "¡{hero} s'ha unit al poble!",
+    book_update_market_rotation: "El mercat s'ha reabastit amb nous productes.",
+    book_update_raid_defended: "¡El poble ha defensat amb èxit contra un atac!",
+    book_update_raid_lost: "El poble va ser atacat. Es van perdre recursos.",
+    book_update_quiet_day: "El dia va passar tranquil·lament al poble.",
+
+    book_milestone_first_victory: "Primera Victòria",
+    book_milestone_first_boss: "Primer Cap Derrotat",
+    book_milestone_first_region: "Primera Regió Explorada",
+    book_milestone_first_building: "Primera Construcció",
+    book_milestone_first_spell: "Primer Encanteri Compost",
+    book_milestone_first_academy: "Primera Sessió de l'Acadèmia",
+    book_milestone_first_body_inscription: "Primera Inscripció Corporal",
+
     // ═══ NARRATIVE / PROLOGUE ═════════════════════════════════════════════
     intro_btn: "Començar Viatge",
     prologue_title_1: "Capítol I: Les Cendres del Passat",

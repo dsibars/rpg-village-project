@@ -1,0 +1,538 @@
+import { test, describe, beforeEach } from 'node:test';
+import assert from 'node:assert';
+import { BookService } from '../../../js/engine/book/BookService.js';
+import { BOOK_SECTION_CATEGORIES, PCS_TYPES } from '../../../js/engine/book/BookSectionCatalog.js';
+
+describe('BookService', () => {
+    let book;
+
+    beforeEach(() => {
+        // Clear localStorage before each test
+        global.localStorage = {
+            data: {},
+            getItem(key) { return this.data[key] || null; },
+            setItem(key, value) { this.data[key] = value; },
+            removeItem(key) { delete this.data[key]; },
+            clear() { this.data = {}; },
+        };
+        book = new BookService();
+        book.load();
+    });
+
+    describe('Initial State', () => {
+        test('starts with Chapter 1 and one empty page', () => {
+            const state = book.getState();
+            assert.strictEqual(state.chapters.length, 1);
+            assert.strictEqual(state.chapters[0].chapterNumber, 1);
+            assert.strictEqual(state.chapters[0].startPageNumber, 1);
+            assert.strictEqual(state.pages.length, 1);
+            assert.strictEqual(state.pages[0].pageNumber, 1);
+            assert.strictEqual(state.pages[0].chapterNumber, 1);
+            assert.strictEqual(state.pages[0].remainingBudget, 10);
+            assert.strictEqual(state.pages[0].pageContentSections.length, 0);
+        });
+    });
+
+    describe('addSection - History Events', () => {
+        test('adds a single history block to the current page', () => {
+            const result = book.addSection({
+                id: 'test_history_1',
+                category: BOOK_SECTION_CATEGORIES.HISTORY_EVENT,
+                day: 5,
+                blocks: [
+                    { textKey: 'nar_first_expedition_title', values: {}, weight: 6 },
+                ],
+            });
+
+            assert.notStrictEqual(result, null);
+            assert.strictEqual(book.getPageCount(), 1);
+            const page = book.getPage(1);
+            assert.strictEqual(page.pageContentSections.length, 1);
+            assert.strictEqual(page.remainingBudget, 4); // 10 - 6
+            assert.strictEqual(page.pageContentSections[0].type, PCS_TYPES.HISTORY_BLOCK);
+        });
+
+        test('adds multiple history blocks across pages when budget overflows', () => {
+            const result = book.addSection({
+                id: 'test_history_multi',
+                category: BOOK_SECTION_CATEGORIES.HISTORY_EVENT,
+                day: 10,
+                blocks: [
+                    { textKey: 'block_1', values: {}, weight: 6 },
+                    { textKey: 'block_2', values: {}, weight: 6 },
+                ],
+            });
+
+            assert.notStrictEqual(result, null);
+            assert.strictEqual(book.getPageCount(), 2);
+
+            const page1 = book.getPage(1);
+            const page2 = book.getPage(2);
+
+            assert.strictEqual(page1.pageContentSections.length, 1);
+            assert.strictEqual(page1.remainingBudget, 4);
+            assert.strictEqual(page2.pageContentSections.length, 1);
+            assert.strictEqual(page2.remainingBudget, 4);
+        });
+
+        test('adds multiple history blocks that fit on one page', () => {
+            const result = book.addSection({
+                id: 'test_history_fit',
+                category: BOOK_SECTION_CATEGORIES.HISTORY_EVENT,
+                day: 10,
+                blocks: [
+                    { textKey: 'block_1', values: {}, weight: 4 },
+                    { textKey: 'block_2', values: {}, weight: 4 },
+                ],
+            });
+
+            assert.notStrictEqual(result, null);
+            assert.strictEqual(book.getPageCount(), 1);
+            const page = book.getPage(1);
+            assert.strictEqual(page.pageContentSections.length, 2);
+            assert.strictEqual(page.remainingBudget, 2); // 10 - 4 - 4
+        });
+
+        test('skips empty history events', () => {
+            const result = book.addSection({
+                id: 'test_empty',
+                category: BOOK_SECTION_CATEGORIES.HISTORY_EVENT,
+                day: 5,
+                blocks: [],
+            });
+
+            assert.strictEqual(result, null);
+            assert.strictEqual(book.getPageCount(), 1);
+            assert.strictEqual(book.getPage(1).pageContentSections.length, 0);
+        });
+
+        test('skips history events with no blocks property', () => {
+            const result = book.addSection({
+                id: 'test_no_blocks',
+                category: BOOK_SECTION_CATEGORIES.HISTORY_EVENT,
+                day: 5,
+            });
+
+            assert.strictEqual(result, null);
+            assert.strictEqual(book.getPageCount(), 1);
+        });
+    });
+
+    describe('addSection - Chapter History Events', () => {
+        test('creates a new chapter and starts on new page', () => {
+            // Fill page 1 with something
+            book.addSection({
+                id: 'fill_page',
+                category: BOOK_SECTION_CATEGORIES.HISTORY_EVENT,
+                day: 5,
+                blocks: [
+                    { textKey: 'fill', values: {}, weight: 10 },
+                ],
+            });
+
+            const result = book.addSection({
+                id: 'chapter_2',
+                category: BOOK_SECTION_CATEGORIES.CHAPTER_HISTORY_EVENT,
+                day: 20,
+                blocks: [
+                    { textKey: 'nar_dark_forest_found_title', values: {}, weight: 6 },
+                ],
+                metadata: { titleKey: 'book_chapter_2_title' },
+            });
+
+            assert.notStrictEqual(result, null);
+            assert.strictEqual(book.getChapterCount(), 2);
+            // Page 1 (full) + page 2 (chapter title + block) = 2 pages
+            assert.strictEqual(book.getPageCount(), 2);
+
+            const chapter2 = book.getState().chapters[1];
+            assert.strictEqual(chapter2.chapterNumber, 2);
+            assert.strictEqual(chapter2.titleKey, 'book_chapter_2_title');
+
+            // Check that chapter title PCS is on page 2
+            const page2 = book.getPage(2);
+            assert.strictEqual(page2.pageContentSections[0].type, PCS_TYPES.CHAPTER_TITLE);
+            assert.strictEqual(page2.chapterNumber, 2);
+            // Chapter title (2) + history block (6) = 8, remaining budget 2
+            assert.strictEqual(page2.remainingBudget, 2);
+        });
+
+        test('skips empty chapter history events', () => {
+            const result = book.addSection({
+                id: 'empty_chapter',
+                category: BOOK_SECTION_CATEGORIES.CHAPTER_HISTORY_EVENT,
+                day: 20,
+                blocks: [],
+                metadata: { titleKey: 'book_chapter_2_title' },
+            });
+
+            assert.strictEqual(result, null);
+            assert.strictEqual(book.getChapterCount(), 1); // Still only chapter 1
+        });
+    });
+
+    describe('addSection - Milestones', () => {
+        test('adds a milestone to current page', () => {
+            const result = book.addSection({
+                id: 'milestone_1',
+                category: BOOK_SECTION_CATEGORIES.MILESTONE,
+                day: 15,
+                entry: { key: 'book_milestone_first_victory', values: {}, weight: 4 },
+            });
+
+            assert.notStrictEqual(result, null);
+            assert.strictEqual(book.getPageCount(), 1);
+            const page = book.getPage(1);
+            assert.strictEqual(page.pageContentSections.length, 1);
+            assert.strictEqual(page.pageContentSections[0].type, PCS_TYPES.MILESTONE);
+            assert.strictEqual(page.remainingBudget, 6);
+        });
+
+        test('milestones with no entry are skipped', () => {
+            const result = book.addSection({
+                id: 'empty_milestone',
+                category: BOOK_SECTION_CATEGORIES.MILESTONE,
+                day: 15,
+            });
+
+            assert.strictEqual(result, null);
+            assert.strictEqual(book.getPageCount(), 1);
+            assert.strictEqual(book.getPage(1).pageContentSections.length, 0);
+        });
+    });
+
+    describe('addSection - Village Updates', () => {
+        test('adds title and bullets to current page', () => {
+            const result = book.addSection({
+                id: 'village_day_5',
+                category: BOOK_SECTION_CATEGORIES.VILLAGE_UPDATES,
+                day: 5,
+                entries: [
+                    { key: 'book_update_food_consumed', values: { amount: 12 }, weight: 1 },
+                    { key: 'book_update_hero_rested', values: { hero: 'Arthur', hp: 20 }, weight: 1 },
+                ],
+            });
+
+            assert.notStrictEqual(result, null);
+            assert.strictEqual(book.getPageCount(), 1);
+            const page = book.getPage(1);
+            // Title (2) + bullet 1 (1) + bullet 2 (1) = 4 units, remaining 6
+            assert.strictEqual(page.pageContentSections.length, 3);
+            assert.strictEqual(page.pageContentSections[0].type, PCS_TYPES.VILLAGE_UPDATE_TITLE);
+            assert.strictEqual(page.pageContentSections[1].type, PCS_TYPES.VILLAGE_UPDATE_BULLET);
+            assert.strictEqual(page.pageContentSections[2].type, PCS_TYPES.VILLAGE_UPDATE_BULLET);
+            assert.strictEqual(page.remainingBudget, 6);
+        });
+
+        test('spills bullets to next page when budget overflows', () => {
+            const result = book.addSection({
+                id: 'village_day_10',
+                category: BOOK_SECTION_CATEGORIES.VILLAGE_UPDATES,
+                day: 10,
+                entries: [
+                    { key: 'book_update_food_consumed', values: { amount: 12 }, weight: 1 },
+                    { key: 'book_update_hero_rested', values: { hero: 'Arthur', hp: 20 }, weight: 1 },
+                    { key: 'book_update_hero_trained', values: { hero: 'Arthur', xp: 50 }, weight: 1 },
+                    { key: 'book_update_building_completed', values: { building: 'Tavern' }, weight: 1 },
+                    { key: 'book_update_hero_recruited', values: { hero: 'Elara' }, weight: 1 },
+                    { key: 'book_update_combat_victory', values: { enemies: 'Goblins' }, weight: 1 },
+                    { key: 'book_update_region_unlocked', values: { region: 'Dark Forest' }, weight: 1 },
+                    { key: 'book_update_market_rotation', values: {}, weight: 1 },
+                    { key: 'book_update_quiet_day', values: {}, weight: 1 },
+                ],
+            });
+
+            assert.notStrictEqual(result, null);
+            // Title (2) + 9 bullets (1 each) = 11 units
+            // Page 1: title (2) + 8 bullets (8) = 10, remaining 0
+            // Page 2: 1 bullet (1), remaining 9
+            assert.strictEqual(book.getPageCount(), 2);
+
+            const page1 = book.getPage(1);
+            const page2 = book.getPage(2);
+
+            assert.strictEqual(page1.pageContentSections.length, 9); // title + 8 bullets
+            assert.strictEqual(page1.remainingBudget, 0);
+            assert.strictEqual(page2.pageContentSections.length, 1); // 1 bullet
+            assert.strictEqual(page2.remainingBudget, 9);
+        });
+
+        test('village updates with no entries produce only title', () => {
+            const result = book.addSection({
+                id: 'empty_village',
+                category: BOOK_SECTION_CATEGORIES.VILLAGE_UPDATES,
+                day: 5,
+                entries: [],
+            });
+
+            assert.notStrictEqual(result, null);
+            assert.strictEqual(book.getPageCount(), 1);
+            const page = book.getPage(1);
+            assert.strictEqual(page.pageContentSections.length, 1);
+            assert.strictEqual(page.pageContentSections[0].type, PCS_TYPES.VILLAGE_UPDATE_TITLE);
+            assert.strictEqual(page.remainingBudget, 8);
+        });
+    });
+
+    describe('Overflow Guard', () => {
+        test('allows single PCS to overflow page budget', () => {
+            const result = book.addSection({
+                id: 'overflow_test',
+                category: BOOK_SECTION_CATEGORIES.HISTORY_EVENT,
+                day: 10,
+                blocks: [
+                    { textKey: 'overflow_block', values: {}, weight: 15 },
+                ],
+            });
+
+            assert.notStrictEqual(result, null);
+            assert.strictEqual(book.getPageCount(), 1);
+            const page = book.getPage(1);
+            assert.strictEqual(page.pageContentSections.length, 1);
+            // The PCS overflows, so it doesn't deduct from remainingBudget
+            assert.strictEqual(page.remainingBudget, 10);
+        });
+
+        test('overflow PCS gets its own page if current page has content', () => {
+            // First, put something on page 1
+            book.addSection({
+                id: 'fill_page',
+                category: BOOK_SECTION_CATEGORIES.HISTORY_EVENT,
+                day: 5,
+                blocks: [
+                    { textKey: 'fill', values: {}, weight: 6 },
+                ],
+            });
+
+            // Now add an overflow block
+            const result = book.addSection({
+                id: 'overflow_test',
+                category: BOOK_SECTION_CATEGORIES.HISTORY_EVENT,
+                day: 10,
+                blocks: [
+                    { textKey: 'overflow_block', values: {}, weight: 15 },
+                ],
+            });
+
+            assert.notStrictEqual(result, null);
+            assert.strictEqual(book.getPageCount(), 2);
+            // Page 1 should have the fill block only
+            const page1 = book.getPage(1);
+            assert.strictEqual(page1.pageContentSections.length, 1);
+            assert.strictEqual(page1.pageContentSections[0].textKey, 'fill');
+            // Page 2 should have the overflow block
+            const page2 = book.getPage(2);
+            assert.strictEqual(page2.pageContentSections.length, 1);
+            assert.strictEqual(page2.pageContentSections[0].textKey, 'overflow_block');
+            assert.strictEqual(page2.remainingBudget, 10);
+        });
+    });
+
+    describe('Query API', () => {
+        test('getPage returns correct page', () => {
+            book.addSection({
+                id: 'test_history',
+                category: BOOK_SECTION_CATEGORIES.HISTORY_EVENT,
+                day: 5,
+                blocks: [
+                    { textKey: 'block_1', values: {}, weight: 6 },
+                    { textKey: 'block_2', values: {}, weight: 6 },
+                ],
+            });
+
+            assert.notStrictEqual(book.getPage(1), null);
+            assert.notStrictEqual(book.getPage(2), null);
+            assert.strictEqual(book.getPage(3), null);
+            assert.strictEqual(book.getPage(0), null);
+        });
+
+        test('getSpread returns left and right pages', () => {
+            book.addSection({
+                id: 'test_history',
+                category: BOOK_SECTION_CATEGORIES.HISTORY_EVENT,
+                day: 5,
+                blocks: [
+                    { textKey: 'block_1', values: {}, weight: 6 },
+                    { textKey: 'block_2', values: {}, weight: 6 },
+                ],
+            });
+
+            const spread = book.getSpread(1);
+            assert.notStrictEqual(spread, null);
+            assert.notStrictEqual(spread.left, null);
+            assert.notStrictEqual(spread.right, null);
+            assert.strictEqual(spread.left.pageNumber, 1);
+            assert.strictEqual(spread.right.pageNumber, 2);
+        });
+
+        test('getSpread returns null for even page numbers', () => {
+            assert.strictEqual(book.getSpread(2), null);
+        });
+
+        test('getCurrentSpread returns initial spread', () => {
+            const spread = book.getCurrentSpread();
+            assert.notStrictEqual(spread, null);
+            assert.strictEqual(spread.left.pageNumber, 1);
+        });
+
+        test('getPageCount and getSpreadCount', () => {
+            book.addSection({
+                id: 'test_history',
+                category: BOOK_SECTION_CATEGORIES.HISTORY_EVENT,
+                day: 5,
+                blocks: [
+                    { textKey: 'block_1', values: {}, weight: 6 },
+                    { textKey: 'block_2', values: {}, weight: 6 },
+                ],
+            });
+
+            assert.strictEqual(book.getPageCount(), 2);
+            assert.strictEqual(book.getSpreadCount(), 1);
+        });
+    });
+
+    describe('Read/Unread Tracking', () => {
+        test('hasUnreadContent returns true for new content', () => {
+            book.addSection({
+                id: 'test_history',
+                category: BOOK_SECTION_CATEGORIES.HISTORY_EVENT,
+                day: 5,
+                blocks: [
+                    { textKey: 'block_1', values: {}, weight: 6 },
+                ],
+            });
+
+            assert.strictEqual(book.hasUnreadContent(), true);
+        });
+
+        test('hasUnreadContent returns false after marking all read', () => {
+            book.addSection({
+                id: 'test_history',
+                category: BOOK_SECTION_CATEGORIES.HISTORY_EVENT,
+                day: 5,
+                blocks: [
+                    { textKey: 'block_1', values: {}, weight: 6 },
+                ],
+            });
+
+            book.markAllRead();
+            assert.strictEqual(book.hasUnreadContent(), false);
+        });
+
+        test('hasAutoOpenContent returns true for unread history events', () => {
+            book.addSection({
+                id: 'test_history',
+                category: BOOK_SECTION_CATEGORIES.HISTORY_EVENT,
+                day: 5,
+                blocks: [
+                    { textKey: 'block_1', values: {}, weight: 6 },
+                ],
+            });
+
+            assert.strictEqual(book.hasAutoOpenContent(), true);
+        });
+
+        test('hasAutoOpenContent returns false for village updates only', () => {
+            book.addSection({
+                id: 'village_day_5',
+                category: BOOK_SECTION_CATEGORIES.VILLAGE_UPDATES,
+                day: 5,
+                entries: [
+                    { key: 'book_update_food_consumed', values: { amount: 12 }, weight: 1 },
+                ],
+            });
+
+            assert.strictEqual(book.hasAutoOpenContent(), false);
+        });
+
+        test('markRead updates lastReadSpread and marks pages as read', () => {
+            book.addSection({
+                id: 'test_history',
+                category: BOOK_SECTION_CATEGORIES.HISTORY_EVENT,
+                day: 5,
+                blocks: [
+                    { textKey: 'block_1', values: {}, weight: 6 },
+                    { textKey: 'block_2', values: {}, weight: 6 },
+                ],
+            });
+
+            book.markRead(1);
+            assert.strictEqual(book.getState().lastReadSpread, 1);
+
+            const page1 = book.getPage(1);
+            const page2 = book.getPage(2);
+            assert.strictEqual(page1.pageContentSections[0].read, true);
+            assert.strictEqual(page2.pageContentSections[0].read, true);
+        });
+    });
+
+    describe('PageSection Tracking', () => {
+        test('pageSection tracks pages and PCS IDs', () => {
+            const result = book.addSection({
+                id: 'test_history',
+                category: BOOK_SECTION_CATEGORIES.HISTORY_EVENT,
+                day: 5,
+                blocks: [
+                    { textKey: 'block_1', values: {}, weight: 6 },
+                    { textKey: 'block_2', values: {}, weight: 6 },
+                ],
+            });
+
+            const pageSection = book.getPageSection(result.pageSectionId);
+            assert.notStrictEqual(pageSection, null);
+            assert.strictEqual(pageSection.category, BOOK_SECTION_CATEGORIES.HISTORY_EVENT);
+            assert.strictEqual(pageSection.day, 5);
+            assert.strictEqual(pageSection.pages.length, 2);
+            assert.strictEqual(pageSection.pageContentSectionIds.length, 2);
+        });
+
+        test('getPageSectionPage returns first page of section', () => {
+            const result = book.addSection({
+                id: 'test_history',
+                category: BOOK_SECTION_CATEGORIES.HISTORY_EVENT,
+                day: 5,
+                blocks: [
+                    { textKey: 'block_1', values: {}, weight: 6 },
+                    { textKey: 'block_2', values: {}, weight: 6 },
+                ],
+            });
+
+            assert.strictEqual(book.getPageSectionPage(result.pageSectionId), 1);
+        });
+
+        test('getPageSectionChapter returns chapter of first page', () => {
+            const result = book.addSection({
+                id: 'test_history',
+                category: BOOK_SECTION_CATEGORIES.HISTORY_EVENT,
+                day: 5,
+                blocks: [
+                    { textKey: 'block_1', values: {}, weight: 6 },
+                ],
+            });
+
+            assert.strictEqual(book.getPageSectionChapter(result.pageSectionId), 1);
+        });
+    });
+
+    describe('Persistence', () => {
+        test('saves and loads state', () => {
+            book.addSection({
+                id: 'test_history',
+                category: BOOK_SECTION_CATEGORIES.HISTORY_EVENT,
+                day: 5,
+                blocks: [
+                    { textKey: 'block_1', values: {}, weight: 6 },
+                ],
+            });
+
+            book.save();
+
+            const book2 = new BookService();
+            book2.load();
+
+            assert.strictEqual(book2.getPageCount(), 1);
+            assert.strictEqual(book2.getPage(1).pageContentSections.length, 1);
+            assert.strictEqual(book2.getPage(1).pageContentSections[0].textKey, 'block_1');
+        });
+    });
+});
