@@ -954,7 +954,17 @@ export class GameEngine {
             }
         });
 
-        // Persist recovery changes (HP and stamina)
+        // --- Fatigue Recovery ---
+        // Idle heroes recover 15 fatigue per day
+        // Heroes on expedition recover 5 fatigue per day (resting in camp)
+        const allHeroes = this.heroService.list();
+        allHeroes.forEach(hero => {
+            const activity = this.expeditionService.getHeroActivity(hero.id);
+            const recoveryRate = activity.type === 'idle' ? 15 : 5;
+            hero.recoverFatigue(recoveryRate);
+        });
+
+        // Persist recovery changes (HP, stamina, fatigue)
         this.heroService.saveAll();
 
         // --- Training Grounds Passive XP ---

@@ -562,6 +562,15 @@ export class ExpeditionService {
 
             const hpLost = (ctx.initialHp[h.id] !== undefined ? ctx.initialHp[h.id] : h.maxHp) - h.hp;
 
+            // --- Fatigue gain from battle ---
+            // Base 5 fatigue per battle, +2 per enemy, +10 for defeat
+            const enemyCount = enemies.length;
+            const isBossBattle = enemies.some(e => e.isBoss);
+            const fatigueGain = isVictory
+                ? 5 + (enemyCount * 2) + (isBossBattle ? 5 : 0)
+                : 15 + (enemyCount * 3);
+            h.addFatigue(fatigueGain);
+
             combatLog.summary.push({
                 heroId: h.id,
                 heroName: h.name,
