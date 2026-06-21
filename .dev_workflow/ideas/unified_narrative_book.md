@@ -71,10 +71,23 @@ Book
 
 ### 3.1 Chapters
 
-- Chapters belong to the Book, not the Chronicle.
-- They are dynamic: the Book closes a chapter when a major story event happens or when a soft page limit is reached.
-- The engine can explicitly request a chapter close, but it does not define chapter contents.
-- Chapter boundaries are based on content, not calendar.
+Chapters are **story-driven, not time-driven**. They do not close automatically after N pages or at calendar boundaries. A chapter only ends when the player reaches a **key story milestone** — a moment that fundamentally changes what the village is or what the player can do.
+
+**Chapter trigger rules:**
+1. **Only key story events close a chapter.** Routine events (combat, construction, resource changes, hero actions) never trigger a chapter boundary.
+2. **The engine decides, not the Book.** `GameEngine` explicitly calls `bookService.closeChapter(titleKey)` when a presentation or major unlock fires. The Book never auto-closes a chapter.
+3. **No soft page limits.** A chapter can be 3 pages or 300 pages. Length is determined entirely by player-paced story progression.
+4. **Dynamic per playthrough.** Because chapters depend on player choices (which buildings to build, which regions to unlock, which heroes to recruit), the same chapter can contain wildly different content across saves.
+
+**Example chapter progression:**
+- **Chapter 1 — The Ashes:** Begins at game start. Covers the prologue, first expedition, initial village construction. Closes when the first story presentation fires (e.g., *"Whispers from Below"*).
+- **Chapter 2 — The Growing Village:** Covers expansion, new heroes, first raids, region unlocks. Closes when magic is discovered (Arcane Sanctum built or first spell inscribed).
+- **Chapter 3 — The Arcane Age:** Covers magic progression, Glyph Academy, Witch's Hut readings. Closes when Body Inscription is unlocked.
+- **Chapter 4+:** Continues into endgame — hybrid heroes, deep expeditions, final story beats.
+
+This structure means a speed-running player might reach Chapter 3 by Day 30, while a builder-focused player might still be in Chapter 2 at Day 60. Both are valid. The Book adapts to the *player's* story, not a preset script.
+
+> **i18n note:** Chapter titles are translation keys (`book_chapter_1_title`, `book_chapter_2_title`, etc.) and are rendered at chapter-close time, so they can reference the event that triggered the close (e.g., *"Chapter 2: The Arcane Age — awakened on Day 47"*).
 
 ### 3.2 Pages
 
@@ -200,6 +213,28 @@ The Book is localizable by design:
 - Dynamic values such as building or hero names are either passed as raw values or as translation keys when needed.
 
 This makes the Book portable across all supported languages without migration work.
+
+### Translation Reuse Discipline
+
+To prevent key explosion and keep maintenance manageable, the Book reuses existing translation keys whenever possible. Only flavor text and narrative passages unique to the Book receive new keys.
+
+**Reuse without new keys:**
+- Hero names, building names, region names, item names — already exist in entity catalogs.
+- Entity attribute labels (`heroes_info_hp`, `heroes_info_strength`, etc.).
+- Action verbs (`train`, `rest`, `scout`) from existing UI or codex entries.
+- Combat result terms (`victory`, `defeat`, `retreat`) from existing battle UI.
+
+**New keys only for:**
+- Narrative prose specific to the Book (e.g., *"The wind carried ash from the west, and the villagers spoke of it in whispers."*)
+- Chapter titles and closing passages.
+- Category-specific template sentences that do not exist elsewhere (e.g., the daily summary fallback text).
+
+**Naming convention:**
+- `book_section_{category}_{event}` for category-specific templates.
+- `book_chapter_{n}_title` for chapter titles.
+- `book_narrative_{id}` for unique narrative passages.
+
+When adding a new key, it must be added to **all five language files** (`en.js`, `es.js`, `ca.js`, `eu.js`, `gl.js`) before the commit is pushed. No exceptions.
 
 ---
 

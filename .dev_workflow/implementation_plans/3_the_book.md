@@ -141,6 +141,31 @@ interface BookChapter {
 }
 ```
 
+### Chapter Trigger Rules
+
+Chapters are **never** closed by the Book automatically. Only the engine can close a chapter, and only in response to a **key story event**.
+
+**What closes a chapter:**
+- A `story_event` section with `chapterBoundary: true` (e.g., a presentation firing for the first time).
+- A major unlock that the design team has explicitly flagged as a chapter boundary (e.g., unlocking magic, building the first Arcane Sanctum, discovering Body Inscription).
+- Manual engine call: `bookService.closeChapter(titleKey)`.
+
+**What does NOT close a chapter:**
+- Reaching a page limit.
+- Calendar boundaries (day 30, day 60, etc.).
+- Routine events: combat, construction, resource changes, hero actions, recruitment, market rotation.
+- Milestones that are not story-critical (e.g., *"First hero reached level 5"* is a milestone, not a chapter boundary).
+
+**Chapter title behavior:**
+- When `closeChapter(titleKey)` is called, the Book records the title key and the closing day.
+- The title is rendered as: `{chapter_title} — {book_closed_on_day} {day_number}` (e.g., *"Chapter 2: The Arcane Age — closed on Day 47"*).
+- If no `titleKey` is provided, the Book uses a generic fallback (`book_chapter_end_fallback`).
+
+**Engine responsibility:**
+`GameEngine` (or `PresentationService` / `UnlockService`) decides when a chapter closes. The Book service only records the boundary. This keeps chapter logic centralized in the game-flow layer, not scattered in the UI layer.
+
+---
+
 ### ChronicleService State (refactored)
 
 ```typescript
@@ -206,6 +231,8 @@ Page budget:
 - `always` starts a new page.
 - `when-full` starts a new page if adding would exceed the budget.
 - `never` fills the current page.
+
+> **Chapter boundary note:** `chapterBoundary: true` on a category is a hint that sections of this type *can* close a chapter, but the Book **never** auto-closes. The engine must explicitly call `bookService.closeChapter(titleKey)` when pushing a section that should end a chapter. Only `story_event` categories should trigger this in practice; all other categories keep `chapterBoundary: false`.
 
 Pagination is deterministic and depends only on section order and categories.
 
@@ -388,6 +415,31 @@ The Chronicle catalog is initialized from:
 2. Add keys to `en.js` for all categories and event types.
 3. Mirror placeholders to `es.js`, `ca.js`, `eu.js`, `gl.js`.
 
+#### Translation Reuse Guidelines
+
+To prevent i18n file bloat and reduce maintenance burden, follow this reuse hierarchy:
+
+**Tier 1 — Reuse existing keys (no new keys):**
+- Hero names, building names, region names, item names — already exist in entity data.
+- UI labels (`shared_uxelm_confirm`, `nav_codex`, etc.).
+- Codex descriptions for mechanics that the Book merely references (e.g., fatigue thresholds, market rotation rules).
+- Combat result terms (`victory`, `defeat`, `retreat`) from existing battle UI.
+- Action verbs from hero actions or daily objectives (`train`, `rest`, `scout`, `craft`).
+
+**Tier 2 — Reuse with interpolation (no new sentence keys):**
+- Entity + action combinations: `"{heroName} gained {xp} experience."` reuses the hero name string and a generic `book_xp_gained` key.
+- Resource change summaries: `"{amount} {resourceType}"` where `resourceType` maps to existing keys (`wood`, `stone`, `gold`).
+
+**Tier 3 — New keys only for Book-unique narrative prose:**
+- Chapter titles (`book_chapter_{n}_title`).
+- Category template sentences that do not exist elsewhere (`book_daily_summary`, `book_combat_victory_flavor`).
+- Presentation-linked narrative passages that describe story events in prose form.
+
+**Enforcement:**
+- Before adding a new key, check if an existing key in `en.js` (or the relevant language file) already covers the concept.
+- If a new key is added to `en.js`, it must be added to `es.js`, `ca.js`, `eu.js`, and `gl.js` in the same commit. No exceptions.
+- Prefer interpolation over new keys for entity-specific text.
+
 ### Step 4: Refactor event producers
 
 1. `DailyHeroActionsService`:
@@ -504,5 +556,6 @@ Build the Book engine, refactor ChronicleService, redirect all hooks, and update
 1. Should old `chronicle_state` entries be cleared on first load, or left inert?
 2. Should `story_event` sections embed the cinematic inline or only link to it?
 3. What is the exact page budget: 4 sections per page, or variable by category?
-4. Should chapters have generated titles, or just numbers?
+4. ~~Should chapters have generated titles, or just numbers?~~ **Resolved:** Chapters use `titleKey` passed at close time (e.g., `book_chapter_2_title`). If none provided, fallback to `book_chapter_end_fallback`.
 5. Should the Book top-bar button jump to the latest page on click, or to the first unread page?
+6. Which specific presentations/unlocks are chapter boundaries? We need a definitive list (e.g., prologue end → Ch 2, magic unlock → Ch 3, body inscription → Ch 4).
