@@ -19,18 +19,21 @@
 - **Chronicle**: Refactored to catalog + Book links, no plain text storage
 - **ChronicleTab**: Flat catalog view with chapter/page references, click-to-jump
 - **GameEngine**: All event hooks push Book sections, no DailyReportModal
-- **Translations**: All book and chronicle keys added to English
+- **Translations**: All book and chronicle keys added to English, Spanish, Catalan, Basque, and Galician
 
 ## Tests
-- Unit tests: 67/67 passing
-- Build: 2,866 kB │ gzip: 1,081 kB
+- Unit tests: 400/402 passing (2 pre-existing RegionService loot failures)
+- Vue tests: 133/134 passing (1 pre-existing HeroProfile i18n test failure)
+- Build: 2,870 kB │ gzip: 1,082 kB
 
 ## Next Steps (Post-Plan)
 
-- [ ] Add translations for Spanish, Catalan, Galician, Basque
+- [x] Add translations for Spanish, Catalan, Galician, Basque
 - [ ] Write game design doc (`docs/shared/book/book_system.md`)
 - [ ] Add integration tests for full post-day flow
 - [ ] Verify full playthrough with Book auto-open
+- [ ] Remove orphaned `DailyReportModal.vue` component file
+- [ ] Consider deeper Vue tests for Book/Chronicle components
 
 ---
 *Updated: 2026-06-22*

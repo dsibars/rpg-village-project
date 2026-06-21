@@ -328,7 +328,6 @@ export class GameEngine {
                 heroName: result.data.name
             });
             this._persistPresentationState();
-            this._persistPresentationState();
 
             return Result.ok({ hero: result.data, cost });
         }
