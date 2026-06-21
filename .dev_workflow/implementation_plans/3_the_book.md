@@ -381,140 +381,204 @@ The Chronicle catalog is initialized from:
 
 ---
 
-## 8. Step-by-Step Implementation
+## 8. Staged Implementation Plan
 
-### Step 1: Refactor ChronicleService into a catalog + link service
+> **Core principle:** Each stage is self-contained, commit-able, and does not break existing behavior. The Chronicle remains fully functional until the final stages. If any stage fails, we can roll back to the previous commit and still have a working game.
 
-1. Replace the plain-text `entries` array with an `entries` catalog.
-2. Each catalog entry has:
-   - `id` (e.g., presentation id, narrative id, or generated event id)
-   - `labelKey` (i18n key for the Chronicle list label)
-   - `requirementKey` (i18n key for the unlock hint)
-   - `category` (`milestone`, `unlock`, `event`, `hero`, `village`, `combat`, `expedition`)
-   - `status` (`locked` | `unlocked` | `pending`)
-   - `dayUnlocked` (number | null)
-   - `bookLink` (`{ sectionId, pageNumber, chapterNumber }` | null)
-3. Keep `milestones` as a Set for deduplication.
-4. Provide methods:
-   - `unlockEntry(id, day, bookLink)` — marks entry unlocked and stores Book link
-   - `getEntry(id)`, `getEntries(options)`, `getStats()`
-   - `hasMilestone(id)`, `recordMilestone(id)`
-5. The catalog can be initialized from `PresentationCatalog` and `UnlockNarratives`, plus new entries for village events / hero actions if desired.
-6. Update tests.
+### Stage 1: Book Engine + Translations (No UI, No Chronicle Touch)
 
-### Step 2: Build Book engine
+**Goal:** Build the Book engine in isolation. It lives alongside the existing systems but nothing uses it yet.
 
-1. Create `BookSectionCatalog.js` with the full category catalog.
-2. Create `BookState.js` with default state.
-3. Create `BookService.js` with full API and deterministic pagination.
-4. Write unit tests for pagination, chapter boundaries, and read-state tracking.
+1. **Create `js/engine/book/` directory:**
+   - `BookSectionCatalog.js` — Category definitions with deterministic pagination rules.
+   - `BookState.js` — Default state shape (empty book, Chapter 1 started implicitly).
+   - `BookService.js` — Full API: `addSection()`, `closeChapter()`, `getPage()`, pagination logic, persistence via `persistence`.
+   - `index.js` — Public exports.
 
-### Step 3: Translation keys
+2. **Write unit tests:**
+   - `tests/unit/book/BookService.test.js` — Pagination, chapter boundaries, read-state tracking.
+   - `tests/unit/book/BookSectionCatalog.test.js` — Category configuration validation.
 
-1. Create `book-keys.js` registry.
-2. Add keys to `en.js` for all categories and event types.
-3. Mirror placeholders to `es.js`, `ca.js`, `eu.js`, `gl.js`.
+3. **Translation keys (book-unique only, reuse existing where possible):**
+   - Create `js/engine/shared/core/i18n/book-keys.js` registry.
+   - Add to `en.js`: category template keys (`book_section_story_event`, `book_section_milestone`, etc.), chapter title keys (`book_chapter_1_title`, etc.), daily summary fallback (`book_daily_summary`).
+   - Mirror placeholders to `es.js`, `ca.js`, `eu.js`, `gl.js`.
+   - Follow the Translation Reuse Guidelines in Step 3 above.
 
-#### Translation Reuse Guidelines
+4. **Commit and push.**
 
-To prevent i18n file bloat and reduce maintenance burden, follow this reuse hierarchy:
+**Verify:** BookService can be instantiated, sections added, pages retrieved. Chronicle untouched. UI unchanged.
 
-**Tier 1 — Reuse existing keys (no new keys):**
-- Hero names, building names, region names, item names — already exist in entity data.
-- UI labels (`shared_uxelm_confirm`, `nav_codex`, etc.).
-- Codex descriptions for mechanics that the Book merely references (e.g., fatigue thresholds, market rotation rules).
-- Combat result terms (`victory`, `defeat`, `retreat`) from existing battle UI.
-- Action verbs from hero actions or daily objectives (`train`, `rest`, `scout`, `craft`).
+---
 
-**Tier 2 — Reuse with interpolation (no new sentence keys):**
-- Entity + action combinations: `"{heroName} gained {xp} experience."` reuses the hero name string and a generic `book_xp_gained` key.
-- Resource change summaries: `"{amount} {resourceType}"` where `resourceType` maps to existing keys (`wood`, `stone`, `gold`).
+### Stage 2: Engine Systems Inject to Book (Keep Chronicle As-Is)
 
-**Tier 3 — New keys only for Book-unique narrative prose:**
-- Chapter titles (`book_chapter_{n}_title`).
-- Category template sentences that do not exist elsewhere (`book_daily_summary`, `book_combat_victory_flavor`).
-- Presentation-linked narrative passages that describe story events in prose form.
+**Goal:** All existing event producers now push sections to the Book **in addition** to their existing Chronicle calls. Chronicle remains fully functional. No behavior changes for the player.
 
-**Enforcement:**
-- Before adding a new key, check if an existing key in `en.js` (or the relevant language file) already covers the concept.
-- If a new key is added to `en.js`, it must be added to `es.js`, `ca.js`, `eu.js`, and `gl.js` in the same commit. No exceptions.
-- Prefer interpolation over new keys for entity-specific text.
+1. **Modify `GameEngine.js`:**
+   - Instantiate `BookService` alongside existing services.
+   - After each existing `chronicleService.recordEntry(...)` call, add a `bookService.addSection(...)` call with the same event data.
+   - **Add TODO comments** above each Chronicle call: `// TODO(Book): Replace Chronicle record with Book section once Chronicle refactor completes`.
+   - Do NOT remove or modify Chronicle calls. Both systems run in parallel.
 
-### Step 4: Refactor event producers
+2. **Modify `DailyHeroActionsService.js`:**
+   - Add a new method `getActionResults()` that returns structured data (heroId, action, xpGained, fatigueRecovered, etc.).
+   - Keep existing `processActions()` behavior unchanged.
+   - `GameEngine` calls `getActionResults()` and pushes to Book.
 
-1. `DailyHeroActionsService`:
-   - Remove English `description` from return objects.
-   - Return structured data: `{ heroId, heroName, action, success, fatigueRecovered?, hpRecovered?, xpGained?, leveledUp?, goldEarned?, regionId? }`.
-2. `VillageEventsService`:
-   - Replace `title` and `description` plain text in event definitions with `titleKey` and `descriptionKey`.
-   - Return `titleKey`, `descriptionKey`, and `values` from `processDay`.
+3. **Modify `VillageEventsService.js`:**
+   - Add i18n keys to event definitions (`titleKey`, `descriptionKey`).
+   - Keep existing `processDay()` return structure for Chronicle compatibility.
+   - `GameEngine` reads the i18n keys and pushes to Book.
 
-### Step 5: Redirect GameEngine hooks
+4. **Modify `ExpeditionService.js` (if needed):**
+   - Ensure expedition/combat results are available in structured form for Book sections.
 
-Replace all `chronicleService.recordEntry(...)` calls with `bookService.addSection(...)`. When the section corresponds to a Chronicle-tracked entry (presentation, unlock narrative), also call `chronicleService.unlockEntry(...)` with the Book link.
+5. **Commit and push.**
 
-Order of operations in `GameEngine.nextDay()`:
+**Verify:** Game still works exactly as before. Book state is saved but never read by UI. Chronicle entries still appear as before. Build passes, tests pass.
 
-1. Mission board housekeeping.
-2. Daily objectives generation.
-3. Village tick.
-4. Building completion → `bookService.addSection({ category: 'construction', ... })`.
-5. Region unlocks.
-6. Expedition processing.
-7. Academy, body inscription.
-8. Hero recovery and fatigue recovery → `bookService.addSection({ category: 'hero_progress', ... })`.
-9. Training grounds → `bookService.addSection({ category: 'hero_progress', ... })`.
-10. Village random events → `bookService.addSection({ category: 'village_event', ... })`.
-11. Hero daily actions → `bookService.addSection({ category: 'hero_action', ... })` per action.
-12. Tavern auto-recruit → `bookService.addSection({ category: 'recruitment', ... })`.
-13. Presentation/chapter triggers → `bookService.addSection({ category: 'story_event'/'milestone', metadata: { chronicleId: presentationId }, ... })` + `chronicleService.unlockEntry(presentationId, day, bookLink)`.
-14. Calendar/raid → `bookService.addSection({ category: 'raid', ... })`.
-15. Unlock checks → `bookService.addSection({ category: 'unlock', metadata: { chronicleId: narrativeId }, ... })` + `chronicleService.unlockEntry(narrativeId, day, bookLink)`.
-16. If no sections pushed, add `daily_summary`.
-17. Persist Book and Chronicle states.
+---
 
-### Step 6: UI components
+### Stage 3: Book UI + Top Bar Button
 
-1. Create `TheBookModal.vue`:
-   - Book frame, page renderer, navigation, keyboard/swipe support.
-   - Accepts initial page number prop.
-2. Create `BookTopBarButton.vue` with normal/glow/badge states.
-3. Create `useBook.js` composable.
-4. Create section renderer components.
+**Goal:** Player can now open the Book and read history. Book is the narrative log; Chronicle is still the index (unchanged).
 
-### Step 7: ChronicleTab refactor
+1. **Create `ux/features/book/` directory:**
+   - `TheBookModal.vue` — Book frame, page renderer, navigation (arrows, page counter, keyboard/swipe support).
+   - `BookTopBarButton.vue` — Button in top bar, always visible.
+   - `composables/useBook.js` — Reactive access to Book state.
+   - `components/BookSectionBanner.vue` — `banner` visual style.
+   - `components/BookSectionCard.vue` — `card` visual style.
+   - `components/BookSectionCompact.vue` — `compact` visual style.
+   - `components/BookSectionList.vue` — `list` visual style.
 
-1. Remove chapter grouping from milestones.
-2. Query `chronicleService.getEntries({ status: 'unlocked' })` for the main history list.
-3. For each entry, render the translated label and chapter/page label from `entry.bookLink`.
-4. Clicking an entry opens the Book at `entry.bookLink.pageNumber`.
-5. Discovery log can also use Chronicle entries with `category: 'unlock'`.
-6. Locked entries render `entry.requirementKey` as the unlock hint.
+2. **Modify `ux/components/TopBar.vue`:**
+   - Add `BookTopBarButton` slot.
 
-### Step 8: App wiring
+3. **Modify `ux/App.vue`:**
+   - Import `TheBookModal` and `useBook`.
+   - Wire top-bar button to open modal.
+   - Book opens to last read page (or page 1 if never read).
 
-1. Remove `DailyReportModal` from `App.vue`.
-2. Add `BookTopBarButton` to `TopBar.vue`.
-3. In `App.vue` after `nextDay()`:
-   - If `bookService.hasAutoOpenContent()`, open `TheBookModal` at the first new page.
-   - Else if `bookService.hasUnreadContent()`, glow the Book button.
-4. Handle deferred combat flow: after combat closes, resume the Book check.
+4. **Commit and push.**
 
-### Step 9: Tests and docs
+**Verify:** Player can click top-bar button, Book opens, pages render with correct content. Chronicle still works. No auto-open or glow yet.
 
-1. Add Vue tests for Book components.
-2. Update integration tests for post-day sequence.
-3. Write `docs/shared/book/book_system.md`.
+---
+
+### Stage 4: UX Polish — Glow, Auto-Open, Animations
+
+**Goal:** Book feels alive. It signals when something important happened without being annoying.
+
+1. **`BookTopBarButton.vue` states:**
+   - **Normal:** Default appearance.
+   - **Glow:** Unread content exists (sections added since last read). Subtle pulse animation.
+   - **Badge:** Number of unread pages (optional, can be dot-only).
+
+2. **Auto-open behavior:**
+   - After `nextDay()` completes, check if any new section has `autoOpen: true`.
+   - If yes, open `TheBookModal` at the first new page.
+   - If no, trigger glow state on top-bar button.
+   - Quiet days (`daily_summary` only) do NOT auto-open and do NOT glow.
+
+3. **Page-turn animation:**
+   - Subtle CSS transition when navigating pages.
+   - Skippable (instant transition if user clicks rapidly).
+
+4. **Chapter transition:**
+   - When opening to a page that starts a new chapter, show chapter title card briefly before page content.
+
+5. **Commit and push.**
+
+**Verify:** Day advance triggers glow or auto-open correctly. Quiet days are silent. Animations smooth. Chronicle still works.
+
+---
+
+### Stage 5: Chronicle Engine Refactor (Catalog + Book Links)
+
+**Goal:** Chronicle becomes the index. Book is already the narrative log. Now we connect them.
+
+1. **Refactor `ChronicleService.js`:**
+   - Replace plain-text `entries` array with catalog structure (id, labelKey, requirementKey, category, status, dayUnlocked, bookLink).
+   - Remove `recordEntry()` method (or deprecate — it now creates a Book section + catalog entry).
+   - New methods: `registerEntry()`, `unlockEntry(id, day, bookLink)`, `hasMilestone()`, `recordMilestone()`.
+   - Milestones deduplicated via Set.
+
+2. **Update `GameEngine.js` TODOs:**
+   - Replace each `// TODO(Book)` Chronicle call with the new flow:
+     - Push Book section → get `{ sectionId, pageNumber, chapterNumber }`.
+     - Call `chronicleService.unlockEntry(id, day, bookLink)`.
+   - Remove TODO comments.
+
+3. **Persistence migration:**
+   - On first load with new Chronicle state shape, old plain-text entries can be discarded or summarized into a single legacy entry.
+
+4. **Commit and push.**
+
+**Verify:** Chronicle catalog entries have Book links. Clicking Chronicle entry (in next stage) jumps to correct page.
+
+---
+
+### Stage 6: ChronicleTab Visual Refactor
+
+**Goal:** Chronicle UI becomes the index view with Book page links.
+
+1. **Refactor `ChronicleTab.vue`:**
+   - Remove chapter grouping.
+   - Query `chronicleService.getEntries({ status: 'unlocked' })`.
+   - Render translated label + chapter/page reference (e.g., *"First boss defeated — Ch. 1, P. 12"*).
+   - Clicking entry opens `TheBookModal` at linked page.
+   - Locked entries show requirement hint.
+
+2. **Commit and push.**
+
+**Verify:** ChronicleTab shows catalog entries, links jump to Book pages. Both systems fully integrated.
+
+---
+
+### Stage 7: Cleanup — Remove DailyReportModal, Final Integration
+
+**Goal:** Remove dead code, finalize integration, ensure no regressions.
+
+1. **Remove `DailyReportModal`:**
+   - Remove from `App.vue`.
+   - Remove trigger from `GameEngine.js` post-day sequence.
+   - Delete component file (or archive).
+
+2. **Final integration tests:**
+   - Full post-day sequence: expedition → combat → building → hero actions → village events → Book sections → Chronicle links.
+   - Verify no duplicate entries.
+   - Verify save/load preserves Book + Chronicle state.
+
+3. **Update `docs/shared/book/book_system.md`**.
+
+4. **Final commit and push.**
+
+**Verify:** Full playthrough test. No DailyReportModal. Book auto-opens on dramatic days. Chronicle links work. Save/load stable.
 
 ---
 
 ## 9. Sequencing
 
-### Recommended: Single Pass
+### Recommended: Staged Approach (7 Stages)
 
-Build the Book engine, refactor ChronicleService, redirect all hooks, and update the UI in one pass. The daily report modal is removed immediately.
+Follow the **Staged Implementation Plan** in Section 8. Each stage is commit-able, push-able, and reversible. The Chronicle remains untouched until Stage 5.
 
-**Why:** The existing `ChronicleService` plain-text entries are not reusable for the Book. A partial migration would leave dead data and a confusing user experience.
+**Stage summary:**
+1. Book engine + translations (standalone)
+2. Engine systems inject to Book (Chronicle kept as-is + TODOs)
+3. Book UI + top bar button
+4. UX polish (glow, auto-open, animations)
+5. Chronicle engine refactor (catalog + Book links)
+6. ChronicleTab visual refactor (link to Book pages)
+7. Cleanup (remove DailyReportModal, final integration)
+
+**Why this order:**
+- Stages 1–4 build the Book without touching Chronicle. If we need to ship or rollback, Chronicle is still fully functional.
+- Stage 2's TODO comments make it trivial to find all Chronicle calls that need replacement later.
+- Each stage has a clear "verify" step. If build or tests fail, you know exactly which stage introduced the issue.
+- Stage 5 is the only risky refactor (Chronicle data shape change). By then, the Book is proven and UI is complete, so we only have one moving part.
 
 ---
 
