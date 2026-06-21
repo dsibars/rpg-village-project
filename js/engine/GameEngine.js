@@ -16,6 +16,7 @@ import { TitleService } from './hall_of_fame/TitleService.js';
 import { UnlockService } from './shared/services/UnlockService.js';
 import { PresentationService } from './shared/services/PresentationService.js';
 import { MarketService } from './market/MarketService.js';
+import { DailyHeroActionsService } from './heroes/services/DailyHeroActionsService.js';
 import { VillageEventsService } from './village/VillageEventsService.js';
 import { SimulationRunner } from './gambit/SimulationRunner.js';
 import { GambitHealthService } from './gambit/GambitHealthService.js';
@@ -61,6 +62,13 @@ export class GameEngine {
         );
         this.marketService = new MarketService({ deferLoad: true });
         this.villageEventsService = new VillageEventsService();
+        this.dailyHeroActionsService = new DailyHeroActionsService(
+            this.heroService,
+            this.expeditionService,
+            this.villageService,
+            this.inventoryService,
+            this.regionService
+        );
         this.i18n = i18n;
         this.isNewGame = true;
         this.stats = this._loadStats();
@@ -82,6 +90,7 @@ export class GameEngine {
         this.unlockService.load();
         this.marketService.load();
         this.villageEventsService.load();
+        this.dailyHeroActionsService.load();
 
         const presentationState = persistence.load('presentation_state');
         if (presentationState) {
@@ -1008,6 +1017,9 @@ export class GameEngine {
         // Persist recovery changes (HP, stamina, fatigue)
         this.heroService.saveAll();
 
+        // --- Hero Daily Actions Resolution ---
+        const actionLog = this.dailyHeroActionsService.processActions(villageState.day);
+
         // --- Training Grounds Passive XP ---
         const trainingGroundsLevel = this.villageService.getState().infrastructure.training_grounds || 0;
         const xpGainRate = 0.05 * trainingGroundsLevel; // +5% per level
@@ -1103,6 +1115,7 @@ export class GameEngine {
             expedition: expeditionResult.success ? expeditionResult.data : null,
             recovery: healedLog,
             training: xpLog,
+            actions: actionLog,
             raid: raidResult,
             tavernRecruit: tavernRecruitHero,
             villageEvent: eventResult
@@ -1136,6 +1149,23 @@ export class GameEngine {
 
     setWorkerRole(role, delta) {
         return this.villageService.setWorkerRole(role, delta);
+    }
+
+    // --- Daily Hero Actions Facade ---
+    getHeroAction(heroId) {
+        return this.dailyHeroActionsService.getHeroAction(heroId);
+    }
+
+    assignHeroAction(heroId, action, target) {
+        return this.dailyHeroActionsService.assignAction(heroId, action, target);
+    }
+
+    clearHeroAction(heroId) {
+        return this.dailyHeroActionsService.clearAction(heroId);
+    }
+
+    getCurrentActionAssignments() {
+        return this.dailyHeroActionsService.getCurrentAssignments();
     }
 
     // --- Calendar & Defense Facade ---

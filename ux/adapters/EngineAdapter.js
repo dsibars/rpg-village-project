@@ -195,6 +195,11 @@ const ACTION_MAP = {
     pickObjectives: (engine, p) => engine.dailyObjectivesService.pickObjectives(p.objectiveIds),
     claimReward: (engine, p) => engine.dailyObjectivesService.claimReward(p.objectiveId)
   },
+  heroActions: {
+    assign: (engine, p) => engine.assignHeroAction(p.heroId, p.action, p.target),
+    clear: (engine, p) => engine.clearHeroAction(p.heroId),
+    getAssignments: (engine) => engine.getCurrentActionAssignments()
+  },
   combat: {
     nextTurn: (engine) => engine.nextBattleTurn(),
     executeAction: (engine, p) => engine.executeBattleAction(p.skillId, p.targetIndex, p.tier),
