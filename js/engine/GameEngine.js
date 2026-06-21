@@ -16,6 +16,7 @@ import { TitleService } from './hall_of_fame/TitleService.js';
 import { UnlockService } from './shared/services/UnlockService.js';
 import { PresentationService } from './shared/services/PresentationService.js';
 import { MarketService } from './market/MarketService.js';
+import { ChronicleService } from './shared/chronicle/ChronicleService.js';
 import { DailyHeroActionsService } from './heroes/services/DailyHeroActionsService.js';
 import { VillageEventsService } from './village/VillageEventsService.js';
 import { SimulationRunner } from './gambit/SimulationRunner.js';
@@ -69,6 +70,7 @@ export class GameEngine {
             this.inventoryService,
             this.regionService
         );
+        this.chronicleService = new ChronicleService();
         this.i18n = i18n;
         this.isNewGame = true;
         this.stats = this._loadStats();
@@ -91,6 +93,8 @@ export class GameEngine {
         this.marketService.load();
         this.villageEventsService.load();
         this.dailyHeroActionsService.load();
+        this.chronicleService.load();
+        this.chronicleService.load();
 
         const presentationState = persistence.load('presentation_state');
         if (presentationState) {
@@ -287,6 +291,16 @@ export class GameEngine {
         if (result.success) {
             this.missionSeedService.trackProgress('recruit', 'hero', 1);
             this.missionSeedService.trackProgress('spend', 'gold', cost);
+
+            // Chronicle: hero recruited
+            const villageDay = this.villageService.getState().day || 1;
+            this.chronicleService.recordEntry(
+                villageDay,
+                'hero',
+                'Hero Recruited',
+                `${result.data.name} joined the village.`,
+                { heroId: result.data.id, origin: result.data.origin }
+            );
 
             // Trigger Point 4: Hero Recruitment
             this.presentationService.checkTriggers({
@@ -933,6 +947,14 @@ export class GameEngine {
                     buildingId,
                     level
                 });
+                // Chronicle: building completed
+                this.chronicleService.recordEntry(
+                    villageState.day,
+                    'village',
+                    'Building Completed',
+                    `${buildingId} reached level ${level}.`,
+                    { buildingId, level }
+                );
             }
             this._persistPresentationState();
         }
@@ -1017,8 +1039,35 @@ export class GameEngine {
         // Persist recovery changes (HP, stamina, fatigue)
         this.heroService.saveAll();
 
+        // --- Village Random Events ---
+        const eventResult = this.villageEventsService.processDay(
+            villageState.day,
+            this.villageService.getState(),
+            this.heroService.list()
+        );
+        if (eventResult) {
+            this.chronicleService.recordEntry(
+                villageState.day,
+                'event',
+                eventResult.title,
+                eventResult.description
+            );
+        }
+
         // --- Hero Daily Actions Resolution ---
         const actionLog = this.dailyHeroActionsService.processActions(villageState.day);
+        if (actionLog && actionLog.length > 0) {
+            actionLog.forEach(log => {
+                if (log.success) {
+                    this.chronicleService.recordEntry(
+                        villageState.day,
+                        'hero',
+                        `${log.heroName} — ${log.action}`,
+                        log.description
+                    );
+                }
+            });
+        }
 
         // --- Training Grounds Passive XP ---
         const trainingGroundsLevel = this.villageService.getState().infrastructure.training_grounds || 0;
@@ -1046,13 +1095,6 @@ export class GameEngine {
         // Track expedition completions and enemy defeats for daily objectives
         // NOTE: These are tracked in resolveBattle() when the battle is actually resolved.
         // The expeditionResult from processDay only returns status='battle_started'.
-
-        // --- Village Random Events ---
-        const eventResult = this.villageEventsService.processDay(
-            villageState.day,
-            this.villageService.getState(),
-            this.heroService.list()
-        );
 
         // --- Tavern Auto-Recruit ---
         let tavernRecruitHero = null;
@@ -1168,6 +1210,19 @@ export class GameEngine {
         return this.dailyHeroActionsService.getCurrentAssignments();
     }
 
+    // --- Chronicle Facade ---
+    recordChronicleEntry(day, category, title, description, metadata) {
+        return this.chronicleService.recordEntry(day, category, title, description, metadata);
+    }
+
+    getChronicleEntries(options) {
+        return this.chronicleService.getEntries(options);
+    }
+
+    getChronicleStats() {
+        return this.chronicleService.getStats();
+    }
+
     // --- Calendar & Defense Facade ---
     assignDefense(heroId) {
         // Mutual exclusion: cannot assign a hero to defense if they are on an expedition
@@ -1227,6 +1282,29 @@ export class GameEngine {
                 this._persistPresentationState();
             }
 
+            // Chronicle: record battle outcome
+            if (combatLog) {
+                const villageDay = this.villageService.getState().day || 1;
+                const heroes = combatLog.heroes?.map(h => h.name).join(', ') || 'Heroes';
+                if (combatLog.isVictory) {
+                    this.chronicleService.recordEntry(
+                        villageDay,
+                        'combat',
+                        'Victory in Battle',
+                        `${heroes} won a battle against ${combatLog.enemies?.length || 0} enemies.`,
+                        { victory: true, enemyCount: combatLog.enemies?.length || 0 }
+                    );
+                } else {
+                    this.chronicleService.recordEntry(
+                        villageDay,
+                        'combat',
+                        'Defeat in Battle',
+                        `${heroes} were defeated in battle.`,
+                        { victory: false }
+                    );
+                }
+            }
+
             // Trigger: first boss defeated
             if (combatLog && combatLog.isVictory && combatLog.enemies) {
                 const hadBoss = combatLog.enemies.some(e => e.isBoss);
@@ -1236,8 +1314,16 @@ export class GameEngine {
                 }
             }
 
-            // Trigger Point 3: Mission/Expedition Completion
+            // Chronicle: record expedition completion
             if (result.data.status === 'completed') {
+                const villageDay = this.villageService.getState().day || 1;
+                this.chronicleService.recordEntry(
+                    villageDay,
+                    'expedition',
+                    'Expedition Completed',
+                    `An expedition was completed successfully.`,
+                    { expeditionId: result.data.expId }
+                );
                 this.presentationService.checkTriggers({
                     type: 'mission_complete',
                     missionId: result.data.expId

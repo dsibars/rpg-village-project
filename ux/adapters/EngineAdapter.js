@@ -191,6 +191,10 @@ const ACTION_MAP = {
     claimMission: (engine, p) => engine.claimMissionReward(p.missionId),
     rerollMission: (engine, p) => engine.rerollMission(p.missionId)
   },
+  chronicle: {
+    getEntries: (engine, p) => ({ success: true, data: engine.getChronicleEntries(p.options || {}) }),
+    getStats: (engine) => engine.getChronicleStats()
+  },
   daily: {
     pickObjectives: (engine, p) => engine.dailyObjectivesService.pickObjectives(p.objectiveIds),
     claimReward: (engine, p) => engine.dailyObjectivesService.claimReward(p.objectiveId)
