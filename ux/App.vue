@@ -269,14 +269,12 @@ function onSelectSlot(index) {
   slotIndex.value = index
 
   props.engine?.initialize?.()
-  // Prologue now lives in the Book; do not open the old popup if already seen.
-  if (props.engine?.isNewGame && !props.engine?.presentationService?.isSeen?.('pres_prologue')) {
-    const prologue = props.engine?.presentationService?.replayPresentation?.('pres_prologue')
-    if (prologue) {
-      currentPresentation.value = prologue
-      showPresentation.value = true
-    }
-  }
+  // Force a reactive state update so Book auto-open detection works immediately
+  const freshState = props.engine?.update?.() || {}
+  gameState.value = freshState
+
+  // Book auto-opens via proceedToPresentations if there are unread history_block/milestone entries
+  proceedToPresentations()
   refreshSaveSlots()
 }
 
@@ -291,9 +289,8 @@ function showNextPresentation() {
     currentPresentation.value = null
     showPresentation.value = false
     presentationsDone.value = true
-    // Auto-open the Book if there's auto-open content
-    const hasAutoOpen = gameState.value?.hasBookAutoOpen
-    if (hasAutoOpen) {
+    // Auto-open the Book if there's unread auto-open content
+    if (hasBookUnread.value) {
       currentPage.value = 'book'
     }
     return
@@ -388,8 +385,8 @@ function proceedToPresentations() {
     showNextPresentation()
   } else {
     presentationsDone.value = true
-    const hasAutoOpen = gameState.value?.hasBookAutoOpen
-    if (hasAutoOpen) {
+    // Auto-open Book if there are unread history_block/milestone entries
+    if (hasBookUnread.value) {
       currentPage.value = 'book'
     }
   }

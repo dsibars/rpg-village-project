@@ -12,24 +12,14 @@ import { chromium } from 'playwright'
   if (slot) await slot.click()
   await page.waitForTimeout(2000)
 
-  // Skip the prologue presentation if it appears
-  const skipBtn = await page.$('.presentation-skip')
-  if (skipBtn) {
-    await skipBtn.click()
+  // Book auto-opens on new game (prologue is now in Book, not a presentation popup)
+  // Navigate to village to continue
+  const villageNav = await page.$('.footer-nav .nav-item:nth-child(1)')
+  if (villageNav) {
+    await villageNav.click()
     await page.waitForTimeout(500)
   }
-  
-  // Also click through any remaining presentation slides
-  for (let i = 0; i < 5; i++) {
-    const nextBtn = await page.$('.presentation-next')
-    if (nextBtn) {
-      await nextBtn.click()
-      await page.waitForTimeout(300)
-    } else {
-      break
-    }
-  }
-  
+
   await page.waitForTimeout(2000)
 
   // Take screenshot of full page focusing on top bar

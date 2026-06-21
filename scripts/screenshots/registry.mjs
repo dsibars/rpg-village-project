@@ -9,9 +9,9 @@ export const screenshotRegistry = [
   // === Onboarding ===
   { flow: 'onboarding', state: 'save_slot_empty', description: 'Save slot screen with only empty slots' },
   { flow: 'onboarding', state: 'save_slot_occupied', description: 'Save slot screen with at least one occupied slot' },
-  { flow: 'onboarding', state: 'intro_prologue', description: 'New game intro presentation overlay' },
-  { flow: 'onboarding', state: 'intro_skip_visible', description: 'Intro overlay with skip button visible' },
-  { flow: 'onboarding', state: 'village_fresh', description: 'Village main screen right after dismissing intro' },
+  { flow: 'onboarding', state: 'book_prologue', description: 'Book auto-open showing prologue content on new game' },
+  { flow: 'onboarding', state: 'book_spread_navigation', description: 'Book showing spread navigation with next page active' },
+  { flow: 'onboarding', state: 'village_fresh', description: 'Village main screen right after dismissing Book' },
 
   // === Village ===
   { flow: 'village', state: 'village_main', description: 'Village dashboard main view' },
@@ -80,6 +80,13 @@ export const screenshotRegistry = [
   { flow: 'missions', state: 'mission_active_progress', description: 'Mission with partial progress bar' },
   { flow: 'missions', state: 'mission_completed', description: 'Mission completed with claim button visible' },
   { flow: 'missions', state: 'mission_reroll', description: 'Mission with reroll button available' },
+
+  // === Book ===
+  { flow: 'book', state: 'book_fresh_prologue', description: 'Book showing prologue content on fresh game' },
+  { flow: 'book', state: 'book_spread_navigation', description: 'Book showing spread navigation buttons active' },
+  { flow: 'book', state: 'book_village_update', description: 'Book showing village update after first day' },
+  { flow: 'book', state: 'book_milestone', description: 'Book showing milestone entry (e.g., hero recruited)' },
+  { flow: 'book', state: 'book_chapter_title', description: 'Book showing chapter title page' },
 
   // === Settings ===
   { flow: 'settings', state: 'settings_main', description: 'Settings page main view' },

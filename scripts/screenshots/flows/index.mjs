@@ -10,6 +10,7 @@ import * as heroModals from './09-hero-modals.mjs'
 import * as postDay from './10-post-day.mjs'
 import * as buildingModals from './11-building-modals.mjs'
 import * as missions from './12-missions.mjs'
+import * as book from './13-book.mjs'
 
 export const flowModules = {
   onboarding,
@@ -24,6 +25,7 @@ export const flowModules = {
   'post-day': postDay,
   'building-modals': buildingModals,
   missions,
+  book,
 }
 
 

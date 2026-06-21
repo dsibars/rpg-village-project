@@ -9,6 +9,18 @@ export const selectors = {
   emptySlot: '.slot-card.empty',
   emptySlotAction: '.slot-action-new, button',
 
+  // === Book (replaces Presentation) ===
+  bookView: '.book-view',
+  bookPage: '.book-page',
+  bookPageLeft: '.book-page.page-left',
+  bookPageRight: '.book-page.page-right',
+  bookNavPrev: '.book-header .btn-nav:first-child',
+  bookNavNext: '.book-header .btn-nav:last-child',
+  bookChapterTitle: '.pcs-chapter_title',
+  bookHistoryBlock: '.pcs-history_block',
+  bookMilestone: '.pcs-milestone',
+
+  // === Legacy Presentation (deprecated — presentations now live in Book) ===
   introOverlay: '.presentation-overlay',
   introSkip: '.presentation-skip',
   introNext: '.presentation-next',
@@ -19,6 +31,7 @@ export const selectors = {
   navHeroes: '.footer-nav .nav-item:nth-child(2)',
   navAdventure: '.footer-nav .nav-item:nth-child(3)',
   navTown: '.footer-nav .nav-item:nth-child(4)',
+  navBook: '.footer-nav .nav-item:nth-child(5)',
   navSettings: '.top-bar-right .btn-quick:last-child',
 
   // === Sub Navigation ===
