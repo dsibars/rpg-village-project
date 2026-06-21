@@ -514,6 +514,110 @@ describe('BookService', () => {
         });
     });
 
+    describe('Bug Fixes', () => {
+        test('markAllRead sets lastReadSpread to odd page number', () => {
+            // Add a village update section with many entries to create multiple pages
+            book.addSection({
+                id: 'sec_village_1',
+                category: BOOK_SECTION_CATEGORIES.VILLAGE_UPDATES,
+                day: 1,
+                entries: [
+                    { key: 'book_update_food_consumed', values: { amount: 10 }, weight: 1 },
+                    { key: 'book_update_villager_joined', values: { amount: 1 }, weight: 1 },
+                    { key: 'book_update_building_completed', values: { building: 'Tavern' }, weight: 1 },
+                    { key: 'book_update_hero_rested', values: { hero: 'Arthur', hp: 20 }, weight: 1 },
+                    { key: 'book_update_hero_trained', values: { hero: 'Arthur', xp: 50 }, weight: 1 },
+                    { key: 'book_update_hero_scouted', values: { hero: 'Elara', region: 'Forest' }, weight: 1 },
+                    { key: 'book_update_hero_crafted', values: { hero: 'Mira', item: 'Potion' }, weight: 1 },
+                    { key: 'book_update_hero_socialized', values: { hero: 'Gwen' }, weight: 1 },
+                    { key: 'book_update_expedition_completed', values: { region: 'Greenfields' }, weight: 1 },
+                ],
+            });
+            // Title (2) + 9 bullets (9) = 11, needs at least 2 pages
+            // If more pages are created by other logic, ensure at least 3
+            while (book.getPageCount() < 3) {
+                // Add more entries to force page creation
+                book.addSection({
+                    id: `sec_fill_${book.getPageCount()}`,
+                    category: BOOK_SECTION_CATEGORIES.VILLAGE_UPDATES,
+                    day: 1,
+                    entries: [
+                        { key: 'book_update_quiet_day', values: {}, weight: 1 },
+                        { key: 'book_update_quiet_day', values: {}, weight: 1 },
+                        { key: 'book_update_quiet_day', values: {}, weight: 1 },
+                        { key: 'book_update_quiet_day', values: {}, weight: 1 },
+                        { key: 'book_update_quiet_day', values: {}, weight: 1 },
+                        { key: 'book_update_quiet_day', values: {}, weight: 1 },
+                        { key: 'book_update_quiet_day', values: {}, weight: 1 },
+                        { key: 'book_update_quiet_day', values: {}, weight: 1 },
+                    ],
+                });
+            }
+            assert.ok(book.getPageCount() >= 3, `Expected >= 3 pages, got ${book.getPageCount()}`);
+            book.markAllRead();
+            const lastRead = book.getState().lastReadSpread;
+            assert.strictEqual(lastRead % 2, 1, `lastReadSpread should be odd, got ${lastRead}`);
+        });
+
+        test('markAllRead with even number of pages sets lastReadSpread to odd', () => {
+            // Add a milestone which creates an even page count
+            book.addSection({
+                id: 'sec_milestone_1',
+                category: BOOK_SECTION_CATEGORIES.MILESTONE,
+                day: 1,
+                entry: { key: 'book_milestone_hero_recruited', values: { hero: 'Arthur' }, weight: 4 },
+            });
+            book.markAllRead();
+            const lastRead = book.getState().lastReadSpread;
+            assert.strictEqual(lastRead % 2, 1, `lastReadSpread should be odd, got ${lastRead}`);
+        });
+
+        test('PCS has pageSectionId linking to parent PageSection', () => {
+            const result = book.addSection({
+                id: 'sec_village_2',
+                category: BOOK_SECTION_CATEGORIES.VILLAGE_UPDATES,
+                day: 2,
+                entries: [
+                    { key: 'book_update_quiet_day', values: {}, weight: 1 },
+                ],
+            });
+            assert.ok(result, 'addSection should return result');
+            assert.strictEqual(result.pageSectionId, 'sec_village_2', 'pageSectionId should match original engine section id');
+
+            const state = book.getState();
+            const page = state.pages[1]; // page 2 (or wherever it landed)
+            if (page && page.pageContentSections.length > 0) {
+                const pcs = page.pageContentSections[0];
+                assert.strictEqual(pcs.pageSectionId, 'sec_village_2', 'PCS should have pageSectionId linking to original section id');
+            }
+        });
+
+        test('PageSection.id uses original engine section id', () => {
+            const result = book.addSection({
+                id: 'my_custom_section_id',
+                category: BOOK_SECTION_CATEGORIES.MILESTONE,
+                day: 3,
+                entry: { key: 'book_milestone_first_victory', values: {}, weight: 4 },
+            });
+            assert.ok(result, 'addSection should return result');
+            assert.strictEqual(result.pageSectionId, 'my_custom_section_id', 'pageSectionId should be original engine section id');
+
+            const state = book.getState();
+            const pageSection = state.pageSections.find(ps => ps.id === 'my_custom_section_id');
+            assert.ok(pageSection, 'PageSection should exist with original id');
+        });
+
+        test('getNextNewSpread handles even lastReadSpread gracefully', () => {
+            // Force an even lastReadSpread
+            book.getState().lastReadSpread = 2;
+            // With no unread content, should return null, not crash
+            const nextSpread = book.getNextNewSpread();
+            // If everything is read, it should return null
+            // But we need to check it doesn't crash
+            assert.ok(nextSpread === null || nextSpread.left || nextSpread.right, 'Should not crash on even lastReadSpread');
+        });
+    });
+
     describe('Persistence', () => {
         test('saves and loads state', () => {
             book.addSection({

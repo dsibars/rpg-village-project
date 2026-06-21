@@ -102,9 +102,9 @@ export class BookService {
             return null;
         }
 
-        // Step 2: Create a PageSection
+        // Step 2: Create a PageSection (use original engine section id)
         const pageSection = {
-            id: generatePageSectionId(section.id),
+            id: section.id,
             category: section.category,
             day: section.day || 0,
             pages: [],
@@ -117,6 +117,8 @@ export class BookService {
         let currentChapter = this._getCurrentChapter();
 
         for (const pcs of pcsList) {
+            // Link PCS back to its parent PageSection
+            pcs.pageSectionId = pageSection.id;
             // If this is a chapter title, close current chapter and start new one
             if (pcs.type === PCS_TYPES.CHAPTER_TITLE) {
                 currentChapter = this._createNewChapter(pcs.textKey);
@@ -347,7 +349,12 @@ export class BookService {
         if (totalPages === 0) return null;
 
         // Find the first spread that contains at least one unread PCS
-        const lastReadSpread = this.state.lastReadSpread;
+        // Guard: ensure we start on an odd page
+        let lastReadSpread = this.state.lastReadSpread;
+        if (lastReadSpread % 2 === 0) {
+            lastReadSpread = Math.max(1, lastReadSpread - 1);
+        }
+
         for (let pageNum = lastReadSpread; pageNum <= totalPages; pageNum += 2) {
             const spread = this.getSpread(pageNum);
             if (!spread) continue;
@@ -411,7 +418,9 @@ export class BookService {
                 pcs.read = true;
             }
         }
-        this.state.lastReadSpread = Math.max(1, this.state.pages.length - 1);
+        // Ensure lastReadSpread is always odd (first page of a spread)
+        const lastPage = this.state.pages.length;
+        this.state.lastReadSpread = lastPage % 2 === 0 ? lastPage - 1 : lastPage;
         this.save();
     }
 

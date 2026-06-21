@@ -195,6 +195,11 @@ const ACTION_MAP = {
     getEntries: (engine, p) => ({ success: true, data: engine.getChronicleEntries(p.options || {}) }),
     getStats: (engine) => engine.getChronicleStats()
   },
+  book: {
+    getPage: (engine, p) => ({ success: true, data: engine.getBookPage(p.pageNumber) }),
+    getSpread: (engine, p) => ({ success: true, data: engine.getBookSpread(p.firstPageNumber) }),
+    markRead: (engine, p) => ({ success: true, data: engine.markBookRead(p.spreadFirstPage) })
+  },
   daily: {
     pickObjectives: (engine, p) => engine.dailyObjectivesService.pickObjectives(p.objectiveIds),
     claimReward: (engine, p) => engine.dailyObjectivesService.claimReward(p.objectiveId)

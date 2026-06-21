@@ -35,6 +35,7 @@ import { WitchService } from './witch/WitchService.js';
 import { getEquipmentStats } from './shared/inventory/EquipmentService.js';
 import { getWeaponBaseCost, getArmorBaseCost } from './shared/data/ShopCatalog.js';
 
+import { BookService } from './book/BookService.js';
 export class GameEngine {
     constructor() {
         this.STORAGE_KEY = 'village_state';
@@ -71,6 +72,7 @@ export class GameEngine {
             this.regionService
         );
         this.chronicleService = new ChronicleService();
+        this.bookService = new BookService();
         this.i18n = i18n;
         this.isNewGame = true;
         this.stats = this._loadStats();
@@ -94,7 +96,7 @@ export class GameEngine {
         this.villageEventsService.load();
         this.dailyHeroActionsService.load();
         this.chronicleService.load();
-        this.chronicleService.load();
+        this.bookService.load();
 
         const presentationState = persistence.load('presentation_state');
         if (presentationState) {
@@ -264,6 +266,7 @@ export class GameEngine {
                 currentDay,
                 this.villageService.getState().infrastructure?.blacksmith || 0
             ),
+            book: this.bookService.getState(),
             unlockedNarratives: this.unlockService.getShownNarratives()
         };
     }
@@ -1092,7 +1095,73 @@ export class GameEngine {
             }
         }
 
-        // Track expedition completions and enemy defeats for daily objectives
+        // --- Book: Record Village Updates ---
+        const bookEntries = [];
+        if (villageReport.foodConsumed) {
+            bookEntries.push({ key: 'book_update_food_consumed', values: { amount: villageReport.foodConsumed }, weight: 1 });
+        }
+        if (villageReport.newVillagers && villageReport.newVillagers > 0) {
+            bookEntries.push({ key: 'book_update_villager_joined', values: { amount: villageReport.newVillagers }, weight: 1 });
+        }
+        if (villageReport.buildingCompleted) {
+            bookEntries.push({ key: 'book_update_building_completed', values: { building: villageReport.buildingCompleted }, weight: 1 });
+        }
+        if (raidResult) {
+            if (raidResult.isVictory) {
+                bookEntries.push({ key: 'book_update_raid_defended', values: {}, weight: 1 });
+            } else {
+                bookEntries.push({ key: 'book_update_raid_lost', values: {}, weight: 1 });
+            }
+        }
+        if (eventResult) {
+            // Event-specific entries could be added here
+        }
+        if (actionLog && actionLog.length > 0) {
+            actionLog.forEach(log => {
+                if (log.success) {
+                    switch (log.action) {
+                        case 'rest':
+                            bookEntries.push({ key: 'book_update_hero_rested', values: { hero: log.heroName, hp: log.result?.hpRecovered || 0 }, weight: 1 });
+                            break;
+                        case 'train':
+                            bookEntries.push({ key: 'book_update_hero_trained', values: { hero: log.heroName, xp: log.result?.xpGained || 0 }, weight: 1 });
+                            break;
+                        case 'scout':
+                            bookEntries.push({ key: 'book_update_hero_scouted', values: { hero: log.heroName, region: log.result?.regionName || 'unknown' }, weight: 1 });
+                            break;
+                        case 'craft':
+                            bookEntries.push({ key: 'book_update_hero_crafted', values: { hero: log.heroName, item: log.result?.item || 'item' }, weight: 1 });
+                            break;
+                        case 'socialize':
+                            bookEntries.push({ key: 'book_update_hero_socialized', values: { hero: log.heroName }, weight: 1 });
+                            break;
+                    }
+                }
+            });
+        }
+        if (expeditionResult.success && expeditionResult.data) {
+            const expData = expeditionResult.data;
+            if (expData.status === 'completed') {
+                bookEntries.push({ key: 'book_update_expedition_completed', values: { region: expData.expName || 'unknown' }, weight: 1 });
+            } else if (expData.status === 'battle_started') {
+                bookEntries.push({ key: 'book_update_expedition_started', values: { region: expData.expName || 'unknown' }, weight: 1 });
+            }
+        }
+        if (tavernRecruitHero) {
+            bookEntries.push({ key: 'book_update_hero_recruited', values: { hero: tavernRecruitHero.name }, weight: 1 });
+        }
+        if (bookEntries.length === 0) {
+            bookEntries.push({ key: 'book_update_quiet_day', values: {}, weight: 1 });
+        }
+
+        this.bookService.addSection({
+            id: `village_day_${villageState.day}`,
+            category: 'village_updates',
+            day: villageState.day,
+            entries: bookEntries
+        });
+
+        // --- Track expedition completions and enemy defeats for daily objectives
         // NOTE: These are tracked in resolveBattle() when the battle is actually resolved.
         // The expeditionResult from processDay only returns status='battle_started'.
 
@@ -1208,6 +1277,23 @@ export class GameEngine {
 
     getCurrentActionAssignments() {
         return this.dailyHeroActionsService.getCurrentAssignments();
+    }
+
+    // --- Book Facade ---
+    getBookState() {
+        return this.bookService.getState();
+    }
+
+    getBookPage(pageNumber) {
+        return this.bookService.getPage(pageNumber);
+    }
+
+    getBookSpread(firstPageNumber) {
+        return this.bookService.getSpread(firstPageNumber);
+    }
+
+    markBookRead(spreadFirstPage) {
+        return this.bookService.markRead(spreadFirstPage);
     }
 
     // --- Chronicle Facade ---
