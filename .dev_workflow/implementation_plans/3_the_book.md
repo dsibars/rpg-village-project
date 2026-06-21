@@ -8,7 +8,7 @@
 >
 > **Risk:** Medium-High — touches post-day flow, narrative systems, UI sequencing, and save state shape
 >
-> **Dependencies:** Shared infrastructure and Vue component system must be in place. The other agent’s work (fatigue, hero actions, village events, market rotation, ChronicleService hooks) must be on the branch.
+> **Dependencies:** Shared infrastructure and Vue component system must be in place. The other agent's work (fatigue, hero actions, village events, market rotation, ChronicleService hooks) must be on the branch.
 
 ---
 
@@ -26,10 +26,10 @@
 
 Currently, the Chronicle is treated as the readable log of what happened each day. This initiative changes that split:
 
-- **The Book becomes the readable log.** It receives every day’s events as structured, localizable sections, lays them out into pages and spreads, and renders them as a real book.
+- **The Book becomes the readable log.** It receives every day's events as structured, localizable sections, splits them into PageContentSections, lays them out into pages and spreads, and renders them as a real book.
 - **The Chronicle becomes an unlock/index view.** It shows the player what major story events and tiny milestones have been unlocked, what is still locked, and where each unlocked entry is narrated in the Book. Clicking an entry opens the Book at the exact page.
 
-The existing `ChronicleService` stores rendered English strings. This conflicts with the Book’s localization-first design. Instead of deleting it or building a competing system, we refactor it into an achievement/index catalog that stores labels, requirements, unlock status, and Book page references — but no narrative text.
+The existing `ChronicleService` stores rendered English strings. This conflicts with the Book's localization-first design. Instead of deleting it or building a competing system, we refactor it into an achievement/index catalog that stores labels, requirements, unlock status, and Book page references — but no narrative text.
 
 ---
 
@@ -58,9 +58,9 @@ The existing `ChronicleService` stores rendered English strings. This conflicts 
 │                         │ records link when entry unlocks  │
 │  ┌──────────────────────┴────────────────────────────────┐ │
 │  │ BookService                                           │ │
-│  │  - sections (source of truth, i18n keys)              │ │
-│  │  - page sections and pages (generated layout)         │ │
-│  │  - chapters (owned here)                              │ │
+│  │  - chapters (chapterNumber, startPage, titleKey)      │ │
+│  │  - pages (pageNumber, chapterNumber, PCSs[])          │ │
+│  │  - pageSections (metadata: id, category, day, pages)  │ │
 │  │  - persistence                                        │ │
 │  └───────────────────────────────────────────────────────┘ │
 └────────────────────────────────────────────────────────────┘
@@ -70,7 +70,7 @@ The existing `ChronicleService` stores rendered English strings. This conflicts 
 
 | Service | Responsibility |
 |---------|----------------|
-| **BookService** | Owns the readable narrative. Receives sections via `addSection()`, runs layout to produce pages and spreads, owns chapter boundaries, and persists both source sections and generated layout. |
+| **BookService** | Owns the readable narrative. Receives sections via `addSection()`, splits them into PageContentSections, runs layout to produce pages and spreads, owns chapter boundaries, and persists the complete layout (chapters, pages, pageSections). |
 | **ChronicleService** | Owns the achievement/index catalog. Each entry has a label, unlock requirement, status, and a Book page reference. It knows *what* the player has achieved; the Book knows *when and how it was narrated*. |
 | **GameEngine** | Pushes sections to BookService during `nextDay()` and other event points. Does not decide chapter boundaries. Tells ChronicleService to record a reference when a milestone or unlock has a Chronicle id. |
 
@@ -81,8 +81,8 @@ The existing `ChronicleService` stores rendered English strings. This conflicts 
 ### In Scope
 
 - Refactor `ChronicleService` to remove plain-text storage; keep catalog + Book links.
-- Create `BookService` as the canonical content store with sections, page sections, pages, spreads, and chapters.
-- Create `BookSectionCatalog` for the four category definitions and visual budget rules.
+- Create `BookService` as the canonical content store with chapters, pages, PageContentSections, and PageSections.
+- Create `BookSectionCatalog` for the four section categories and PageContentSection type definitions.
 - Create Book UI components (`TheBookModal.vue`, `BookTopBarButton.vue`, `useBook.js`).
 - Refactor existing `GameEngine.js` hooks to push Book sections instead of Chronicle entries.
 - Refactor `DailyHeroActionsService` to return structured results (not English descriptions).
@@ -103,9 +103,9 @@ The existing `ChronicleService` stores rendered English strings. This conflicts 
 
 ## 4. Data Model
 
-### BookSection
+### Engine-Pushed Section (BookSection)
 
-The source section pushed by the engine.
+The input from the engine to `addSection()`.
 
 ```typescript
 interface BookSection {
@@ -117,10 +117,8 @@ interface BookSection {
   entries?: SectionEntry[];      // for village_updates
   metadata?: {
     titleKey?: string;           // chapter title, if this section starts a chapter
-    image?: string;              // fallback/hero image for milestone
     presentationId?: string;     // for cinematic replay
     chronicleId?: string;        // for Chronicle index linking
-    sourceEvent?: string;
   };
 }
 
@@ -128,40 +126,64 @@ interface SectionBlock {
   image?: string;
   textKey: string;
   values: Record<string, string | number>;
+  weight?: number;              // optional override for the block's visual budget
 }
 
 interface SectionEntry {
   key: string;
   values: Record<string, string | number>;
+  weight?: number;              // optional override for the bullet's visual budget
 }
 ```
 
-### PageSection
+### PageContentSection (Atomic Renderable Unit)
 
-A rendered piece of a section that fits on one page.
+The output of the BookService's splitting process. Each PCS is a self-contained piece of content that fits on one page.
+
+```typescript
+interface PageContentSection {
+  id: string;                    // unique PCS id (e.g., 'pcs_abc123')
+  category: BookSectionCategory; // 'history_event' | 'chapter_history_event' | 'milestone' | 'village_updates'
+  type: PCSType;                 // 'chapter_title' | 'history_block' | 'milestone' | 'village_update_title' | 'village_update_bullet'
+  image?: string;                // optional image path
+  textKey: string;               // i18n key for rendering
+  values: Record<string, string | number>; // interpolation values
+  weight: number;                // visual budget cost
+  pageSectionId: string;         // links back to the parent PageSection
+}
+```
+
+### Page
+
+```typescript
+interface Page {
+  pageNumber: number;            // 1-indexed, continuous
+  chapterNumber: number;         // which chapter this page belongs to
+  pageContentSections: PageContentSection[];
+}
+```
+
+### Chapter
+
+```typescript
+interface Chapter {
+  chapterNumber: number;         // 1, 2, 3...
+  startPageNumber: number;       // first page of this chapter
+  titleKey?: string;             // i18n key for the chapter title (e.g., 'book_chapter_1_title')
+}
+```
+
+### PageSection (Metadata)
+
+Tracks a single engine-pushed section across the Book. Used by the Chronicle for linking.
 
 ```typescript
 interface PageSection {
-  id: string;                    // unique page section id
-  sectionId: string;             // parent section id
-  partIndex: number;             // 0, 1, 2... if section was split
+  id: string;                    // original section id from the engine
   category: BookSectionCategory;
   day: number;
-  blocks?: SectionBlock[];       // subset of blocks, for split history events
-  entry?: SectionEntry;          // for milestone
-  entries?: SectionEntry[];      // subset of bullets, for split village_updates
-  metadata?: BookSection['metadata'];
-}
-```
-
-### BookPage
-
-```typescript
-interface BookPage {
-  pageNumber: number;
-  chapterNumber: number;
-  sections: PageSection[];
-  day: number;                   // day of the first section on the page
+  pages: number[];               // page numbers where this section appears (e.g., [5, 6])
+  pageContentSectionIds: string[]; // IDs of all PCSs belonging to this section
 }
 ```
 
@@ -169,14 +191,10 @@ interface BookPage {
 
 ```typescript
 interface BookState {
-  sections: BookSection[];       // source sections
-  pages: BookPage[];             // generated layout
+  chapters: Chapter[];
+  pages: Page[];
+  pageSections: PageSection[];
   lastReadSpread: number;        // 1, 3, 5... (first page of the last read spread)
-}
-
-interface BookChapter {
-  startPageNumber: number;
-  titleKey?: string;
 }
 ```
 
@@ -196,7 +214,7 @@ interface ChronicleEntry {
   status: 'locked' | 'unlocked' | 'pending';
   dayUnlocked: number | null;
   bookLink: {
-    sectionId: string;
+    pageSectionId: string;
     pageNumber: number;
     chapterNumber: number;
   } | null;
@@ -205,54 +223,88 @@ interface ChronicleEntry {
 
 ---
 
-## 5. Category Catalog
+## 5. PageContentSection Type Catalog
 
-Only four section categories exist.
+Only four section categories exist, but they split into five rendering types.
 
-| Category | Purpose | Visual treatment | Page break | Auto-open | Splits? |
-|----------|---------|------------------|------------|-----------|---------|
-| `history_event` | Narrative history event with optional images and multiple text blocks | Illustrated narrative block | `always` | true | Yes, blocks can split across pages |
-| `chapter_history_event` | Same as `history_event`, but starts a new chapter. Always begins on a fresh page with "CHAPTER X" title above it. | Illustrated narrative block | `always` | true | Yes, blocks can split across pages |
-| `milestone` | Chronicle milestone | Highlighted card with icon | `when-full` | true | No, atomic |
-| `village_updates` | Daily enumerated list of small updates | Compact bullet list | `when-full` | false | Yes, bullets can split across pages |
+| Category | PCS Type | Purpose | Visual Treatment | Default Weight | Overridable? | Auto-open |
+|----------|----------|---------|------------------|----------------|--------------|-----------|
+| `chapter_history_event` | `chapter_title` | Chapter heading ("CHAPTER X") | Large banner title | 2 | No | — |
+| `chapter_history_event` | `history_block` | Narrative block from the event | Illustrated narrative block (image + text) | 6 | Yes (per block) | true |
+| `history_event` | `history_block` | Narrative block from the event | Illustrated narrative block (image + text) | 6 | Yes (per block) | true |
+| `milestone` | `milestone` | Chronicle milestone | Highlighted card with icon | 4 | Yes | true |
+| `village_updates` | `village_update_title` | Section heading (e.g., "Day 5") | Subheading | 2 | No | false |
+| `village_updates` | `village_update_bullet` | Individual update bullet | Compact bullet | 1 | Yes (per entry) | false |
 
-### Visual budget
+**Page budget:** 10 units per page.
 
-The BookService uses a deterministic visual budget to decide page breaks.
-
-| Content | Budget cost |
-|---------|-------------|
-| Chapter title | 2 |
-| History event block (image + text) | 6 |
-| Milestone | 4 |
-| Village update bullet | 1 |
-
-Default page budget: **10 units**.
-
-History event blocks and village update bullets are the splittable units. Milestones are atomic.
+**Splittable units:** `history_block` and `village_update_bullet` can be split across pages. `chapter_title`, `milestone`, and `village_update_title` are atomic.
 
 ---
 
 ## 6. Layout Algorithm
 
-When `addSection(section)` is called:
+When `addSection(engineSection)` is called:
 
-1. **If category is `chapter_history_event`:**
-   - Close the current chapter and increment the chapter number.
-   - **Start a new page.** Do not reuse the current page for the new chapter.
-   - Add the chapter title ("CHAPTER X") to the new page. The title consumes visual budget.
-   - Append the `chapter_history_event` blocks below the chapter title on the same page, respecting the remaining budget. If the event does not fit entirely, its blocks continue onto the next page(s).
-2. **Convert the section into page section candidates:**
-   - `history_event`: one candidate per block.
-   - `chapter_history_event`: one candidate per block (title was already handled in step 1).
-   - `milestone`: one candidate.
-   - `village_updates`: one candidate per bullet.
-3. **Fill the current page** with candidates in order until adding the next candidate would exceed the page budget.
-4. **When the page is full, start a new page.**
-5. **Never reorder candidates.**
-6. **Persist** the generated `pages` array.
+### 6.1 Split the Engine Section into PageContentSections
 
-This makes page numbers stable across languages.
+1. **If `category === 'chapter_history_event'`:**
+   - Create a `chapter_title` PCS with `weight: 2`, `textKey: engineSection.metadata.titleKey || 'book_chapter_default_title'`.
+   - For each block in `engineSection.blocks`, create a `history_block` PCS with `weight: block.weight || 6`.
+
+2. **If `category === 'history_event'`:**
+   - For each block in `engineSection.blocks`, create a `history_block` PCS with `weight: block.weight || 6`.
+
+3. **If `category === 'milestone'`:**
+   - Create a single `milestone` PCS with `weight: engineSection.entry.weight || 4`.
+
+4. **If `category === 'village_updates'`:**
+   - Create a `village_update_title` PCS with `weight: 2`, `textKey: 'book_village_updates_title'` (interpolated with day).
+   - For each entry in `engineSection.entries`, create a `village_update_bullet` PCS with `weight: entry.weight || 1`.
+
+### 6.2 Create a PageSection
+
+```typescript
+const pageSection = {
+  id: engineSection.id,
+  category: engineSection.category,
+  day: engineSection.day,
+  pages: [],
+  pageContentSectionIds: [],
+};
+```
+
+### 6.3 Place Each PCS in Order
+
+```
+let currentPage = getLastPageOrCreateNew();
+let currentChapter = getCurrentChapter();
+
+for each pcs in pageContentSections:
+  if (pcs.type === 'chapter_title'):
+    // Close current chapter and start new one
+    currentChapter = createNewChapter(pcs.textKey);
+    // Start a new page for the chapter title
+    currentPage = createNewPage(currentChapter.chapterNumber);
+  
+  if (currentPage.remainingBudget >= pcs.weight):
+    currentPage.pageContentSections.push(pcs);
+    currentPage.remainingBudget -= pcs.weight;
+  else:
+    // Start a new page
+    currentPage = createNewPage(currentChapter.chapterNumber);
+    currentPage.pageContentSections.push(pcs);
+    currentPage.remainingBudget -= pcs.weight;
+  
+  // Record in PageSection
+  if (!pageSection.pages.includes(currentPage.pageNumber)):
+    pageSection.pages.push(currentPage.pageNumber);
+  pageSection.pageContentSectionIds.push(pcs.id);
+```
+
+### 6.4 Persist
+
+Store the updated `BookState` (chapters, pages, pageSections) via `persistence`.
 
 ---
 
@@ -268,12 +320,12 @@ class BookService {
   setState(state: BookState): void;
 
   // Single public entry point
-  addSection(section: BookSection): { pageNumber: number; chapterNumber: number; sectionId: string };
+  addSection(section: BookSection): { pageSectionId: string; pages: number[]; chapterNumber: number };
 
-  getPage(pageNumber: number): BookPage | null;
-  getSpread(firstPageNumber: number): { left: BookPage; right: BookPage } | null;
-  getCurrentSpread(): { left: BookPage; right: BookPage } | null;
-  getNextNewSpread(): { left: BookPage; right: BookPage } | null;
+  getPage(pageNumber: number): Page | null;
+  getSpread(firstPageNumber: number): { left: Page; right: Page } | null;
+  getCurrentSpread(): { left: Page; right: Page } | null;
+  getNextNewSpread(): { left: Page; right: Page } | null;
   hasUnreadContent(): boolean;
   hasAutoOpenContent(): boolean;
 
@@ -283,8 +335,9 @@ class BookService {
   getPageCount(): number;
   getSpreadCount(): number;
   getChapterCount(): number;
-  getSectionPage(sectionId: string): number | null;
-  getSectionChapter(sectionId: string): number | null;
+  getPageSectionPage(pageSectionId: string): number | null;
+  getPageSectionChapter(pageSectionId: string): number | null;
+  getPageSection(pageSectionId: string): PageSection | null;
 }
 ```
 
@@ -294,6 +347,8 @@ class BookService {
 - Out-of-range page numbers return null.
 - Duplicate section ids are made unique by appending a suffix.
 - `markRead` advances the read cursor forward only.
+- `hasUnreadContent()` returns true if any PCS has been added since the last read spread.
+- `hasAutoOpenContent()` returns true if any PCS with `autoOpen: true` category has been added since the last read spread.
 
 ---
 
@@ -309,7 +364,7 @@ class ChronicleService {
   registerEntry(entry: ChronicleEntry): void;
   registerEntriesFromCatalog(catalog: Array<{ id, labelKey, requirementKey, category }>): void;
 
-  unlockEntry(chronicleId: string, day: number, bookLink: { sectionId, pageNumber, chapterNumber }): ChronicleEntry;
+  unlockEntry(chronicleId: string, day: number, bookLink: { pageSectionId, pageNumber, chapterNumber }): ChronicleEntry;
   setPending(chronicleId: string): void;
 
   hasMilestone(milestoneId: string): boolean;
@@ -338,8 +393,7 @@ The Chronicle catalog is initialized from:
 | File | Action | Purpose |
 |------|--------|---------|
 | `js/engine/book/BookService.js` | Create | Layout engine, pagination, chapters, persistence |
-| `js/engine/book/BookSectionCatalog.js` | Create | Four category definitions and visual budget |
-| `js/engine/book/BookState.js` | Create | Default state shape |
+| `js/engine/book/BookSectionCatalog.js` | Create | Four section categories and five PCS type definitions |
 | `js/engine/book/index.js` | Create | Public exports |
 | `js/engine/shared/chronicle/ChronicleService.js` | Refactor | Catalog + Book links, no plain text |
 | `js/engine/shared/core/i18n/book-keys.js` | Create | Translation key registry |
@@ -358,10 +412,12 @@ The Chronicle catalog is initialized from:
 | `ux/features/book/BookTopBarButton.vue` | Create | Top-bar button with glow/badge states |
 | `ux/features/book/composables/useBook.js` | Create | Reactive access to Book state and navigation |
 | `ux/features/book/components/BookSpread.vue` | Create | Renders left + right pages |
-| `ux/features/book/components/BookPage.vue` | Create | Renders one page of page sections |
-| `ux/features/book/components/HistoryEventSection.vue` | Create | Renders `history_event` blocks |
-| `ux/features/book/components/MilestoneSection.vue` | Create | Renders `milestone` card |
-| `ux/features/book/components/VillageUpdatesSection.vue` | Create | Renders `village_updates` bullet list |
+| `ux/features/book/components/BookPage.vue` | Create | Renders one page of PageContentSections |
+| `ux/features/book/components/BookChapterTitle.vue` | Create | Renders `chapter_title` PCS |
+| `ux/features/book/components/BookHistoryBlock.vue` | Create | Renders `history_block` PCS |
+| `ux/features/book/components/BookMilestoneCard.vue` | Create | Renders `milestone` PCS |
+| `ux/features/book/components/BookVillageUpdateTitle.vue` | Create | Renders `village_update_title` PCS |
+| `ux/features/book/components/BookVillageUpdateBullet.vue` | Create | Renders `village_update_bullet` PCS |
 | `ux/features/shared/PresentationModal.vue` | Modify | Replay mode driven by Book metadata |
 | `ux/features/adventure/components/ChronicleTab.vue` | Refactor | Read Chronicle links; remove chapter grouping; link to Book pages |
 | `ux/App.vue` | Modify | Add Book to post-day sequence and top bar; remove DailyReportModal |
@@ -371,8 +427,8 @@ The Chronicle catalog is initialized from:
 
 | File | Action | Purpose |
 |------|--------|---------|
-| `tests/unit/book/BookService.test.js` | Create | Layout, pagination, chapter boundaries, splitting |
-| `tests/unit/book/BookSectionCatalog.test.js` | Create | Category configuration |
+| `tests/unit/book/BookService.test.js` | Create | Layout, pagination, chapter boundaries, PCS splitting |
+| `tests/unit/book/BookSectionCatalog.test.js` | Create | Category and PCS type configuration |
 | `tests/unit/shared/chronicle/ChronicleService.test.js` | Create | Catalog + Book links |
 | `tests/vue/book/TheBookModal.spec.js` | Create | Rendering and navigation |
 | `tests/vue/book/BookTopBarButton.spec.js` | Create | Glow and badge states |
@@ -390,11 +446,15 @@ The Chronicle catalog is initialized from:
 
 ### Stage 1: Book Engine + Translations
 
-1. Create `js/engine/book/` with `BookSectionCatalog`, `BookState`, `BookService`, `index.js`.
-2. Implement the four categories and visual budget.
-3. Implement layout algorithm with section splitting.
-4. Write unit tests for layout and chapters.
+1. Create `js/engine/book/` with `BookSectionCatalog`, `BookService`, `index.js`.
+2. Implement the four section categories and five PCS types with default weights.
+3. Implement layout algorithm with PCS splitting, page filling, and chapter boundaries.
+4. Write unit tests for layout, chapter boundaries, and PCS splitting.
 5. Create `book-keys.js` and add keys to all five language files.
+
+**Verify:** BookService can be instantiated, sections added, pages and PageSections retrieved. Chronicle untouched. UI unchanged.
+
+---
 
 ### Stage 2: Engine Systems Inject to Book (Chronicle As-Is)
 
@@ -403,40 +463,62 @@ The Chronicle catalog is initialized from:
 3. Add `// TODO(Book)` comments above Chronicle calls for later replacement.
 4. Do not remove or modify Chronicle calls yet.
 
+**Verify:** Game still works exactly as before. Book state is saved but never read by UI. Chronicle entries still appear as before. Build passes, tests pass.
+
+---
+
 ### Stage 3: Book UI + Top Bar Button
 
 1. Create `ux/features/book/` components.
-2. Implement two-page spread rendering.
+2. Implement two-page spread rendering with PCS components (`BookChapterTitle`, `BookHistoryBlock`, `BookMilestoneCard`, `BookVillageUpdateTitle`, `BookVillageUpdateBullet`).
 3. Add `BookTopBarButton` to `TopBar.vue`.
 4. Wire `App.vue` to open the Book from the top bar.
 
+**Verify:** Player can click top-bar button, Book opens, pages render with correct PCS content. Chronicle still works. No auto-open or glow yet.
+
+---
+
 ### Stage 4: UX Polish — Glow, Auto-Open, Animations
 
-1. Implement glow/badge states on `BookTopBarButton`.
-2. Implement auto-open after `nextDay()` for sections with `autoOpen: true`.
+1. Implement glow/badge states on `BookTopBarButton` based on `hasUnreadContent()` and `hasAutoOpenContent()`.
+2. Implement auto-open after `nextDay()` for sections with auto-open categories (`history_event`, `chapter_history_event`, `milestone`).
 3. Add page-turn animation between spreads.
-4. Quiet days do not auto-open or glow.
+4. Quiet days (`village_updates` only) do not auto-open or glow.
+
+**Verify:** Day advance triggers glow or auto-open correctly. Quiet days are silent. Animations smooth. Chronicle still works.
+
+---
 
 ### Stage 5: Chronicle Engine Refactor
 
 1. Refactor `ChronicleService.js` to catalog + Book links.
 2. Replace `recordEntry()` with `registerEntry()` / `unlockEntry()`.
-3. Replace all `// TODO(Book)` Chronicle calls with the new flow: push Book section, then `chronicleService.unlockEntry(...)`.
+3. Replace all `// TODO(Book)` Chronicle calls with the new flow: push Book section, get `pageSectionId` and `pages`, then `chronicleService.unlockEntry(id, day, { pageSectionId, pageNumber, chapterNumber })`.
 4. Migrate or discard old plain-text entries.
+
+**Verify:** Chronicle catalog entries have Book links. Clicking Chronicle entry (in next stage) jumps to correct page.
+
+---
 
 ### Stage 6: ChronicleTab Visual Refactor
 
 1. Remove chapter grouping from milestones.
 2. Query `chronicleService.getEntries({ status: 'unlocked' })`.
-3. Render label + chapter/page reference.
-4. Clicking an entry opens the Book at the linked page.
+3. Render label + chapter/page reference (e.g., *"First boss defeated — Ch. 1, P. 12"*).
+4. Clicking an entry opens `TheBookModal` at linked page using `bookService.getPageSectionPage(pageSectionId)`.
 5. Locked entries show requirement hints.
+
+**Verify:** ChronicleTab shows catalog entries, links jump to Book pages. Both systems fully integrated.
+
+---
 
 ### Stage 7: Cleanup
 
 1. Remove `DailyReportModal` from `App.vue` and `GameEngine.js`.
 2. Add final integration tests.
 3. Write `docs/shared/book/book_system.md`.
+
+**Verify:** Full playthrough test. No DailyReportModal. Book auto-opens on dramatic days. Chronicle links work. Save/load stable.
 
 ---
 
@@ -445,12 +527,13 @@ The Chronicle catalog is initialized from:
 | Risk | Mitigation |
 |------|------------|
 | Existing `ChronicleService` plain-text entries become orphaned | Discard or summarize old entries on first load |
-| Save file bloat | Cap source sections at 500; summarize quiet days beyond 90 days |
+| Save file bloat | Cap total PCSs at 2000; summarize quiet days beyond 90 days |
 | Player annoyance from auto-open | Auto-open only for `history_event` and `chapter_history_event`; glow for `milestone`; silent for `village_updates` |
 | i18n key explosion / outdated descriptions | Reuse existing keys; update all five languages |
 | Layout breaks on language change | Use deterministic visual budget; UI handles minor overflow gracefully |
 | Post-day sequence bugs | Add integration tests covering combat-deferred flow |
 | Page numbers drift | Visual budget depends only on section data, not rendering |
+| PCS weight overrides break layout | Clamp overrides to a reasonable range (e.g., 0.5x to 2x default) |
 
 ---
 
@@ -459,14 +542,14 @@ The Chronicle catalog is initialized from:
 - [ ] `ChronicleService` stores a catalog of entries with labels, requirements, status, and Book links; no day-to-day narrative text.
 - [ ] `BookService` is created, tested, and persisted per save slot.
 - [ ] Only four section categories exist: `history_event`, `chapter_history_event`, `milestone`, `village_updates`.
-- [ ] Layout algorithm splits history events and village updates across pages when needed.
+- [ ] Layout algorithm splits history events and village updates into PageContentSections across pages when needed.
 - [ ] `TheBookModal` renders two-page spreads with page-turn animation.
 - [ ] `BookTopBarButton` shows glow and badge states correctly.
 - [ ] `GameEngine.nextDay()` pushes Book sections instead of Chronicle entries.
 - [ ] `DailyHeroActionsService` and `VillageEventsService` return structured, localizable data.
 - [ ] `PresentationService` and `UnlockService` push Book sections and record Chronicle links.
 - [ ] `DailyReportModal` is no longer shown after day advance.
-- [ ] `ChronicleTab` reads Chronicle links and opens the Book at linked pages.
+- [ ] `ChronicleTab` reads Chronicle links and opens the Book at linked pages via `pageSectionId`.
 - [ ] All required translation keys exist in every language file.
 - [ ] Player-facing descriptions that reference the Chronicle or Book are updated in all five languages.
 - [ ] `docs/shared/book/book_system.md` is written as a game design spec.
@@ -481,3 +564,4 @@ The Chronicle catalog is initialized from:
 3. What is the exact page budget? (Proposed: 10 units.)
 4. Which specific events are `chapter_history_event`? We need a definitive list.
 5. Should the Book top-bar button jump to the latest spread, the first unread spread, or the last read spread?
+6. Should village update bullet weights be exposed to the engine, or always use the default?

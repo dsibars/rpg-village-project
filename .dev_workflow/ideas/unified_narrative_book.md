@@ -27,10 +27,10 @@ The branch currently contains a `ChronicleService` that records plain-text event
 
 This initiative changes that responsibility split:
 
-- **The Book becomes the readable log.** It receives every day’s events as structured, localizable sections and renders them as pages.
+- **The Book becomes the readable log.** It receives every day's events as structured, localizable content and renders them as pages in a personal journal.
 - **The Chronicle becomes an unlock/index view.** It shows the player what major story events and tiny milestones have been unlocked, what is still locked, and where each unlocked entry is narrated in the Book. Clicking an entry opens the Book at the exact page.
 
-In short: the Chronicle answers *“What have I unlocked and where can I read about it?”* The Book answers *“What happened, in narrative form?”*
+In short: the Chronicle answers *"What have I unlocked and where can I read about it?"* The Book answers *"What happened, in narrative form?"*
 
 > **i18n reminder:** Any player-facing description that mentions the Chronicle or the Book — including the Codex `feature_chronicle` entry — must be updated in all five supported languages: `en`, `es`, `ca`, `eu`, `gl`.
 
@@ -38,7 +38,7 @@ In short: the Chronicle answers *“What have I unlocked and where can I read ab
 
 ## 2. The Vision
 
-The Book is the village’s living journal. It is not a settings screen or a Help page; it is part of the fiction.
+The Book is the village's living journal. It is not a settings screen or a Help page; it is part of the fiction.
 
 ### Core principles
 
@@ -54,22 +54,24 @@ The Book is the village’s living journal. It is not a settings screen or a Hel
 
 ## 3. The Three Layers
 
-The Book is organized in three nested layers:
+The Book is organized in three nested layers. Every piece of text, image, or card that appears in the Book is a **PageContentSection** — the atomic renderable unit.
 
 ```
 Book
 ├── Chapter 1
-│   ├── Spread 1 (Pages 1-2)
-│   │   ├── Page 1
-│   │   │   ├── PageSection A
-│   │   │   └── PageSection B
-│   │   └── Page 2
-│   │       └── PageSection C
-│   └── Spread 2 (Pages 3-4)
-│       ├── Page 3
-│       │   └── PageSection D
-│       └── Page 4
-│           └── PageSection E
+│   ├── Page 1
+│   │   ├── PageContentSection: Chapter Title (weight: 2)
+│   │   └── PageContentSection: History Block (weight: 6)
+│   ├── Page 2
+│   │   └── PageContentSection: History Block (weight: 6)
+│   └── Page 3
+│       ├── PageContentSection: Milestone (weight: 4)
+│       └── PageContentSection: Village Update Bullet (weight: 1)
+│   └── Page 4
+│       ├── PageContentSection: Village Update Title (weight: 2)
+│       └── PageContentSection: Village Update Bullet (weight: 1)
+│   └── Page 5
+│       └── PageContentSection: Village Update Bullet (weight: 1)
 ├── Chapter 2
 │   ...
 ```
@@ -99,77 +101,54 @@ Chapters are **story-driven, not time-driven**. A new chapter begins only when t
 - The Book is always displayed as an opened spread, never a single page.
 - Navigation turns one spread at a time (2 pages), with a page-turn animation.
 - Page numbers are stable and persistent, used by the Chronicle for replay links.
-- Pagination is deterministic: it depends on the ordered list of sections and their visual budget, never on viewport or CSS.
+- Pagination is deterministic: it depends on the ordered list of PageContentSections and their weights, never on viewport or CSS.
 
 ---
 
-### 3.3 Page Sections
+### 3.3 PageContentSection
 
-The atomic unit of content on a page. A section pushed by the engine can produce one or more page sections if it is split across pages.
+The atomic unit of content on a page. When the engine pushes a section, the BookService splits it into one or more PageContentSections, each with a weight.
 
-Page sections come from four categories only:
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Unique generated id (e.g., `pcs_abc123`) |
+| `category` | string | Section category from the engine (`history_event`, `chapter_history_event`, `milestone`, `village_updates`) |
+| `type` | string | Rendering type (`chapter_title`, `history_block`, `milestone`, `village_update_title`, `village_update_bullet`) |
+| `image` | string? | Optional image path |
+| `textKey` | string | i18n key for rendering |
+| `values` | Record<string, string \| number> | Interpolation values for the i18n template |
+| `weight` | number | Visual budget cost |
+| `pageSectionId` | string | Links back to the parent PageSection |
 
-| Category | Purpose | Visual treatment | Page break | Auto-open |
-|----------|---------|------------------|------------|-----------|
-| `history_event` | Narrative history event with optional images and multiple text blocks | Banner or illustrated narrative block | `always` | true |
-| `chapter_history_event` | Same as `history_event`, but also starts a new chapter | Banner or illustrated narrative block | `always` | true |
-| `milestone` | Chronicle milestone (first-time achievements) | Highlighted card with icon | `when-full` | true |
-| `village_updates` | Daily enumerated list of small updates (level ups, resources, recruitments) | Compact bullet list | `when-full` | false |
+**Rendering types:**
 
-### Section structure
+| Type | Visual Treatment | Default Weight |
+|------|-----------------|----------------|
+| `chapter_title` | Large chapter heading ("CHAPTER X") | 2 |
+| `history_block` | Illustrated narrative block (image + text) | 6 |
+| `milestone` | Highlighted card with icon | 4 |
+| `village_update_title` | Section heading (e.g., "Day 5 — Village Updates") | 2 |
+| `village_update_bullet` | Compact bullet point | 1 |
 
-#### `history_event` / `chapter_history_event`
+**Weights are per-PCS.** The BookService uses weights to determine page breaks. A Page with budget 10 could hold one `history_block` (6) + one `village_update_bullet` (1) + unused space (3), or one `milestone` (4) + one `village_update_title` (2) + two `village_update_bullet`s (2), etc.
 
-```typescript
-{
-  id: 'sec_prologue',
-  category: 'history_event', // or 'chapter_history_event'
-  day: 1,
-  blocks: [
-    { image: 'assets/story/valley_dawn.webp', textKey: 'book_prologue_p1', values: {} },
-    { image: 'assets/story/arthur_trail.webp', textKey: 'book_prologue_p2', values: {} },
-    { image: 'assets/story/village_stake.webp', textKey: 'book_prologue_p3', values: {} }
-  ],
-  metadata: {
-    titleKey: 'book_chapter_1_title',
-    chronicleId: 'pres_prologue'
-  }
-}
-```
+**Village update entries can have custom weights.** Each entry in a `village_updates` section can optionally override the default bullet weight of 1. This allows certain entries (e.g., "Arthur reached Level 10!") to take more visual space than routine ones (e.g., "2 food consumed").
 
-A history event can have one or more blocks. Each block has an optional image and a text key. The BookService may split the event across pages based on visual budget.
+---
 
-#### `milestone`
+### 3.4 PageSection
 
-```typescript
-{
-  id: 'sec_first_victory',
-  category: 'milestone',
-  day: 5,
-  entry: { key: 'book_milestone_first_victory', values: {} },
-  metadata: {
-    image: 'assets/heroes/arthur.webp',
-    chronicleId: 'pres_first_victory'
-  }
-}
-```
+Metadata that tracks a single engine-pushed section across the Book. The Chronicle uses this to link to the correct page.
 
-#### `village_updates`
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Original section id from the engine (e.g., `sec_day_5_updates`) |
+| `category` | string | Section category |
+| `day` | number | Game day when pushed |
+| `pages` | number[] | Page numbers where this section's content appears (e.g., `[5, 6]` if split across two pages) |
+| `pageContentSectionIds` | string[] | IDs of all PageContentSections belonging to this section |
 
-```typescript
-{
-  id: 'sec_day_2_updates',
-  category: 'village_updates',
-  day: 2,
-  entries: [
-    { key: 'book_update_food_consumed', values: { amount: 2 } },
-    { key: 'book_update_villager_joined', values: { amount: 1 } },
-    { key: 'book_update_hero_rested', values: { hero: 'Arthur', hp: 2 } }
-  ]
-}
-```
-
-The village updates section groups small daily events into one enumerated list. If the list is too long, the BookService may split it across pages.
+A PageSection is **not** a content container. It is a metadata record. The actual content lives in the PageContentSections on each Page.
 
 ---
 
@@ -177,26 +156,42 @@ The village updates section groups small daily events into one enumerated list. 
 
 The BookService runs a layout algorithm when sections are added:
 
-1. Each section category has a **visual budget cost**.
-2. Each page has a **maximum budget**.
-3. The BookService fills the current page until adding the next section (or next block of a history event) would exceed the budget.
-4. If a section does not fit, it starts on a new page.
-5. History events can be split: individual blocks can land on different pages.
-6. Village updates can be split: individual bullets can land on different pages.
-7. Milestones are atomic: they do not split.
+### 4.1 Visual Budget
 
-Example page budget:
-
-| Content | Cost |
-|---------|------|
+| PageContentSection Type | Default Weight |
+|------------------------|----------------|
+| Chapter title | 2 |
 | History event block (image + text) | 6 |
 | Milestone | 4 |
+| Village update title | 2 |
 | Village update bullet | 1 |
-| Chapter title | 2 |
 
-Page budget: 10 units.
+**Default page budget: 10 units.**
 
-This makes pagination deterministic and stable across languages.
+A PageContentSection can optionally override its weight via the engine section's data. This allows certain events to be visually emphasized without changing the category system.
+
+### 4.2 Layout Algorithm
+
+When `addSection(engineSection)` is called:
+
+1. **Split the engineSection into PageContentSections:**
+   - `chapter_history_event`: one `chapter_title` PCS (weight 2) + one `history_block` PCS per block (weight 6 each, overridable)
+   - `history_event`: one `history_block` PCS per block (weight 6 each, overridable)
+   - `milestone`: one `milestone` PCS (weight 4, overridable)
+   - `village_updates`: one `village_update_title` PCS (weight 2) + one `village_update_bullet` PCS per entry (weight 1 each, overridable per entry)
+
+2. **Create a PageSection** with the section's id, category, day, and empty arrays for `pages` and `pageContentSectionIds`.
+
+3. **Place each PCS in order:**
+   - If the current page has enough remaining budget, append the PCS.
+   - If not, start a new page and append the PCS.
+   - If the PCS is a `chapter_title`, also close the current chapter and start a new chapter.
+
+4. **Update the PageSection** with the `pages[]` and `pageContentSectionIds[]` of all its PCSs.
+
+5. **Persist** the updated BookState.
+
+This makes page numbers deterministic and stable across languages. The layout depends only on the ordered list of PCSs and their weights, never on viewport, CSS, or rendered text length.
 
 ---
 
@@ -204,21 +199,21 @@ This makes pagination deterministic and stable across languages.
 
 ### How the Book grows
 
-The engine pushes sections to the Book. The Book decides where they land, which pages they occupy, and whether they start a new chapter.
+The engine pushes sections to the Book. The Book splits them into PageContentSections, decides where they land, and tracks everything via PageSection metadata.
 
 - `addSection(section)` is the only public entry point.
-- The BookService computes page sections and stores the final page assignment.
+- The BookService produces PageContentSections and stores the final layout.
 - Sections are never reordered; only page boundaries are decided by the Book.
 - If no section is pushed on a given day, the Book does not record anything for that day. The Book button does not glow.
 
 ### Quiet days
 
-When nothing notable happens, `GameEngine.nextDay()` still pushes a single `village_updates` section (possibly with a quiet-day intro bullet). This guarantees the Book keeps growing.
+When nothing notable happens, `GameEngine.nextDay()` still pushes a single `village_updates` section with a quiet-day intro bullet. The Book records it, but the Book button does not glow. The player can open the Book at any time and see the entry.
 
 ### Opening behavior
 
 - **Auto-open:** The Book opens automatically when at least one section with `autoOpen: true` was added since the player last closed it. It opens to the first new spread.
-- **Passive signal:** When only `village_updates` sections are added, the Book button glows or pulses.
+- **Passive signal:** When only `village_updates` sections are added (no `history_event`, `chapter_history_event`, or `milestone`), the Book button glows or pulses.
 - **Player-initiated:** The player can open the Book at any time from the top bar, next to the Chronicle.
 
 ### Post-day sequence
@@ -248,9 +243,9 @@ The Chronicle and the Book are companions, not competitors.
 | Clicking an event jumps to the Book page | Displays the page with context |
 | No chapters (chapters live in the Book) | Chapters are dynamic and owned here |
 
-A Chronicle entry has its own label and unlock requirement, plus a link to the Book page where it was narrated. The player sees something like *“First boss defeated — Chapter 1, Page 12”* and clicks to open the Book there.
+A Chronicle entry has its own label and unlock requirement, plus a link to the Book page where it was narrated. The player sees something like *"First boss defeated — Chapter 1, Page 12"* and clicks to open the Book there.
 
-The existing `ChronicleService` is refactored to store this catalog. It no longer stores rendered narrative text; that lives in Book sections. Each unlocked entry records the Book section and page where it appeared.
+The existing `ChronicleService` is refactored to store this catalog. It no longer stores rendered narrative text; that lives in Book PageContentSections. Each unlocked entry records the Book PageSection and page where it appeared.
 
 ---
 
@@ -259,8 +254,8 @@ The existing `ChronicleService` is refactored to store this catalog. It no longe
 The Book is localizable by design:
 
 - No rendered text is ever stored.
-- Each block, entry, and bullet stores only an i18n key and interpolation variables.
-- Switching the game language re-renders every page from the same stored page-section structure.
+- Each PageContentSection stores only an i18n key and interpolation variables.
+- Switching the game language re-renders every page from the same stored PageContentSection structure.
 - Page numbers and chapter numbers are stable regardless of language.
 
 ### Translation Reuse Discipline
@@ -292,11 +287,14 @@ When adding a new key, it must be added to all five language files.
 
 The Book state is saved per save slot. It stores:
 
-- Original sections pushed by the engine (source of truth, i18n keys).
-- Generated pages with page sections (final layout, stable for replay and linking).
-- Last read page/spread.
+- **Chapters**: chapter number, start page, title key.
+- **Pages**: page number, chapter number, array of PageContentSections.
+- **PageSections**: metadata linking engine sections to pages and PageContentSections.
+- **Last read spread**: for resuming reading.
 
-Because sections are small structured objects, the save footprint stays reasonable. For very long games, old quiet days can be summarized.
+No original engine sections are stored separately. The generated layout is canonical. Once laid out, it is written in stone.
+
+For very long games, old quiet days can be summarized into a single PageSection with a single PageContentSection (e.g., "Days 45–90 were quiet.").
 
 ---
 
