@@ -1374,6 +1374,24 @@ export const gl = {
     chronicle_day_prefix: "Día",
     chronicle_day_unknown: "—",
 
+    // New catalog (post-refactor)
+    chronicle_catalog_title: 'Crónica',
+    chronicle_catalog_empty: 'Aínda non se desbloquearon entradas da crónica.',
+    chronicle_unlocked: 'Desbloqueado',
+    chronicle_open_in_book: 'Abrir no Libro',
+    chronicle_chapter: 'Capítulo',
+    chronicle_page: 'Páxina',
+
+    // Chronicle entry labels
+    chronicle_hero_recruited: 'Heroe Reclutado',
+    chronicle_combat_victory: 'Victoria en Batalla',
+    chronicle_combat_defeat: 'Derrota en Batalla',
+
+    // Chronicle requirement labels
+    chronicle_req_recruit: 'Recluta un heroe',
+    chronicle_req_combat_victory: 'Gaña unha batalla',
+    chronicle_req_combat_defeat: 'Sufre unha derrota',
+
     // Discovery Log
     chronicle_discovery_title: "Rexistro de Descubrimentos",
     chronicle_discovery_empty: "Aínda non hai descubrimentos. Envia heroes de expedición e constrúe a túa aldea para desvelar os segredos do val.",

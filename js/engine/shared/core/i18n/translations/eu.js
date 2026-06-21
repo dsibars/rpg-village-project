@@ -1374,6 +1374,24 @@ export const eu = {
     chronicle_day_prefix: "Eguna",
     chronicle_day_unknown: "—",
 
+    // New catalog (post-refactor)
+    chronicle_catalog_title: 'Kronika',
+    chronicle_catalog_empty: 'Oraindik ez da kronika sarrerarik desblokeatu.',
+    chronicle_unlocked: 'Desblokeatuta',
+    chronicle_open_in_book: 'Ireki Liburuan',
+    chronicle_chapter: 'Kapitulua',
+    chronicle_page: 'Orrialdea',
+
+    // Chronicle entry labels
+    chronicle_hero_recruited: 'Heroia Kontratatuta',
+    chronicle_combat_victory: 'Garaipena Borrokan',
+    chronicle_combat_defeat: 'Porrota Borrokan',
+
+    // Chronicle requirement labels
+    chronicle_req_recruit: 'Kontratau heroi bat',
+    chronicle_req_combat_victory: 'Irabazi borroka bat',
+    chronicle_req_combat_defeat: 'Jasan porrota bat',
+
     // Discovery Log
     chronicle_discovery_title: "Aurkikuntzen Erregistroa",
     chronicle_discovery_empty: "Oraindik ez dago aurkikuntzarik. Bidali heroia espedizioetara eta eraiki zure herrixka haranaren sekretuak argitzeko.",

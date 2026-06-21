@@ -1131,6 +1131,20 @@ export class GameEngine {
             }
         }
 
+        // --- Calendar & Defense Events ---
+        this.calendarService.generateEvents(villageState.day);
+        let raidResult = null;
+        const todayEvent = this.calendarService.getUpcomingEvents(villageState.day)
+            .find(e => e.day === villageState.day && e.type === 'raid');
+        if (todayEvent) {
+            raidResult = this.calendarService.resolveRaid(villageState.day);
+            // Trigger: first successful raid defense (at least 1 defender present)
+            if (raidResult && raidResult.isVictory && raidResult.defenders && raidResult.defenders.length > 0 && !this.presentationService.isSeen('pres_first_raid_victory')) {
+                this.presentationService.checkTriggers({ type: 'first_event', eventId: 'first_raid_victory' });
+                this._persistPresentationState();
+            }
+        }
+
         // --- Book: Record Village Updates ---
         const bookEntries = [];
         if (villageReport.foodConsumed) {
@@ -1232,20 +1246,6 @@ export class GameEngine {
 
          // Tick meal buffs after any combat
         this.heroService.tickAllMealBuffs();
-
-        // --- Calendar & Defense Events ---
-        this.calendarService.generateEvents(villageState.day);
-        let raidResult = null;
-        const todayEvent = this.calendarService.getUpcomingEvents(villageState.day)
-            .find(e => e.day === villageState.day && e.type === 'raid');
-        if (todayEvent) {
-            raidResult = this.calendarService.resolveRaid(villageState.day);
-            // Trigger: first successful raid defense (at least 1 defender present)
-            if (raidResult && raidResult.isVictory && raidResult.defenders && raidResult.defenders.length > 0 && !this.presentationService.isSeen('pres_first_raid_victory')) {
-                this.presentationService.checkTriggers({ type: 'first_event', eventId: 'first_raid_victory' });
-                this._persistPresentationState();
-            }
-        }
 
         // ─── Expedition narrative queue ───
         const pendingNarratives = this.expeditionService.getPendingNarratives();

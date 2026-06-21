@@ -75,10 +75,20 @@ export class ChronicleService {
 
     /**
      * Unlock an entry and record its Book link.
+     * Auto-registers unknown entries with fallback keys.
      */
     unlockEntry(chronicleId, day, bookLink = null) {
-        const entry = this.state.catalog.find(e => e.id === chronicleId);
-        if (!entry) return null;
+        if (!chronicleId) return null;
+        let entry = this.state.catalog.find(e => e.id === chronicleId);
+        if (!entry) {
+            // Auto-register unknown entry with fallback keys
+            entry = this.registerEntry({
+                id: chronicleId,
+                labelKey: `chronicle_${chronicleId}`,
+                requirementKey: `chronicle_req_${chronicleId}`,
+                category: 'unlock'
+            });
+        }
         if (entry.status === 'unlocked') return entry;
 
         entry.status = 'unlocked';

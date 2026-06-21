@@ -185,6 +185,9 @@ function goToPage(pageNumber) {
   if (pageNumber > maxPage) pageNumber = maxPage
   const spreadNum = Math.floor((pageNumber - 1) / 2) + 1
   currentSpread.value = spreadNum
+  // Mark the target spread as read so glow doesn't persist
+  const spreadFirstPage = (spreadNum - 1) * 2 + 1
+  emit('markRead', spreadFirstPage)
 }
 </script>
 

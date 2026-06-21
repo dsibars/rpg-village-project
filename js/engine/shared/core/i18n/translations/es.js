@@ -1375,6 +1375,24 @@ export const es = {
     chronicle_day_prefix: "Día",
     chronicle_day_unknown: "—",
 
+    // New catalog (post-refactor)
+    chronicle_catalog_title: 'Crónica',
+    chronicle_catalog_empty: 'Aún no se han desbloqueado entradas de la crónica.',
+    chronicle_unlocked: 'Desbloqueado',
+    chronicle_open_in_book: 'Abrir en el Libro',
+    chronicle_chapter: 'Capítulo',
+    chronicle_page: 'Página',
+
+    // Chronicle entry labels
+    chronicle_hero_recruited: 'Héroe Reclutado',
+    chronicle_combat_victory: 'Victoria en Batalla',
+    chronicle_combat_defeat: 'Derrota en Batalla',
+
+    // Chronicle requirement labels
+    chronicle_req_recruit: 'Recluta un héroe',
+    chronicle_req_combat_victory: 'Gana una batalla',
+    chronicle_req_combat_defeat: 'Sufre una derrota',
+
     // Discovery Log
     chronicle_discovery_title: "Registro de Descubrimientos",
     chronicle_discovery_empty: "Aún no hay descubrimientos. Envía héroes de expedición y construye tu aldea para desvelar los secretos del valle.",

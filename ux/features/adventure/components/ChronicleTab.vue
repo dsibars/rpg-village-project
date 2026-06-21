@@ -60,6 +60,23 @@
               </button>
             </div>
           </div>
+
+          <!-- Locked entries (requirement hints) -->
+          <div
+            v-for="entry in lockedEntries"
+            :key="entry.id"
+            class="catalog-row catalog-locked"
+          >
+            <div class="catalog-main-info">
+              <div class="catalog-header-line">
+                <span class="catalog-title catalog-title-locked">{{ entry.label }}</span>
+                <span class="catalog-badge badge-locked">{{ t('chronicle_hint_event') }}</span>
+              </div>
+              <div class="catalog-meta">
+                <span class="catalog-req">{{ entry.requirement }}</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -137,6 +154,19 @@ const unlockedEntries = computed(() => {
       label: entry.labelKey ? t(entry.labelKey) : entry.id,
       dayUnlocked: entry.dayUnlocked,
       bookLink: entry.bookLink
+    }))
+})
+
+const lockedEntries = computed(() => {
+  const cs = chronicleService.value
+  if (!cs) return []
+
+  const entries = cs.getEntries({ status: 'locked' })
+  return entries
+    .map(entry => ({
+      id: entry.id,
+      label: entry.labelKey ? t(entry.labelKey) : entry.id,
+      requirement: entry.requirementKey ? t(entry.requirementKey) : t('chronicle_hint_event')
     }))
 })
 
@@ -383,6 +413,32 @@ function openDiscoveryDetail(entry) {
   color: #6ee7b7;
   text-shadow: 0 0 6px rgba(16, 185, 129, 0.4);
   border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.catalog-badge.badge-locked {
+  background: rgba(100, 100, 100, 0.15);
+  color: var(--text-muted);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.catalog-row.catalog-locked {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.catalog-row.catalog-locked:hover {
+  border-color: var(--glass-border);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.catalog-title-locked {
+  color: var(--text-muted);
+}
+
+.catalog-req {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-style: italic;
 }
 
 .catalog-meta {

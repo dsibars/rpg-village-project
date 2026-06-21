@@ -1375,6 +1375,24 @@ export const ca = {
     chronicle_day_prefix: "Dia",
     chronicle_day_unknown: "—",
 
+    // New catalog (post-refactor)
+    chronicle_catalog_title: 'Crònica',
+    chronicle_catalog_empty: "Encara no s'han desbloquejat entrades de la crònica.",
+    chronicle_unlocked: 'Desbloquejat',
+    chronicle_open_in_book: 'Obrir al Llibre',
+    chronicle_chapter: 'Capítol',
+    chronicle_page: 'Pàgina',
+
+    // Chronicle entry labels
+    chronicle_hero_recruited: 'Heroi Reclutat',
+    chronicle_combat_victory: 'Victòria en Batalla',
+    chronicle_combat_defeat: 'Derrota en Batalla',
+
+    // Chronicle requirement labels
+    chronicle_req_recruit: 'Recluta un heroi',
+    chronicle_req_combat_victory: 'Guanya una batalla',
+    chronicle_req_combat_defeat: 'Sofreix una derrota',
+
     // Discovery Log
     chronicle_discovery_title: "Registre de Descobriments",
     chronicle_discovery_empty: "Encara no hi ha descobriments. Envia herois d'expedició i construeix la teva vila per desvelar els secrets de la vall.",
