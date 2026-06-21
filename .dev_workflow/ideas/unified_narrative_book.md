@@ -4,7 +4,7 @@
 >
 > **Scope:** Cross-cutting narrative and feedback system (`js/engine/book/`, `ux/features/book/`)
 >
-> **Goal:** Replace the fragmented post-day popup sequence (presentation modals, narrative toasts, daily report) with a single persistent in-fiction journal: the Book.
+> **Goal:** Replace the fragmented post-day popup sequence with a single persistent in-fiction journal: the Book.
 >
 > **Companion Document:** `../implementation_plans/3_the_book.md`
 
@@ -45,9 +45,10 @@ The Book is the village’s living journal. It is not a settings screen or a Hel
 1. **One reading surface.** Every notable event becomes content inside the Book.
 2. **Player agency.** The Book signals new content rather than forcing itself every day. Routine days only light up the Book button; important events auto-open the Book.
 3. **Localization-first.** The Book never stores rendered text, only structured i18n data, so any page can be rendered in any language at any time.
-4. **Emergent chapters.** Chapters belong to the Book and are created dynamically from the story, not hardcoded into the game flow.
+4. **Emergent chapters.** Chapters belong to the Book. A new chapter begins when the Book receives a section with category `chapter_history_event`. Which events are marked as chapter events depends on player choices, so chapters adapt to each playthrough.
 5. **Chronicle synergy.** The Chronicle remains the index and progress tracker. Clicking a Chronicle entry opens the Book at the exact page where the event was recorded.
 6. **Deterministic history.** Page numbers are stable. A Chronicle link to "Chapter 1, Page 12" always points to the same content, regardless of screen size or future UI changes.
+7. **Book feel.** The Book is rendered as an opened book with two-page spreads, page-turn animations, and a parchment/dark-fantasy frame.
 
 ---
 
@@ -58,92 +59,144 @@ The Book is organized in three nested layers:
 ```
 Book
 ├── Chapter 1
-│   ├── Page 1
-│   │   ├── Section A
-│   │   └── Section B
-│   └── Page 2
-│       └── Section C
+│   ├── Spread 1 (Pages 1-2)
+│   │   ├── Page 1
+│   │   │   ├── PageSection A
+│   │   │   └── PageSection B
+│   │   └── Page 2
+│   │       └── PageSection C
+│   └── Spread 2 (Pages 3-4)
+│       ├── Page 3
+│       │   └── PageSection D
+│       └── Page 4
+│           └── PageSection E
 ├── Chapter 2
-│   ├── Page 3
-│   │   └── Section D
 │   ...
 ```
 
 ### 3.1 Chapters
 
-Chapters are **story-driven, not time-driven**. They do not close automatically after N pages or at calendar boundaries. A chapter only ends when the player reaches a **key story milestone** — a moment that fundamentally changes what the village is or what the player can do.
+Chapters are **story-driven, not time-driven**. A new chapter begins only when the Book receives a section with category `chapter_history_event`.
 
 **Chapter trigger rules:**
-1. **Only key story events close a chapter.** Routine events (combat, construction, resource changes, hero actions) never trigger a chapter boundary.
-2. **The engine decides, not the Book.** `GameEngine` explicitly calls `bookService.closeChapter(titleKey)` when a presentation or major unlock fires. The Book never auto-closes a chapter.
-3. **No soft page limits.** A chapter can be 3 pages or 300 pages. Length is determined entirely by player-paced story progression.
-4. **Dynamic per playthrough.** Because chapters depend on player choices (which buildings to build, which regions to unlock, which heroes to recruit), the same chapter can contain wildly different content across saves.
+1. **Only `chapter_history_event` sections start a new chapter.** All other categories stay within the current chapter.
+2. **The BookService decides when a new chapter begins.** The engine does not call any chapter-close method. It pushes sections through the single entry point `addSection(section)`. When the BookService receives a `chapter_history_event`, it closes the current chapter and starts the next one.
+3. **The `chapter_history_event` is the first content of the new chapter.** The previous page is not reused. The Book jumps to a new page, renders "CHAPTER X" as a title at the top, and then appends the `chapter_history_event` content below it.
+4. **No soft page limits.** A chapter can be 3 pages or 300 pages. Length is determined entirely by player-paced story progression.
+5. **Dynamic per playthrough.** Because which events are marked as `chapter_history_event` can depend on player choices and authored design, the same chapter can contain wildly different content across saves. To add Chapter 3, 4, 5, etc., we only need to mark the appropriate history event as a `chapter_history_event`.
 
-**Example chapter progression:**
-- **Chapter 1 — The Ashes:** Begins at game start. Covers the prologue, first expedition, initial village construction. Closes when the first story presentation fires (e.g., *"Whispers from Below"*).
-- **Chapter 2 — The Growing Village:** Covers expansion, new heroes, first raids, region unlocks. Closes when magic is discovered (Arcane Sanctum built or first spell inscribed).
-- **Chapter 3 — The Arcane Age:** Covers magic progression, Glyph Academy, Witch's Hut readings. Closes when Body Inscription is unlocked.
-- **Chapter 4+:** Continues into endgame — hybrid heroes, deep expeditions, final story beats.
-
-This structure means a speed-running player might reach Chapter 3 by Day 30, while a builder-focused player might still be in Chapter 2 at Day 60. Both are valid. The Book adapts to the *player's* story, not a preset script.
-
-> **i18n note:** Chapter titles are translation keys (`book_chapter_1_title`, `book_chapter_2_title`, etc.) and are rendered at chapter-close time, so they can reference the event that triggered the close (e.g., *"Chapter 2: The Arcane Age — awakened on Day 47"*).
-
-### 3.2 Pages
-
-- A page is one spread shown to the player at a time.
-- The Book decides pagination based on section categories and a fixed section-per-page budget.
-- Page numbers are stable and persistent, used by the Chronicle for replay links.
-- Pagination is deterministic: it depends only on the ordered list of sections and their categories, never on viewport or CSS.
-
-### 3.3 Page Sections
-
-The atomic unit of Book content. A section is structured data, not plain text:
-
-- A **category** that defines visual treatment and page-break behavior.
-- A list of **entries**, each with an i18n key and interpolation variables.
-
-This structure makes the Book fully renderable in any language without storing translated strings.
+**Chapter title behavior:**
+- When a `chapter_history_event` begins, the Book jumps to a new page and renders "CHAPTER X" as a title.
+- The `chapter_history_event` section is placed immediately after the chapter title on the same page.
+- Chapter titles are translation keys (`book_chapter_1_title`, `book_chapter_2_title`, etc.) and can reference the triggering event.
 
 ---
 
-## 4. Section Categories
+### 3.2 Pages and Spreads
 
-Categories are the Book’s vocabulary. They determine how a section looks, whether it starts a new page, and whether the Book should auto-open.
+- A **page** is one side of the book.
+- A **spread** is two facing pages shown together: pages 1–2, 3–4, 5–6, etc.
+- The Book is always displayed as an opened spread, never a single page.
+- Navigation turns one spread at a time (2 pages), with a page-turn animation.
+- Page numbers are stable and persistent, used by the Chronicle for replay links.
+- Pagination is deterministic: it depends on the ordered list of sections and their visual budget, never on viewport or CSS.
 
-Core categories include:
+---
 
-| Category | Purpose | Example |
-|----------|---------|---------|
-| `story_event` | Major narrative beats | Chapter finale, prologue, first boss defeat |
-| `milestone` | First-time player achievements | First hero reaches level 5, first building completed |
-| `construction` | Building completion or upgrade | Farm upgraded to level 2 |
-| `hero_progress` | Hero level up, skill, or recovery | Arthur reached level 6 |
-| `expedition` | Expedition result | Expedition to Dark Forest completed |
-| `combat` | Combat summary | Boss defeated, party retreated |
-| `raid` | Raid defense result | Raid victory, building damaged |
-| `resource_change` | Resource production or consumption | Villagers consumed 20 food, miners gathered 12 stone |
-| `recruitment` | New hero joined | Tavern recruited a Ranger |
-| `unlock` | Narrative or codex discovery | Region unlocked, feature discovered |
-| `daily_summary` | Quiet day fallback | Day 15 — a peaceful day in the village |
+### 3.3 Page Sections
 
-### Category behavior
+The atomic unit of content on a page. A section pushed by the engine can produce one or more page sections if it is split across pages.
 
-Each category declares:
+Page sections come from four categories only:
 
-- `pageBreak`: `'always' | 'when-full' | 'never'`
-- `autoOpen`: whether the Book should open automatically when this section is added
-- `chapterBoundary`: whether this section closes the current chapter
-- `visualStyle`: how the section is rendered
+| Category | Purpose | Visual treatment | Page break | Auto-open |
+|----------|---------|------------------|------------|-----------|
+| `history_event` | Narrative history event with optional images and multiple text blocks | Banner or illustrated narrative block | `always` | true |
+| `chapter_history_event` | Same as `history_event`, but also starts a new chapter | Banner or illustrated narrative block | `always` | true |
+| `milestone` | Chronicle milestone (first-time achievements) | Highlighted card with icon | `when-full` | true |
+| `village_updates` | Daily enumerated list of small updates (level ups, resources, recruitments) | Compact bullet list | `when-full` | false |
 
-For example:
+### Section structure
 
-| Category | pageBreak | autoOpen | chapterBoundary | visualStyle |
-|----------|-----------|----------|-----------------|-------------|
-| `story_event` | `always` | true | true | `banner` |
-| `milestone` | `when-full` | true | false | `card` |
-| `raid` | `always` on defeat, `when-full` otherwise | true on defeat | false | `card` |
-| `daily_summary` | `never` | false | false | `list` |
+#### `history_event` / `chapter_history_event`
+
+```typescript
+{
+  id: 'sec_prologue',
+  category: 'history_event', // or 'chapter_history_event'
+  day: 1,
+  blocks: [
+    { image: 'assets/story/valley_dawn.webp', textKey: 'book_prologue_p1', values: {} },
+    { image: 'assets/story/arthur_trail.webp', textKey: 'book_prologue_p2', values: {} },
+    { image: 'assets/story/village_stake.webp', textKey: 'book_prologue_p3', values: {} }
+  ],
+  metadata: {
+    titleKey: 'book_chapter_1_title',
+    chronicleId: 'pres_prologue'
+  }
+}
+```
+
+A history event can have one or more blocks. Each block has an optional image and a text key. The BookService may split the event across pages based on visual budget.
+
+#### `milestone`
+
+```typescript
+{
+  id: 'sec_first_victory',
+  category: 'milestone',
+  day: 5,
+  entry: { key: 'book_milestone_first_victory', values: {} },
+  metadata: {
+    image: 'assets/heroes/arthur.webp',
+    chronicleId: 'pres_first_victory'
+  }
+}
+```
+
+#### `village_updates`
+
+```typescript
+{
+  id: 'sec_day_2_updates',
+  category: 'village_updates',
+  day: 2,
+  entries: [
+    { key: 'book_update_food_consumed', values: { amount: 2 } },
+    { key: 'book_update_villager_joined', values: { amount: 1 } },
+    { key: 'book_update_hero_rested', values: { hero: 'Arthur', hp: 2 } }
+  ]
+}
+```
+
+The village updates section groups small daily events into one enumerated list. If the list is too long, the BookService may split it across pages.
+
+---
+
+## 4. Page Layout
+
+The BookService runs a layout algorithm when sections are added:
+
+1. Each section category has a **visual budget cost**.
+2. Each page has a **maximum budget**.
+3. The BookService fills the current page until adding the next section (or next block of a history event) would exceed the budget.
+4. If a section does not fit, it starts on a new page.
+5. History events can be split: individual blocks can land on different pages.
+6. Village updates can be split: individual bullets can land on different pages.
+7. Milestones are atomic: they do not split.
+
+Example page budget:
+
+| Content | Cost |
+|---------|------|
+| History event block (image + text) | 6 |
+| Milestone | 4 |
+| Village update bullet | 1 |
+| Chapter title | 2 |
+
+Page budget: 10 units.
+
+This makes pagination deterministic and stable across languages.
 
 ---
 
@@ -151,32 +204,30 @@ For example:
 
 ### How the Book grows
 
-The engine pushes sections to the Book. The Book decides where they land.
+The engine pushes sections to the Book. The Book decides where they land, which pages they occupy, and whether they start a new chapter.
 
-- `addSection(section)` returns the page number where the section was placed.
-- Sections are never reordered; only page and chapter boundaries are decided by the Book.
-- A section can request a new page or a chapter close through its category.
+- `addSection(section)` is the only public entry point.
+- The BookService computes page sections and stores the final page assignment.
+- Sections are never reordered; only page boundaries are decided by the Book.
 - If no section is pushed on a given day, the Book does not record anything for that day. The Book button does not glow.
 
 ### Quiet days
 
-When nothing notable happens, `GameEngine.nextDay()` still pushes a single `daily_summary` section. This guarantees that the Book continues to grow and that the player can always read what happened, even if it was uneventful.
+When nothing notable happens, `GameEngine.nextDay()` still pushes a single `village_updates` section (possibly with a quiet-day intro bullet). This guarantees the Book keeps growing.
 
 ### Opening behavior
 
-- **Auto-open:** The Book opens automatically when at least one section with `autoOpen: true` was added since the player last closed it. It opens to the first new page.
-- **Passive signal:** When only routine sections are added, the Book button glows or pulses in the top bar to indicate unread content.
+- **Auto-open:** The Book opens automatically when at least one section with `autoOpen: true` was added since the player last closed it. It opens to the first new spread.
+- **Passive signal:** When only `village_updates` sections are added, the Book button glows or pulses.
 - **Player-initiated:** The player can open the Book at any time from the top bar, next to the Chronicle.
-
-This removes the daily forced popup while keeping the player aware that history is being written.
 
 ### Post-day sequence
 
-With the Book in place, the post-day flow becomes:
+With the Book in place:
 
 1. Resolve expeditions, combat, and raids.
 2. Push all resulting sections to the Book.
-3. If any section has `autoOpen: true`, open the Book at the first new page.
+3. If any section has `autoOpen: true`, open the Book at the first new spread.
 4. Otherwise, glow the Book button.
 
 The daily report modal is removed. The Book is the only post-day reading surface.
@@ -208,56 +259,63 @@ The existing `ChronicleService` is refactored to store this catalog. It no longe
 The Book is localizable by design:
 
 - No rendered text is ever stored.
-- Each section entry stores only an i18n key and interpolation variables.
-- Switching the game language re-renders every page from the same data.
-- Dynamic values such as building or hero names are either passed as raw values or as translation keys when needed.
-
-This makes the Book portable across all supported languages without migration work.
+- Each block, entry, and bullet stores only an i18n key and interpolation variables.
+- Switching the game language re-renders every page from the same stored page-section structure.
+- Page numbers and chapter numbers are stable regardless of language.
 
 ### Translation Reuse Discipline
 
-To prevent key explosion and keep maintenance manageable, the Book reuses existing translation keys whenever possible. Only flavor text and narrative passages unique to the Book receive new keys.
+To prevent key explosion:
 
 **Reuse without new keys:**
-- Hero names, building names, region names, item names — already exist in entity catalogs.
-- Entity attribute labels (`heroes_info_hp`, `heroes_info_strength`, etc.).
-- Action verbs (`train`, `rest`, `scout`) from existing UI or codex entries.
-- Combat result terms (`victory`, `defeat`, `retreat`) from existing battle UI.
+- Hero names, building names, region names, item names.
+- Entity attribute labels.
+- Action verbs from existing UI or codex entries.
+- Combat result terms.
 
 **New keys only for:**
-- Narrative prose specific to the Book (e.g., *"The wind carried ash from the west, and the villagers spoke of it in whispers."*)
-- Chapter titles and closing passages.
-- Category-specific template sentences that do not exist elsewhere (e.g., the daily summary fallback text).
+- Narrative prose unique to the Book.
+- Chapter titles.
+- Category-specific templates.
 
 **Naming convention:**
-- `book_section_{category}_{event}` for category-specific templates.
+- `book_history_{id}` for history event text keys.
+- `book_milestone_{id}` for milestone text keys.
+- `book_update_{event}` for village update bullet keys.
 - `book_chapter_{n}_title` for chapter titles.
-- `book_narrative_{id}` for unique narrative passages.
 
-When adding a new key, it must be added to **all five language files** (`en.js`, `es.js`, `ca.js`, `eu.js`, `gl.js`) before the commit is pushed. No exceptions.
+When adding a new key, it must be added to all five language files.
 
 ---
 
 ## 8. Persistence
 
-The Book state is saved per save slot. Because it stores structured data rather than text, the footprint stays small. For very long games, old quiet days can be summarized into a single retrospective section to control save size.
+The Book state is saved per save slot. It stores:
+
+- Original sections pushed by the engine (source of truth, i18n keys).
+- Generated pages with page sections (final layout, stable for replay and linking).
+- Last read page/spread.
+
+Because sections are small structured objects, the save footprint stays reasonable. For very long games, old quiet days can be summarized.
 
 ---
 
 ## 9. UI Direction
 
-- **Visual style:** dark-fantasy book frame using the existing moss/amber design tokens. Parchment-like inner page with readable typography.
-- **Navigation:** left/right arrows, page counter, keyboard support, mobile swipe.
-- **Animation:** subtle page-turn effect, skippable and not intrusive for repeated use.
-- **Mobile:** follow the existing adaptive modal pattern.
+- **Visual style:** dark-fantasy book frame using existing moss/amber tokens. Parchment inner pages.
+- **Spread display:** always show two facing pages together (1–2, 3–4, etc.).
+- **Navigation:** left/right arrows turn spreads, page counter, keyboard arrow keys, mobile swipe.
+- **Animation:** subtle page-turn effect when moving between spreads.
+- **Mobile:** full-screen book overlay; swipe to turn spreads.
+- **Replay:** from the Chronicle, the Book opens at the requested page in replay mode.
 
 ---
 
 ## 10. Relationship to Existing Systems
 
-- **PresentationService** keeps queuing first-run cinematics. When a presentation triggers, it also pushes a `story_event` or `milestone` section to the Book. The Book stores the `presentationId` so the cinematic can be replayed from the Chronicle or the Book.
-- **UnlockService** keeps evaluating unlock predicates. When a narrative is first shown, it pushes an `unlock` section to the Book.
-- **DailyReportModal** is removed. Its content is split into Book categories.
+- **PresentationService** keeps queuing first-run cinematics. When a presentation triggers, it pushes a `history_event` or `chapter_history_event` section to the Book. The Book stores the `presentationId` so the cinematic can be replayed.
+- **UnlockService** keeps evaluating unlock predicates. When a narrative is first shown, it pushes a `history_event` or `milestone` section to the Book.
+- **DailyReportModal** is removed. Its content becomes `village_updates` sections.
 - **ChronicleTab** loses chapter grouping and gains page-number links.
 
 ---
@@ -266,7 +324,7 @@ The Book state is saved per save slot. Because it stores structured data rather 
 
 After this initiative:
 
-- The player has one place to read the story of their village.
+- The player has one place to read the story of their village as a real book.
 - The end-of-day loop becomes less noisy while still delivering all feedback.
 - The Chronicle becomes a richer index with direct links into the Book.
 - All narrative content is automatically localizable and replayable.
