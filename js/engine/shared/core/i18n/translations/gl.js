@@ -1445,4 +1445,10 @@ export const gl = {
     combat_log_stamina_regen: "{actor} regenera {amount} de estamina",
     combat_log_victory: "Vitoria! Inimigos derrotados!",
     combat_log_defeat: "Derrota... O grupo caíu...",
+
+  // Skip battle risk indicators
+  combat_uxelm_skip_safe: 'Seguro',
+  combat_uxelm_skip_risky: 'Arriscado',
+  combat_uxelm_skip_dangerous: 'Perigoso',
+  combat_uxelm_skip_suicide: 'Suicida',
 };

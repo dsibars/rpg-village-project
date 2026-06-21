@@ -1446,4 +1446,10 @@ export const ca = {
     combat_log_stamina_regen: "{actor} regenera {amount} d'estamina",
     combat_log_victory: "Victòria! Enemics derrotats!",
     combat_log_defeat: "Derrota... El grup ha caigut...",
+
+  // Skip battle risk indicators
+  combat_uxelm_skip_safe: 'Segur',
+  combat_uxelm_skip_risky: 'Arriscat',
+  combat_uxelm_skip_dangerous: 'Perillós',
+  combat_uxelm_skip_suicide: 'Suïcida',
 };

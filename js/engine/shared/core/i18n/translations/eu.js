@@ -1444,4 +1444,10 @@ export const eu = {
     combat_log_stamina_regen: "{actor}-k {amount} estamina berreskuratu du.",
     combat_log_victory: "Garaipena! Etsaiak garaitu dira!",
     combat_log_defeat: "Porrota... Taldea erori da...",
+
+  // Skip battle risk indicators
+  combat_uxelm_skip_safe: 'Seguru',
+  combat_uxelm_skip_risky: 'Arriskutsu',
+  combat_uxelm_skip_dangerous: 'Arriskutsu',
+  combat_uxelm_skip_suicide: 'Suizida',
 };

@@ -31,9 +31,10 @@ export const reg_mystic_ruins = {
     ],
 
     unlockRequirements: {
-        any: [
-            { minTotalClears: 5 },
-            { minBuildingLevel: { building: 'explorer_guild', level: 2 } }
+        all: [
+            { minTotalClears: 12 },
+            { minBuildingLevel: { building: 'explorer_guild', level: 2 } },
+            { minHeroes: 4 }
         ]
     },
     storyMissions: []

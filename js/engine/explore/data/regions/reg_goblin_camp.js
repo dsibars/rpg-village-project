@@ -24,9 +24,10 @@ export const reg_goblin_camp = {
     narrative: null,
     glyphDropTable: null,
     unlockRequirements: {
-        any: [
-            { minRegionClears: { reg_dark_forest: 3 } },
-            { minBuildingLevel: { building: 'explorer_guild', level: 2 } }
+        all: [
+            { minRegionClears: { reg_dark_forest: 6 } },
+            { minBuildingLevel: { building: 'explorer_guild', level: 2 } },
+            { minHeroes: 3 }
         ]
     },
     storyMissions: []

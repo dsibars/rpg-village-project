@@ -24,7 +24,10 @@ export const reg_murky_swamp = {
     narrative: null,
     glyphDropTable: null,
     unlockRequirements: {
-        minRegionClears: { reg_dark_forest: 4 }
+        all: [
+            { minRegionClears: { reg_dark_forest: 8 } },
+            { minHeroes: 3 }
+        ]
     },
     storyMissions: []
 };

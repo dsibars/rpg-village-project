@@ -30,9 +30,10 @@ export const reg_forgotten_ruins = {
     ],
 
     unlockRequirements: {
-        any: [
-            { minRegionClears: { reg_mystic_ruins: 6 } },
-            { minBuildingLevel: { building: 'explorer_guild', level: 3 } }
+        all: [
+            { minRegionClears: { reg_mystic_ruins: 12 } },
+            { minBuildingLevel: { building: 'explorer_guild', level: 3 } },
+            { minHeroes: 5 }
         ]
     },
 

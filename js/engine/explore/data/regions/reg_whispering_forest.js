@@ -24,9 +24,9 @@ export const reg_whispering_forest = {
     narrative: null,
     glyphDropTable: null,
     unlockRequirements: {
-        any: [
-            { minRegionClears: { reg_greenfields: 5 } },
-            { minBuildingLevel: { building: 'explorer_guild', level: 1 } }
+        all: [
+            { minRegionClears: { reg_greenfields: 10 } },
+            { minHeroes: 2 }
         ]
     },
     storyMissions: []

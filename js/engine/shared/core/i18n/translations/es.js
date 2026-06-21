@@ -1446,4 +1446,10 @@ export const es = {
     combat_log_stamina_regen: "{actor} regenera {amount} de estamina",
     combat_log_victory: "¡Victoria! ¡Enemigos derrotados!",
     combat_log_defeat: "Derrota... El grupo ha caído...",
+
+  // Skip battle risk indicators
+  combat_uxelm_skip_safe: 'Seguro',
+  combat_uxelm_skip_risky: 'Arriesgado',
+  combat_uxelm_skip_dangerous: 'Peligroso',
+  combat_uxelm_skip_suicide: 'Suicida',
 };

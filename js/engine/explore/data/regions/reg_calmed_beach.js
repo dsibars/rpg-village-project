@@ -24,9 +24,9 @@ export const reg_calmed_beach = {
     narrative: null,
     glyphDropTable: null,
     unlockRequirements: {
-        any: [
-            { minRegionClears: { reg_greenfields: 3 } },
-            { minBuildingLevel: { building: 'explorer_guild', level: 1 } }
+        all: [
+            { minRegionClears: { reg_greenfields: 6 } },
+            { minHeroes: 2 }
         ]
     },
     storyMissions: []

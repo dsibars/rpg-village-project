@@ -24,7 +24,10 @@ export const reg_dark_forest = {
     narrative: null,
     glyphDropTable: null,
     unlockRequirements: {
-        minRegionClears: { reg_tiny_cave: 2 }
+        all: [
+            { minRegionClears: { reg_tiny_cave: 4 } },
+            { minHeroes: 2 }
+        ]
     },
     storyMissions: []
 };

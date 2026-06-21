@@ -1446,4 +1446,10 @@ export const en = {
     combat_log_stamina_regen: "{actor} regenerates {amount} stamina",
     combat_log_victory: "Victory! Enemies defeated!",
     combat_log_defeat: "Defeat... The party has fallen...",
+
+  // Skip battle risk indicators
+  combat_uxelm_skip_safe: 'Safe',
+  combat_uxelm_skip_risky: 'Risky',
+  combat_uxelm_skip_dangerous: 'Dangerous',
+  combat_uxelm_skip_suicide: 'Suicide',
 };

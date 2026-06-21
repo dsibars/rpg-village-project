@@ -30,9 +30,10 @@ export const reg_frozen_peaks = {
     },
     glyphDropTable: null,
     unlockRequirements: {
-        any: [
-            { minTotalClears: 8 },
-            { minBuildingLevel: { building: 'explorer_guild', level: 3 } }
+        all: [
+            { minTotalClears: 15 },
+            { minBuildingLevel: { building: 'explorer_guild', level: 3 } },
+            { minHeroes: 4 }
         ]
     },
     storyMissions: []
