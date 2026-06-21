@@ -193,7 +193,8 @@ const ACTION_MAP = {
   },
   chronicle: {
     getEntries: (engine, p) => ({ success: true, data: engine.getChronicleEntries(p.options || {}) }),
-    getStats: (engine) => engine.getChronicleStats()
+    getStats: (engine) => engine.getChronicleStats(),
+    unlockEntry: (engine, p) => ({ success: true, data: engine.unlockChronicleEntry(p.chronicleId, p.day, p.bookLink) })
   },
   book: {
     getPage: (engine, p) => ({ success: true, data: engine.getBookPage(p.pageNumber) }),

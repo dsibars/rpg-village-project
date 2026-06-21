@@ -98,6 +98,9 @@ export class GameEngine {
         this.chronicleService.load();
         this.bookService.load();
 
+        // Register Chronicle catalog entries from game data
+        this._registerChronicleCatalog();
+
         const presentationState = persistence.load('presentation_state');
         if (presentationState) {
             this.presentationService = new PresentationService(presentationState);
@@ -296,15 +299,27 @@ export class GameEngine {
             this.missionSeedService.trackProgress('recruit', 'hero', 1);
             this.missionSeedService.trackProgress('spend', 'gold', cost);
 
-            // Chronicle: hero recruited
             const villageDay = this.villageService.getState().day || 1;
-            this.chronicleService.recordEntry(
-                villageDay,
-                'hero',
-                'Hero Recruited',
-                `${result.data.name} joined the village.`,
-                { heroId: result.data.id, origin: result.data.origin }
-            );
+
+            // Book: hero recruited
+            const bookResult = this.bookService.addSection({
+                id: `hero_recruited_${result.data.id}_${villageDay}`,
+                category: 'village_updates',
+                day: villageDay,
+                entries: [
+                    { key: 'book_update_hero_recruited', values: { hero: result.data.name }, weight: 1 }
+                ],
+                metadata: { heroId: result.data.id, origin: result.data.origin }
+            });
+
+            // Chronicle: link to Book
+            if (bookResult) {
+                this.chronicleService.unlockEntry('hero_recruited', villageDay, {
+                    pageSectionId: bookResult.pageSectionId,
+                    pageNumber: bookResult.pages[0] || 1,
+                    chapterNumber: bookResult.chapterNumber
+                });
+            }
 
             // Trigger Point 4: Hero Recruitment
             this.presentationService.checkTriggers({
@@ -312,6 +327,7 @@ export class GameEngine {
                 origin: result.data.origin,
                 heroName: result.data.name
             });
+            this._persistPresentationState();
             this._persistPresentationState();
 
             return Result.ok({ hero: result.data, cost });
@@ -951,14 +967,23 @@ export class GameEngine {
                     buildingId,
                     level
                 });
-                // Chronicle: building completed
-                this.chronicleService.recordEntry(
-                    villageState.day,
-                    'village',
-                    'Building Completed',
-                    `${buildingId} reached level ${level}.`,
-                    { buildingId, level }
-                );
+                // Book + Chronicle: building completed
+                const bookResult = this.bookService.addSection({
+                    id: `building_${buildingId}_${level}_${villageState.day}`,
+                    category: 'village_updates',
+                    day: villageState.day,
+                    entries: [
+                        { key: 'book_update_building_completed', values: { building: buildingId }, weight: 1 }
+                    ],
+                    metadata: { buildingId, level }
+                });
+                if (bookResult) {
+                    this.chronicleService.unlockEntry(`building_${buildingId}_${level}`, villageState.day, {
+                        pageSectionId: bookResult.pageSectionId,
+                        pageNumber: bookResult.pages[0] || 1,
+                        chapterNumber: bookResult.chapterNumber
+                    });
+                }
             }
             this._persistPresentationState();
         }
@@ -1050,28 +1075,28 @@ export class GameEngine {
             this.heroService.list()
         );
         if (eventResult) {
-            this.chronicleService.recordEntry(
-                villageState.day,
-                'event',
-                eventResult.title,
-                eventResult.description
-            );
+            // Book + Chronicle: village event
+            const bookResult = this.bookService.addSection({
+                id: `village_event_${eventResult.id}_${villageState.day}`,
+                category: 'village_updates',
+                day: villageState.day,
+                entries: [
+                    { key: eventResult.textKey, values: eventResult.values || {}, weight: 1 }
+                ],
+                metadata: { eventId: eventResult.id }
+            });
+            if (bookResult) {
+                this.chronicleService.unlockEntry(`event_${eventResult.id}`, villageState.day, {
+                    pageSectionId: bookResult.pageSectionId,
+                    pageNumber: bookResult.pages[0] || 1,
+                    chapterNumber: bookResult.chapterNumber
+                });
+            }
         }
 
         // --- Hero Daily Actions Resolution ---
         const actionLog = this.dailyHeroActionsService.processActions(villageState.day);
-        if (actionLog && actionLog.length > 0) {
-            actionLog.forEach(log => {
-                if (log.success) {
-                    this.chronicleService.recordEntry(
-                        villageState.day,
-                        'hero',
-                        `${log.heroName} — ${log.action}`,
-                        log.description
-                    );
-                }
-            });
-        }
+        // Note: actionLog entries are pushed to bookEntries below in the village_updates block
 
         // --- Training Grounds Passive XP ---
         const trainingGroundsLevel = this.villageService.getState().infrastructure.training_grounds || 0;
@@ -1298,8 +1323,8 @@ export class GameEngine {
     }
 
     // --- Chronicle Facade ---
-    recordChronicleEntry(day, category, title, description, metadata) {
-        return this.chronicleService.recordEntry(day, category, title, description, metadata);
+    unlockChronicleEntry(chronicleId, day, bookLink) {
+        return this.chronicleService.unlockEntry(chronicleId, day, bookLink);
     }
 
     getChronicleEntries(options) {
@@ -1369,21 +1394,12 @@ export class GameEngine {
                 this._persistPresentationState();
             }
 
-            // Chronicle: record battle outcome
-            // TODO(Book): Replace Chronicle call with Book section after Chronicle refactor
+            // Book + Chronicle: record battle outcome
             if (combatLog) {
                 const villageDay = this.villageService.getState().day || 1;
                 const heroes = combatLog.heroes?.map(h => h.name).join(', ') || 'Heroes';
                 if (combatLog.isVictory) {
-                    this.chronicleService.recordEntry(
-                        villageDay,
-                        'combat',
-                        'Victory in Battle',
-                        `${heroes} won a battle against ${combatLog.enemies?.length || 0} enemies.`,
-                        { victory: true, enemyCount: combatLog.enemies?.length || 0 }
-                    );
-                    // Push victory history_event to Book
-                    this.bookService.addSection({
+                    const bookResult = this.bookService.addSection({
                         id: `combat_victory_${villageDay}_${Date.now()}`,
                         category: 'history_event',
                         day: villageDay,
@@ -1400,16 +1416,15 @@ export class GameEngine {
                         ],
                         metadata: { combatLog: true, victory: true }
                     });
+                    if (bookResult) {
+                        this.chronicleService.unlockEntry('combat_victory', villageDay, {
+                            pageSectionId: bookResult.pageSectionId,
+                            pageNumber: bookResult.pages[0] || 1,
+                            chapterNumber: bookResult.chapterNumber
+                        });
+                    }
                 } else {
-                    this.chronicleService.recordEntry(
-                        villageDay,
-                        'combat',
-                        'Defeat in Battle',
-                        `${heroes} were defeated in battle.`,
-                        { victory: false }
-                    );
-                    // Push defeat history_event to Book
-                    this.bookService.addSection({
+                    const bookResult = this.bookService.addSection({
                         id: `combat_defeat_${villageDay}_${Date.now()}`,
                         category: 'history_event',
                         day: villageDay,
@@ -1422,6 +1437,13 @@ export class GameEngine {
                         ],
                         metadata: { combatLog: true, victory: false }
                     });
+                    if (bookResult) {
+                        this.chronicleService.unlockEntry('combat_defeat', villageDay, {
+                            pageSectionId: bookResult.pageSectionId,
+                            pageNumber: bookResult.pages[0] || 1,
+                            chapterNumber: bookResult.chapterNumber
+                        });
+                    }
                 }
             }
 
@@ -1434,16 +1456,25 @@ export class GameEngine {
                 }
             }
 
-            // Chronicle: record expedition completion
+            // Book + Chronicle: record expedition completion
             if (result.data.status === 'completed') {
                 const villageDay = this.villageService.getState().day || 1;
-                this.chronicleService.recordEntry(
-                    villageDay,
-                    'expedition',
-                    'Expedition Completed',
-                    `An expedition was completed successfully.`,
-                    { expeditionId: result.data.expId }
-                );
+                const bookResult = this.bookService.addSection({
+                    id: `expedition_${result.data.expId}_${villageDay}`,
+                    category: 'village_updates',
+                    day: villageDay,
+                    entries: [
+                        { key: 'book_update_expedition_completed', values: { region: result.data.expName || 'unknown' }, weight: 1 }
+                    ],
+                    metadata: { expeditionId: result.data.expId }
+                });
+                if (bookResult) {
+                    this.chronicleService.unlockEntry(`expedition_${result.data.expId}`, villageDay, {
+                        pageSectionId: bookResult.pageSectionId,
+                        pageNumber: bookResult.pages[0] || 1,
+                        chapterNumber: bookResult.chapterNumber
+                    });
+                }
                 this.presentationService.checkTriggers({
                     type: 'mission_complete',
                     missionId: result.data.expId
@@ -1710,6 +1741,16 @@ export class GameEngine {
 
     _persistPresentationState() {
         persistence.save('presentation_state', this.presentationService.getState());
+    }
+
+    _registerChronicleCatalog() {
+        // Register built-in chronicle entries
+        const catalog = [
+            { id: 'hero_recruited', labelKey: 'chronicle_hero_recruited', requirementKey: 'chronicle_req_recruit', category: 'milestone' },
+            { id: 'combat_victory', labelKey: 'chronicle_combat_victory', requirementKey: 'chronicle_req_combat_victory', category: 'milestone' },
+            { id: 'combat_defeat', labelKey: 'chronicle_combat_defeat', requirementKey: 'chronicle_req_combat_defeat', category: 'milestone' },
+        ];
+        this.chronicleService.registerEntriesFromCatalog(catalog);
     }
 
     _loadStats() {
