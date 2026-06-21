@@ -16,6 +16,7 @@ import { TitleService } from './hall_of_fame/TitleService.js';
 import { UnlockService } from './shared/services/UnlockService.js';
 import { PresentationService } from './shared/services/PresentationService.js';
 import { MarketService } from './market/MarketService.js';
+import { VillageEventsService } from './village/VillageEventsService.js';
 import { SimulationRunner } from './gambit/SimulationRunner.js';
 import { GambitHealthService } from './gambit/GambitHealthService.js';
 import { persistence, globalPersistence } from './shared/core/Persistence.js';
@@ -59,6 +60,7 @@ export class GameEngine {
             persistence.load('presentation_state')
         );
         this.marketService = new MarketService({ deferLoad: true });
+        this.villageEventsService = new VillageEventsService();
         this.i18n = i18n;
         this.isNewGame = true;
         this.stats = this._loadStats();
@@ -79,6 +81,7 @@ export class GameEngine {
         this.academyService.load();
         this.unlockService.load();
         this.marketService.load();
+        this.villageEventsService.load();
 
         const presentationState = persistence.load('presentation_state');
         if (presentationState) {
@@ -1032,6 +1035,13 @@ export class GameEngine {
         // NOTE: These are tracked in resolveBattle() when the battle is actually resolved.
         // The expeditionResult from processDay only returns status='battle_started'.
 
+        // --- Village Random Events ---
+        const eventResult = this.villageEventsService.processDay(
+            villageState.day,
+            this.villageService.getState(),
+            this.heroService.list()
+        );
+
         // --- Tavern Auto-Recruit ---
         let tavernRecruitHero = null;
         if (villageReport.tavernRecruit && villageReport.tavernRecruit.ready) {
@@ -1094,7 +1104,8 @@ export class GameEngine {
             recovery: healedLog,
             training: xpLog,
             raid: raidResult,
-            tavernRecruit: tavernRecruitHero
+            tavernRecruit: tavernRecruitHero,
+            villageEvent: eventResult
         };
 
         // ─── Expedition narrative queue ───
