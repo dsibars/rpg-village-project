@@ -121,6 +121,9 @@ export class BookService {
             pcs.pageSectionId = pageSection.id;
             // If this is a chapter title, close current chapter and start new one
             if (pcs.type === PCS_TYPES.CHAPTER_TITLE) {
+                const actualChapterNumber = this.state.chapters.length + 1;
+                pcs.textKey = `book_chapter_${actualChapterNumber}_title`;
+                pcs.values = { ...pcs.values, chapter: actualChapterNumber };
                 currentChapter = this._createNewChapter(pcs.textKey);
                 // Reuse page 1 if it's empty (fresh book), otherwise create new page
                 const firstPage = this.state.pages[0];

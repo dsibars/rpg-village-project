@@ -215,14 +215,6 @@ export class GameEngine {
             metadata: {}
         });
 
-        if (day1Result) {
-            this.chronicleService.unlockEntry('village_day_1', 1, {
-                pageSectionId: day1Result.pageSectionId,
-                pageNumber: day1Result.pages[0] ?? 1,
-                chapterNumber: day1Result.chapterNumber
-            });
-        }
-
         this.bookService.save();
         this.chronicleService.save();
     }
@@ -1777,25 +1769,25 @@ export class GameEngine {
             { id: 'combat_victory', labelKey: 'chronicle_combat_victory', requirementKey: 'chronicle_req_combat_victory', category: 'milestone' },
             { id: 'combat_defeat', labelKey: 'chronicle_combat_defeat', requirementKey: 'chronicle_req_combat_defeat', category: 'milestone' },
             // Presentations (now in Book)
-            { id: 'pres_prologue', labelKey: 'chronicle_prologue', requirementKey: 'chronicle_hint_newgame', category: 'milestone' },
-            { id: 'pres_first_harvest', labelKey: 'chronicle_first_harvest', requirementKey: 'chronicle_hint_building', category: 'milestone' },
-            { id: 'pres_shield_dark', labelKey: 'chronicle_shield_dark', requirementKey: 'chronicle_hint_mission', category: 'milestone' },
-            { id: 'pres_warm_fire', labelKey: 'chronicle_warm_fire', requirementKey: 'chronicle_hint_building', category: 'milestone' },
-            { id: 'pres_mission_board', labelKey: 'chronicle_mission_board', requirementKey: 'chronicle_hint_building', category: 'milestone' },
-            { id: 'pres_discipline', labelKey: 'chronicle_discipline', requirementKey: 'chronicle_hint_hero', category: 'milestone' },
-            { id: 'pres_first_spark', labelKey: 'chronicle_first_spark', requirementKey: 'chronicle_hint_hero', category: 'milestone' },
+            { id: 'pres_prologue', labelKey: 'chronicle_prologue', requirementKey: 'chronicle_hint_event', category: 'milestone' },
+            { id: 'pres_first_harvest', labelKey: 'chronicle_first_harvest', requirementKey: 'chronicle_hint_event', category: 'milestone' },
+            { id: 'pres_shield_dark', labelKey: 'chronicle_shield_dark', requirementKey: 'chronicle_hint_event', category: 'milestone' },
+            { id: 'pres_warm_fire', labelKey: 'chronicle_warm_fire', requirementKey: 'chronicle_hint_event', category: 'milestone' },
+            { id: 'pres_mission_board', labelKey: 'chronicle_mission_board', requirementKey: 'chronicle_hint_event', category: 'milestone' },
+            { id: 'pres_discipline', labelKey: 'chronicle_discipline', requirementKey: 'chronicle_hint_event', category: 'milestone' },
+            { id: 'pres_first_spark', labelKey: 'chronicle_first_spark', requirementKey: 'chronicle_hint_event', category: 'milestone' },
             { id: 'pres_first_victory', labelKey: 'chronicle_first_victory', requirementKey: 'chronicle_hint_event', category: 'milestone' },
             { id: 'pres_first_equip', labelKey: 'chronicle_first_equip', requirementKey: 'chronicle_hint_event', category: 'milestone' },
             { id: 'pres_first_defeat', labelKey: 'chronicle_first_defeat', requirementKey: 'chronicle_hint_event', category: 'milestone' },
-            { id: 'pres_chapter1_finale', labelKey: 'chronicle_chapter1_finale', requirementKey: 'chronicle_hint_finale', category: 'milestone' },
-            { id: 'pres_language_world', labelKey: 'chronicle_language_world', requirementKey: 'chronicle_hint_building', category: 'milestone' },
+            { id: 'pres_chapter1_finale', labelKey: 'chronicle_chapter1_finale', requirementKey: 'chronicle_hint_event', category: 'milestone' },
+            { id: 'pres_language_world', labelKey: 'chronicle_language_world', requirementKey: 'chronicle_hint_event', category: 'milestone' },
             { id: 'pres_name_flame', labelKey: 'chronicle_name_flame', requirementKey: 'chronicle_hint_event', category: 'milestone' },
-            { id: 'pres_veil_thins', labelKey: 'chronicle_veil_thins', requirementKey: 'chronicle_hint_building', category: 'milestone' },
-            { id: 'pres_world_opens', labelKey: 'chronicle_world_opens', requirementKey: 'chronicle_hint_building', category: 'milestone' },
+            { id: 'pres_veil_thins', labelKey: 'chronicle_veil_thins', requirementKey: 'chronicle_hint_event', category: 'milestone' },
+            { id: 'pres_world_opens', labelKey: 'chronicle_world_opens', requirementKey: 'chronicle_hint_event', category: 'milestone' },
             { id: 'pres_first_spell_cast', labelKey: 'chronicle_first_spell_cast', requirementKey: 'chronicle_hint_event', category: 'milestone' },
             { id: 'pres_first_boss_defeated', labelKey: 'chronicle_first_boss_defeated', requirementKey: 'chronicle_hint_event', category: 'milestone' },
             { id: 'pres_first_raid_victory', labelKey: 'chronicle_first_raid_victory', requirementKey: 'chronicle_hint_event', category: 'milestone' },
-            { id: 'pres_chapter2_finale', labelKey: 'chronicle_chapter2_finale', requirementKey: 'chronicle_hint_finale', category: 'milestone' },
+            { id: 'pres_chapter2_finale', labelKey: 'chronicle_chapter2_finale', requirementKey: 'chronicle_hint_event', category: 'milestone' },
         ];
         this.chronicleService.registerEntriesFromCatalog(catalog);
     }

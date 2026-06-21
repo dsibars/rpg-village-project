@@ -269,7 +269,8 @@ function onSelectSlot(index) {
   slotIndex.value = index
 
   props.engine?.initialize?.()
-  if (props.engine?.isNewGame) {
+  // Prologue now lives in the Book; do not open the old popup if already seen.
+  if (props.engine?.isNewGame && !props.engine?.presentationService?.isSeen?.('pres_prologue')) {
     const prologue = props.engine?.presentationService?.replayPresentation?.('pres_prologue')
     if (prologue) {
       currentPresentation.value = prologue
