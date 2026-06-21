@@ -154,7 +154,7 @@ const ACTION_MAP = {
     retireExpedition: (engine, p) => engine.retireExpedition(p.expId)
   },
   shop: {
-    buyItem: (engine, p) => engine.buyItem(p.itemData, p.costGold),
+    buyItem: (engine, p) => engine.buyMarketItem(p.itemData, p.costGold),
     sellItem: (engine, p) => engine.sellItem(p.itemId, p.itemType, p.sellPrice),
     buyResource: (engine, p) => engine.buyResource(p.resourceId, p.quantity),
     sellResource: (engine, p) => engine.sellResource(p.resourceId, p.quantity),

@@ -15,6 +15,7 @@ import { AcademyService } from './academy/AcademyService.js';
 import { TitleService } from './hall_of_fame/TitleService.js';
 import { UnlockService } from './shared/services/UnlockService.js';
 import { PresentationService } from './shared/services/PresentationService.js';
+import { MarketService } from './market/MarketService.js';
 import { SimulationRunner } from './gambit/SimulationRunner.js';
 import { GambitHealthService } from './gambit/GambitHealthService.js';
 import { persistence, globalPersistence } from './shared/core/Persistence.js';
@@ -57,6 +58,7 @@ export class GameEngine {
         this.presentationService = new PresentationService(
             persistence.load('presentation_state')
         );
+        this.marketService = new MarketService({ deferLoad: true });
         this.i18n = i18n;
         this.isNewGame = true;
         this.stats = this._loadStats();
@@ -76,6 +78,7 @@ export class GameEngine {
         this.calendarService.load();
         this.academyService.load();
         this.unlockService.load();
+        this.marketService.load();
 
         const presentationState = persistence.load('presentation_state');
         if (presentationState) {
@@ -241,6 +244,10 @@ export class GameEngine {
             missionBoard: this.missionSeedService.getState(),
             calendar: this.calendarService.getState(currentDay),
             expeditionRegions: this.regionService.getRegions(),
+            marketStock: this.marketService.getStock(
+                currentDay,
+                this.villageService.getState().infrastructure?.blacksmith || 0
+            ),
             unlockedNarratives: this.unlockService.getShownNarratives()
         };
     }
@@ -536,6 +543,37 @@ export class GameEngine {
         this._saveStats();
 
         return Result.ok();
+    }
+
+    /**
+     * Buy an item from the weekly rotating market stock.
+     * Decrements available quantity. If quantity reaches 0, item is sold out.
+     */
+    buyMarketItem(itemData, costGold) {
+        const result = this.buyItem(itemData, costGold);
+        if (!result.success) return result;
+
+        // Decrement stock quantity
+        const stock = this.marketService.state.stock;
+        if (!stock) return result;
+
+        const itemKey = itemData.id || `${itemData.type}_${itemData.material}_${itemData.family || itemData.archetype}_${itemData.slot || ''}`;
+        
+        // Find and decrement in stock categories
+        const categories = ['consumables', 'weapons', 'headArmor', 'bodyArmor', 'legsArmor', 'shieldArmor'];
+        for (const cat of categories) {
+            const items = stock[cat] || [];
+            for (const item of items) {
+                const key = item.id || `${item.type}_${item.material}_${item.family || itemData.archetype}_${itemData.slot || ''}`;
+                if (key === itemKey) {
+                    item.availableQty = Math.max(0, (item.availableQty || 1) - 1);
+                    this.marketService.save();
+                    return result;
+                }
+            }
+        }
+
+        return result;
     }
 
     /**
