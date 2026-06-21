@@ -40,6 +40,8 @@ The Codex tracks the following features across 4 categories:
 | `feature_day_cycle` | `☀️` | Day Cycle & Time | Always unlocked (`() => true`) |
 | `feature_villagers` | `👤` | Villagers & Labor | Always unlocked (`() => true`) |
 | `feature_hero_attributes` | `🦸` | Hero Attributes & Stats | Always unlocked (`() => true`) |
+| `feature_daily_actions` | `📋` | Daily Hero Actions | Tavern building level $\ge$ 1 |
+| `feature_chronicle` | `📜` | Chronicle | Any expedition completed |
 
 ### Category: `combat` (⚔️)
 
@@ -48,6 +50,7 @@ The Codex tracks the following features across 4 categories:
 | `feature_gambits` | `📜` | Gambit System | Any hero reaches Level 5 |
 | `feature_stamina_skills` | `⚔️` | Physical Skills & Stamina | Any hero reaches Level 5 |
 | `feature_threats_defense` | `🛡️` | Threats & Defense | First raid event is resolved |
+| `feature_fatigue` | `😫` | Hero Fatigue | Any hero has fatigue > 0 |
 
 ### Category: `village` (🏘️)
 
@@ -59,6 +62,8 @@ The Codex tracks the following features across 4 categories:
 | `feature_tavern` | `🍻` | Tavern | Tavern building level $\ge$ 1 |
 | `feature_explorer_guild` | `🧭` | Explorer Guild | Explorer Guild building level $\ge$ 1 |
 | `feature_expeditions` | `🗺️` | Expeditions | Completed `exp_tutorial_cave` expedition |
+| `feature_market_rotation` | `🔄` | Weekly Market Rotation | Completed `exp_tutorial_cave` expedition |
+| `feature_village_events` | `🎲` | Village Random Events | Village day $\ge$ 5 |
 
 ### Category: `magic` (🔮)
 
@@ -102,7 +107,14 @@ For each `feature_*` ID listed above, the following keys must exist:
 - `codex_feature_{id}_desc` — Full description (shown when unlocked)
 - `codex_feature_{id}_unlock` — Unlock requirement hint (shown when locked)
 
-### New Keys (Added in this iteration)
+### New Keys (Added in Phase 2)
+- `codex_feature_fatigue` / `_desc` / `_unlock`
+- `codex_feature_market_rotation` / `_desc` / `_unlock`
+- `codex_feature_village_events` / `_desc` / `_unlock`
+- `codex_feature_daily_actions` / `_desc` / `_unlock`
+- `codex_feature_chronicle` / `_desc` / `_unlock`
+
+### New Keys (Added in Magic Update)
 - `codex_feature_spell_codex`
 - `codex_feature_spell_codex_desc`
 - `codex_feature_spell_codex_unlock`
