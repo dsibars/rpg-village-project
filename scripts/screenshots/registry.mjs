@@ -39,6 +39,7 @@ export const screenshotRegistry = [
   { flow: 'adventure', state: 'bestiary_mixed', description: 'Bestiary with discovered and undiscovered enemies' },
   { flow: 'adventure', state: 'codex_unlocked', description: 'Codex with mix of unlocked/locked features' },
   { flow: 'adventure', state: 'chronicle_milestones', description: 'Chronicle milestones view' },
+  { flow: 'adventure', state: 'chronicle_to_book', description: 'Chronicle entry click-through open in Book' },
 
   // === Town ===
   { flow: 'town', state: 'buildings_list', description: 'Buildings list view' },
