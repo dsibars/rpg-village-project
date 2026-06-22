@@ -1135,6 +1135,7 @@ export const ca = {
     book_chapter_3_title: "Capítol III: El Nord Gelat",
     book_chapter_4_title: "Capítol IV: El Llindar Astral",
     book_chapter_5_title: "Capítol V: L'Última Defensa",
+    book_chapter_2_event_block: "Els vilatans van descobrir runes antigues sota les primeres pedres del nou assentament.",
 
     book_village_updates_title: "Dia {day} — Actualitzacions del Poble",
     book_update_village_founded: "S'ha fundat un nou poble a la vall.",

@@ -1137,6 +1137,7 @@ export const en = {
     book_chapter_3_title: "Chapter III: The Frozen North",
     book_chapter_4_title: "Chapter IV: The Astral Threshold",
     book_chapter_5_title: "Chapter V: The Final Stand",
+    book_chapter_2_event_block: "The villagers discovered ancient runes beneath the first stones of the new settlement.",
 
     book_village_updates_title: "Day {day} — Village Updates",
     book_update_village_founded: "A new village has been founded in the valley.",

@@ -1134,6 +1134,7 @@ export const gl = {
     book_chapter_3_title: "Capítulo III: O Norte Xeado",
     book_chapter_4_title: "Capítulo IV: O Umbral Astral",
     book_chapter_5_title: "Capítulo V: A Derradeira Defensa",
+    book_chapter_2_event_block: "Os veciños descubriron runas antigas baixo as primeiras pedras do novo asentamento.",
 
     book_village_updates_title: "Día {day} — Actualizacións da Vila",
     book_update_village_founded: "Fundouse un novo poboado no val.",

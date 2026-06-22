@@ -305,7 +305,7 @@ export class GameEngine {
                 currentDay,
                 this.villageService.getState().infrastructure?.blacksmith || 0
             ),
-            book: this.bookService.getState(),
+            book: JSON.parse(JSON.stringify(this.bookService.getState())),
             hasBookAutoOpen: this.bookService.hasAutoOpenContent(),
             unlockedNarratives: this.unlockService.getShownNarratives()
         };
@@ -1000,10 +1000,11 @@ export class GameEngine {
                     level
                 });
                 // Book + Chronicle: building completed
+                const currentDay = this.villageService.getState().day;
                 const bookResult = this.bookService.addSection({
-                    id: `building_${buildingId}_${level}_${villageState.day}`,
+                    id: `building_${buildingId}_${level}_${currentDay}`,
                     category: 'village_updates',
-                    day: villageState.day,
+                    day: currentDay,
                     entries: [
                         { key: 'book_update_building_completed', values: { building: this.i18n.t('village_info_building_' + buildingId) }, weight: 1 }
                     ],
@@ -1235,10 +1236,11 @@ export class GameEngine {
             bookEntries.push({ key: 'book_update_quiet_day', values: {}, weight: 1 });
         }
 
+        const updatedDay = this.villageService.getState().day;
         this.bookService.addSection({
-            id: `village_day_${villageState.day}`,
+            id: `village_day_${updatedDay}`,
             category: 'village_updates',
-            day: villageState.day,
+            day: updatedDay,
             entries: bookEntries
         });
 
