@@ -722,23 +722,27 @@ if (!tutorialState && !this.isNewGame) {
 
 ## 10. Documentation Updates
 
-The tutorial system must be documented in the game's living docs so that players, testers, and future developers understand how it works and how to extend it.
+The tutorial system is documented in `docs/tutorial/` following the project's established pattern (`docs/{domain}/` for domain docs, concise system definitions).
 
-### Files to Create / Update
+### Files to Create
 
-| File | Action | Content |
-|---|---|---|
-| `docs/tutorial_system.md` | Create | Architecture overview: how the tutorial engine works, state machine diagram, how to add a new tutorial to the registry, how persistence works, how to skip a tutorial for testing |
-| `docs/tutorial_day1_flow.md` | Create | Player-facing walkthrough: what the player sees on Day 1, step-by-step screenshots (from the screenshot suite), what actions are locked and why. This is the "how to play" reference for new users. |
-| `docs/tutorial_registry.md` | Create | Developer reference: full schema of `TutorialRegistry` entries, all valid `spotlight` target types, `forcedNav` options, `completionEvent` values, and a copy-paste template for a new tutorial. |
-| `docs/tutorial_i18n.md` | Create | Translation guide: naming convention, how to add a new language, how to validate keys with the `validateTutorialKeys()` test, the "no hardcoded strings" rule. |
-| `README.md` (project root) | Update | Add a "Tutorial" section under "Features" or "Getting Started" that links to `docs/tutorial_day1_flow.md` for new players. |
-| `docs/screenshot_testing.md` | Update | Add the new tutorial scenarios to the screenshot testing documentation; explain how `tutorial_day1_full_flow` is the visual regression gate for the tutorial. |
+| File | Content |
+|---|---|
+| `docs/tutorial/tutorial_system.md` | **System definition.** How the tutorial engine works: state machine, persistence, spotlight mechanism, forced navigation, modal locking, and how to add a new tutorial to the registry. One concise architecture overview, no boilerplate. |
+| `docs/tutorial/tutorial_points.md` | **All tutorial flows.** The Day 1 flow (8 steps) and placeholder entries for future tutorials (shop unlock, tavern built, first spell, etc.). Each entry: trigger condition, step sequence, spotlight targets, completion events. This is the canonical registry reference. |
 
-### Documentation Rules
-- All docs are written in the same language as the rest of the project docs (English). If the project later adds multilingual docs, these become `docs/tutorial_system_en.md`, etc.
-- Every diagram in the docs must have a matching code reference (e.g., the state machine diagram in `docs/tutorial_system.md` must link to `TutorialService.js` line numbers via a permalink or comment anchor).
-- Screenshots in `docs/tutorial_day1_flow.md` are pulled automatically from the screenshot suite output directory; they are not manually captured. This means the screenshot test must pass before the doc is considered complete.
+### What These Files Are NOT
+- No player walkthroughs (the game UI itself teaches the player)
+- no copy-paste templates (the registry code is self-documenting)
+- no screenshot artifacts (those live in `scripts/screenshots/outputs/`)
+- no translation guides (i18n conventions are in `docs/shared/core/i18n.md`)
+
+### Files to Update (Minimal)
+
+| File | Change |
+|---|---|
+| `docs/shared/core/i18n.md` | Add one line under the key naming convention: `tutorial_{id}_{step}_msg` |
+| `docs/developer_workflow.md` | If it exists, add `docs/tutorial/` to the docs index list |
 
 ---
 
@@ -774,15 +778,12 @@ The tutorial system must be documented in the game's living docs so that players
 1. Update `scripts/screenshots/orchestrator.mjs` with tutorial actions (`assert_modal_locked`, `assert_tutorial_state`, `snapshot_localstorage`, `reload_page`)
 2. Update `scripts/screenshots/audit.mjs` with tutorial pass and expected screenshot list
 3. Run `tutorial_day1_full_flow` scenario and capture all 12 screenshots
-4. Create `docs/tutorial_system.md` — architecture overview
-5. Create `docs/tutorial_day1_flow.md` — player walkthrough with screenshots
-6. Create `docs/tutorial_registry.md` — developer reference for adding new tutorials
-7. Create `docs/tutorial_i18n.md` — translation guide and validation rules
-8. Update `README.md` with Tutorial section linking to player walkthrough
-9. Update `docs/screenshot_testing.md` with new tutorial scenarios
-10. Run `validateTutorialKeys()` test across all 5 languages; fix any missing keys
-11. Verify migration/backfill logic on old saves
-12. Run full screenshot suite and fix any visual regressions
+4. Create `docs/tutorial/tutorial_system.md` — concise system definition (state machine, persistence, spotlight, forced nav, modal lock, how to add a tutorial)
+5. Create `docs/tutorial/tutorial_points.md` — all tutorial flows: Day 1 (8 steps) and future templates (shop, tavern, etc.)
+6. Update `docs/shared/core/i18n.md` — add `tutorial_{id}_{step}_msg` to the key naming convention
+7. Run `validateTutorialKeys()` test across all 5 languages; fix any missing keys
+8. Verify migration/backfill logic on old saves
+9. Run full screenshot suite and fix any visual regressions
 
 ### Phase 5: Extensibility & Polish
 1. Add `TutorialRegistry` entries for future tutorials (shop, tavern, etc.) — can be commented out as templates
@@ -820,7 +821,7 @@ The tutorial system must be documented in the game's living docs so that players
 - [ ] Existing saves (Day > 1 or any expedition completed) never see the tutorial.
 - [ ] All tutorial text is translated in 5 languages. **Validation:** `validateTutorialKeys()` passes with zero missing keys and zero ghost keys.
 - [ ] Screenshot tests cover all 12 tutorial steps (including reload-resume and i18n roundtrip). **Validation:** `audit.mjs` tutorial pass reports all ✅.
-- [ ] Documentation is complete: `docs/tutorial_system.md`, `docs/tutorial_day1_flow.md`, `docs/tutorial_registry.md`, `docs/tutorial_i18n.md` are all written and `README.md` links to the player walkthrough. **Validation:** Docs are generated from passing screenshot artifacts, not manual captures.
+- [ ] Documentation is complete: `docs/tutorial/tutorial_system.md` (system definition) and `docs/tutorial/tutorial_points.md` (all flows) are written and follow the project's concise docs style.
 
 ---
 
