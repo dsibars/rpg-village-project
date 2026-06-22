@@ -1,18 +1,18 @@
-# Tutorial System — Day 1 Guided Flow
+# Tutorial System - Day 1 Guided Flow
 
 ## Overview
 
-A **declarative, state-machine-driven tutorial engine** that teaches new players through the first day of gameplay. The system uses **spotlight overlays** (darken everything except a target element), **forced navigation**, and **modal locking** to guide the user through critical actions. The tutorial state is **persistent per save slot** — reloading mid-tutorial restores exactly where the player left off. The architecture is **extensible** so future feature unlocks (shop, tavern, magic circle, etc.) can trigger additional tutorials with zero engine changes.
+A **declarative, state-machine-driven tutorial engine** that teaches new players through the first day of gameplay. The system uses **spotlight overlays** (darken everything except a target element), **forced navigation**, and **modal locking** to guide the user through critical actions. The tutorial state is **persistent per save slot** - reloading mid-tutorial restores exactly where the player left off. The architecture is **extensible** so future feature unlocks (shop, tavern, magic circle, etc.) can trigger additional tutorials with zero engine changes.
 
 ---
 
 ## Goals
 
 1. **Teach core mechanics** on Day 1: hero skills, stat assignment, expedition exploration, day advancement.
-2. **Be persistent** — save slot stores tutorial state; reload resumes at exact step.
-3. **Be non-intrusive when done** — completed tutorials never reappear.
-4. **Be extensible** — new tutorials are declarative definitions, no engine changes needed.
-5. **Be testable** — screenshot scripts can assert tutorial overlays, forced navigation, and step progression.
+2. **Be persistent** - save slot stores tutorial state; reload resumes at exact step.
+3. **Be non-intrusive when done** - completed tutorials never reappear.
+4. **Be extensible** - new tutorials are declarative definitions, no engine changes needed.
+5. **Be testable** - screenshot scripts can assert tutorial overlays, forced navigation, and step progression.
 
 ---
 
@@ -60,7 +60,7 @@ A **declarative, state-machine-driven tutorial engine** that teaches new players
 
 ---
 
-## 2. Tutorial Data Model — The Four Properties
+## 2. Tutorial Data Model - The Four Properties
 
 Every tutorial step has exactly four properties, mapping to your mental model:
 
@@ -92,10 +92,10 @@ Every tutorial step has exactly four properties, mapping to your mental model:
 
 | Property | Purpose | Resolves Via |
 |---|---|---|
-| `where` | **Navigation context** — where the user must be. The tutorial forces navigation here and prevents leaving. | `App.vue` `currentPage`, page-specific refs (`selectedHeroId`, `activeModal`, `currentTab`, `selectedRegion`) |
-| `what` | **Spotlight target** — which DOM element to highlight. Darkens everything else. | `data-tutorial-target` HTML5 attribute + `document.querySelector()` |
-| `messages` | **What to say** — array of i18n keys. Shown sequentially (click/tap to advance). | `TutorialOverlay` renders via `i18n.t()` |
-| `advanceOn` | **Step completion trigger** — what event causes this step to auto-advance to the next. Components emit events; `TutorialService` listens and advances. | `TutorialService.reportEvent(eventType, data)` |
+| `where` | **Navigation context** - where the user must be. The tutorial forces navigation here and prevents leaving. | `App.vue` `currentPage`, page-specific refs (`selectedHeroId`, `activeModal`, `currentTab`, `selectedRegion`) |
+| `what` | **Spotlight target** - which DOM element to highlight. Darkens everything else. | `data-tutorial-target` HTML5 attribute + `document.querySelector()` |
+| `messages` | **What to say** - array of i18n keys. Shown sequentially (click/tap to advance). | `TutorialOverlay` renders via `i18n.t()` |
+| `advanceOn` | **Step completion trigger** - what event causes this step to auto-advance to the next. Components emit events; `TutorialService` listens and advances. | `TutorialService.reportEvent(eventType, data)` |
 
 **`advanceOn` Event Examples:**
 
@@ -138,24 +138,24 @@ advanceOn: { event: 'day_advanced' }
 ```
 
 **Why Events Over Lambdas:**
-- **Explicit** — Components declare "I did something" rather than the tutorial polling state
-- **Decoupled** — Tutorial doesn't need to know engine internals; just listens for events
-- **Debuggable** — Events can be logged, traced, and replayed
-- **Testable** — Tests can emit events to drive tutorial progression
-- **Extensible** — New events can be added without changing `TutorialService` logic
+- **Explicit** - Components declare "I did something" rather than the tutorial polling state
+- **Decoupled** - Tutorial doesn't need to know engine internals; just listens for events
+- **Debuggable** - Events can be logged, traced, and replayed
+- **Testable** - Tests can emit events to drive tutorial progression
+- **Extensible** - New events can be added without changing `TutorialService` logic
 
 **Event Emission Pattern in Components:**
 ```js
-// HeroActionBar.vue — after skill is learned
+// HeroActionBar.vue - after skill is learned
 emit('tutorial:event', { event: 'skill_learned', heroId: props.hero.id, familyId });
 
-// HeroStatsGrid.vue — after stat is assigned
+// HeroStatsGrid.vue - after stat is assigned
 emit('tutorial:event', { event: 'stat_assigned', heroId: props.hero.id, statId });
 
-// ExploreTab.vue — after expedition starts
+// ExploreTab.vue - after expedition starts
 emit('tutorial:event', { event: 'expedition_started', nodeId: selectedNode.id });
 
-// TopBar.vue — after day advance
+// TopBar.vue - after day advance
 eventBus.emit('tutorial:event', { event: 'day_advanced', fromDay, toDay });
 ```
 
@@ -163,20 +163,20 @@ eventBus.emit('tutorial:event', { event: 'day_advanced', fromDay, toDay });
 ```js
 reportEvent(payload) {
   if (!this.state.activeTutorialId) return;
-  
+
   const tutorial = this.registry.get(this.state.activeTutorialId);
   const step = tutorial.steps[this.state.currentStepIndex];
-  
+
   if (!step.advanceOn) return;
-  
+
   // Match event type
   if (step.advanceOn.event !== payload.event) return;
-  
+
   // Match optional filters
   if (step.advanceOn.heroId && step.advanceOn.heroId !== payload.heroId) return;
   if (step.advanceOn.buildingId && step.advanceOn.buildingId !== payload.buildingId) return;
   if (step.advanceOn.nodeId && step.advanceOn.nodeId !== payload.nodeId) return;
-  
+
   // All conditions met → advance
   this.advance();
 }
@@ -299,7 +299,7 @@ function resolveTarget(targetId) {
 
 ## 4. Engine Changes
 
-### 4.1 TutorialService.js — State Machine
+### 4.1 TutorialService.js - State Machine
 
 ```js
 export class TutorialService {
@@ -323,7 +323,7 @@ export class TutorialService {
   start(tutorialId, force = false, fromChain = false) {
     if (this.state.completedTutorialIds.includes(tutorialId) && !force) return false;
     if (this.state.activeTutorialId) return false; // one at a time
-    
+
     this.state = {
       ...this.state,
       activeTutorialId: tutorialId,
@@ -338,12 +338,12 @@ export class TutorialService {
     if (!this.state.activeTutorialId) return false;
     const tutorial = this.registry.get(this.state.activeTutorialId);
     const nextIndex = this.state.currentStepIndex + 1;
-    
+
     if (nextIndex >= tutorial.steps.length) {
       this._complete();
       return true;
     }
-    
+
     this.state = {
       ...this.state,
       currentStepIndex: nextIndex,
@@ -368,7 +368,7 @@ export class TutorialService {
 
   evaluateTriggers(gameState) {
     if (this.state.activeTutorialId) return false; // one at a time, queue instead
-    
+
     for (const [id, tutorial] of this.registry.entries()) {
       if (this.state.completedTutorialIds.includes(id)) continue;
       if (this._checkTrigger(tutorial.trigger, gameState)) {
@@ -426,19 +426,19 @@ export class TutorialService {
 
   reportEvent(payload) {
     if (!this.state.activeTutorialId) return false;
-    
+
     const tutorial = this.registry.get(this.state.activeTutorialId);
     const step = tutorial.steps[this.state.currentStepIndex];
-    
+
     if (!step.advanceOn) return false;
     if (step.advanceOn.event !== payload.event) return false;
-    
+
     // Match optional filters
     if (step.advanceOn.heroId && step.advanceOn.heroId !== payload.heroId) return false;
     if (step.advanceOn.buildingId && step.advanceOn.buildingId !== payload.buildingId) return false;
     if (step.advanceOn.nodeId && step.advanceOn.nodeId !== payload.nodeId) return false;
     if (step.advanceOn.statId && step.advanceOn.statId !== payload.statId) return false;
-    
+
     // All conditions met → advance
     return this.advance(payload);
   }
@@ -494,12 +494,12 @@ export class TutorialService {
 ```
 
 **Key Design Decisions:**
-- **One tutorial at a time** — prevents overlapping guides. Queuing can be added later if needed.
-- **`stepData`** — allows steps to pass context forward (e.g. "which hero was selected").
-- **`allowActions`** — whitelist of engine actions permitted during the step (e.g. only `learnHeroFamily` is allowed while skill modal is locked).
-- **Slot-aware persistence** — reuses the same `Persistence.js` slot prefix pattern already established.
+- **One tutorial at a time** - prevents overlapping guides. Queuing can be added later if needed.
+- **`stepData`** - allows steps to pass context forward (e.g. "which hero was selected").
+- **`allowActions`** - whitelist of engine actions permitted during the step (e.g. only `learnHeroFamily` is allowed while skill modal is locked).
+- **Slot-aware persistence** - reuses the same `Persistence.js` slot prefix pattern already established.
 
-### 4.2 TutorialRegistry.js — Declarative Definitions
+### 4.2 TutorialRegistry.js - Declarative Definitions
 
 ```js
 export const TutorialRegistry = new Map([
@@ -650,7 +650,7 @@ export const TutorialRegistry = new Map([
 
 ### 4.3 GameEngine.js Integration
 
-**Constructor:** Add `this.tutorialService = new TutorialService({ persistence, slotIndex: this.slotIndex })` after other services. Note: `slotIndex` needs to be set on `GameEngine` — currently it lives on `Persistence.js` as a static. We should pass it explicitly or read it from `Persistence.getSlotIndex()`.
+**Constructor:** Add `this.tutorialService = new TutorialService({ persistence, slotIndex: this.slotIndex })` after other services. Note: `slotIndex` needs to be set on `GameEngine` - currently it lives on `Persistence.js` as a static. We should pass it explicitly or read it from `Persistence.getSlotIndex()`.
 
 **`initialize()`:** After all services load, call `this.tutorialService.evaluateTriggers(this.update())` to check if any tutorial should auto-start (e.g. Day 1 chain on new game, or feature-unlock tutorials for existing saves). On reload (not new game), if tutorial state says `activeTutorialId` is set, it auto-resumes.
 
@@ -675,19 +675,19 @@ reportTutorialEvent(payload) {
 }
 ```
 
-**Book Closure Event:** `BookPage.vue` emits `book-first-closed` on Day 1. `App.vue` dispatches `recordEvent({ type: 'book_first_closed', day: 1 })` to the engine. The engine calls `this.tutorialService.evaluateTriggers(this.update())` which checks the trigger `{ type: 'event', event: 'book_first_closed', day: 1 }` and starts `tutorial_hero_skills` (the first in the Day 1 chain). This decouples the book from the tutorial system — the book just records an event; the trigger system decides what to do with it.
+**Book Closure Event:** `BookPage.vue` emits `book-first-closed` on Day 1. `App.vue` dispatches `recordEvent({ type: 'book_first_closed', day: 1 })` to the engine. The engine calls `this.tutorialService.evaluateTriggers(this.update())` which checks the trigger `{ type: 'event', event: 'book_first_closed', day: 1 }` and starts `tutorial_hero_skills` (the first in the Day 1 chain). This decouples the book from the tutorial system - the book just records an event; the trigger system decides what to do with it.
 
 **Step Completion Events:** Components emit events via `emit('tutorial:event', payload)`. `App.vue` catches these and dispatches `reportTutorialEvent(payload)` to the engine, which forwards to `TutorialService.reportEvent()`. If the current step's `advanceOn` matches the event, the step auto-advances.
 
 ---
 
-## 5. Presentation (Vue) Changes — Synthetic Click Architecture
+## 5. Presentation (Vue) Changes - Synthetic Click Architecture
 
 ### 5.1 Core Principle: Zero Page Refactoring
 
 Pages like `HeroesPage` and `ExploreTab` keep selection state in **local refs** (`selectedHeroId`, `selectedRegion`, etc.). Instead of refactoring every page to accept tutorial control, the system uses **synthetic DOM clicks** on `data-tutorial-target` elements. This works because all target elements are already clickable buttons/cards with existing `@click` handlers.
 
-### 5.2 `where` Resolution — `enforceWhere()` Algorithm
+### 5.2 `where` Resolution - `enforceWhere()` Algorithm
 
 ```js
 async function enforceWhere(where) {
@@ -698,7 +698,7 @@ async function enforceWhere(where) {
     await nextTick();
     await delay(150); // Wait for page transition + render
   }
-  
+
   // 2. Select tab (AdventurePage, TownPage, etc.)
   if (where.tab) {
     const tabBtn = document.querySelector(`[data-tutorial-target="tab_${where.tab}"]`);
@@ -708,27 +708,27 @@ async function enforceWhere(where) {
       await delay(100);
     }
   }
-  
-  // 3. Select hero — synthetic click on hero card
+
+  // 3. Select hero - synthetic click on hero card
   if (where.heroId) {
     await clickTarget(`hero_card_${where.heroId}`);
   }
-  
-  // 4. Open modal — synthetic click on action button
+
+  // 4. Open modal - synthetic click on action button
   if (where.modal) {
     await clickTarget(`hero_action_${where.modal}`);
   }
-  
+
   // 5. Select region
   if (where.regionId) {
     await clickTarget(`region_card_${where.regionId}`);
   }
-  
+
   // 6. Select expedition node
   if (where.expeditionId) {
     await clickTarget(`expedition_node_${where.expeditionId}`);
   }
-  
+
   // 7. Navigate to building
   if (where.buildingId) {
     await clickTarget(`building_${where.buildingId}`);
@@ -761,7 +761,7 @@ async function clickTarget(targetId, maxRetries = 5) {
 - `ExploreTab` region items call `selectRegion(regionId)`
 - `ExploreTab` tree nodes call `handleNodeClick(node)`
 - `VillageCanvas` emits `navigate(tile.id)`
-- All via existing click handlers — **zero page logic changes**
+- All via existing click handlers - **zero page logic changes**
 
 ---
 
@@ -792,19 +792,19 @@ The `what.target` value maps 1:1 to a `data-tutorial-target` attribute. Each att
 
 ---
 
-### 5.4 TutorialOverlay.vue — Root Component
+### 5.4 TutorialOverlay.vue - Root Component
 
 ```vue
 <template>
   <Teleport to="body">
     <div v-if="active" class="tutorial-overlay">
-      <!-- Spotlight hole — transparent with massive box-shadow -->
+      <!-- Spotlight hole - transparent with massive box-shadow -->
       <div
         v-if="spotlight && !darkeningDismissed"
         class="spotlight-hole"
         :style="spotlightStyle"
       />
-      
+
       <!-- Message bubble -->
       <TutorialMessage
         :messages="currentMessages"
@@ -812,7 +812,7 @@ The `what.target` value maps 1:1 to a `data-tutorial-target` attribute. Each att
         :position="messagePosition"
         @advance="advanceMessage"
       />
-      
+
       <!-- Click capture layer -->
       <div class="click-capture" @click="handleOverlayClick" />
     </div>
@@ -931,7 +931,7 @@ function handleOverlayClick() {
 ```
 
 ```vue
-<!-- FooterNav.vue — add locked-tabs prop -->
+<!-- FooterNav.vue - add locked-tabs prop -->
 <script setup>
 const props = defineProps({
   current: { type: String, required: true },
@@ -943,7 +943,7 @@ const props = defineProps({
 
 **Modal Locking:**
 ```vue
-<!-- ModalFrame.vue — add tutorialLocked prop -->
+<!-- ModalFrame.vue - add tutorialLocked prop -->
 <script setup>
 const props = defineProps({
   title: { type: String, default: '' },
@@ -965,13 +965,13 @@ The `TutorialOverlay` captures all clicks. The spotlight hole has `pointer-event
 
 ---
 
-### 5.6 useTutorial.js — Composable
+### 5.6 useTutorial.js - Composable
 
 ```js
 export function useTutorial() {
   const { gameState } = useGameState();
   const tutorial = computed(() => gameState.value?.tutorial || null);
-  
+
   const isActive = computed(() => !!tutorial.value);
   const lockedTabs = computed(() => {
     if (!isActive.value) return [];
@@ -981,22 +981,22 @@ export function useTutorial() {
     const allowed = [where?.page].filter(Boolean);
     return allTabs.filter(t => !allowed.includes(t));
   });
-  
+
   const allowedActions = computed(() => tutorial.value?.allowActions || []);
-  
+
   // Navigation guard
   function canNavigate(tabId) {
     if (!isActive.value) return true;
     return !lockedTabs.value.includes(tabId);
   }
-  
-  // Action guard — checked in EngineAdapter.dispatch()
+
+  // Action guard - checked in EngineAdapter.dispatch()
   function canDispatch(actionKey) {
     if (!isActive.value) return true;
     if (allowedActions.value.length === 0) return true;
     return allowedActions.value.includes(actionKey);
   }
-  
+
   return {
     isActive,
     lockedTabs,
@@ -1011,7 +1011,7 @@ export function useTutorial() {
 
 ---
 
-## 6. Component-by-Component Wiring — `data-tutorial-target` Only
+## 6. Component-by-Component Wiring - `data-tutorial-target` Only
 
 The only changes needed in existing components are **adding `data-tutorial-target` attributes**. No event emitters, no ref exposure, no tutorial logic.
 
@@ -1068,7 +1068,7 @@ The only changes needed in existing components are **adding `data-tutorial-targe
 </div>
 ```
 
-### ExploreTab.vue — Region List
+### ExploreTab.vue - Region List
 ```vue
 <div
   v-for="[regionId, regionData] in regionEntries"
@@ -1078,7 +1078,7 @@ The only changes needed in existing components are **adding `data-tutorial-targe
 >
 ```
 
-### ExploreTab.vue — Tree Nodes
+### ExploreTab.vue - Tree Nodes
 ```vue
 <div
   v-for="node in levelNodes"
@@ -1147,9 +1147,9 @@ export const tutorial_en = {
 
 ## 8. Test Plan
 
-### 8.1 Screenshot Test Scripts — Tutorial Orchestrator Scenarios
+### 8.1 Screenshot Test Scripts - Tutorial Orchestrator Scenarios
 
-The existing screenshot orchestrator (`scripts/screenshots/orchestrator.mjs`) must be extended to **drive the tutorial visually and assert overlays at each step**. This is not just "add a test" — the orchestrator itself needs new capabilities to detect tutorial state from the rendered DOM.
+The existing screenshot orchestrator (`scripts/screenshots/orchestrator.mjs`) must be extended to **drive the tutorial visually and assert overlays at each step**. This is not just "add a test" - the orchestrator itself needs new capabilities to detect tutorial state from the rendered DOM.
 
 #### New Orchestrator Capabilities Required
 
@@ -1233,18 +1233,18 @@ Add these scenarios to the orchestrator's scenario list. Each step produces a na
 
 ### 8.2 Unit Tests (Engine)
 
-- `TutorialService.start()` — starts only if not completed, only one at a time
-- `TutorialService.advance()` — progresses through steps, completes at end
-- `TutorialService.skip()` — marks as completed, clears active
-- `TutorialService.getState()` — returns correct `where`/`what`/`messages`/`advanceOn` for current step
+- `TutorialService.start()` - starts only if not completed, only one at a time
+- `TutorialService.advance()` - progresses through steps, completes at end
+- `TutorialService.skip()` - marks as completed, clears active
+- `TutorialService.getState()` - returns correct `where`/`what`/`messages`/`advanceOn` for current step
 - Persistence round-trip: save → reload → state restored exactly
 
 ### 8.3 Unit Tests (Vue)
 
-- `useTutorial.canNavigate()` — allows forced nav, blocks locked tabs
-- `useTutorial.canDispatch()` — allows whitelisted actions, blocks others
-- `TutorialSpotlight.vue` — computes correct bounds for target elements
-- `TutorialOverlay.vue` — dismisses darkening on click but keeps tutorial active
+- `useTutorial.canNavigate()` - allows forced nav, blocks locked tabs
+- `useTutorial.canDispatch()` - allows whitelisted actions, blocks others
+- `TutorialSpotlight.vue` - computes correct bounds for target elements
+- `TutorialOverlay.vue` - dismisses darkening on click but keeps tutorial active
 
 ---
 
@@ -1320,43 +1320,43 @@ The tutorial system is documented in `docs/tutorial/` following the project's es
 1. Create `TutorialTypes.js`
 2. Create `TutorialRegistry.js` with Day 1 definition
 3. Create `TutorialService.js` with state machine + persistence
-4. Create `TutorialValidator.js` (can be stubbed for now — validators run in presentation layer)
+4. Create `TutorialValidator.js` (can be stubbed for now - validators run in presentation layer)
 5. Modify `GameEngine.js`: instantiate service, expose in `update()`, add facade methods
 6. Add i18n keys for all 5 languages
-7. **Test:** Unit tests for `TutorialService` — start, advance, skip, persistence round-trip
+7. **Test:** Unit tests for `TutorialService` - start, advance, skip, persistence round-trip
 
 ### Phase 2: Presentation Overlay
-1. Create `TutorialSpotlight.vue` — CSS hole effect
-2. Create `TutorialOverlay.vue` — root component with Teleport
-3. Create `useTutorial.js` composable — reactive state, navigation guards, action guards
-4. Modify `App.vue` — mount `TutorialOverlay`, wire footer nav locking
-5. Modify `FooterNav.vue` — accept `lockedTabs`, disable locked tabs
-6. Modify `ModalFrame.vue` — accept `tutorialLocked`, suppress close
+1. Create `TutorialSpotlight.vue` - CSS hole effect
+2. Create `TutorialOverlay.vue` - root component with Teleport
+3. Create `useTutorial.js` composable - reactive state, navigation guards, action guards
+4. Modify `App.vue` - mount `TutorialOverlay`, wire footer nav locking
+5. Modify `FooterNav.vue` - accept `lockedTabs`, disable locked tabs
+6. Modify `ModalFrame.vue` - accept `tutorialLocked`, suppress close
 7. **Test:** Screenshot tests for each spotlight step
 
 ### Phase 3: Component Wiring (Day 1 Flow)
-1. Modify `BookPage.vue` — emit `book-first-closed` on Day 1
-2. Modify `App.vue` — catch `book-first-closed`, dispatch `recordEvent({ type: 'book_first_closed', day: 1 })` to trigger the tutorial chain via `evaluateTriggers()`
-3. Modify `HeroesPage.vue` — force-select Arthur, lock tabs, detect skill/stat completion
-4. Modify `HeroActionBar.vue` — emit `skill-learned` event
-5. Modify `HeroStatsGrid.vue` — emit `stat-assigned` event
-6. Modify `ExploreTab.vue` — force region/expedition selection
-7. Modify `ExpeditionNode.vue` — emit `expedition-started` event
+1. Modify `BookPage.vue` - emit `book-first-closed` on Day 1
+2. Modify `App.vue` - catch `book-first-closed`, dispatch `recordEvent({ type: 'book_first_closed', day: 1 })` to trigger the tutorial chain via `evaluateTriggers()`
+3. Modify `HeroesPage.vue` - force-select Arthur, lock tabs, detect skill/stat completion
+4. Modify `HeroActionBar.vue` - emit `skill-learned` event
+5. Modify `HeroStatsGrid.vue` - emit `stat-assigned` event
+6. Modify `ExploreTab.vue` - force region/expedition selection
+7. Modify `ExpeditionNode.vue` - emit `expedition-started` event
 8. **Test:** Full screenshot flow `tutorial_day1_chain_full_flow`
 
 ### Phase 4: Documentation & Screenshot Integration
 1. Update `scripts/screenshots/orchestrator.mjs` with tutorial actions (`assert_modal_locked`, `assert_tutorial_state`, `snapshot_localstorage`, `reload_page`)
 2. Update `scripts/screenshots/audit.mjs` with tutorial pass and expected screenshot list
 3. Run `tutorial_day1_chain_full_flow` scenario and capture all 13 screenshots
-4. Create `docs/tutorial/tutorial_system.md` — concise system definition (state machine, persistence, spotlight, forced nav, modal lock, how to add a tutorial)
-5. Create `docs/tutorial/tutorial_points.md` — all tutorial flows: Day 1 chain (10 steps across 4 tutorials) and future templates (gambits, magic circle, shop, tavern, etc.)
-6. Update `docs/shared/core/i18n.md` — add `tutorial_{id}_{step}_msg` to the key naming convention
+4. Create `docs/tutorial/tutorial_system.md` - concise system definition (state machine, persistence, spotlight, forced nav, modal lock, how to add a tutorial)
+5. Create `docs/tutorial/tutorial_points.md` - all tutorial flows: Day 1 chain (10 steps across 4 tutorials) and future templates (gambits, magic circle, shop, tavern, etc.)
+6. Update `docs/shared/core/i18n.md` - add `tutorial_{id}_{step}_msg` to the key naming convention
 7. Run `validateTutorialKeys()` test across all 5 languages; fix any missing keys
 8. Verify migration/backfill logic on old saves
 9. Run full screenshot suite and fix any visual regressions
 
 ### Phase 5: Extensibility & Polish
-1. Add `TutorialRegistry` entries for future tutorials (shop, tavern, etc.) — can be commented out as templates
+1. Add `TutorialRegistry` entries for future tutorials (shop, tavern, etc.) - can be commented out as templates
 2. Add skip gesture for testing (triple-click message)
 3. Add subtle "shake" animation on locked tabs when user tries to click them
 4. Final acceptance criteria sign-off
@@ -1396,7 +1396,125 @@ The tutorial system is documented in `docs/tutorial/` following the project's es
 
 ---
 
-**Plan written by:** Clawdio (Architect Mode)  
-**Branch:** `dev_workflow` (`.dev_workflow/implementation_plans/4_tutorial.md`)  
-**Date:** 2026-06-23  
+**Plan written by:** Clawdio (Architect Mode)
+**Branch:** `dev_workflow` (`.dev_workflow/implementation_plans/4_tutorial.md`)
+---
+
+## 13. Pickable Implementation Steps (36 Steps)
+
+Each step is a **single commit**, independently reviewable, and produces a working increment. The tutorial system has **engine → presentation → wiring → integration → testing → polish** phases.
+
+### Phase 1: Engine Foundation (Steps 1-7)
+
+| Step | Name | What | Files | Estimated Time |
+|------|------|------|-------|---------------|
+| 1 | **TutorialTypes.js** | JSDoc type definitions for all tutorial data structures (zero runtime cost) | `js/engine/tutorial/TutorialTypes.js` | 10 min |
+| 2 | **TutorialRegistry.js — Day 1 Chain** | Declarative definitions: 4 tutorials, 10 steps, trigger conditions, nextTutorialId chain | `js/engine/tutorial/TutorialRegistry.js` | 20 min |
+| 3 | **TutorialService.js — Core State Machine** | State machine: start, advance, skip, evaluateTriggers, reportEvent, persistence | `js/engine/tutorial/TutorialService.js` | 30 min |
+| 4 | **TutorialValidator.js** | Validates advanceOn events match known types, validates data-tutorial-target IDs | `js/engine/tutorial/TutorialValidator.js` | 15 min |
+| 5 | **GameEngine.js Integration** | Instantiate service, add update() integration, facade methods (startTutorial, skipTutorial, reportTutorialEvent, advanceTutorial) | `js/engine/GameEngine.js` | 20 min |
+| 6 | **i18n Keys — 5 Languages** | Add all tutorial message keys to EN, ES, CA, GL, EU translation files | `js/engine/shared/core/i18n/translations/tutorial_*.js` | 25 min |
+| 7 | **Engine Unit Tests** | Test TutorialService: start, advance, skip, getState, persistence round-trip, event matching | `tests/unit/tutorial/TutorialService.test.js` | 20 min |
+
+### Phase 2: Presentation Foundation (Steps 8-14)
+
+| Step | Name | What | Files | Estimated Time |
+|------|------|------|-------|---------------|
+| 8 | **TutorialSpotlight.vue** | CSS box-shadow spotlight effect with flash animation | `ux/core/components/TutorialSpotlight.vue` | 15 min |
+| 9 | **TutorialMessage.vue** | Message bubble component with sequential advancement | `ux/core/components/TutorialMessage.vue` | 15 min |
+| 10 | **TutorialOverlay.vue** | Root component: Teleport to body, darkening dismissal, message sequencing, spotlight integration | `ux/core/components/TutorialOverlay.vue` | 25 min |
+| 11 | **useTutorial.js Composable** | Reactive tutorial state, navigation guards (canNavigate), action guards (canDispatch), lockedTabs computation | `ux/core/composables/useTutorial.js` | 20 min |
+| 12 | **App.vue — Mount Overlay** | Mount TutorialOverlay at root, pass tutorial state, wire footer nav locking via lockedTabs | `ux/App.vue` | 15 min |
+| 13 | **FooterNav.vue — Locked Tabs** | Accept lockedTabs prop, disable/visually indicate locked tabs | `ux/components/FooterNav.vue` | 10 min |
+| 14 | **ModalFrame.vue — Tutorial Lock** | Accept tutorialLocked prop, suppress Escape and overlay click closing | `ux/components/ModalFrame.vue` | 10 min |
+
+### Phase 3: Component Wiring (Steps 15-23)
+
+Each step adds `data-tutorial-target` attributes and/or emits `tutorial:event`. Every change is **one line** per target.
+
+| Step | Name | What | Files | Estimated Time |
+|------|------|------|-------|---------------|
+| 15 | **TopBar.vue — Day Advance Target** | Add `data-tutorial-target="day_advance_button"` | `ux/components/TopBar.vue` | 5 min |
+| 16 | **FooterNav.vue — Nav Targets** | Add `:data-tutorial-target="'footer_nav_' + item.id"` to each nav button | `ux/components/FooterNav.vue` | 5 min |
+| 17 | **TabNav.vue — Tab Targets** | Add `:data-tutorial-target="'tab_' + tab.id"` to each tab button | `ux/components/TabNav.vue` | 5 min |
+| 18 | **HeroListItem.vue — Hero Card Target** | Add `:data-tutorial-target="'hero_card_' + hero.id"` | `ux/features/heroes/components/HeroListItem.vue` | 5 min |
+| 19 | **HeroActionBar.vue — Action Targets + Event** | Add `:data-tutorial-target="'hero_action_' + action.id"`, emit `tutorial:event` on skill learned | `ux/features/heroes/components/HeroActionBar.vue` | 10 min |
+| 20 | **HeroStatsGrid.vue — Stat Targets + Event** | Add `data-tutorial-target="hero_stats_grid"`, `:data-tutorial-target="'hero_stat_assign_' + stat.key"`, emit `tutorial:event` on stat assigned | `ux/features/heroes/components/HeroStatsGrid.vue` | 10 min |
+| 21 | **ExploreTab.vue — Region + Node Targets** | Add `:data-tutorial-target="'region_card_' + regionId"`, `:data-tutorial-target="'expedition_node_' + node.id"` | `ux/features/adventure/components/ExploreTab.vue` | 10 min |
+| 22 | **VillageCanvas.vue — Building Targets** | Add `:data-tutorial-target="'building_' + tile.id"` to building buttons | `ux/features/village/components/VillageCanvas.vue` | 5 min |
+| 23 | **BookPage.vue — First Close Event** | Track `hasBeenClosed`, emit `book-first-closed` on Day 1 first closure | `ux/features/book/BookPage.vue` | 15 min |
+
+### Phase 4: Day 1 Flow Integration (Steps 24-27)
+
+| Step | Name | What | Files | Estimated Time |
+|------|------|------|-------|---------------|
+| 24 | **App.vue — Book Closure Wiring** | Catch `book-first-closed`, dispatch `recordEvent({ type: 'book_first_closed', day: 1 })`, evaluateTriggers | `ux/App.vue` | 15 min |
+| 25 | **App.vue — Event Routing** | Wire component `tutorial:event` emits → `reportTutorialEvent()` → `TutorialService.reportEvent()` | `ux/App.vue` | 15 min |
+| 26 | **HeroesPage.vue — Tutorial Enforcement** | Force-select Arthur when tutorial requires it, expose selectedHeroId/activeModal to gameState.ui | `ux/features/heroes/HeroesPage.vue` | 15 min |
+| 27 | **Migration/Backfill Logic** | In `GameEngine.initialize()`: mark Day 1 tutorials complete for existing saves (day > 1 or expedition completed) | `js/engine/GameEngine.js` | 15 min |
+
+### Phase 5: Testing & Documentation (Steps 28-33)
+
+| Step | Name | What | Files | Estimated Time |
+|------|------|------|-------|---------------|
+| 28 | **Screenshot Orchestrator — Tutorial Actions** | Add `assertTutorialOverlayVisible`, `assertSpotlightTarget`, `assertMessageText`, `assertModalLocked`, `assertTabLocked`, `snapshotLocalStorage`, `reloadPage` | `scripts/screenshots/orchestrator.mjs` | 25 min |
+| 29 | **Screenshot Audit — Tutorial Pass** | Add tutorial pass to audit pipeline, import expected screenshots list | `scripts/screenshots/audit.mjs` | 15 min |
+| 30 | **Screenshot Tests — Full Day 1 Chain** | Run `tutorial_day1_chain_full_flow` scenario, capture all 13 screenshots | `scripts/screenshots/` | 30 min |
+| 31 | **i18n Validation Test** | `validateTutorialKeys()` — assert every registry key exists in all 5 languages, no ghost keys | `tests/unit/tutorial/TutorialI18n.test.js` | 15 min |
+| 32 | **Vue Unit Tests** | `useTutorial.canNavigate()`, `useTutorial.canDispatch()`, `TutorialSpotlight.vue` bounds, `TutorialOverlay.vue` dismissal | `tests/vue/tutorial/` | 20 min |
+| 33 | **Documentation** | `docs/tutorial/tutorial_system.md` (system definition), `docs/tutorial/tutorial_points.md` (all flows) | `docs/tutorial/` | 20 min |
+
+### Phase 6: Polish & Extensibility (Steps 34-36)
+
+| Step | Name | What | Files | Estimated Time |
+|------|------|------|-------|---------------|
+| 34 | **Skip Gesture** | Triple-click message to skip current tutorial (for testing) | `TutorialOverlay.vue` | 10 min |
+| 35 | **Shake Animation** | Subtle shake on locked tabs when user tries to click them | `FooterNav.vue` | 10 min |
+| 36 | **Future Tutorial Templates** | Add commented-out registry entries for gambits, magic circle, shop, tavern | `js/engine/tutorial/TutorialRegistry.js` | 10 min |
+
+**Total:** ~36 steps, ~8-10 sessions of work
+
+### Step Dependency Graph
+
+```
+Phase 1 (Engine):      1 → 2 → 3 → 4 → 5 → 6 → 7 (sequential)
+Phase 2 (Presentation): 8 → 9 → 10 → 11 → 12 → 13 → 14 (sequential, depends on 3)
+Phase 3 (Wiring):      15-23 (parallel, each depends on 12)
+Phase 4 (Integration): 24-27 (sequential, depends on 23 and 5)
+Phase 5 (Testing):     28-33 (parallel, depends on 27)
+Phase 6 (Polish):      34-36 (parallel, depends on 27)
+```
+
+### Definition of Done per Step
+
+Each step must:
+1. **Compile** — `npm run build` passes with no errors
+2. **Test** — at least one test passes (new or existing)
+3. **Commit** — single commit with descriptive message
+4. **No regressions** — existing screenshot tests still pass
+
+### Status Tracking
+
+Create `tasks/active/tutorial/STATUS.md`:
+
+```markdown
+# Tutorial System — Implementation Status
+
+## Current Step
+Step X: [Name]
+
+## Completed
+- Step 1: TutorialTypes.js ✅
+- ...
+
+## Blockers
+None / [describe if any]
+```
+
+The cron agent reads this file, implements the current step, updates it, and moves to the next.
+
+---
+
+**Plan written by:** Clawdio (Architect Mode)
+**Date:** 2026-06-23
 **Status:** Ready for implementation
