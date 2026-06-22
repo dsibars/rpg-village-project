@@ -58,7 +58,7 @@
 ## Image 4: `assets/story/village_farm_dawn.webp`
 **Scene:** The first farm at dawn. Simple rows of crops, a wooden fence, a small figure working in the field. Peaceful, hopeful, the first food source.
 **Prompt:** A small farm with rows of young crops, simple wooden fence, one tiny figure working with a hoe, peaceful morning atmosphere. Medieval manuscript ink drawing, black strokes only, transparent background, sketchy rough linework, small human figures, village scribe style.
-**Status:** pending
+**Status:** generated
 
 ---
 
@@ -282,9 +282,9 @@
 ## Overall Status
 
 **Total Images:** 35
-**Generated:** 3
-**Pending:** 32
-**Next to generate:** Image 4 (`village_farm_dawn.webp`)
+**Generated:** 4
+**Pending:** 31
+**Next to generate:** Image 5 (`village_tavern_dusk.webp`)
 
 ---
 
