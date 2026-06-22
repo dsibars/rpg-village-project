@@ -65,7 +65,7 @@ A **declarative, state-machine-driven tutorial engine** that teaches new players
 | File | Purpose |
 |------|---------|
 | `js/engine/tutorial/TutorialService.js` | Core engine service: state machine, step progression, persistence |
-| `js/engine/tutorial/TutorialRegistry.js` | Declarative tutorial definitions (Day 1 flow + extensible slots) |
+| `js/engine/tutorial/TutorialRegistry.js` | Declarative tutorial definitions. Day 1 chain (4 tutorials) + future feature-unlock templates (gambits, magic circle, etc.) |
 | `js/engine/tutorial/TutorialValidator.js` | Step completion validators (checks if user performed required action) |
 | `js/engine/tutorial/TutorialTypes.js` | JSDoc types for tutorial definitions (zero runtime cost) |
 | `ux/core/composables/useTutorial.js` | Vue composable: reactive tutorial state, spotlight helpers, navigation guards |
@@ -114,14 +114,14 @@ export class TutorialService {
   /**
    * State shape:
    * {
-   *   activeTutorialId: string | null,   // e.g. 'tutorial_day1'
+   *   activeTutorialId: string | null,   // e.g. 'tutorial_hero_skills'
    *   currentStepIndex: number,            // 0-based within active tutorial
    *   completedTutorialIds: string[],      // tutorials fully completed
    *   stepData: Record<string, any>        // arbitrary per-step data
    * }
    */
 
-  start(tutorialId, force = false) {
+  start(tutorialId, force = false, fromChain = false) {
     if (this.state.completedTutorialIds.includes(tutorialId) && !force) return false;
     if (this.state.activeTutorialId) return false; // one at a time
     
@@ -156,12 +156,73 @@ export class TutorialService {
 
   skip() {
     if (!this.state.activeTutorialId) return false;
-    this.state.completedTutorialIds.push(this.state.activeTutorialId);
+    const completedId = this.state.activeTutorialId;
+    this.state.completedTutorialIds.push(completedId);
     this.state.activeTutorialId = null;
     this.state.currentStepIndex = 0;
     this.state.stepData = {};
     this._save();
+    // Chain: skip still triggers next tutorial if defined
+    this._startNextTutorial(completedId);
     return true;
+  }
+
+  evaluateTriggers(gameState) {
+    if (this.state.activeTutorialId) return false; // one at a time, queue instead
+    
+    for (const [id, tutorial] of this.registry.entries()) {
+      if (this.state.completedTutorialIds.includes(id)) continue;
+      if (this._checkTrigger(tutorial.trigger, gameState)) {
+        return this.start(id, false, false);
+      }
+    }
+    return false;
+  }
+
+  _checkTrigger(tutorial, gameState) {
+    // Prerequisites must all be completed before this tutorial can trigger
+    const prereqs = tutorial.prerequisites || [];
+    const prereqsMet = prereqs.every(id => this.state.completedTutorialIds.includes(id));
+    if (!prereqsMet) return false;
+
+    const trigger = tutorial.trigger;
+    switch (trigger.type) {
+      case 'new_game':
+        return gameState.isNewGame === true;
+      case 'event':
+        return gameState.lastEvent?.type === trigger.event &&
+               (trigger.day === undefined || gameState.village?.day === trigger.day);
+      case 'feature_unlocked':
+        return gameState.unlockedFeatures?.includes(trigger.feature);
+      case 'building_built':
+        const level = gameState.village?.infrastructure?.[trigger.buildingId] || 0;
+        return level >= (trigger.minLevel || 1);
+      case 'hero_level':
+        const hero = gameState.heroes?.find(h => h.id === trigger.heroId);
+        return hero && hero.level >= (trigger.minLevel || 1);
+      default:
+        return false;
+    }
+  }
+
+  _complete() {
+    const completedId = this.state.activeTutorialId;
+    if (completedId) {
+      this.state.completedTutorialIds.push(completedId);
+    }
+    this.state.activeTutorialId = null;
+    this.state.currentStepIndex = 0;
+    this.state.stepData = {};
+    this._save();
+    // Chain: start next tutorial immediately
+    this._startNextTutorial(completedId);
+  }
+
+  _startNextTutorial(completedId) {
+    const tutorial = this.registry.get(completedId);
+    if (tutorial?.nextTutorialId) {
+      this.start(tutorial.nextTutorialId, false, true);
+    }
   }
 
   getState() {
@@ -226,64 +287,107 @@ export class TutorialService {
 
 ```js
 export const TutorialRegistry = new Map([
-  ['tutorial_day1', {
-    id: 'tutorial_day1',
-    trigger: { type: 'event', event: 'book_first_closed', day: 1 },
+  // ── Day 1 Chain ──
+  ['tutorial_hero_skills', {
+    id: 'tutorial_hero_skills',
+    trigger: { type: 'new_game' },
+    prerequisites: [],
     steps: [
       {
-        id: 'day1_navigate_heroes',
-        message: 'tutorial_day1_msg_heroes_tab',
+        id: 'navigate_heroes',
+        message: 'tutorial_hero_skills_msg_navigate_heroes',
         spotlight: { target: 'footer_nav_tab', tabId: 'heroes', flash: true },
         forcedNav: { tab: 'heroes' },
         preventNav: ['village', 'adventure', 'town'],
         completionEvent: 'tab_changed_heroes'
       },
       {
-        id: 'day1_select_arthur',
-        message: 'tutorial_day1_msg_select_arthur',
+        id: 'select_arthur',
+        message: 'tutorial_hero_skills_msg_select_arthur',
         spotlight: { target: 'hero_card', heroId: 'arthur', flash: true },
         forcedNav: { tab: 'heroes', heroId: 'arthur' },
         preventNav: ['village', 'adventure', 'town'],
         completionEvent: 'hero_selected_arthur'
       },
       {
-        id: 'day1_learn_skill',
-        message: 'tutorial_day1_msg_learn_skill',
+        id: 'learn_skill',
+        message: 'tutorial_hero_skills_msg_learn_skill',
         spotlight: { target: 'hero_action_learn_skill', heroId: 'arthur', flash: true },
         forcedNav: { tab: 'heroes', heroId: 'arthur', modal: 'learn_skill' },
         preventNav: ['village', 'adventure', 'town'],
         modalLock: { modal: 'learn_skill', untilEvent: 'skill_learned' },
         allowActions: ['learnHeroFamily'],
         completionEvent: 'skill_learned_arthur'
-      },
+      }
+    ],
+    nextTutorialId: 'tutorial_hero_stats'
+  }],
+  ['tutorial_hero_stats', {
+    id: 'tutorial_hero_stats',
+    trigger: { type: 'new_game' },
+    prerequisites: ['tutorial_hero_skills'],
+    steps: [
       {
-        id: 'day1_assign_stats',
-        message: 'tutorial_day1_msg_assign_stats',
+        id: 'assign_stats',
+        message: 'tutorial_hero_stats_msg_assign_stats',
         spotlight: { target: 'hero_stats_grid', heroId: 'arthur', flash: false },
         forcedNav: { tab: 'heroes', heroId: 'arthur' },
         preventNav: ['village', 'adventure', 'town'],
         allowActions: ['increaseHeroStat'],
         completionEvent: 'stat_point_spent_arthur'
+      }
+    ],
+    nextTutorialId: 'tutorial_build_farm'
+  }],
+  ['tutorial_build_farm', {
+    id: 'tutorial_build_farm',
+    trigger: { type: 'new_game' },
+    prerequisites: ['tutorial_hero_skills', 'tutorial_hero_stats'],
+    steps: [
+      {
+        id: 'navigate_village',
+        message: 'tutorial_build_farm_msg_navigate_village',
+        spotlight: { target: 'footer_nav_tab', tabId: 'village', flash: true },
+        forcedNav: { tab: 'village' },
+        preventNav: ['heroes', 'adventure', 'town'],
+        completionEvent: 'tab_changed_village'
       },
       {
-        id: 'day1_navigate_explore',
-        message: 'tutorial_day1_msg_explore_tab',
+        id: 'construct_farm',
+        message: 'tutorial_build_farm_msg_construct_farm',
+        spotlight: { target: 'building_farm', flash: true },
+        forcedNav: { tab: 'village' },
+        preventNav: ['heroes', 'adventure', 'town'],
+        allowActions: ['build'],
+        completionEvent: 'building_constructed_farm'
+      }
+    ],
+    nextTutorialId: 'tutorial_expeditions'
+  }],
+  ['tutorial_expeditions', {
+    id: 'tutorial_expeditions',
+    trigger: { type: 'new_game' },
+    prerequisites: ['tutorial_hero_skills', 'tutorial_hero_stats', 'tutorial_build_farm'],
+    steps: [
+      {
+        id: 'navigate_explore',
+        message: 'tutorial_expeditions_msg_navigate_explore',
         spotlight: { target: 'footer_nav_tab', tabId: 'adventure', flash: true },
         forcedNav: { tab: 'adventure', subTab: 'explore' },
         preventNav: ['village', 'heroes', 'town'],
         completionEvent: 'tab_changed_adventure_explore'
       },
       {
-        id: 'day1_select_region',
-        message: 'tutorial_day1_msg_select_region',
+        id: 'select_region',
+        message: 'tutorial_expeditions_msg_select_region',
         spotlight: { target: 'region_card', regionId: 'reg_greenfields', flash: true },
         forcedNav: { tab: 'adventure', subTab: 'explore', regionId: 'reg_greenfields' },
         preventNav: ['village', 'heroes', 'town'],
         completionEvent: 'region_selected_greenfields'
       },
       {
-        id: 'day1_select_expedition',
-        message: 'tutorial_day1_msg_select_expedition',
+        id: 'select_expedition',
+        message: 'tutorial_expeditions_msg_select_expedition',
         spotlight: { target: 'expedition_node', nodeId: 'exp_tutorial_cave', flash: true },
         forcedNav: { tab: 'adventure', subTab: 'explore', regionId: 'reg_greenfields', expeditionId: 'exp_tutorial_cave' },
         preventNav: ['village', 'heroes', 'town'],
@@ -291,32 +395,59 @@ export const TutorialRegistry = new Map([
         completionEvent: 'expedition_started_tutorial_cave'
       },
       {
-        id: 'day1_advance_day',
-        message: 'tutorial_day1_msg_advance_day',
+        id: 'advance_day',
+        message: 'tutorial_expeditions_msg_advance_day',
         spotlight: { target: 'day_advance_button', flash: true },
         allowActions: ['advanceDay'],
         completionEvent: 'day_advanced'
       }
-    ]
+    ],
+    nextTutorialId: null
+  }],
+
+  // ── Future Tutorials ──
+  ['tutorial_gambits', {
+    id: 'tutorial_gambits',
+    trigger: { type: 'feature_unlocked', feature: 'gambits' },
+    prerequisites: [],
+    steps: [ /* gambit UI walkthrough */ ],
+    nextTutorialId: null
+  }],
+  ['tutorial_magic_circle', {
+    id: 'tutorial_magic_circle',
+    trigger: { type: 'feature_unlocked', feature: 'magic_circle' },
+    prerequisites: [],
+    steps: [ /* magic circle UI */ ],
+    nextTutorialId: null
   }]
 ]);
 ```
 
-**Extensibility:** New tutorials are added as new entries in this Map. No changes to `TutorialService.js` required. Future tutorials could use triggers like:
+**Trigger Conditions:**
 
-```js
-trigger: { type: 'unlock', feature: 'shop' }
-trigger: { type: 'building', buildingId: 'tavern', level: 1 }
-trigger: { type: 'event', event: 'first_spell_inscribed' }
-```
+| Type | Evaluates When | Example |
+|---|---|---|
+| `new_game` | `isNewGame === true` (typically after book closed on Day 1) | Day 1 chain |
+| `event` | Specific engine event fires with matching payload | `{ type: 'event', event: 'book_first_closed', day: 1 }` |
+| `tutorial_completed` | Another tutorial finishes (alternative to `nextTutorialId`) | `{ type: 'tutorial_completed', id: 'tutorial_hero_skills' }` |
+| `feature_unlocked` | A feature flag becomes true in `unlockService` | `{ type: 'feature_unlocked', feature: 'gambits' }` |
+| `building_built` | A building reaches a minimum level | `{ type: 'building_built', buildingId: 'farm', minLevel: 1 }` |
+| `hero_level` | A specific hero reaches a minimum level | `{ type: 'hero_level', heroId: 'arthur', minLevel: 5 }` |
+
+**Trigger Evaluation Rules:**
+1. `TutorialService.evaluateTriggers(gameState)` checks all non-completed, non-active tutorials.
+2. If trigger matches and no tutorial is active → start it.
+3. If trigger matches but another tutorial is active → **queue** it (one at a time, no overlap).
+4. When a tutorial completes via `advance()` reaching the final step → if `nextTutorialId` is set, start it immediately, bypassing trigger check.
+5. `skip()` marks the tutorial complete and still fires `nextTutorialId` (chain is not broken by skip).
 
 ### 4.3 GameEngine.js Integration
 
 **Constructor:** Add `this.tutorialService = new TutorialService({ persistence, slotIndex: this.slotIndex })` after other services. Note: `slotIndex` needs to be set on `GameEngine` — currently it lives on `Persistence.js` as a static. We should pass it explicitly or read it from `Persistence.getSlotIndex()`.
 
-**`initialize()`:** After `bookService.load()`, check if this is a new game and Day 1. If the book is about to be shown (first time), we don't start the tutorial yet — we wait for the `book_first_closed` event. On reload (not new game), if tutorial state says `activeTutorialId` is set, it auto-resumes.
+**`initialize()`:** After all services load, call `this.tutorialService.evaluateTriggers(this.update())` to check if any tutorial should auto-start (e.g. Day 1 chain on new game, or feature-unlock tutorials for existing saves). On reload (not new game), if tutorial state says `activeTutorialId` is set, it auto-resumes.
 
-**`update()`:** Add `tutorial: this.tutorialService.getState()` to the returned state object.
+**`update()`:** After building the state object, call `this.tutorialService.evaluateTriggers(state)` to check if any trigger conditions have been met (e.g. a building was just completed, a hero leveled up, a feature was unlocked). Add `tutorial: this.tutorialService.getState()` to the returned state object.
 
 **New Facade Methods:**
 ```js
@@ -333,7 +464,7 @@ startTutorial(tutorialId, force = false) {
 }
 ```
 
-**Book Closure Hook:** In `initNewGame()` or via a BookService callback, when the book is closed on Day 1, fire `this.tutorialService.start('tutorial_day1')`. This should be done in the presentation layer (BookPage.vue emits → App.vue dispatches → engine), NOT in the engine, because the engine shouldn't know about UI events like "book closed."
+**Book Closure Event:** `BookPage.vue` emits `book-first-closed` on Day 1. `App.vue` dispatches `recordEvent({ type: 'book_first_closed', day: 1 })` to the engine. The engine stores `lastEvent` on the state. `TutorialService.evaluateTriggers()` checks this event on the next `update()` and starts `tutorial_hero_skills` (the first in the Day 1 chain) because its trigger is `{ type: 'event', event: 'book_first_closed', day: 1 }`. This decouples the book from the tutorial system — the book just records an event; the trigger system decides what to do with it.
 
 ---
 
@@ -548,7 +679,7 @@ const isModalLocked = computed(() =>
 ### BookPage.vue
 
 1. **First closure detection:** Track `hasBeenClosed` in component state. On first close during Day 1, emit `book-first-closed`.
-2. **App.vue** catches this and dispatches `startTutorial('tutorial_day1')` to the engine.
+2. **App.vue** catches this and dispatches `recordEvent({ type: 'book_first_closed', day: 1 })` to the engine. The engine stores `lastEvent` on state. `TutorialService.evaluateTriggers()` sees the event, checks that `tutorial_hero_skills` trigger `{ type: 'event', event: 'book_first_closed', day: 1 }` matches, and starts the first tutorial in the Day 1 chain.
 
 ---
 
@@ -559,14 +690,16 @@ const isModalLocked = computed(() =>
 ```js
 // tutorial_en.js (pattern: tutorial_{tutorialId}_{stepId}_{purpose})
 export const tutorial_en = {
-  tutorial_day1_msg_heroes_tab: 'Your heroes are the heart of the village. Tap here to see them.',
-  tutorial_day1_msg_select_arthur: 'This is Arthur, your first hero. Let\'s take a look at him.',
-  tutorial_day1_msg_learn_skill: 'Arthur can learn a new fighting technique. Tap this button to open his skills.',
-  tutorial_day1_msg_assign_stats: 'As heroes grow, they gain points to improve their strength, speed, and other stats.',
-  tutorial_day1_msg_explore_tab: 'The world beyond the village holds dangers and treasures. Let\'s explore!',
-  tutorial_day1_msg_select_region: 'The Greenfields are the safest place to start your adventures.',
-  tutorial_day1_msg_select_expedition: 'This cave is a good first challenge. Tap it to send Arthur inside.',
-  tutorial_day1_msg_advance_day: 'When you\'re ready, advance to the next day to see what happens.',
+  tutorial_hero_skills_msg_navigate_heroes: 'Your heroes are the heart of the village. Tap here to see them.',
+  tutorial_hero_skills_msg_select_arthur: 'This is Arthur, your first hero. Let\'s take a look at him.',
+  tutorial_hero_skills_msg_learn_skill: 'Arthur can learn a new fighting technique. Tap this button to open his skills.',
+  tutorial_hero_stats_msg_assign_stats: 'As heroes grow, they gain points to improve their strength, speed, and other stats.',
+  tutorial_build_farm_msg_navigate_village: 'Let\'s build a farm to produce food for the village.',
+  tutorial_build_farm_msg_construct_farm: 'Tap here to start construction. It will take some time.',
+  tutorial_expeditions_msg_navigate_explore: 'The world beyond the village holds dangers and treasures. Let\'s explore!',
+  tutorial_expeditions_msg_select_region: 'The Greenfields are the safest place to start your adventures.',
+  tutorial_expeditions_msg_select_expedition: 'This cave is a good first challenge. Tap it to send Arthur inside.',
+  tutorial_expeditions_msg_advance_day: 'When you\'re ready, advance to the next day to see what happens.',
 };
 ```
 
@@ -598,12 +731,12 @@ The existing screenshot orchestrator (`scripts/screenshots/orchestrator.mjs`) mu
 
 #### New Screenshot Scenarios
 
-Add these scenarios to the orchestrator's scenario list. Each step produces a named screenshot for visual regression:
+Add these scenarios to the orchestrator's scenario list. Each step produces a named screenshot for visual regression. The Day 1 chain spans 4 tutorials with a total of 10 steps:
 
 ```js
 {
-  id: 'tutorial_day1_full_flow',
-  description: 'Complete Day 1 tutorial with spotlight assertion at every step',
+  id: 'tutorial_day1_chain_full_flow',
+  description: 'Complete Day 1 tutorial chain (hero_skills → hero_stats → build_farm → expeditions)',
   language: 'en',
   steps: [
     { action: 'start_new_game', assert: 'book_open' },
@@ -614,16 +747,17 @@ Add these scenarios to the orchestrator's scenario list. Each step produces a na
     { action: 'click_action', action: 'learn_skill', assert: 'modal_open_learn_skill', screenshot: '05_tutorial_learn_skill_modal_locked' },
     { action: 'assert_modal_locked', assert: 'escape_blocked_overlay_click_blocked', screenshot: '06_tutorial_modal_locked_proof' },
     { action: 'select_skill', familyId: 'power_strike', assert: 'tutorial_overlay_stat_grid', screenshot: '07_tutorial_stat_grid' },
-    { action: 'assign_stat', statId: 'str', assert: 'tutorial_overlay_explore_tab', screenshot: '08_tutorial_explore_tab' },
-    { action: 'navigate_tab', tab: 'adventure', assert: 'tutorial_overlay_region_greenfields', screenshot: '09_tutorial_region_greenfields' },
-    { action: 'click_region', regionId: 'reg_greenfields', assert: 'tutorial_overlay_expedition_cave', screenshot: '10_tutorial_expedition_cave' },
-    { action: 'start_expedition', assert: 'tutorial_overlay_advance_day', screenshot: '11_tutorial_advance_day' },
-    { action: 'advance_day', assert: 'tutorial_complete_no_overlay', screenshot: '12_tutorial_complete' },
+    { action: 'assign_stat', statId: 'str', assert: 'tutorial_overlay_village_tab', screenshot: '08_tutorial_village_tab' },
+    { action: 'construct_building', buildingId: 'farm', assert: 'tutorial_overlay_explore_tab', screenshot: '09_tutorial_explore_tab' },
+    { action: 'navigate_tab', tab: 'adventure', assert: 'tutorial_overlay_region_greenfields', screenshot: '10_tutorial_region_greenfields' },
+    { action: 'click_region', regionId: 'reg_greenfields', assert: 'tutorial_overlay_expedition_cave', screenshot: '11_tutorial_expedition_cave' },
+    { action: 'start_expedition', assert: 'tutorial_overlay_advance_day', screenshot: '12_tutorial_advance_day' },
+    { action: 'advance_day', assert: 'tutorial_complete_no_overlay', screenshot: '13_tutorial_complete' },
   ]
 },
 {
-  id: 'tutorial_day1_reload_mid_step',
-  description: 'Reload during step 4 (learn skill) and assert resume',
+  id: 'tutorial_chain_reload_mid_step',
+  description: 'Reload during tutorial_hero_skills step 3 (learn skill) and assert resume',
   steps: [
     { action: 'start_new_game' },
     { action: 'close_book' },
@@ -632,19 +766,19 @@ Add these scenarios to the orchestrator's scenario list. Each step produces a na
     { action: 'click_action', action: 'learn_skill' },
     { action: 'snapshot_localstorage' },
     { action: 'reload_page' },
-    { action: 'assert_tutorial_state', expectedStep: 'day1_learn_skill', screenshot: '13_tutorial_resume_after_reload' },
+    { action: 'assert_tutorial_state', expectedTutorial: 'tutorial_hero_skills', expectedStep: 'learn_skill', screenshot: '14_tutorial_resume_after_reload' },
     { action: 'select_skill', familyId: 'power_strike' },
-    { action: 'assert_tutorial_advance', expectedStep: 'day1_assign_stats', screenshot: '14_tutorial_resumed_advance' },
+    { action: 'assert_tutorial_advance', expectedTutorial: 'tutorial_hero_stats', expectedStep: 'assign_stats', screenshot: '15_tutorial_resumed_advance' },
   ]
 },
 {
   id: 'tutorial_i18n_roundtrip',
-  description: 'Run tutorial in Spanish and assert all messages are translated',
+  description: 'Run tutorial chain in Spanish and assert all messages are translated',
   language: 'es',
   steps: [
     { action: 'start_new_game', language: 'es' },
     { action: 'close_book', assert: 'tutorial_overlay_heroes_tab' },
-    { action: 'assert_message_text', key: 'tutorial_day1_msg_heroes_tab', language: 'es', screenshot: '15_tutorial_es_heroes_tab' },
+    { action: 'assert_message_text', key: 'tutorial_hero_skills_msg_navigate_heroes', language: 'es', screenshot: '16_tutorial_es_heroes_tab' },
   ]
 }
 ```
@@ -652,15 +786,15 @@ Add these scenarios to the orchestrator's scenario list. Each step produces a na
 #### Screenshot Audit Pipeline Update
 
 `scripts/screenshots/audit.mjs` must be updated to include a **tutorial overlay check** in its existing visual regression pass. Specifically:
-1. After the `book` feature audit, add a `tutorial` audit pass that runs the `tutorial_day1_full_flow` scenario.
+1. After the `book` feature audit, add a `tutorial` audit pass that runs the `tutorial_day1_chain_full_flow` scenario.
 2. If a screenshot is missing (e.g., `07_tutorial_stat_grid`), the audit fails with a clear message: `Tutorial step 'day1_assign_stats' did not produce expected spotlight overlay`.
-3. The `audit.mjs` report should include a new section: `Tutorial Flow` with ✅/❌ for each of the 12 screenshots.
+3. The `audit.mjs` report should include a new section: `Tutorial Flow` with ✅/❌ for each of the 13 screenshots.
 
 #### Audit.mjs Update Plan
 
 | File | Change |
 |---|---|
-| `scripts/screenshots/orchestrator.mjs` | Add `tutorial_day1_full_flow`, `tutorial_day1_reload_mid_step`, `tutorial_i18n_roundtrip` scenarios; add new action handlers: `assert_modal_locked`, `assert_tutorial_state`, `snapshot_localstorage`, `reload_page` |
+| `scripts/screenshots/orchestrator.mjs` | Add `tutorial_day1_chain_full_flow`, `tutorial_chain_reload_mid_step`, `tutorial_i18n_roundtrip` scenarios; add new action handlers: `assert_modal_locked`, `assert_tutorial_state`, `snapshot_localstorage`, `reload_page` |
 | `scripts/screenshots/audit.mjs` | Add `tutorial` pass to the audit pipeline; import tutorial expected screenshots list; compare against `screenshots/tutorial/` directory |
 | `scripts/screenshots/README.md` | Document new tutorial actions and how to run `npm run test:tutorial` or `npm run audit:tutorial` |
 
@@ -692,7 +826,7 @@ rpg_village_v1_slot{N}_tutorial_state
 Example value:
 ```json
 {
-  "activeTutorialId": "tutorial_day1",
+  "activeTutorialId": "tutorial_hero_skills",
   "currentStepIndex": 2,
   "completedTutorialIds": [],
   "stepData": { "selectedHeroId": "arthur", "learnedFamilyId": "power_strike" }
@@ -702,8 +836,8 @@ Example value:
 ### Migration Path
 
 Existing saves have no `tutorial_state`. On `GameEngine.initialize()` for existing saves:
-1. If `day > 1`, mark `tutorial_day1` as completed (the player already knows the game).
-2. If `day === 1` and no tutorial state exists, the player may have started before this feature. Start `tutorial_day1` only if they haven't completed the first expedition yet (`completedIds.length === 0`). Otherwise, mark it completed.
+1. If `day > 1`, mark all Day 1 tutorials as completed (the player already knows the game).
+2. If `day === 1` and no tutorial state exists, the player may have started before this feature. Start the Day 1 chain (first tutorial: `tutorial_hero_skills`) only if they haven't completed the first expedition yet. Otherwise, mark all Day 1 tutorials as completed.
 
 ### Backfill Logic (in `GameEngine.initialize()`)
 
@@ -712,7 +846,10 @@ const tutorialState = this.persistence.load(`rpg_village_v1_slot${slotIndex}_tut
 if (!tutorialState && !this.isNewGame) {
   const completedExpeditions = this.expeditionService.getCompletedIds().length;
   if (completedExpeditions > 0 || (villageState.day || 1) > 1) {
-    this.tutorialService.state.completedTutorialIds.push('tutorial_day1');
+    this.tutorialService.state.completedTutorialIds.push('tutorial_hero_skills');
+    this.tutorialService.state.completedTutorialIds.push('tutorial_hero_stats');
+    this.tutorialService.state.completedTutorialIds.push('tutorial_build_farm');
+    this.tutorialService.state.completedTutorialIds.push('tutorial_expeditions');
     this.tutorialService._save();
   }
 }
@@ -729,7 +866,7 @@ The tutorial system is documented in `docs/tutorial/` following the project's es
 | File | Content |
 |---|---|
 | `docs/tutorial/tutorial_system.md` | **System definition.** How the tutorial engine works: state machine, persistence, spotlight mechanism, forced navigation, modal locking, and how to add a new tutorial to the registry. One concise architecture overview, no boilerplate. |
-| `docs/tutorial/tutorial_points.md` | **All tutorial flows.** The Day 1 flow (8 steps) and placeholder entries for future tutorials (shop unlock, tavern built, first spell, etc.). Each entry: trigger condition, step sequence, spotlight targets, completion events. This is the canonical registry reference. |
+| `docs/tutorial/tutorial_points.md` | **All tutorial flows.** The Day 1 chain (10 steps across 4 tutorials) and placeholder entries for future tutorials (gambits, magic circle, shop unlock, tavern built, first spell, etc.). Each entry: trigger condition, prerequisites, step sequence, spotlight targets, completion events. This is the canonical registry reference. |
 
 ### What These Files Are NOT
 - No player walkthroughs (the game UI itself teaches the player)
@@ -766,20 +903,20 @@ The tutorial system is documented in `docs/tutorial/` following the project's es
 
 ### Phase 3: Component Wiring (Day 1 Flow)
 1. Modify `BookPage.vue` — emit `book-first-closed` on Day 1
-2. Modify `App.vue` — catch `book-first-closed`, dispatch `startTutorial('tutorial_day1')`
+2. Modify `App.vue` — catch `book-first-closed`, dispatch `recordEvent({ type: 'book_first_closed', day: 1 })` to trigger the tutorial chain via `evaluateTriggers()`
 3. Modify `HeroesPage.vue` — force-select Arthur, lock tabs, detect skill/stat completion
 4. Modify `HeroActionBar.vue` — emit `skill-learned` event
 5. Modify `HeroStatsGrid.vue` — emit `stat-assigned` event
 6. Modify `ExploreTab.vue` — force region/expedition selection
 7. Modify `ExpeditionNode.vue` — emit `expedition-started` event
-8. **Test:** Full screenshot flow `tutorial_day1_flow`
+8. **Test:** Full screenshot flow `tutorial_day1_chain_full_flow`
 
 ### Phase 4: Documentation & Screenshot Integration
 1. Update `scripts/screenshots/orchestrator.mjs` with tutorial actions (`assert_modal_locked`, `assert_tutorial_state`, `snapshot_localstorage`, `reload_page`)
 2. Update `scripts/screenshots/audit.mjs` with tutorial pass and expected screenshot list
-3. Run `tutorial_day1_full_flow` scenario and capture all 12 screenshots
+3. Run `tutorial_day1_chain_full_flow` scenario and capture all 13 screenshots
 4. Create `docs/tutorial/tutorial_system.md` — concise system definition (state machine, persistence, spotlight, forced nav, modal lock, how to add a tutorial)
-5. Create `docs/tutorial/tutorial_points.md` — all tutorial flows: Day 1 (8 steps) and future templates (shop, tavern, etc.)
+5. Create `docs/tutorial/tutorial_points.md` — all tutorial flows: Day 1 chain (10 steps across 4 tutorials) and future templates (gambits, magic circle, shop, tavern, etc.)
 6. Update `docs/shared/core/i18n.md` — add `tutorial_{id}_{step}_msg` to the key naming convention
 7. Run `validateTutorialKeys()` test across all 5 languages; fix any missing keys
 8. Verify migration/backfill logic on old saves
@@ -809,19 +946,20 @@ The tutorial system is documented in `docs/tutorial/` following the project's es
 
 ## 12. Acceptance Criteria
 
-- [ ] Starting a new game shows the book. Closing it on Day 1 triggers the tutorial.
-- [ ] The tutorial darkens the screen and highlights the Heroes tab. Clicking anywhere dismisses the darkening but the tab is still highlighted.
+- [ ] Starting a new game shows the book. Closing it on Day 1 triggers the first tutorial (`tutorial_hero_skills`).
+- [ ] `tutorial_hero_skills` darkens the screen and highlights the Heroes tab. Clicking anywhere dismisses the darkening but the tab is still highlighted.
 - [ ] The user is forced to the Heroes tab. Arthur is auto-selected. The "Learn Skill" button is highlighted.
 - [ ] Clicking "Learn Skill" opens the modal. The modal cannot be closed until a skill is selected.
-- [ ] After learning a skill, the tutorial advances to stat assignment. The stat grid is highlighted.
-- [ ] After spending a stat point, the tutorial advances to the Adventure tab. The user is forced there.
+- [ ] After learning a skill, `tutorial_hero_stats` auto-starts. The stat grid is highlighted.
+- [ ] After spending a stat point, `tutorial_build_farm` auto-starts. The user is forced to the Village tab.
+- [ ] After constructing the farm, `tutorial_expeditions` auto-starts. The user is forced to the Adventure tab.
 - [ ] The Greenfields region is highlighted, then the Tutorial Cave node is highlighted.
 - [ ] After starting the expedition, the tutorial advances to "advance day".
 - [ ] Reloading the page at any step restores the tutorial exactly at that step, with the correct spotlight and message.
-- [ ] Existing saves (Day > 1 or any expedition completed) never see the tutorial.
+- [ ] Existing saves (Day > 1 or any expedition completed) never see the Day 1 tutorial chain.
 - [ ] All tutorial text is translated in 5 languages. **Validation:** `validateTutorialKeys()` passes with zero missing keys and zero ghost keys.
-- [ ] Screenshot tests cover all 12 tutorial steps (including reload-resume and i18n roundtrip). **Validation:** `audit.mjs` tutorial pass reports all ✅.
-- [ ] Documentation is complete: `docs/tutorial/tutorial_system.md` (system definition) and `docs/tutorial/tutorial_points.md` (all flows) are written and follow the project's concise docs style.
+- [ ] Screenshot tests cover all Day 1 tutorial steps across all 4 tutorials (including reload-resume and i18n roundtrip). **Validation:** `audit.mjs` tutorial pass reports all ✅.
+- [ ] Future tutorials (e.g. `tutorial_gambits`) auto-start when their trigger condition is met (e.g. gambits feature unlocked) with zero engine changes.
 
 ---
 
