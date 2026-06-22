@@ -29,19 +29,8 @@ export async function run({ page, snap }) {
   await page.waitForTimeout(600)
   await snap({ flow: 'book', state: 'book_fresh_prologue' })
 
-  // --- book_spread_navigation ---
-  // Navigate to next spread to show navigation in active state
-  // (If only 1 spread, Next is disabled — capture shows disabled state)
-  await clickElement(page, selectors.bookNavNext)
-  await page.waitForTimeout(400)
-  await snap({ flow: 'book', state: 'book_spread_navigation' })
-
-  // Dismiss Book and go to village for next test
-  await clickNav(page, selectors.navVillage)
-  await waitForVisible(page, selectors.villagePage, 3000)
-
   // --- book_village_update ---
-  // Advance a day to trigger a village update in the Book
+  // Advance a day to trigger a second village update in the Book
   await page.evaluate(() => {
     const btn = document.querySelector('.btn-next-day')
     if (btn) btn.click()
@@ -49,9 +38,7 @@ export async function run({ page, snap }) {
   // Wait for day processing (expedition resolution, book updates, etc.)
   await page.waitForTimeout(2500)
 
-  // The Book may or may not auto-open. If not, inject a Day 2 village update
-  // directly so we have fresh content to capture.
-  let bookVisible = await page.$(selectors.bookView)
+  const bookVisible = await page.$(selectors.bookView)
   if (!bookVisible) {
     // Inject a village update for the current day to ensure Book has new content
     await page.evaluate(() => {
@@ -74,8 +61,28 @@ export async function run({ page, snap }) {
     await waitForVisible(page, selectors.bookView, 3000)
   }
   await page.waitForTimeout(500)
+  await snap({ flow: 'book', state: 'book_village_update' })
 
-  // Navigate to the last spread where the newest content is
+  // --- book_spread_navigation ---
+  // Inject a second chapter event so a new spread exists, then navigate to it
+  await page.evaluate(() => {
+    const e = window.__ENGINE__
+    if (e?.bookService) {
+      e.bookService.addSection({
+        id: 'screenshot_chapter_2',
+        category: 'chapter_history_event',
+        day: e.villageService?.getState?.()?.day || 1,
+        blocks: [
+          { textKey: 'book_chapter_2_event_block', values: {}, weight: 6 },
+        ],
+        metadata: { titleKey: 'book_chapter_2_title' },
+      })
+      e.bookService.save()
+    }
+  })
+  await refreshUI(page)
+  await page.waitForTimeout(400)
+  // Move to the last spread (the new chapter)
   const totalSpreads = await page.evaluate(() => {
     const book = document.querySelector('.book-view')
     if (!book) return 1
@@ -90,41 +97,25 @@ export async function run({ page, snap }) {
     await clickElement(page, selectors.bookNavNext)
     await page.waitForTimeout(300)
   }
-  await snap({ flow: 'book', state: 'book_village_update' })
+  await snap({ flow: 'book', state: 'book_spread_navigation' })
 
   // --- book_milestone ---
-  // Close book first, then inject milestone and reopen to see fresh state
-  bookVisible = await page.$(selectors.bookView)
-  if (bookVisible) {
-    await clickNav(page, selectors.navVillage)
-    await waitForVisible(page, selectors.villagePage, 3000)
-  }
-
-  // Inject milestone into engine state
+  // Inject a real milestone section into the Book (not just a Chronicle unlock)
   await page.evaluate(() => {
     const e = window.__ENGINE__
-    const day = e.villageService?.getState?.()?.day || 1
-    e.bookService.addSection({
-      id: 'milestone_first_victory_screenshot',
-      category: 'milestone',
-      day: day,
-      entry: {
-        key: 'book_milestone_first_victory',
-        values: {},
-        weight: 4
-      }
-    })
-    e.bookService.save()
+    if (e?.bookService) {
+      e.bookService.addSection({
+        id: 'screenshot_milestone_first_victory',
+        category: 'milestone',
+        day: e.villageService?.getState?.()?.day || 1,
+        entry: { key: 'book_milestone_first_victory', values: {}, weight: 4 },
+      })
+      e.bookService.save()
+    }
   })
   await refreshUI(page)
-  await page.waitForTimeout(800)
-
-  // Reopen Book — it will load fresh state
-  await clickNav(page, selectors.navBook)
-  await waitForVisible(page, selectors.bookView, 3000)
-  await page.waitForTimeout(500)
-
-  // Navigate to last spread
+  await page.waitForTimeout(400)
+  // Navigate to the spread containing the milestone (usually the last spread)
   const totalSpreads2 = await page.evaluate(() => {
     const book = document.querySelector('.book-view')
     if (!book) return 1
@@ -142,7 +133,7 @@ export async function run({ page, snap }) {
   await snap({ flow: 'book', state: 'book_milestone' })
 
   // --- book_chapter_title ---
-  // Chapter title is on the first page, navigate back to spread 1
+  // Navigate back to spread 1 to highlight the first chapter title page
   await page.evaluate(() => {
     const book = document.querySelector('.book-view')
     if (book) {

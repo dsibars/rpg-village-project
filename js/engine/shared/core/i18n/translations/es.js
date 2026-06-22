@@ -1135,6 +1135,7 @@ export const es = {
     book_chapter_3_title: "Capítulo III: El Norte Helado",
     book_chapter_4_title: "Capítulo IV: El Umbral Astral",
     book_chapter_5_title: "Capítulo V: La Última Defensa",
+    book_chapter_2_event_block: "Los aldeanos descubrieron runas antiguas bajo las primeras piedras del nuevo asentamiento.",
 
     book_village_updates_title: "Día {day} — Actualizaciones del Pueblo",
     book_update_village_founded: "Se ha fundado un nuevo pueblo en el valle.",

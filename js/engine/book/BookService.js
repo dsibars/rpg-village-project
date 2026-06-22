@@ -121,30 +121,17 @@ export class BookService {
             pcs.pageSectionId = pageSection.id;
             // If this is a chapter title, close current chapter and start new one
             if (pcs.type === PCS_TYPES.CHAPTER_TITLE) {
-                // Check if this is the first real content in a fresh book
-                const isFreshBook = this.state.chapters.length === 1 &&
-                    this.state.pages.every(p => p.pageContentSections.length === 0);
-
-                if (isFreshBook) {
-                    // Update Chapter 1 instead of creating Chapter 2
-                    const chapter1 = this.state.chapters[0];
-                    chapter1.titleKey = pcs.textKey;
-                    pcs.values = { ...pcs.values, chapter: 1 };
-                    currentChapter = chapter1;
-                    currentPage = this.state.pages[0]; // Page 1 already exists and is empty
+                currentChapter = this._createNewChapter(pcs.textKey);
+                const actualChapterNumber = currentChapter.chapterNumber;
+                pcs.textKey = `book_chapter_${actualChapterNumber}_title`;
+                pcs.values = { ...pcs.values, chapter: actualChapterNumber };
+                // Reuse page 1 if it's empty (fresh book), otherwise create new page
+                const firstPage = this.state.pages[0];
+                if (firstPage && firstPage.pageContentSections.length === 0) {
+                    firstPage.chapterNumber = currentChapter.chapterNumber;
+                    currentPage = firstPage;
                 } else {
-                    const actualChapterNumber = this.state.chapters.length + 1;
-                    pcs.textKey = `book_chapter_${actualChapterNumber}_title`;
-                    pcs.values = { ...pcs.values, chapter: actualChapterNumber };
-                    currentChapter = this._createNewChapter(pcs.textKey);
-                    // Reuse page 1 if it's empty (fresh book), otherwise create new page
-                    const firstPage = this.state.pages[0];
-                    if (firstPage && firstPage.pageContentSections.length === 0) {
-                        firstPage.chapterNumber = currentChapter.chapterNumber;
-                        currentPage = firstPage;
-                    } else {
-                        currentPage = this._createNewPage(currentChapter.chapterNumber);
-                    }
+                    currentPage = this._createNewPage(currentChapter.chapterNumber);
                 }
             }
 
@@ -338,7 +325,20 @@ export class BookService {
      * @returns {Object} — The new chapter.
      */
     _createNewChapter(titleKey) {
-        const chapterNumber = this.state.chapters.length + 1;
+        // If the current chapter has no content yet, reuse it instead of creating a ghost chapter.
+        const chapters = this.state.chapters;
+        const lastChapter = chapters[chapters.length - 1];
+        if (lastChapter) {
+            const hasContent = this.state.pages.some(
+                p => p.chapterNumber === lastChapter.chapterNumber && p.pageContentSections.length > 0
+            );
+            if (!hasContent) {
+                lastChapter.titleKey = titleKey;
+                return lastChapter;
+            }
+        }
+
+        const chapterNumber = chapters.length + 1;
         // If page 1 exists and is empty, chapter starts there
         const firstPage = this.state.pages[0];
         const startPageNumber = (firstPage && firstPage.pageContentSections.length === 0)
@@ -349,7 +349,7 @@ export class BookService {
             startPageNumber,
             titleKey,
         };
-        this.state.chapters.push(chapter);
+        chapters.push(chapter);
         return chapter;
     }
 

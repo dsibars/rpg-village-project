@@ -169,6 +169,32 @@ describe('BookService', () => {
             assert.strictEqual(result, null);
             assert.strictEqual(book.getChapterCount(), 1); // Still only chapter 1
         });
+
+        test('first chapter history event reuses empty Chapter 1 instead of creating Chapter 2', () => {
+            const result = book.addSection({
+                id: 'prologue',
+                category: BOOK_SECTION_CATEGORIES.CHAPTER_HISTORY_EVENT,
+                day: 1,
+                blocks: [
+                    { textKey: 'prologue_block_1', values: {}, weight: 1 },
+                    { textKey: 'prologue_block_2', values: {}, weight: 1 },
+                ],
+                metadata: { titleKey: 'book_chapter_1_title' },
+            });
+
+            assert.notStrictEqual(result, null);
+            assert.strictEqual(book.getChapterCount(), 1);
+
+            const chapter1 = book.getState().chapters[0];
+            assert.strictEqual(chapter1.chapterNumber, 1);
+            assert.strictEqual(chapter1.titleKey, 'book_chapter_1_title');
+
+            const page1 = book.getPage(1);
+            assert.strictEqual(page1.chapterNumber, 1);
+            assert.strictEqual(page1.pageContentSections[0].type, PCS_TYPES.CHAPTER_TITLE);
+            assert.strictEqual(page1.pageContentSections[0].values.chapter, 1);
+            assert.strictEqual(page1.pageContentSections[0].textKey, 'book_chapter_1_title');
+        });
     });
 
     describe('addSection - Milestones', () => {

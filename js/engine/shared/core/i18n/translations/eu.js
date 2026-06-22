@@ -1134,6 +1134,7 @@ export const eu = {
     book_chapter_3_title: "III. Kapitulua: Ipar Izoztua",
     book_chapter_4_title: "IV. Kapitulua: Atari Astrala",
     book_chapter_5_title: "V. Kapitulua: Azken Aurkakoa",
+    book_chapter_2_event_block: "Herrikoideek runa zaharrak aurkitu zituzten kokaleku berriaren lehen harrien azpian.",
 
     book_village_updates_title: "{day}. Eguna — Herriaren Egunerokoa",
     book_update_village_founded: "Herri berri bat sortu da haranean.",
