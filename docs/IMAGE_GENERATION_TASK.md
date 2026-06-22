@@ -107,7 +107,7 @@
 ## Image 11: `assets/story/char_elara_twilight.webp`
 **Scene:** Elara, the arcane initiate. She stands with a faintly glowing glyph hovering above her outstretched hand. She looks at it with wonder and fear. Simple robes, slender build.
 **Prompt:** A slender figure in simple robes, one hand outstretched with a small floating geometric glyph shape above it, wonder and fear in posture, twilight atmosphere suggested by simple lines. Medieval manuscript ink drawing, black strokes only, transparent background, sketchy rough linework, small illustrative figure, village scribe style.
-**Status:** pending
+**Status:** generated
 
 ---
 
@@ -282,9 +282,9 @@
 ## Overall Status
 
 **Total Images:** 35
-**Generated:** 10
-**Pending:** 25
-**Next to generate:** Image 11 (`char_elara_twilight.webp`)
+**Generated:** 11
+**Pending:** 24
+**Next to generate:** Image 12 (`char_elara_glyph.webp`)
 
 ---
 
