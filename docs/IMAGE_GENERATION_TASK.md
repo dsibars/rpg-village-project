@@ -51,7 +51,7 @@
 ## Image 3: `assets/story/prologue_first_stake.webp`
 **Scene:** The founding moment — hands driving a wooden stake into fertile soil. Close-up, intimate. Morning light suggested by simple lines. This is the first permanent mark in the valley.
 **Prompt:** Close-up of hands driving a wooden stake into soil, wooden mallet, morning light suggested by simple radiating lines, intimate founding moment. Medieval manuscript ink drawing, black strokes only, transparent background, sketchy rough linework, village scribe style.
-**Status:** pending
+**Status:** generated
 
 ---
 
@@ -282,9 +282,9 @@
 ## Overall Status
 
 **Total Images:** 35
-**Generated:** 2
-**Pending:** 33
-**Next to generate:** Image 3 (`prologue_first_stake.webp`)
+**Generated:** 3
+**Pending:** 32
+**Next to generate:** Image 4 (`village_farm_dawn.webp`)
 
 ---
 
