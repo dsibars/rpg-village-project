@@ -93,7 +93,7 @@
 ## Image 9: `assets/story/village_village_stake.webp`
 **Scene:** The original founding spot, now marked with a simple wooden monument. Flowers or grass growing around it. Nostalgic, showing how far the village has come.
 **Prompt:** A simple wooden marker stake in the ground with a small pile of stones around it, grass and wildflowers growing nearby, nostalgic atmosphere. Medieval manuscript ink drawing, black strokes only, transparent background, sketchy rough linework, village scribe style.
-**Status:** pending
+**Status:** generated
 
 ---
 
@@ -282,9 +282,9 @@
 ## Overall Status
 
 **Total Images:** 35
-**Generated:** 8
-**Pending:** 27
-**Next to generate:** Image 9 (`village_village_stake.webp`)
+**Generated:** 9
+**Pending:** 26
+**Next to generate:** Image 10 (`char_arthur_portrait.webp`)
 
 ---
 
