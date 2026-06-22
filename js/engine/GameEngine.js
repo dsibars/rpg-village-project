@@ -1236,9 +1236,9 @@ export class GameEngine {
         }
 
         this.bookService.addSection({
-            id: `village_day_${villageState.day}`,
+            id: `village_day_${this.villageService.getState().day}`,
             category: 'village_updates',
-            day: villageState.day,
+            day: this.villageService.getState().day,
             entries: bookEntries
         });
 

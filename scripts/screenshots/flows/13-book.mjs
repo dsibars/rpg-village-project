@@ -11,7 +11,6 @@ export async function run({ page, snap }) {
 
   // --- book_fresh_prologue ---
   // Start a fresh game and capture the Book BEFORE it gets dismissed
-  // (startNewGame dismisses the Book, so we do our own setup here)
   await page.evaluate(() => {
     Object.keys(localStorage)
       .filter((k) => k.startsWith('rpg_village_v1_'))
@@ -32,6 +31,7 @@ export async function run({ page, snap }) {
 
   // --- book_spread_navigation ---
   // Navigate to next spread to show navigation in active state
+  // (If only 1 spread, Next is disabled — capture shows disabled state)
   await clickElement(page, selectors.bookNavNext)
   await page.waitForTimeout(400)
   await snap({ flow: 'book', state: 'book_spread_navigation' })
@@ -46,16 +46,36 @@ export async function run({ page, snap }) {
     const btn = document.querySelector('.btn-next-day')
     if (btn) btn.click()
   })
-  await page.waitForTimeout(1500)
+  // Wait for day processing (expedition resolution, book updates, etc.)
+  await page.waitForTimeout(2500)
 
-  // Book should auto-open with village update
-  const bookVisible = await page.$(selectors.bookView)
+  // The Book may or may not auto-open. If not, inject a Day 2 village update
+  // directly so we have fresh content to capture.
+  let bookVisible = await page.$(selectors.bookView)
   if (!bookVisible) {
+    // Inject a village update for the current day to ensure Book has new content
+    await page.evaluate(() => {
+      const e = window.__ENGINE__
+      const day = e.villageService?.getState?.()?.day || 2
+      e.bookService.addSection({
+        id: `village_day_${day}_screenshot`,
+        category: 'village_updates',
+        day: day,
+        entries: [
+          { key: 'book_update_hero_recruited', values: { hero: 'Mira' }, weight: 1 },
+          { key: 'book_update_building_completed', values: { building: 'Farm' }, weight: 1 }
+        ]
+      })
+      e.bookService.save()
+    })
+    await refreshUI(page)
+    await page.waitForTimeout(500)
     await clickNav(page, selectors.navBook)
     await waitForVisible(page, selectors.bookView, 3000)
   }
   await page.waitForTimeout(500)
-  // Navigate to the spread with the village update (usually last spread)
+
+  // Navigate to the last spread where the newest content is
   const totalSpreads = await page.evaluate(() => {
     const book = document.querySelector('.book-view')
     if (!book) return 1
@@ -66,7 +86,6 @@ export async function run({ page, snap }) {
     }
     return 1
   })
-  // Go to last spread where new content is
   for (let i = 1; i < totalSpreads; i++) {
     await clickElement(page, selectors.bookNavNext)
     await page.waitForTimeout(300)
@@ -74,23 +93,38 @@ export async function run({ page, snap }) {
   await snap({ flow: 'book', state: 'book_village_update' })
 
   // --- book_milestone ---
-  // Inject a milestone to trigger a milestone PCS
+  // Close book first, then inject milestone and reopen to see fresh state
+  bookVisible = await page.$(selectors.bookView)
+  if (bookVisible) {
+    await clickNav(page, selectors.navVillage)
+    await waitForVisible(page, selectors.villagePage, 3000)
+  }
+
+  // Inject milestone into engine state
   await page.evaluate(() => {
     const e = window.__ENGINE__
-    if (e?.chronicleService) {
-      e.chronicleService.unlockEntry('hero_recruited', e.villageService?.getState?.()?.day || 1)
-      e.chronicleService.save()
-    }
+    const day = e.villageService?.getState?.()?.day || 1
+    e.bookService.addSection({
+      id: 'milestone_first_victory_screenshot',
+      category: 'milestone',
+      day: day,
+      entry: {
+        key: 'book_milestone_first_victory',
+        values: {},
+        weight: 4
+      }
+    })
+    e.bookService.save()
   })
   await refreshUI(page)
+  await page.waitForTimeout(800)
+
+  // Reopen Book — it will load fresh state
+  await clickNav(page, selectors.navBook)
+  await waitForVisible(page, selectors.bookView, 3000)
   await page.waitForTimeout(500)
-  // Navigate to Book to see the milestone
-  const bookVisible2 = await page.$(selectors.bookView)
-  if (!bookVisible2) {
-    await clickNav(page, selectors.navBook)
-    await waitForVisible(page, selectors.bookView, 3000)
-  }
-  // Navigate to last spread to find milestone
+
+  // Navigate to last spread
   const totalSpreads2 = await page.evaluate(() => {
     const book = document.querySelector('.book-view')
     if (!book) return 1
@@ -112,10 +146,8 @@ export async function run({ page, snap }) {
   await page.evaluate(() => {
     const book = document.querySelector('.book-view')
     if (book) {
-      // Click Previous until we're at spread 1
       const prevBtn = book.querySelector('.book-header .btn-nav:first-child')
       if (prevBtn) {
-        // Keep clicking until disabled
         for (let i = 0; i < 10; i++) {
           if (prevBtn.disabled) break
           prevBtn.click()
