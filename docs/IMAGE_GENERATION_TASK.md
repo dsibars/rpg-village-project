@@ -86,7 +86,7 @@
 ## Image 8: `assets/story/village_village_above.webp`
 **Scene:** The village seen from the ridge above. Multiple simple buildings, smoke from chimneys, a wall or fence, the valley spreading below. The scribe's pride — showing growth.
 **Prompt:** A village seen from a ridge above, multiple simple buildings with triangular roofs, smoke lines from chimneys, a wooden fence or wall, green valley below. Medieval manuscript ink drawing, black strokes only, transparent background, sketchy rough linework, small buildings, village scribe style.
-**Status:** pending
+**Status:** generated
 
 ---
 
@@ -282,9 +282,9 @@
 ## Overall Status
 
 **Total Images:** 35
-**Generated:** 7
-**Pending:** 28
-**Next to generate:** Image 8 (`village_village_above.webp`)
+**Generated:** 8
+**Pending:** 27
+**Next to generate:** Image 9 (`village_village_stake.webp`)
 
 ---
 
