@@ -1501,17 +1501,24 @@ Create `tasks/active/tutorial/STATUS.md`:
 # Tutorial System — Implementation Status
 
 ## Current Step
-Step X: [Name]
+Step 1: TutorialTypes.js
+
+## Status
+pending
 
 ## Completed
-- Step 1: TutorialTypes.js ✅
-- ...
+(none yet)
 
 ## Blockers
-None / [describe if any]
+None
 ```
 
-The cron agent reads this file, implements the current step, updates it, and moves to the next.
+**Status Rules:**
+- `pending` — Step is ready to be picked up by the cron worker.
+- `work in progress` — Cron worker has started implementing this step. If another execution finds this status, it checks if work has been done (to continue) or if it detects recent activity, it skips the current execution.
+- `done` — Step is complete. Cron worker advances to the next step.
+
+The cron worker reads this file, implements the current step, commits, and moves to the next.
 
 ---
 

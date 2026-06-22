@@ -721,14 +721,21 @@ Create `tasks/active/combat-balance-lab/STATUS.md`:
 # Combat Balance Lab — Status
 
 ## Current Step
-Step X: [Name]
+Step 1: Directory structure
+
+## Status
+pending
 
 ## Completed
-- Step 1: Directory structure ✅
-- ...
+(none yet)
 
 ## Blockers
-None / [describe if any]
+None
 ```
 
-The cron agent reads this file, implements the current step, updates it, and moves to the next.
+**Status Rules:**
+- `pending` — Step is ready to be picked up by the cron worker.
+- `work in progress` — Cron worker has started implementing this step. If another execution finds this status, it checks if work has been done (to continue) or if it detects recent activity, it skips the current execution.
+- `done` — Step is complete. Cron worker advances to the next step.
+
+The cron worker reads this file, implements the current step, commits, and moves to the next.
