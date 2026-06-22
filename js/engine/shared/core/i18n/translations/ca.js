@@ -1123,50 +1123,68 @@ export const ca = {
     // ═══ NAVIGATION ═══════════════════════════════════════════════════════
     nav_codex: "Còdex",
 
-    // ═══ THE BOOK ════════════════════════════════════════════════════════
+    // ═══ THE BOOK — VEU DEL CRONISTA ═════════════════════════════════
+    // El Llibre és el diari personal d'un veí. Els esdeveniments històrics
+    // s'escriuen amb cura i art. Les actualitzacions del poble són
+    // apunts ràpids. L'escriptor és un personatge invisible que es revela
+    // més endavant.
+
     book_uxelm_title: "El Llibre",
     book_uxelm_prev: "Anterior",
     book_uxelm_next: "Següent",
     book_uxelm_spread: "{current} / {total}",
-    book_uxelm_milestone: "Fita",
+    book_uxelm_milestone: "Una marca per recordar",
+
+    // Títols de capítol — Dramàtics, orgullosos, literaris
     book_chapter_default_title: "Capítol {chapter}",
     book_chapter_1_title: "Capítol I: Les Cendres del Passat",
     book_chapter_2_title: "Capítol II: L'Edat Arcana",
     book_chapter_3_title: "Capítol III: El Nord Gelat",
     book_chapter_4_title: "Capítol IV: El Llindar Astral",
     book_chapter_5_title: "Capítol V: L'Última Defensa",
-    book_chapter_2_event_block: "Els vilatans van descobrir runes antigues sota les primeres pedres del nou assentament.",
+    book_chapter_2_event_block: "Sota les primeres pedres de l'assentament vam descobrir runes que ningú recordava. Les vaig fregar amb el revers de la mà i allà eren, brillant tènue en la foscor — símbols més antics que nosaltres.",
 
-    book_village_updates_title: "Dia {day} — Actualitzacions del Poble",
-    book_update_village_founded: "S'ha fundat un nou poble a la vall.",
-    book_update_food_consumed: "S'han consumit {amount} unitats de menjar.",
-    book_update_villager_joined: "¡{amount} veí(s) s'han unit al poble!",
-    book_update_hero_rested: "{hero} ha descansat i recuperat {hp} PV.",
-    book_update_hero_trained: "{hero} ha entrenat i guanyat {xp} XP.",
-    book_update_hero_scouted: "{hero} ha explorat els voltants i descobert {region}.",
-    book_update_hero_crafted: "{hero} ha fabricat {item}.",
-    book_update_hero_socialized: "{hero} ha socialitzat amb els veïns, millorant la moral.",
-    book_update_building_completed: "La construcció de {building} ha acabat!",
-    book_update_region_unlocked: "S'ha desbloquejat una nova regió: {region}.",
-    book_update_expedition_started: "Ha començat una expedició a {region}.",
-    book_update_expedition_completed: "L'expedició a {region} ha tornat.",
-    book_update_combat_victory: "Victòria! El grup ha derrotat {enemies}.",
-    book_update_combat_defeat: "Derrota... El grup ha caigut davant {enemies}.",
-    book_update_hero_recruited: "¡{hero} s'ha unit al poble!",
-    book_update_market_rotation: "El mercat s'ha reabastit amb nous productes.",
-    book_update_raid_defended: "¡El poble ha defensat amb èxit contra un atac!",
-    book_update_raid_lost: "El poble va ser atacat. Es van perdre recursos.",
-    book_update_quiet_day: "El dia va passar tranquil·lament al poble.",
-    book_history_combat_victory: "{heroes} van guanyar una batalla contra {enemyCount} {enemies}.",
-    book_history_combat_defeat: "{heroes} van ser derrotats en batalla.",
+    // Actualitzacions del poble — Ràpides, pràctiques, la mà apressada de l'escrivà
+    book_village_updates_title: "Dia {day} — Notes del poble",
+    book_update_village_founded: "Van clavar la primera estaca a l'alba. A migdia, tres murs ja s'aixecaven. Vaig dibuixar la vall des de la cresta — el riu hi corre plata.",
+    book_update_food_consumed: "La celler va baixar {amount} unitats. La reserva d'hivern s'esvaeix.",
+    book_update_villager_joined: "{amount} ànima(s) nova(va) arribada avui. La foguera de la plaça va cremar més alt.",
+    book_update_hero_rested: "{hero} va dormir. L'hospital cruixia amb el vent. Bé.",
+    book_update_hero_trained: "{hero} va entrenar fins que les mans li van sangrar. El vaig veure des de la finestra.",
+    book_update_hero_scouted: "{hero} va tornar de salvatge amb notícies de {region}. Els ulls brillaven d'astorament.",
+    book_update_hero_crafted: "{hero} va fer {item} al taller. El cop del martell va ressonar fins al capvespre.",
+    book_update_hero_socialized: "{hero} es va asseure amb els altres vora el foc. Rialles. Això és el que vaig sentir.",
+    book_update_building_completed: "El {building} està llest! La campana va tocar tres vegades. Tots van sortir corrent.",
+    book_update_region_unlocked: "Hem trobat {region}. Ho vaig marcar al mapa amb mà trêmola — la tinta es va córrer d'emoció.",
+    book_update_expedition_started: "Vaig enviar una partida a {region}. Els vaig seguir amb la mirada fins que eren punts, després res.",
+    book_update_expedition_completed: "Han tornat de {region}. Cansats, polsegosos, però vius. Gràcies als astres.",
+    book_update_combat_victory: "Victòria! Ho vaig veure des de la cresta — es van mantenir drets quan l'enemic va caure. Vaig cridar tant que em fa mal la gola.",
+    book_update_combat_defeat: "Van tornar ferits. Menys dels que van partir. Ahir no vaig escriure. No vaig poder.",
+    book_update_hero_recruited: "{hero} s'ha unit a nosaltres! Cara nova, històries noves. El poble es fa més gran.",
+    book_update_market_rotation: "Mercat reabastit. Vaig sentir els comerciants discutint preus abans de l'alba.",
+    book_update_raid_defended: "Van venir els assaltants. Ens vam mantenir. Ells no. Vaig comptar les fletxes al mur — disset.",
+    book_update_raid_lost: "Els assaltants van trencar el seter. Es van endur el que van voler. Vaig amagar el diari sota el terra. Escriuré més quan pugui.",
+    book_update_quiet_day: "No es va moure res. Fins el vent va contenir l'alè.",
 
-    book_milestone_first_victory: "Primera Victòria",
-    book_milestone_first_boss: "Primer Cap Derrotat",
-    book_milestone_first_region: "Primera Regió Explorada",
-    book_milestone_first_building: "Primera Construcció",
-    book_milestone_first_spell: "Primer Encanteri Compost",
-    book_milestone_first_academy: "Primera Sessió de l'Acadèmia",
-    book_milestone_first_body_inscription: "Primera Inscripció Corporal",
+    // Esdeveniments històrics — Relats presenciats, literaris
+    book_history_combat_victory: "{heroes} es van enfrontar a {enemyCount} {enemies} i van prevaler. Vaig observar des de la cresta, el cor desbocat, mentre l'últim enemic caia. La vall va tornar a quedar en silenci, llevat de la seva respiració.",
+    book_history_combat_defeat: "{heroes} van lluitar amb valentia, però l'enemic va ser massa fort. Els vaig veure retirar-se, arrossegant els ferits. La vall es va sentir més fosca després.",
+
+    // Fites — Celebratòries, personals, emocionades
+    book_milestone_first_victory: "¡¡¡Primera victòria!!!",
+    book_milestone_first_boss: "¡Hem derrotat el Cap!",
+    book_milestone_first_region: "¡Primera regió explorada!",
+    book_milestone_first_building: "¡Primera construcció completa!",
+    book_milestone_first_spell: "¡Primer encanteri compost!",
+    book_milestone_first_academy: "¡Primera sessió de l'Acadèmia!",
+    book_milestone_first_body_inscription: "¡Primera inscripció corporal!",
+
+    // Revelació de l'escriptor — La confessió del cronista
+    book_milestone_writer_revelation: "La confessió del cronista",
+    book_milestone_writer_revelation_text: "M'he adonat que, amb aquests perills, potser no sempre hi seré, així que deixo notes per al proper propietari d'aquest petit diari que he anat portant per documentar la bella imatge que l'Arthur està creant des de zero... potser en el futur, quan el poble es converteixi en una gran ciutat, algú prendrà aquestes notes i escriurà un llibre d'història adequat sobre com la nostra vila es va fer gran.",
+    book_milestone_writer_note_12: "Els atacs s'acosten. Escribo a la llum de la cera ara, i la cera degota sobre les pàgines. Si em passa alguna cosa, trobeu aquest diari a la taverna — el guardo sota el taulell on els barrils de cervesa toquen la paret.",
+    book_milestone_writer_note_14: "Dotze pàgines d'història ja. El poble ha crescut tant. Mai vaig pensar que veuria una farga de ferrer aquí, ni que sentiria nens riure a la plaça. L'Arthur no sap que l'observo, però crec que ho sospita. A vegades aixeca la vista cap a la meva finestra.",
+    book_unlock_lore_writer_revelation: "Has conegut qui va escriure el Llibre.",
 
     // ═══ NARRATIVE / PROLOGUE ═════════════════════════════════════════════
     intro_btn: "Començar Viatge",

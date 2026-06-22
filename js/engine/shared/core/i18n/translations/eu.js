@@ -1122,50 +1122,68 @@ export const eu = {
     // ═══ NAVIGATION ═══════════════════════════════════════════════════════
     nav_codex: "Kodexa",
 
-    // ═══ THE BOOK ════════════════════════════════════════════════════════
+    // ═══ THE BOOK — KRONISTAREN AHOZKO ═══════════════════════════════
+    // Liburua herrikoide batek idazten duen egunerokoa da. Gertaera
+    // historikoak zainki eta artistikoki idazten dira. Herriaren
+    // egunerokoak azkar eta praktikoki. Idazlea ikusezko pertsonaia
+    // bat da, geroxago agertuko dena.
+
     book_uxelm_title: "Liburua",
     book_uxelm_prev: "Aurrekoa",
     book_uxelm_next: "Hurrengoa",
     book_uxelm_spread: "{current} / {total}",
-    book_uxelm_milestone: "Mugarria",
+    book_uxelm_milestone: "Oroitzeko marka bat",
+
+    // Kapituluen izenburuak — Dramatikoak, harroak, literarioak
     book_chapter_default_title: "{chapter}. Kapitulua",
     book_chapter_1_title: "I. Kapitulua: Iraganaren Hondarrak",
     book_chapter_2_title: "II. Kapitulua: Aro Arkanoa",
     book_chapter_3_title: "III. Kapitulua: Ipar Izoztua",
     book_chapter_4_title: "IV. Kapitulua: Atari Astrala",
     book_chapter_5_title: "V. Kapitulua: Azken Aurkakoa",
-    book_chapter_2_event_block: "Herrikoideek runa zaharrak aurkitu zituzten kokaleku berriaren lehen harrien azpian.",
+    book_chapter_2_event_block: "Kokaleku berriaren lehen harrien azpian, inork gogoratzen ez zituen runak aurkitu genituen. Eskuaren atzealdeaz garbitu nituen, eta han zeuden, ilunetan tente distiratzen — gure baino zaharragoak ziren ikurrak.",
 
-    book_village_updates_title: "{day}. Eguna — Herriaren Egunerokoa",
-    book_update_village_founded: "Herri berri bat sortu da haranean.",
-    book_update_food_consumed: "{amount} janari unitate kontsumitu ziren.",
-    book_update_villager_joined: "{amount} herrikoidek herriari batu zitzaizkion!",
-    book_update_hero_rested: "{hero}k atsedena hartu eta {hp} HP berreskuratu zituen.",
-    book_update_hero_trained: "{hero}k entrenatu eta {xp} XP irabazi zituen.",
-    book_update_hero_scouted: "{hero}k inguruak aztertu eta {region} aurkitu zuen.",
-    book_update_hero_crafted: "{hero}k {item} egin zuen.",
-    book_update_hero_socialized: "{hero}k herrikoideekin harremanak sendotu zituen.",
-    book_update_building_completed: "{building} eraikuntza amaitu da!",
-    book_update_region_unlocked: "Eskualde berri bat desblokeatu da: {region}.",
-    book_update_expedition_started: "Esplorazio bat hasi da {region}-era.",
-    book_update_expedition_completed: "{region}-era esplorazioa bueltatu da.",
-    book_update_combat_victory: "Garaipena! Taldeak {enemies} menderatu zituen.",
-    book_update_combat_defeat: "Porrota... Taldeak {enemies}-ren aurrean erori ziren.",
-    book_update_hero_recruited: "{hero} herriari batu zaio!",
-    book_update_market_rotation: "Merkatua hornitu egin da produktu berriekin.",
-    book_update_raid_defended: "Herriak eraso bat defendatu zuen arrakastaz!",
-    book_update_raid_lost: "Herria eraso egin zioten. Baliabideak galdu ziren.",
-    book_update_quiet_day: "Egun lasaia igaro zen herrian.",
-    book_history_combat_victory: "{heroes}-ek garaipena lortu dute {enemyCount} {enemies} aurka.",
-    book_history_combat_defeat: "{heroes} borrokan galdu ziren.",
+    // Herriaren egunerokoak — Azkarrak, praktikoak, eskribauaren esku azkarra
+    book_village_updates_title: "{day}. eguna — Herriaren oharrak",
+    book_update_village_founded: "Egunsentian lehen egurra jarri zuten. Eguerdian, horma hiru zutik zeuden. Haranaren marrazkia egin nuen tontorretik — ibaia zilarrez doa han.",
+    book_update_food_consumed: "Biltegia {amount} unitate jaitsi da. Neguko biltegia hutsik doa.",
+    book_update_villager_joined: "{amount} arima berri etorri dira gaur. Plazako sua gero eta altuago erre da.",
+    book_update_hero_rested: "{hero} lo egin du. Ospitalea haizearekin crack egiten zuen. Ondo.",
+    book_update_hero_trained: "{hero} entrenatu du eskuak odol artean artean. Leihatilarik ikusi nuen.",
+    book_update_hero_scouted: "{hero} basatik itzuli da {region} berriekin. Begiak harriduraz distiratzen ziren.",
+    book_update_hero_crafted: "{hero}k {item} egin du tailerrean. Mailuaren kolpea ilunabar artean entzun zen.",
+    book_update_hero_socialized: "{hero} suaren ondoan besteekin eseri zen. Barreak. Horixe entzun nuen.",
+    book_update_building_completed: "{building} prest dago! Kanpaiak hiru aldiz jo zituen. Guztiak korrika irten ziren.",
+    book_update_region_unlocked: "{region} aurkitu dugu. Eskutitik markatu nuen mapan — tinta pozoiaz korritu zen.",
+    book_update_expedition_started: "Talde bat bidali dut {region}-era. Puntu artean jarraitu nituen begiekin, eta gero ezer.",
+    book_update_expedition_completed: "{region}-etik bueltatu dira. Nekatuta, hauts artean, baina bizirik. Eskerrik izarrei.",
+    book_update_combat_victory: "Garaipena! Tontorretik ikusi nuen — zutik egon ziren etsaia erori zenean. Ozen hainbeste oihu egin nuen eztarria minikaratzen zaidala.",
+    book_update_combat_defeat: "Zaurituta bueltatu ziren. Gutxiago joan zirenak baino. Atzo ez nuen idatzi. Ezin nuen.",
+    book_update_hero_recruited: "{hero} batu zaigu! Aurpegi berria, istorio berriak. Herria handiagoa sentitzen da.",
+    book_update_market_rotation: "Merkatua hornitu da. Merkatariek argitu aurretik prezioez eztabaidatzen entzun nuen.",
+    book_update_raid_defended: "Erasotzaileak etorri ziren. Eutsi egin genuen. Haiek ez. Hormako geziak zenbatu nituen — hamazazpi.",
+    book_update_raid_lost: "Erasotzaileek harresia hautsi zuten. Nahi zutena eraman zuten. Egunerokoa lurpean ezkutatu nuen. Gehiago idatziko dut gero.",
+    book_update_quiet_day: "Ezer ere ez zen mugitu. Haizeak ere arnasa hartu zuen.",
 
-    book_milestone_first_victory: "Lehen Garaipena",
-    book_milestone_first_boss: "Lehen Buruzagia Garaitua",
-    book_milestone_first_region: "Lehen Eskualde Esploratua",
-    book_milestone_first_building: "Lehen Eraikuntza",
-    book_milestone_first_spell: "Lehen Aztia Osatua",
-    book_milestone_first_academy: "Lehen Akademiako Saioa",
-    book_milestone_first_body_inscription: "Lehen Gorputz-Inskripzioa",
+    // Gertaera historikoak — Lekukotza literarioak
+    book_history_combat_victory: "{heroes} {enemyCount} {enemies} aurka borrokatu ziren eta nagusitu. Tontorretik begiztatu nuen, bihotza lasterran, etsai azkena erortzen zen bitartean. Harana isil geratu zen berriro, haien arnasa besterik ez.",
+    book_history_combat_defeat: "{heroes} ausardiaz borrokatu ziren, baina etsaia indartsuegia izan zen. Ihesi ikusi nituen, zaurituak arrastatzen. Harana ilunagoa sentitu zen ondoren.",
+
+    // Mugarriak — Ospakizunak, pertsonalak, pozik
+    book_milestone_first_victory: "Lehen garaipena!!!",
+    book_milestone_first_boss: "Buruzagia garaitu dugu!",
+    book_milestone_first_region: "Lehen eskualde esploratua!",
+    book_milestone_first_building: "Lehen eraikuntza bukatua!",
+    book_milestone_first_spell: "Lehen aztia osatua!",
+    book_milestone_first_academy: "Lehen akademiako saioa!",
+    book_milestone_first_body_inscription: "Lehen gorputz-inskripzioa!",
+
+    // Idazlearen agerraldia — Kronistaren aitorpena
+    book_milestone_writer_revelation: "Kronistaren aitorpena",
+    book_milestone_writer_revelation_text: "Ohartu naiz arrisku hauen aurrean beti egon ezin izan daitekezkeenez, ohar utzi nahi dizkiot eguneroko txiki honen hurrengo jabeari, Arthur-ek hutsetik sortzen ari den irudi ederra dokumentatzeko erabiltzen ari naizena... agian etorkizunean, herria hiri handi bihurtzen denean, norbait oharrak hartuko ditu eta gure herrixka nola handitu zen kontatzen duen historia-liburu egokia idatziko du.",
+    book_milestone_writer_note_12: "Erasoek hurbiltzen ari dira. Kandelaren argiz idazten dut orain, eta argizaria orrialdeetara tantaka doa. Zerbait gertatzen baza, bil ezazue egunerokoa tabernan — barrilak hormarekin bat egiten duten lekuan, kontuaren azpian gordetzen dut.",
+    book_milestone_writer_note_14: "Hamabi orrialde historiaz. Herria hainbeste hazi da. Inoiz ez nuen uste artzain-sutegia ikusiko nuenik, edo haurrak plazan barreka entzungo nituzkenik. Arthur-ek ez daki begiztatzen dudanik, baina uste dut susmatzen duela. Batzuetan begiak jasotzen ditu nire leihoaren aurka.",
+    book_unlock_lore_writer_revelation: "Liburua idatzi zuenarekin elkar ezagutu zenuen.",
 
     // ═══ NARRATIVE / PROLOGUE ═════════════════════════════════════════════
     intro_btn: "Hasi Bidaia",

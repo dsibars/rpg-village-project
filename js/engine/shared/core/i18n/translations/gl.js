@@ -1122,50 +1122,67 @@ export const gl = {
     // ═══ NAVIGATION ═══════════════════════════════════════════════════════
     nav_codex: "Códice",
 
-    // ═══ THE BOOK ════════════════════════════════════════════════════════
+    // ═══ THE BOOK — VOZ DO CRONISTA ═══════════════════════════════════
+    // O Libro é o diario persoal dun veciño. Os eventos históricos escríbense
+    // con coidado e arte. As actualizacións da vila son apuntamentos rápidos.
+
     book_uxelm_title: "O Libro",
     book_uxelm_prev: "Anterior",
     book_uxelm_next: "Seguinte",
     book_uxelm_spread: "{current} / {total}",
-    book_uxelm_milestone: "Fitos",
+    book_uxelm_milestone: "Unha marca que lembrar",
+
+    // Títulos dos capítulos — dramáticos, orgullosos, literarios
     book_chapter_default_title: "Capítulo {chapter}",
     book_chapter_1_title: "Capítulo I: As Cinzas do Pasado",
     book_chapter_2_title: "Capítulo II: A Era Arcana",
     book_chapter_3_title: "Capítulo III: O Norte Xeado",
     book_chapter_4_title: "Capítulo IV: O Umbral Astral",
     book_chapter_5_title: "Capítulo V: A Derradeira Defensa",
-    book_chapter_2_event_block: "Os veciños descubriron runas antigas baixo as primeiras pedras do novo asentamento.",
+    book_chapter_2_event_block: "Baixo as primeiras pedras do asentamento descubrimos runas que ninguén lembraba. As cepillei co dorso da man e alí estaban, brillando débilmente na escuridade — símbolos máis antigos que nós.",
 
-    book_village_updates_title: "Día {day} — Actualizacións da Vila",
-    book_update_village_founded: "Fundouse un novo poboado no val.",
-    book_update_food_consumed: "Consumíronse {amount} unidades de comida.",
-    book_update_villager_joined: "¡{amount} veciño(s) uníronse á vila!",
-    book_update_hero_rested: "{hero} descansou e recuperou {hp} PV.",
-    book_update_hero_trained: "{hero} adestrou e gañou {xp} XP.",
-    book_update_hero_scouted: "{hero} explorou os arredores e descubriu {region}.",
-    book_update_hero_crafted: "{hero} fabricou {item}.",
-    book_update_hero_socialized: "{hero} socializou cos veciños, mellorando a moral.",
-    book_update_building_completed: "A construción de {building} rematou!",
-    book_update_region_unlocked: "Desbloqueouse unha nova rexión: {region}.",
-    book_update_expedition_started: "Comezou unha expedición a {region}.",
-    book_update_expedition_completed: "A expedición a {region} volveu.",
-    book_update_combat_victory: "Vitoria! O grupo derrotou a {enemies}.",
-    book_update_combat_defeat: "Derrota... O grupo caeu ante {enemies}.",
-    book_update_hero_recruited: "¡{hero} uníuse á vila!",
-    book_update_market_rotation: "O mercado reabasteceuse con novos produtos.",
-    book_update_raid_defended: "¡A vila defendeu con éxito contra un ataque!",
-    book_update_raid_lost: "A vila foi atacada. Perdéronse recursos.",
-    book_update_quiet_day: "O día pasou tranquilamente na vila.",
-    book_history_combat_victory: "{heroes} gañaron unha batalla contra {enemyCount} {enemies}.",
-    book_history_combat_defeat: "{heroes} foron derrotados en batalla.",
+    // Actualizacións da vila — rápidas, prácticas, a man apresurada do escriba
+    book_village_updates_title: "Día {day} — Notas da vila",
+    book_update_village_founded: "Clavaron a primeira estaca ao amencer. Ao mediodía, tres muros xa se alzaban. Debuxei o val desde a crista — o río corre prateado alí.",
+    book_update_food_consumed: "Despensa baixou {amount} unidades. A despensa de inverno vaise baleirando.",
+    book_update_villager_joined: "{amount} alma(s) nova(s) chegaron hoxe. A fogueira da praza ardeu máis alta.",
+    book_update_hero_rested: "{hero} durmiu. O hospital cruxía co vento. Ben.",
+    book_update_hero_trained: "{hero} adestrou ata que as mans lle sangraron. Vinlle desde a fiestra.",
+    book_update_hero_scouted: "{hero} volveu das leiras con novas de {region}. Ollos cheos de asombro.",
+    book_update_hero_crafted: "{hero} fixo {item} no taller. O son do martelo ecoou ata o solpor.",
+    book_update_hero_socialized: "{hero} sentou cos demais ao lume da lareira. Risas. Iso é o que oín.",
+    book_update_building_completed: "O {building} está feito! A campá tocou tres veces. Todo o mundo veu correndo.",
+    book_update_region_unlocked: "Atopamos {region}. Marqueino no meu mapa cunha man trémera — a tinta borrouse da emoción.",
+    book_update_expedition_started: "Enviou un grupo a {region}. Vin marchar ata que foron puntos, logo nada.",
+    book_update_expedition_completed: "Volven de {region}. Cansos, empoeirados, pero vivos. Grazas ás estrelas.",
+    book_update_combat_victory: "Vitoria! Vin dende a crista — quedaron en pé cando o inimigo caeu. Gritaron tan forte que me doeu a gorxa.",
+    book_update_combat_defeat: "Volven feridos. Menos dos que saíron. Non escribín onte á noite. Non podía.",
+    book_update_hero_recruited: "{hero} uniuse a nós! Nova cara, novas historias. A vila parece máis grande agora.",
+    book_update_market_rotation: "Mercado reabasteceu. Oín os mercadores discutindo prezos antes do amencer.",
+    book_update_raid_defended: "Atacaron. Aguantamos. Eles non. Contei as frechas na parede — dezasete.",
+    book_update_raid_lost: "Os asaltantes romperon. Levaron o que quixeron. Escondín o diario debaixo do chan. Escribiré máis cando poida.",
+    book_update_quiet_day: "Nada se moveu. Nin o vento respirou.",
 
-    book_milestone_first_victory: "Primeira Vitoria",
-    book_milestone_first_boss: "Primeiro Xefe Derrotado",
-    book_milestone_first_region: "Primeira Rexión Explorada",
-    book_milestone_first_building: "Primeira Construción",
-    book_milestone_first_spell: "Primeiro Feitizo Composto",
-    book_milestone_first_academy: "Primeira Sesión da Academia",
-    book_milestone_first_body_inscription: "Primeira Inscrición Corporal",
+    // Eventos históricos — testemuñas presenciais, literarios
+    book_history_combat_victory: "{heroes} enfrontáronse a {enemyCount} {enemies} e prevaleceron. Vin dende a crista, co corazón axitado, como o último inimigo caía. O val volveu quedar en silencio, agás pola súa respiración.",
+    book_history_combat_defeat: "{heroes} loitaron con valentía, pero o inimigo era forte. Vin retirarse, arrastrando aos feridos. O val pareceu máis escuro despois.",
+
+    // Fitos — Celebratorios, persoais, emocionados
+    book_milestone_first_victory: "Primeira Vitoria!!!",
+    book_milestone_first_boss: "Derrotamos o Xefe!",
+    book_milestone_first_region: "Primeira Rexión Explorada!",
+    book_milestone_first_building: "Primeira Construción Rematada!",
+    book_milestone_first_spell: "Primeiro Feitizo Composto!",
+    book_milestone_first_academy: "Primeira Sesión da Academia!",
+    book_milestone_first_body_inscription: "Primeira Inscrición Corporal!",
+
+    // Revelación do escritor — A confesión do cronista
+    book_milestone_writer_revelation: "A confesión do cronista",
+    book_milestone_writer_revelation_text: "Déime conta de que, con estes perigos, pode que non estea sempre presente, así que deixo notas para o próximo dono deste pequeno diario que levo lembrando para documentar a fermosa imaxe que Arthur está creando desde cero... quizais no futuro, cando a vila se converta nunha gran cidade, alguén tomará estas notas e escribirá un libro de historia axeitado sobre como a nosa aldea se fixo grande.",
+    book_milestone_writer_note_12: "Os ataques están máis achegados. Escribo á luz da vela agora, e a cera gotea sobre as páxinas. Se algo me pasa, atopade este diario na taberna — gárdao debaixo do mostrador onde os barrís de cervella tocan a parede.",
+    book_milestone_writer_note_14: "Doce páxinas de historia xa. A vila medrou tanto. Nunca pensei que vería unha forxa de ferreiro aquí, nin que oiría a nenos rir na praza. Arthur non sabe que o observo, pero creo que o sospeita. Ás veces levanta a vista cara á miña fiestra.",
+
+    book_unlock_lore_writer_revelation: "Coñeciches a quen escribiu o Libro.",
 
     // ═══ NARRATIVE / PROLOGUE ═════════════════════════════════════════════
     intro_btn: "Comezar Viaxe",

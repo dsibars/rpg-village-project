@@ -1123,50 +1123,68 @@ export const es = {
     // ═══ NAVIGATION ═══════════════════════════════════════════════════════
     nav_codex: "Códice",
 
-    // ═══ THE BOOK ════════════════════════════════════════════════════════
+    // ═══ THE BOOK — VOZ DEL CRONISTA ══════════════════════════════════
+    // El Libro es el diario personal de un aldeano. Los eventos históricos
+    // se escriben con cuidado y arte. Las actualizaciones del pueblo son
+    // apuntes rápidos. El escritor es un personaje invisible que se revela
+    // más adelante.
+
     book_uxelm_title: "El Libro",
     book_uxelm_prev: "Anterior",
     book_uxelm_next: "Siguiente",
     book_uxelm_spread: "{current} / {total}",
-    book_uxelm_milestone: "Hito",
+    book_uxelm_milestone: "Una marca para recordar",
+
+    // Títulos de capítulo — Dramáticos, orgullosos, literarios
     book_chapter_default_title: "Capítulo {chapter}",
     book_chapter_1_title: "Capítulo I: Las Cenizas del Pasado",
     book_chapter_2_title: "Capítulo II: La Era Arcana",
     book_chapter_3_title: "Capítulo III: El Norte Helado",
     book_chapter_4_title: "Capítulo IV: El Umbral Astral",
     book_chapter_5_title: "Capítulo V: La Última Defensa",
-    book_chapter_2_event_block: "Los aldeanos descubrieron runas antiguas bajo las primeras piedras del nuevo asentamiento.",
+    book_chapter_2_event_block: "Bajo las primeras piedras del asentamiento descubrimos runas que nadie recordaba. Las cepillé con el dorso de la mano y allí estaban, brillando tenuemente en la oscuridad — símbolos más antiguos que nosotros.",
 
-    book_village_updates_title: "Día {day} — Actualizaciones del Pueblo",
-    book_update_village_founded: "Se ha fundado un nuevo pueblo en el valle.",
-    book_update_food_consumed: "Se consumieron {amount} unidades de comida.",
-    book_update_villager_joined: "¡{amount} aldeano(s) se unieron al pueblo!",
-    book_update_hero_rested: "{hero} descansó y recuperó {hp} PV.",
-    book_update_hero_trained: "{hero} entrenó y ganó {xp} XP.",
-    book_update_hero_scouted: "{hero} exploró los alrededores y descubrió {region}.",
-    book_update_hero_crafted: "{hero} fabricó {item}.",
-    book_update_hero_socialized: "{hero} socializó con los aldeanos, mejorando la moral.",
-    book_update_building_completed: "¡La construcción de {building} ha terminado!",
-    book_update_region_unlocked: "Se ha desbloqueado una nueva región: {region}.",
-    book_update_expedition_started: "Ha comenzado una expedición a {region}.",
-    book_update_expedition_completed: "La expedición a {region} ha regresado.",
-    book_update_combat_victory: "¡Victoria! El grupo derrotó a {enemies}.",
-    book_update_combat_defeat: "Derrota... El grupo cayó ante {enemies}.",
-    book_update_hero_recruited: "¡{hero} se ha unido al pueblo!",
-    book_update_market_rotation: "El mercado se ha reabastecido con nuevos productos.",
-    book_update_raid_defended: "¡El pueblo defendió exitosamente contra un ataque!",
-    book_update_raid_lost: "El pueblo fue atacado. Se perdieron recursos.",
-    book_update_quiet_day: "El día pasó tranquilamente en el pueblo.",
-    book_history_combat_victory: "{heroes} ganaron una batalla contra {enemyCount} {enemies}.",
-    book_history_combat_defeat: "{heroes} fueron derrotados en batalla.",
+    // Actualizaciones del pueblo — Rápidas, prácticas, la mano apresurada del escriba
+    book_village_updates_title: "Día {day} — Notas del pueblo",
+    book_update_village_founded: "Clavaron la primera estaca al amanecer. A mediodía, tres muros ya se alzaban. Dibujé el valle desde la cresta — el río corre plateado allí.",
+    book_update_food_consumed: "Despensa bajó {amount} unidades. La despensa de invierno se vacía.",
+    book_update_villager_joined: "{amount} alma(s) nueva(s) llegaron hoy. La hoguera de la plaza ardió más alta.",
+    book_update_hero_rested: "{hero} durmió. El hospital crujía con el viento. Bien.",
+    book_update_hero_trained: "{hero} entrenó hasta que las manos le sangraron. Lo vi desde la ventana.",
+    book_update_hero_scouted: "{hero} volvió de salvaje con noticias de {region}. Los ojos brillaban de asombro.",
+    book_update_hero_crafted: "{hero} hizo {item} en el taller. El golpe del martillo resonó hasta el anochecer.",
+    book_update_hero_socialized: "{hero} se sentó con los demás junto al fuego. Risas. Eso es lo que oí.",
+    book_update_building_completed: "¡El {building} está listo! La campana tocó tres veces. Todos salieron corriendo.",
+    book_update_region_unlocked: "Encontramos {region}. Lo marqué en el mapa con mano temblorosa — la tinta se corrió de la emoción.",
+    book_update_expedition_started: "Envié una partida a {region}. Los seguí con la mirada hasta que fueron puntos, luego nada.",
+    book_update_expedition_completed: "Han vuelto de {region}. Cansados, polvorientos, pero vivos. Gracias a los cielos.",
+    book_update_combat_victory: "¡Victoria! Lo vi desde la cresta — se mantuvieron en pie cuando el enemigo cayó. Grité tanto que me duele la garganta.",
+    book_update_combat_defeat: "Volvieron heridos. Menos de los que partieron. Anoche no escribí. No pude.",
+    book_update_hero_recruited: "¡{hero} se ha unido a nosotros! Cara nueva, historias nuevas. El pueblo se siente más grande.",
+    book_update_market_rotation: "Mercado reabastecido. Oí a los comerciantes discutiendo precios antes del amanecer.",
+    book_update_raid_defended: "Vinieron los asaltantes. Nos mantuvimos. Ellos no. Conté las flechas en el muro — diecisiete.",
+    book_update_raid_lost: "Los asaltantes rompieron el cerco. Se llevaron lo que quisieron. Escondí el diario bajo el suelo. Escribiré más cuando pueda.",
+    book_update_quiet_day: "Nada se movió. Hasta el viento contuvo la respiración.",
 
-    book_milestone_first_victory: "Primera Victoria",
-    book_milestone_first_boss: "Primer Jefe Derrotado",
-    book_milestone_first_region: "Primera Región Explorada",
-    book_milestone_first_building: "Primera Construcción",
-    book_milestone_first_spell: "Primer Hechizo Compuesto",
-    book_milestone_first_academy: "Primera Sesión de la Academia",
-    book_milestone_first_body_inscription: "Primera Inscripción Corporal",
+    // Eventos históricos — Relatos presenciados, literarios
+    book_history_combat_victory: "{heroes} se enfrentaron a {enemyCount} {enemies} y prevalecieron. Observé desde la cresta, el corazón desbocado, mientras el último enemigo caía. El valle volvió a quedar en silencio, salvo por su respiración.",
+    book_history_combat_defeat: "{heroes} lucharon con valentía, pero el enemigo fue demasiado fuerte. Los vi retirarse, arrastrando a los heridos. El valle se sintió más oscuro después.",
+
+    // Hitos — Celebratorios, personales, emocionados
+    book_milestone_first_victory: "¡¡¡Primera victoria!!!",
+    book_milestone_first_boss: "¡Derrotamos al Jefe!",
+    book_milestone_first_region: "¡Primera región explorada!",
+    book_milestone_first_building: "¡Primera construcción completa!",
+    book_milestone_first_spell: "¡Primer hechizo compuesto!",
+    book_milestone_first_academy: "¡Primera sesión de la Academia!",
+    book_milestone_first_body_inscription: "¡Primera inscripción corporal!",
+
+    // Revelación del escritor — La confesión del cronista
+    book_milestone_writer_revelation: "La confesión del cronista",
+    book_milestone_writer_revelation_text: "Me di cuenta de que, con estos peligros, puede que no siempre esté presente, así que dejo notas para el próximo dueño de este pequeño diario que he estado llevando para documentar la bella imagen que Arthur está creando desde cero... quizás en el futuro, cuando el pueblo se convierta en una gran ciudad, alguien tomará estas notas y escribirá un libro de historia adecuado sobre cómo nuestra aldea se hizo grande.",
+    book_milestone_writer_note_12: "Los ataques se acercan. Escribo a la luz de la vela ahora, y la cera gotea sobre las páginas. Si algo me pasa, encontrad este diario en la taberna — lo guardo bajo el mostrador donde los barriles de cerveza tocan la pared.",
+    book_milestone_writer_note_14: "Doce páginas de historia ya. El pueblo ha crecido tanto. Nunca pensé que vería una fragua de herrero aquí, ni que oiría a niños reír en la plaza. Arthur no sabe que lo observo, pero creo que lo sospecha. A veces levanta la vista hacia mi ventana.",
+    book_unlock_lore_writer_revelation: "Conociste a quien escribió el Libro.",
 
     // ═══ NARRATIVE / PROLOGUE ═════════════════════════════════════════════
     intro_btn: "Comenzar Viaje",

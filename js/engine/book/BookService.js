@@ -59,6 +59,7 @@ export class BookService {
             ],
             pageSections: [],
             lastReadSpread: 1,
+            _totalHistoryBlocks: 0,
         };
     }
 
@@ -163,11 +164,108 @@ export class BookService {
         this.state.pageSections.push(pageSection);
         this.save();
 
+        // Step 5: Check for writer revelation milestones after history events
+        if (
+            section.category === BOOK_SECTION_CATEGORIES.HISTORY_EVENT ||
+            section.category === BOOK_SECTION_CATEGORIES.CHAPTER_HISTORY_EVENT
+        ) {
+            const historyBlockCount = pcsList.filter(pcs => pcs.type === PCS_TYPES.HISTORY_BLOCK).length;
+            this.state._totalHistoryBlocks = (this.state._totalHistoryBlocks || 0) + historyBlockCount;
+            this._checkWriterRevelation();
+            this.save();
+        }
+
         return {
             pageSectionId: pageSection.id,
             pages: pageSection.pages,
             chapterNumber: currentChapter.chapterNumber,
         };
+    }
+
+    /**
+     * Check if a writer revelation milestone should be triggered.
+     * Injects milestone sections at 10, 12, and 14 total history blocks.
+     */
+    _checkWriterRevelation() {
+        const total = this.state._totalHistoryBlocks || 0;
+        const milestones = [
+            { threshold: 10, titleKey: 'book_milestone_writer_revelation', textKey: 'book_milestone_writer_revelation_text' },
+            { threshold: 12, titleKey: 'book_milestone_writer_note_12', textKey: 'book_milestone_writer_note_12' },
+            { threshold: 14, titleKey: 'book_milestone_writer_note_14', textKey: 'book_milestone_writer_note_14' },
+        ];
+
+        for (const m of milestones) {
+            if (total >= m.threshold && !this._hasWriterMilestone(m.threshold)) {
+                this._injectWriterMilestone(m.titleKey, m.textKey, m.threshold);
+            }
+        }
+    }
+
+    /**
+     * Check if a writer milestone at the given threshold has already been injected.
+     */
+    _hasWriterMilestone(threshold) {
+        return this.state.pageSections.some(ps =>
+            ps.metadata && ps.metadata.writerMilestone === threshold
+        );
+    }
+
+    /**
+     * Inject a writer revelation milestone into the book.
+     */
+    _injectWriterMilestone(titleKey, textKey, threshold) {
+        const milestoneSection = {
+            id: `writer_milestone_${threshold}`,
+            category: BOOK_SECTION_CATEGORIES.MILESTONE,
+            day: 0,
+            blocks: [
+                {
+                    textKey: titleKey,
+                    values: {},
+                    weight: 1,
+                },
+                {
+                    textKey: textKey,
+                    values: {},
+                    weight: 3,
+                },
+            ],
+            metadata: { writerMilestone: threshold },
+        };
+
+        // Use addSection recursively, but avoid triggering another revelation
+        const pcsList = this._splitSectionIntoPcs(milestoneSection);
+        if (pcsList.length === 0) return;
+
+        const pageSection = {
+            id: milestoneSection.id,
+            category: milestoneSection.category,
+            day: milestoneSection.day,
+            pages: [],
+            pageContentSectionIds: [],
+            metadata: milestoneSection.metadata,
+        };
+
+        let currentPage = this._getLastPage();
+        let currentChapter = this._getCurrentChapter();
+
+        for (const pcs of pcsList) {
+            pcs.pageSectionId = pageSection.id;
+            if (currentPage.remainingBudget >= pcs.weight) {
+                currentPage.pageContentSections.push(pcs);
+                currentPage.remainingBudget -= pcs.weight;
+            } else {
+                currentPage = this._createNewPage(currentChapter.chapterNumber);
+                currentPage.pageContentSections.push(pcs);
+                currentPage.remainingBudget -= pcs.weight;
+            }
+            if (!pageSection.pages.includes(currentPage.pageNumber)) {
+                pageSection.pages.push(currentPage.pageNumber);
+            }
+            pageSection.pageContentSectionIds.push(pcs.id);
+        }
+
+        this.state.pageSections.push(pageSection);
     }
 
     /**

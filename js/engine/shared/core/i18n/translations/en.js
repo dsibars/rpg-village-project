@@ -1125,50 +1125,67 @@ export const en = {
     // ═══ NAVIGATION ═══════════════════════════════════════════════════════
     nav_codex: "Codex",
 
-    // ═══ THE BOOK ════════════════════════════════════════════════════════
+    // ═══ THE BOOK — CHRONICLER'S VOICE ═════════════════════════════════
+    // The Book is a villager's personal journal. History events are written
+    // with care and artistry. Village updates are quick scribbles. The writer
+    // is an unseen character who reveals themselves later.
+
     book_uxelm_title: "The Book",
     book_uxelm_prev: "Previous",
     book_uxelm_next: "Next",
     book_uxelm_spread: "{current} / {total}",
-    book_uxelm_milestone: "Milestone",
+    book_uxelm_milestone: "A Mark Worth Remembering",
+
+    // Chapter Titles — Dramatic, proud, literary
     book_chapter_default_title: "Chapter {chapter}",
     book_chapter_1_title: "Chapter I: The Ashes of the Past",
     book_chapter_2_title: "Chapter II: The Arcane Age",
     book_chapter_3_title: "Chapter III: The Frozen North",
     book_chapter_4_title: "Chapter IV: The Astral Threshold",
     book_chapter_5_title: "Chapter V: The Final Stand",
-    book_chapter_2_event_block: "The villagers discovered ancient runes beneath the first stones of the new settlement.",
+    book_chapter_2_event_block: "The villagers discovered ancient runes beneath the first stones of the new settlement. I watched them brush away the dirt, and there they were — symbols older than any of us, glowing faintly in the dark.",
 
-    book_village_updates_title: "Day {day} — Village Updates",
-    book_update_village_founded: "A new village has been founded in the valley.",
-    book_update_food_consumed: "{amount} food units were consumed.",
-    book_update_villager_joined: "{amount} villager(s) joined the village!",
-    book_update_hero_rested: "{hero} rested and recovered {hp} HP.",
-    book_update_hero_trained: "{hero} trained and gained {xp} XP.",
-    book_update_hero_scouted: "{hero} scouted the surroundings and discovered {region}.",
-    book_update_hero_crafted: "{hero} crafted {item}.",
-    book_update_hero_socialized: "{hero} socialized with the villagers, improving morale.",
-    book_update_building_completed: "The {building} construction is complete!",
-    book_update_region_unlocked: "A new region has been unlocked: {region}.",
-    book_update_expedition_started: "An expedition to {region} has begun.",
-    book_update_expedition_completed: "The expedition to {region} has returned.",
-    book_update_combat_victory: "Victory! The party defeated {enemies}.",
-    book_update_combat_defeat: "Defeat... The party fell to {enemies}.",
-    book_update_hero_recruited: "{hero} has joined the village!",
-    book_update_market_rotation: "The market has restocked with new goods.",
-    book_update_raid_defended: "The village successfully defended against a raid!",
-    book_update_raid_lost: "The village was raided. Resources were lost.",
-    book_update_quiet_day: "The day passed quietly in the village.",
-    book_history_combat_victory: "{heroes} won a battle against {enemyCount} {enemies}.",
-    book_history_combat_defeat: "{heroes} were defeated in battle.",
+    // Village Updates — Quick, practical, the scribe's hurried hand
+    book_village_updates_title: "Day {day} — Notes from the Village",
+    book_update_village_founded: "They drove the first stake at dawn. By midday, three walls stood. I drew the valley from the ridge — the river runs silver there.",
+    book_update_food_consumed: "Food stores down by {amount}. The winter larder grows thin.",
+    book_update_villager_joined: "{amount} new soul(s) arrived today. The fire in the square burned brighter.",
+    book_update_hero_rested: "{hero} slept. The infirmary creaked in the wind. Good.",
+    book_update_hero_trained: "{hero} trained until their hands blistered. Saw them from the window.",
+    book_update_hero_scouted: "{hero} returned from the wilds with news of {region}. Eyes wide with wonder.",
+    book_update_hero_crafted: "{hero} made {item} in the workshop. Clang of hammer echoed till dusk.",
+    book_update_hero_socialized: "{hero} sat with the others by the fire. Laughter. That's what I heard.",
+    book_update_building_completed: "The {building} is done! Bell rang three times. Everyone came running.",
+    book_update_region_unlocked: "We found {region}. I marked it on my map with a shaky hand — the ink smudged from excitement.",
+    book_update_expedition_started: "Sent a party to {region}. Watched them go until they were dots, then nothing.",
+    book_update_expedition_completed: "They're back from {region}. Tired, dusty, but alive. Thank the stars.",
+    book_update_combat_victory: "Victory! I saw it from the ridge — they stood when the enemy fell. Cheered so loud my throat hurts.",
+    book_update_combat_defeat: "They came back wounded. Fewer than they left. I didn't write last night. Couldn't.",
+    book_update_hero_recruited: "{hero} has joined us! New face, new stories. The village feels bigger now.",
+    book_update_market_rotation: "Market restocked. Heard the traders arguing about prices before dawn.",
+    book_update_raid_defended: "Raiders came. We stood. They didn't. I counted the arrows in the wall — seventeen.",
+    book_update_raid_lost: "Raiders broke through. Took what they wanted. I hid the journal under the floorboards. Will write more when I can.",
+    book_update_quiet_day: "Nothing stirred. Even the wind held its breath.",
 
-    book_milestone_first_victory: "First Victory",
-    book_milestone_first_boss: "First Boss Defeated",
-    book_milestone_first_region: "First Region Explored",
-    book_milestone_first_building: "First Building Constructed",
-    book_milestone_first_spell: "First Spell Composed",
-    book_milestone_first_academy: "First Academy Session",
-    book_milestone_first_body_inscription: "First Body Inscription",
+    // History Events — Witnessed accounts, literary
+    book_history_combat_victory: "{heroes} stood against {enemyCount} {enemies} and prevailed. I watched from the ridge, heart pounding, as the last of the enemy fell. The valley grew quiet again, save for their breathing.",
+    book_history_combat_defeat: "{heroes} fought bravely, but the enemy was too strong. I saw them retreat, dragging the wounded. The valley felt darker after.",
+
+    // Milestones — Celebratory, personal, excited
+    book_milestone_first_victory: "First Victory!!!",
+    book_milestone_first_boss: "We Defeated the Boss!",
+    book_milestone_first_region: "First Region Explored!",
+    book_milestone_first_building: "First Building Complete!",
+    book_milestone_first_spell: "First Spell Composed!",
+    book_milestone_first_academy: "First Academy Session!",
+    book_milestone_first_body_inscription: "First Body Inscription!",
+
+    // Writer Revelation — The chronicler's confession
+    book_milestone_writer_revelation: "The Chronicler's Confession",
+    book_milestone_writer_revelation_text: "I noticed that with these dangers, I may not always be present, so I'm leaving notes for the next owner of this tiny journal I've been keeping to document the beautiful image Arthur is creating from scratch... maybe in the future, when the village becomes a big city, someone will take these notes and write a proper history book of how our village became great.",
+    book_milestone_writer_note_12: "The raids are getting closer. I write by candlelight now, and the wax drips onto the pages. If something happens to me, find this journal in the tavern — I keep it under the counter where the ale barrels meet the wall.",
+    book_milestone_writer_note_14: "Twelve pages of history now. The village has grown so much. I never thought I'd see a blacksmith's forge here, or hear children laughing in the square. Arthur doesn't know I watch, but I think he suspects. Sometimes he looks up at my window.",
+    book_unlock_lore_writer_revelation: "You met the one who wrote the Book.",
 
     // ═══ NARRATIVE / PROLOGUE ═════════════════════════════════════════════
     intro_btn: "Start Journey",
