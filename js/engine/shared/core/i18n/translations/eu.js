@@ -1171,7 +1171,7 @@ export const eu = {
 
     // Mugarriak — Ospakizunak, pertsonalak, pozik
     book_milestone_first_victory: "Lehen garaipena!!!",
-    book_milestone_first_boss: "Buruzagia garaitu dugu!",
+    book_milestone_first_boss: "Lehen Buruzagi Garaitua!",
     book_milestone_first_region: "Lehen eskualde esploratua!",
     book_milestone_first_building: "Lehen eraikuntza bukatua!",
     book_milestone_first_spell: "Lehen aztia osatua!",

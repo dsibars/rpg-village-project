@@ -188,9 +188,9 @@ export class GameEngine {
             category: 'chapter_history_event',
             day: 1,
             blocks: [
-                { image: 'assets/story/valley_dawn.webp', textKey: 'pres_prologue_p1', weight: 1 },
-                { image: 'assets/story/arthur_trail.webp', textKey: 'pres_prologue_p2', weight: 1 },
-                { image: 'assets/story/village_stake.webp', textKey: 'pres_prologue_p3', weight: 1 }
+                { image: 'assets/story/prologue_valley_dawn.webp', textKey: 'pres_prologue_p1', weight: 1 },
+                { image: 'assets/story/prologue_arthur_trail.webp', textKey: 'pres_prologue_p2', weight: 1 },
+                { image: 'assets/story/prologue_first_stake.webp', textKey: 'pres_prologue_p3', weight: 1 }
             ],
             metadata: { titleKey: 'book_chapter_1_title', presentationId: 'pres_prologue' }
         });

@@ -1169,7 +1169,7 @@ export const gl = {
 
     // Fitos — Celebratorios, persoais, emocionados
     book_milestone_first_victory: "Primeira Vitoria!!!",
-    book_milestone_first_boss: "Derrotamos o Xefe!",
+    book_milestone_first_boss: "Primeiro Xefe Derrotado!",
     book_milestone_first_region: "Primeira Rexión Explorada!",
     book_milestone_first_building: "Primeira Construción Rematada!",
     book_milestone_first_spell: "Primeiro Feitizo Composto!",
@@ -1178,8 +1178,8 @@ export const gl = {
 
     // Revelación do escritor — A confesión do cronista
     book_milestone_writer_revelation: "A confesión do cronista",
-    book_milestone_writer_revelation_text: "Déime conta de que, con estes perigos, pode que non estea sempre presente, así que deixo notas para o próximo dono deste pequeno diario que levo lembrando para documentar a fermosa imaxe que Arthur está creando desde cero... quizais no futuro, cando a vila se converta nunha gran cidade, alguén tomará estas notas e escribirá un libro de historia axeitado sobre como a nosa aldea se fixo grande.",
-    book_milestone_writer_note_12: "Os ataques están máis achegados. Escribo á luz da vela agora, e a cera gotea sobre as páxinas. Se algo me pasa, atopade este diario na taberna — gárdao debaixo do mostrador onde os barrís de cervella tocan a parede.",
+    book_milestone_writer_revelation_text: "Déime conta de que, con estes perigos, pode que non estea sempre presente, así que deixo notas para o próximo dono deste pequeno diario que levo escribindo para documentar a fermosa imaxe que Arthur está creando desde cero... quizais no futuro, cando a vila se converta nunha gran cidade, alguén tomará estas notas e escribirá un libro de historia axeitado sobre como a nosa aldea se fixo grande.",
+    book_milestone_writer_note_12: "Os ataques están máis achegados. Escribo á luz da vela agora, e a cera gotea sobre as páxinas. Se algo me pasa, atopade este diario na taberna — gárdao debaixo do mostrador onde os barrís de cervexa tocan a parede.",
     book_milestone_writer_note_14: "Doce páxinas de historia xa. A vila medrou tanto. Nunca pensei que vería unha forxa de ferreiro aquí, nin que oiría a nenos rir na praza. Arthur non sabe que o observo, pero creo que o sospeita. Ás veces levanta a vista cara á miña fiestra.",
 
     book_unlock_lore_writer_revelation: "Coñeciches a quen escribiu o Libro.",

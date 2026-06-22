@@ -1172,7 +1172,7 @@ export const es = {
 
     // Hitos — Celebratorios, personales, emocionados
     book_milestone_first_victory: "¡¡¡Primera victoria!!!",
-    book_milestone_first_boss: "¡Derrotamos al Jefe!",
+    book_milestone_first_boss: "¡Primer Jefe Derrotado!",
     book_milestone_first_region: "¡Primera región explorada!",
     book_milestone_first_building: "¡Primera construcción completa!",
     book_milestone_first_spell: "¡Primer hechizo compuesto!",

@@ -1172,7 +1172,7 @@ export const ca = {
 
     // Fites — Celebratòries, personals, emocionades
     book_milestone_first_victory: "¡¡¡Primera victòria!!!",
-    book_milestone_first_boss: "¡Hem derrotat el Cap!",
+    book_milestone_first_boss: "¡Primer Cap Derrotat!",
     book_milestone_first_region: "¡Primera regió explorada!",
     book_milestone_first_building: "¡Primera construcció completa!",
     book_milestone_first_spell: "¡Primer encanteri compost!",
