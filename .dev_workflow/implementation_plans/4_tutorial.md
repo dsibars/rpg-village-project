@@ -95,31 +95,94 @@ Every tutorial step has exactly four properties, mapping to your mental model:
 | `where` | **Navigation context** — where the user must be. The tutorial forces navigation here and prevents leaving. | `App.vue` `currentPage`, page-specific refs (`selectedHeroId`, `activeModal`, `currentTab`, `selectedRegion`) |
 | `what` | **Spotlight target** — which DOM element to highlight. Darkens everything else. | `data-tutorial-target` HTML5 attribute + `document.querySelector()` |
 | `messages` | **What to say** — array of i18n keys. Shown sequentially (click/tap to advance). | `TutorialOverlay` renders via `i18n.t()` |
-| `until` | **Exit condition** — lambda receiving the full `engine` instance. Returns `true` when the step is complete. Evaluated on every `GameEngine.update()` cycle. | `TutorialService.checkStepCompletion(engine)` |
+| `advanceOn` | **Step completion trigger** — what event causes this step to auto-advance to the next. Components emit events; `TutorialService` listens and advances. | `TutorialService.reportEvent(eventType, data)` |
 
-**`until` Lambda Examples:**
+**`advanceOn` Event Examples:**
 
 ```js
-// Wait until Arthur has learned any skill
-until: (e) => e.heroes.find(h => h.id === 'arthur').skills.length > 0
+// Wait until a skill is learned (any skill, any hero)
+advanceOn: { event: 'skill_learned' }
 
-// Wait until farm is built (level >= 1)
-until: (e) => (e.village.infrastructure.farm || 0) >= 1
+// Wait until Arthur specifically learns a skill
+advanceOn: { event: 'skill_learned', heroId: 'arthur' }
 
-// Wait until player has >= 100 gold
-until: (e) => e.village.resources.gold >= 100
+// Wait until a stat point is spent
+advanceOn: { event: 'stat_assigned' }
 
-// Wait until a specific expedition is active
-until: (e) => e.expeditions.some(ex => ex.nodeId === 'exp_tutorial_cave' && ex.status === 'active')
+// Wait until a building is constructed
+advanceOn: { event: 'building_constructed', buildingId: 'farm' }
 
-// Wait until day advanced (day > 1)
-until: (e) => e.village.day > 1
+// Wait until an expedition starts
+advanceOn: { event: 'expedition_started', nodeId: 'exp_tutorial_cave' }
 
-// Wait until user is on a specific tab
-until: (e) => e.ui?.currentTab === 'heroes'
+// Wait until day is advanced
+advanceOn: { event: 'day_advanced' }
 ```
 
-No new event types needed. No component wiring. The `TutorialService` evaluates `until(engine)` on every `update()` cycle. When it returns `true`, the step auto-advances.
+**Event Payload Structure:**
+```js
+// Skill learned
+{ event: 'skill_learned', heroId: 'arthur', familyId: 'warrior' }
+
+// Stat assigned
+{ event: 'stat_assigned', heroId: 'arthur', statId: 'baseStrength' }
+
+// Building constructed
+{ event: 'building_constructed', buildingId: 'farm', level: 1 }
+
+// Expedition started
+{ event: 'expedition_started', nodeId: 'exp_tutorial_cave' }
+
+// Day advanced
+{ event: 'day_advanced', fromDay: 1, toDay: 2 }
+```
+
+**Why Events Over Lambdas:**
+- **Explicit** — Components declare "I did something" rather than the tutorial polling state
+- **Decoupled** — Tutorial doesn't need to know engine internals; just listens for events
+- **Debuggable** — Events can be logged, traced, and replayed
+- **Testable** — Tests can emit events to drive tutorial progression
+- **Extensible** — New events can be added without changing `TutorialService` logic
+
+**Event Emission Pattern in Components:**
+```js
+// HeroActionBar.vue — after skill is learned
+emit('tutorial:event', { event: 'skill_learned', heroId: props.hero.id, familyId });
+
+// HeroStatsGrid.vue — after stat is assigned
+emit('tutorial:event', { event: 'stat_assigned', heroId: props.hero.id, statId });
+
+// ExploreTab.vue — after expedition starts
+emit('tutorial:event', { event: 'expedition_started', nodeId: selectedNode.id });
+
+// TopBar.vue — after day advance
+eventBus.emit('tutorial:event', { event: 'day_advanced', fromDay, toDay });
+```
+
+**TutorialService Event Matching:**
+```js
+reportEvent(payload) {
+  if (!this.state.activeTutorialId) return;
+  
+  const tutorial = this.registry.get(this.state.activeTutorialId);
+  const step = tutorial.steps[this.state.currentStepIndex];
+  
+  if (!step.advanceOn) return;
+  
+  // Match event type
+  if (step.advanceOn.event !== payload.event) return;
+  
+  // Match optional filters
+  if (step.advanceOn.heroId && step.advanceOn.heroId !== payload.heroId) return;
+  if (step.advanceOn.buildingId && step.advanceOn.buildingId !== payload.buildingId) return;
+  if (step.advanceOn.nodeId && step.advanceOn.nodeId !== payload.nodeId) return;
+  
+  // All conditions met → advance
+  this.advance();
+}
+```
+
+**Note:** `until()` lambdas are removed. The event-driven approach is cleaner, more explicit, and requires no polling.
 
 ---
 
@@ -186,9 +249,9 @@ function resolveTarget(targetId) {
 
 | File | Purpose |
 |------|---------|
-| `js/engine/tutorial/TutorialService.js` | Core engine service: state machine, step progression, `until()` evaluation, persistence |
+| `js/engine/tutorial/TutorialService.js` | Core engine service: state machine, step progression, event matching, persistence |
 | `js/engine/tutorial/TutorialRegistry.js` | Declarative tutorial definitions. Day 1 chain (4 tutorials) + future feature-unlock templates |
-| `js/engine/tutorial/TutorialValidator.js` | Validates `until()` lambdas don't throw, validates all `data-tutorial-target` IDs exist in DOM |
+| `js/engine/tutorial/TutorialValidator.js` | Validates `advanceOn` events match known types, validates all `data-tutorial-target` IDs exist in DOM |
 | `js/engine/tutorial/TutorialTypes.js` | JSDoc types for tutorial definitions (zero runtime cost) |
 | `ux/core/composables/useTutorial.js` | Vue composable: reactive tutorial state, `where` navigation enforcement, spotlight targeting |
 | `ux/core/components/TutorialOverlay.vue` | Root overlay: darkens screen, renders spotlight, shows messages sequentially |
@@ -205,7 +268,7 @@ function resolveTarget(targetId) {
 
 | File | Change |
 |------|--------|
-| `js/engine/GameEngine.js` | Instantiate `TutorialService`, expose `ui` state (current tab, selected hero, etc.), call `tutorialService.evaluate()` on every `update()`, add `skipTutorial()` facade |
+| `js/engine/GameEngine.js` | Instantiate `TutorialService`, add `reportTutorialEvent()` facade, call `tutorialService.evaluateTriggers()` on init and after events |
 | `js/engine/shared/core/i18n/I18nService.js` | Register `tutorial_*.js` translation files |
 | `js/engine/shared/core/SaveSlotManager.js` | Include tutorial state in `getSlotSummary` |
 
@@ -361,6 +424,25 @@ export class TutorialService {
     }
   }
 
+  reportEvent(payload) {
+    if (!this.state.activeTutorialId) return false;
+    
+    const tutorial = this.registry.get(this.state.activeTutorialId);
+    const step = tutorial.steps[this.state.currentStepIndex];
+    
+    if (!step.advanceOn) return false;
+    if (step.advanceOn.event !== payload.event) return false;
+    
+    // Match optional filters
+    if (step.advanceOn.heroId && step.advanceOn.heroId !== payload.heroId) return false;
+    if (step.advanceOn.buildingId && step.advanceOn.buildingId !== payload.buildingId) return false;
+    if (step.advanceOn.nodeId && step.advanceOn.nodeId !== payload.nodeId) return false;
+    if (step.advanceOn.statId && step.advanceOn.statId !== payload.statId) return false;
+    
+    // All conditions met → advance
+    return this.advance(payload);
+  }
+
   getState() {
     if (!this.state.activeTutorialId) return null;
     const tutorial = this.registry.get(this.state.activeTutorialId);
@@ -370,13 +452,11 @@ export class TutorialService {
       stepIndex: this.state.currentStepIndex,
       totalSteps: tutorial.steps.length,
       stepId: step.id,
-      spotlight: step.spotlight || null,
-      message: step.message || null,
-      forcedNav: step.forcedNav || null,
-      modalLock: step.modalLock || null,
-      preventNav: step.preventNav || [],
+      where: step.where || null,
+      what: step.what || null,
+      messages: step.messages || [],
+      advanceOn: step.advanceOn || null,
       allowActions: step.allowActions || [],
-      completionEvent: step.completionEvent || null,
       stepData: this.state.stepData
     };
   }
@@ -431,29 +511,26 @@ export const TutorialRegistry = new Map([
     steps: [
       {
         id: 'navigate_heroes',
-        message: 'tutorial_hero_skills_msg_navigate_heroes',
-        spotlight: { target: 'footer_nav_tab', tabId: 'heroes', flash: true },
-        forcedNav: { tab: 'heroes' },
-        preventNav: ['village', 'adventure', 'town'],
-        completionEvent: 'tab_changed_heroes'
+        messages: ['tutorial_hero_skills_msg_navigate_heroes'],
+        what: { target: 'footer_nav_heroes', flash: true },
+        where: { page: 'heroes' },
+        advanceOn: { event: 'tab_changed', page: 'heroes' }
       },
       {
         id: 'select_arthur',
-        message: 'tutorial_hero_skills_msg_select_arthur',
-        spotlight: { target: 'hero_card', heroId: 'arthur', flash: true },
-        forcedNav: { tab: 'heroes', heroId: 'arthur' },
-        preventNav: ['village', 'adventure', 'town'],
-        completionEvent: 'hero_selected_arthur'
+        messages: ['tutorial_hero_skills_msg_select_arthur'],
+        what: { target: 'hero_card_arthur', flash: true },
+        where: { page: 'heroes', heroId: 'arthur' },
+        advanceOn: { event: 'hero_selected', heroId: 'arthur' }
       },
       {
         id: 'learn_skill',
-        message: 'tutorial_hero_skills_msg_learn_skill',
-        spotlight: { target: 'hero_action_learn_skill', heroId: 'arthur', flash: true },
-        forcedNav: { tab: 'heroes', heroId: 'arthur', modal: 'learn_skill' },
-        preventNav: ['village', 'adventure', 'town'],
-        modalLock: { modal: 'learn_skill', untilEvent: 'skill_learned' },
+        messages: ['tutorial_hero_skills_msg_learn_skill'],
+        what: { target: 'hero_action_skills', flash: true },
+        where: { page: 'heroes', heroId: 'arthur', modal: 'skills' },
+        modalLock: true,
         allowActions: ['learnHeroFamily'],
-        completionEvent: 'skill_learned_arthur'
+        advanceOn: { event: 'skill_learned', heroId: 'arthur' }
       }
     ],
     nextTutorialId: 'tutorial_hero_stats'
@@ -465,12 +542,11 @@ export const TutorialRegistry = new Map([
     steps: [
       {
         id: 'assign_stats',
-        message: 'tutorial_hero_stats_msg_assign_stats',
-        spotlight: { target: 'hero_stats_grid', heroId: 'arthur', flash: false },
-        forcedNav: { tab: 'heroes', heroId: 'arthur' },
-        preventNav: ['village', 'adventure', 'town'],
+        messages: ['tutorial_hero_stats_msg_assign_stats'],
+        what: { target: 'hero_stats_grid', flash: false },
+        where: { page: 'heroes', heroId: 'arthur' },
         allowActions: ['increaseHeroStat'],
-        completionEvent: 'stat_point_spent_arthur'
+        advanceOn: { event: 'stat_assigned', heroId: 'arthur' }
       }
     ],
     nextTutorialId: 'tutorial_build_farm'
@@ -482,20 +558,18 @@ export const TutorialRegistry = new Map([
     steps: [
       {
         id: 'navigate_village',
-        message: 'tutorial_build_farm_msg_navigate_village',
-        spotlight: { target: 'footer_nav_tab', tabId: 'village', flash: true },
-        forcedNav: { tab: 'village' },
-        preventNav: ['heroes', 'adventure', 'town'],
-        completionEvent: 'tab_changed_village'
+        messages: ['tutorial_build_farm_msg_navigate_village'],
+        what: { target: 'footer_nav_village', flash: true },
+        where: { page: 'village' },
+        advanceOn: { event: 'tab_changed', page: 'village' }
       },
       {
         id: 'construct_farm',
-        message: 'tutorial_build_farm_msg_construct_farm',
-        spotlight: { target: 'building_farm', flash: true },
-        forcedNav: { tab: 'village' },
-        preventNav: ['heroes', 'adventure', 'town'],
+        messages: ['tutorial_build_farm_msg_construct_farm'],
+        what: { target: 'building_farm', flash: true },
+        where: { page: 'village' },
         allowActions: ['build'],
-        completionEvent: 'building_constructed_farm'
+        advanceOn: { event: 'building_constructed', buildingId: 'farm' }
       }
     ],
     nextTutorialId: 'tutorial_expeditions'
@@ -507,35 +581,32 @@ export const TutorialRegistry = new Map([
     steps: [
       {
         id: 'navigate_explore',
-        message: 'tutorial_expeditions_msg_navigate_explore',
-        spotlight: { target: 'footer_nav_tab', tabId: 'adventure', flash: true },
-        forcedNav: { tab: 'adventure', subTab: 'explore' },
-        preventNav: ['village', 'heroes', 'town'],
-        completionEvent: 'tab_changed_adventure_explore'
+        messages: ['tutorial_expeditions_msg_navigate_explore'],
+        what: { target: 'footer_nav_adventure', flash: true },
+        where: { page: 'adventure', tab: 'explore' },
+        advanceOn: { event: 'tab_changed', page: 'adventure', tab: 'explore' }
       },
       {
         id: 'select_region',
-        message: 'tutorial_expeditions_msg_select_region',
-        spotlight: { target: 'region_card', regionId: 'reg_greenfields', flash: true },
-        forcedNav: { tab: 'adventure', subTab: 'explore', regionId: 'reg_greenfields' },
-        preventNav: ['village', 'heroes', 'town'],
-        completionEvent: 'region_selected_greenfields'
+        messages: ['tutorial_expeditions_msg_select_region'],
+        what: { target: 'region_card_reg_greenfields', flash: true },
+        where: { page: 'adventure', tab: 'explore', regionId: 'reg_greenfields' },
+        advanceOn: { event: 'region_selected', regionId: 'reg_greenfields' }
       },
       {
         id: 'select_expedition',
-        message: 'tutorial_expeditions_msg_select_expedition',
-        spotlight: { target: 'expedition_node', nodeId: 'exp_tutorial_cave', flash: true },
-        forcedNav: { tab: 'adventure', subTab: 'explore', regionId: 'reg_greenfields', expeditionId: 'exp_tutorial_cave' },
-        preventNav: ['village', 'heroes', 'town'],
+        messages: ['tutorial_expeditions_msg_select_expedition'],
+        what: { target: 'expedition_node_exp_tutorial_cave', flash: true },
+        where: { page: 'adventure', tab: 'explore', regionId: 'reg_greenfields', expeditionId: 'exp_tutorial_cave' },
         allowActions: ['startExpedition'],
-        completionEvent: 'expedition_started_tutorial_cave'
+        advanceOn: { event: 'expedition_started', nodeId: 'exp_tutorial_cave' }
       },
       {
         id: 'advance_day',
-        message: 'tutorial_expeditions_msg_advance_day',
-        spotlight: { target: 'day_advance_button', flash: true },
+        messages: ['tutorial_expeditions_msg_advance_day'],
+        what: { target: 'day_advance_button', flash: true },
         allowActions: ['advanceDay'],
-        completionEvent: 'day_advanced'
+        advanceOn: { event: 'day_advanced' }
       }
     ],
     nextTutorialId: null
@@ -598,9 +669,15 @@ skipTutorial() {
 startTutorial(tutorialId, force = false) {
   return this.tutorialService.start(tutorialId, force);
 }
+
+reportTutorialEvent(payload) {
+  return this.tutorialService.reportEvent(payload);
+}
 ```
 
-**Book Closure Event:** `BookPage.vue` emits `book-first-closed` on Day 1. `App.vue` dispatches `recordEvent({ type: 'book_first_closed', day: 1 })` to the engine. The engine stores `lastEvent` on the state. `TutorialService.evaluateTriggers()` checks this event on the next `update()` and starts `tutorial_hero_skills` (the first in the Day 1 chain) because its trigger is `{ type: 'event', event: 'book_first_closed', day: 1 }`. This decouples the book from the tutorial system — the book just records an event; the trigger system decides what to do with it.
+**Book Closure Event:** `BookPage.vue` emits `book-first-closed` on Day 1. `App.vue` dispatches `recordEvent({ type: 'book_first_closed', day: 1 })` to the engine. The engine calls `this.tutorialService.evaluateTriggers(this.update())` which checks the trigger `{ type: 'event', event: 'book_first_closed', day: 1 }` and starts `tutorial_hero_skills` (the first in the Day 1 chain). This decouples the book from the tutorial system — the book just records an event; the trigger system decides what to do with it.
+
+**Step Completion Events:** Components emit events via `emit('tutorial:event', payload)`. `App.vue` catches these and dispatches `reportTutorialEvent(payload)` to the engine, which forwards to `TutorialService.reportEvent()`. If the current step's `advanceOn` matches the event, the step auto-advances.
 
 ---
 
@@ -808,7 +885,7 @@ function advanceMessage() {
   if (messageIndex.value < currentMessages.value.length - 1) {
     messageIndex.value++;
   }
-  // If all messages shown, wait for until() to auto-advance
+  // If all messages shown, wait for the user to perform the action (advanceOn event)
 }
 
 function handleOverlayClick() {
@@ -930,7 +1007,7 @@ export function useTutorial() {
 }
 ```
 
-**Note:** No `reportStepCompletion`, no `forcedNav`, no `TutorialBus`. Step advancement is handled entirely by `TutorialService.evaluate(engine)` — the `until()` lambda checks engine state on every update cycle.
+**Note:** Step advancement is event-driven. Components emit `tutorial:event` payloads via `App.vue` → `EngineAdapter` → `TutorialService.reportEvent()`. The `advanceOn` configuration defines which event advances each step. No polling, no lambdas.
 
 ---
 
@@ -1159,7 +1236,7 @@ Add these scenarios to the orchestrator's scenario list. Each step produces a na
 - `TutorialService.start()` — starts only if not completed, only one at a time
 - `TutorialService.advance()` — progresses through steps, completes at end
 - `TutorialService.skip()` — marks as completed, clears active
-- `TutorialService.getState()` — returns correct spotlight/forcedNav for current step
+- `TutorialService.getState()` — returns correct `where`/`what`/`messages`/`advanceOn` for current step
 - Persistence round-trip: save → reload → state restored exactly
 
 ### 8.3 Unit Tests (Vue)
