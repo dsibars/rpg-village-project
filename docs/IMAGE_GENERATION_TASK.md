@@ -100,7 +100,7 @@
 ## Image 10: `assets/story/char_arthur_portrait.webp`
 **Scene:** Arthur, the village leader. Strong build, simple tunic, a sword at his side. Not a close portrait — small figure showing his stance and presence. He looks forward with quiet determination.
 **Prompt:** A standing warrior figure in simple tunic, sword at side, strong build, looking forward with quiet determination, small illustrative figure not portrait. Medieval manuscript ink drawing, black strokes only, transparent background, sketchy rough linework, village scribe style.
-**Status:** pending
+**Status:** generated
 
 ---
 
@@ -282,9 +282,9 @@
 ## Overall Status
 
 **Total Images:** 35
-**Generated:** 9
-**Pending:** 26
-**Next to generate:** Image 10 (`char_arthur_portrait.webp`)
+**Generated:** 10
+**Pending:** 25
+**Next to generate:** Image 11 (`char_elara_twilight.webp`)
 
 ---
 
