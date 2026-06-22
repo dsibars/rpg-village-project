@@ -121,7 +121,7 @@
 ## Image 13: `assets/story/char_valen_rubble.webp`
 **Scene:** Valen, the defender, standing amid rubble after a battle. His shield is large and dented, his stance is wide and defiant. He is breathing hard but unbroken.
 **Prompt:** A warrior figure standing amid scattered rubble and broken stones, holding a large dented shield, wide defiant stance, breathing hard but standing firm. Medieval manuscript ink drawing, black strokes only, transparent background, sketchy rough linework, small illustrative figure, village scribe style.
-**Status:** pending
+**Status:** generated
 
 ---
 
@@ -282,9 +282,9 @@
 ## Overall Status
 
 **Total Images:** 35
-**Generated:** 12
-**Pending:** 23
-**Next to generate:** Image 13 (`char_valen_rubble.webp`)
+**Generated:** 13
+**Pending:** 22
+**Next to generate:** Image 14 (`char_valen_arthur_together.webp`)
 
 ---
 
