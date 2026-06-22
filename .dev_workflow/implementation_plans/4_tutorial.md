@@ -60,41 +60,177 @@ A **declarative, state-machine-driven tutorial engine** that teaches new players
 
 ---
 
-## 2. Files to Create
+## 2. Tutorial Data Model — The Four Properties
+
+Every tutorial step has exactly four properties, mapping to your mental model:
+
+```js
+{
+  id: 'learn_skill',                    // unique within the tutorial
+  where: {                              // Navigation context
+    page: 'heroes',                      // App.vue currentPage
+    heroId: 'arthur',                    // HeroesPage selectedHeroId
+    modal: 'skills'                      // HeroesPage activeModal
+  },
+  what: {                              // Spotlight target
+    target: 'hero_action_learn_skill', // data-tutorial-target attribute value
+    flash: true,                         // pulsing animation
+    padding: 8,                          // spotlight padding around target
+    rounded: true                        // rounded corners on spotlight hole
+  },
+  messages: [                            // Array of i18n keys
+    'tutorial_hero_skills_msg_learn_skill_1',
+    'tutorial_hero_skills_msg_learn_skill_2'
+  ],
+  until: (engine) => {                  // Exit condition lambda
+    const arthur = engine.heroes.find(h => h.id === 'arthur');
+    return arthur && arthur.skills.length > 0;
+  },
+  allowActions: ['learnHeroFamily']      // Optional: whitelist engine actions
+}
+```
+
+| Property | Purpose | Resolves Via |
+|---|---|---|
+| `where` | **Navigation context** — where the user must be. The tutorial forces navigation here and prevents leaving. | `App.vue` `currentPage`, page-specific refs (`selectedHeroId`, `activeModal`, `currentTab`, `selectedRegion`) |
+| `what` | **Spotlight target** — which DOM element to highlight. Darkens everything else. | `data-tutorial-target` HTML5 attribute + `document.querySelector()` |
+| `messages` | **What to say** — array of i18n keys. Shown sequentially (click/tap to advance). | `TutorialOverlay` renders via `i18n.t()` |
+| `until` | **Exit condition** — lambda receiving the full `engine` instance. Returns `true` when the step is complete. Evaluated on every `GameEngine.update()` cycle. | `TutorialService.checkStepCompletion(engine)` |
+
+**`until` Lambda Examples:**
+
+```js
+// Wait until Arthur has learned any skill
+until: (e) => e.heroes.find(h => h.id === 'arthur').skills.length > 0
+
+// Wait until farm is built (level >= 1)
+until: (e) => (e.village.infrastructure.farm || 0) >= 1
+
+// Wait until player has >= 100 gold
+until: (e) => e.village.resources.gold >= 100
+
+// Wait until a specific expedition is active
+until: (e) => e.expeditions.some(ex => ex.nodeId === 'exp_tutorial_cave' && ex.status === 'active')
+
+// Wait until day advanced (day > 1)
+until: (e) => e.village.day > 1
+
+// Wait until user is on a specific tab
+until: (e) => e.ui?.currentTab === 'heroes'
+```
+
+No new event types needed. No component wiring. The `TutorialService` evaluates `until(engine)` on every `update()` cycle. When it returns `true`, the step auto-advances.
+
+---
+
+## 3. HTML5 Data Attributes for Spotlight Targeting (`data-tutorial-target`)
+
+The `what.target` value maps directly to a `data-tutorial-target` attribute on the DOM element. This is robust, works with `v-for` rendered content, and requires zero JavaScript ref drilling.
+
+### Target Attribute Registry (Canonical Mapping)
+
+| Target ID | Component | Attribute Location | Dynamic Value |
+|---|---|---|---|
+| `footer_nav_village` | `FooterNav.vue` | `<button>` | `:data-tutorial-target="'footer_nav_' + item.id"` |
+| `footer_nav_heroes` | `FooterNav.vue` | `<button>` | `:data-tutorial-target="'footer_nav_' + item.id"` |
+| `footer_nav_adventure` | `FooterNav.vue` | `<button>` | `:data-tutorial-target="'footer_nav_' + item.id"` |
+| `footer_nav_town` | `FooterNav.vue` | `<button>` | `:data-tutorial-target="'footer_nav_' + item.id"` |
+| `footer_nav_book` | `FooterNav.vue` | `<button>` | `:data-tutorial-target="'footer_nav_' + item.id"` |
+| `hero_card_arthur` | `HeroListItem.vue` | `<button>` | `:data-tutorial-target="'hero_card_' + hero.id"` |
+| `hero_action_skills` | `HeroActionBar.vue` | `<button>` | `:data-tutorial-target="'hero_action_' + action.id"` |
+| `hero_action_trainer` | `HeroActionBar.vue` | `<button>` | `:data-tutorial-target="'hero_action_' + action.id"` |
+| `hero_stats_grid` | `HeroStatsGrid.vue` | root `<div>` | `data-tutorial-target="hero_stats_grid"` |
+| `hero_stat_assign_strength` | `HeroStatsGrid.vue` | `<button>` | `:data-tutorial-target="'hero_stat_assign_' + stat.key"` |
+| `region_card_reg_greenfields` | `ExploreTab.vue` | `<div>` | `:data-tutorial-target="'region_card_' + regionId"` |
+| `expedition_node_exp_tutorial_cave` | `ExploreTab.vue` | `<div>` | `:data-tutorial-target="'expedition_node_' + node.id"` |
+| `day_advance_button` | `TopBar.vue` | `<button>` | `data-tutorial-target="day_advance_button"` |
+| `tab_explore` | `TabNav.vue` | `<button>` | `:data-tutorial-target="'tab_' + tab.id"` |
+| `tab_bestiary` | `TabNav.vue` | `<button>` | `:data-tutorial-target="'tab_' + tab.id"` |
+| `building_farm` | `VillageCanvas.vue` | `<button>` | `:data-tutorial-target="'building_' + buildingId"` |
+
+### Spotlight Resolution Algorithm
+
+```js
+// TutorialSpotlight.vue
+function resolveTarget(targetId) {
+  // 1. Direct data attribute match
+  const el = document.querySelector(`[data-tutorial-target="${targetId}"]`);
+  if (!el) return null;
+
+  // 2. Scroll into view if needed
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+  // 3. Measure bounds (after scroll + layout)
+  const rect = el.getBoundingClientRect();
+  return {
+    x: rect.left - padding,
+    y: rect.top - padding,
+    width: rect.width + (padding * 2),
+    height: rect.height + (padding * 2),
+    rounded: step.what.rounded ?? true
+  };
+}
+```
+
+### Why This Approach
+
+- **No ref drilling:** Components don't need to expose refs to the tutorial system
+- **Works with v-for:** Dynamic lists (heroes, regions, nodes) automatically get correct targets
+- **Declarative:** The tutorial config says `target: 'hero_card_arthur'` and the DOM says `data-tutorial-target="hero_card_arthur"`. No mapping table needed.
+- **Testable:** Screenshot tests can assert `document.querySelector('[data-tutorial-target="..."]')` exists before the spotlight appears
+- **Zero runtime cost when no tutorial:** The data attributes are harmless HTML; no JavaScript overhead
+
+---
+
+## 4. Files to Create
 
 | File | Purpose |
 |------|---------|
-| `js/engine/tutorial/TutorialService.js` | Core engine service: state machine, step progression, persistence |
-| `js/engine/tutorial/TutorialRegistry.js` | Declarative tutorial definitions. Day 1 chain (4 tutorials) + future feature-unlock templates (gambits, magic circle, etc.) |
-| `js/engine/tutorial/TutorialValidator.js` | Step completion validators (checks if user performed required action) |
+| `js/engine/tutorial/TutorialService.js` | Core engine service: state machine, step progression, `until()` evaluation, persistence |
+| `js/engine/tutorial/TutorialRegistry.js` | Declarative tutorial definitions. Day 1 chain (4 tutorials) + future feature-unlock templates |
+| `js/engine/tutorial/TutorialValidator.js` | Validates `until()` lambdas don't throw, validates all `data-tutorial-target` IDs exist in DOM |
 | `js/engine/tutorial/TutorialTypes.js` | JSDoc types for tutorial definitions (zero runtime cost) |
-| `ux/core/composables/useTutorial.js` | Vue composable: reactive tutorial state, spotlight helpers, navigation guards |
-| `ux/core/components/TutorialOverlay.vue` | Root overlay component: darkens screen, renders spotlight, shows messages |
-| `ux/core/components/TutorialSpotlight.vue` | Spotlight effect: computes target element bounds, clips the light hole |
-| `js/engine/shared/core/i18n/translations/tutorial_*.js` | i18n keys for all tutorial text (4 languages) |
+| `ux/core/composables/useTutorial.js` | Vue composable: reactive tutorial state, `where` navigation enforcement, spotlight targeting |
+| `ux/core/components/TutorialOverlay.vue` | Root overlay: darkens screen, renders spotlight, shows messages sequentially |
+| `ux/core/components/TutorialSpotlight.vue` | Spotlight effect: reads `data-tutorial-target`, computes bounds, clips the light hole |
+| `ux/core/components/TutorialMessage.vue` | Message bubble: positions near spotlight, advances messages on click |
+| `js/engine/shared/core/i18n/translations/tutorial_*.js` | i18n keys for all tutorial text (5 languages) |
 | `.dev_workflow/implementation_plans/4_tutorial.md` | This document |
 
 ---
 
-## 3. Files to Modify
+## 5. Files to Modify (Engine + Presentation)
+
+### Engine Files
 
 | File | Change |
 |------|--------|
-| `js/engine/GameEngine.js` | Instantiate `TutorialService`, expose tutorial state in `update()`, add `advanceTutorial()` / `skipTutorial()` facade methods |
-| `ux/App.vue` | Mount `TutorialOverlay` at root level; pass `tutorial` state from `gameState`; guard footer navigation when tutorial locks tabs |
-| `ux/main.js` | Add `tutorial` to reactive game state; provide tutorial service via injection |
-| `ux/adapters/EngineAdapter.js` | Map `advanceTutorial`, `skipTutorial` engine methods to adapter actions |
-| `ux/features/heroes/HeroesPage.vue` | Wire `useTutorial` to force-select Arthur, lock tab switching, detect skill learned |
-| `ux/features/heroes/components/HeroActionBar.vue` | Detect tutorial spotlight on "Learn Skill" button; emit `tutorial-action` when skill is learned |
-| `ux/features/heroes/components/HeroStatsGrid.vue` | Detect tutorial spotlight on stat assignment; emit `tutorial-action` when stat point spent |
-| `ux/features/adventure/components/ExploreTab.vue` | Wire `useTutorial` to force expedition selection, detect first expedition |
-| `ux/features/adventure/components/ExpeditionNode.vue` | Detect tutorial spotlight on first node; emit when node clicked |
-| `ux/features/book/BookPage.vue` | Emit `book-first-closed` event when book is closed on Day 1 — triggers tutorial start |
+| `js/engine/GameEngine.js` | Instantiate `TutorialService`, expose `ui` state (current tab, selected hero, etc.), call `tutorialService.evaluate()` on every `update()`, add `skipTutorial()` facade |
 | `js/engine/shared/core/i18n/I18nService.js` | Register `tutorial_*.js` translation files |
-| `js/engine/shared/core/SaveSlotManager.js` | Include tutorial state in `getSlotSummary` (optional: show "Tutorial Active" indicator) |
-| `ux/components/FooterNav.vue` | Accept `lockedTabs` prop from `useTutorial`; disable locked tabs visually |
-| `ux/components/ModalFrame.vue` | Accept `tutorialLocked` prop; suppress Escape/close when tutorial locks the modal |
-| `js/engine/book/BookService.js` | Emit closure event with `isFirstClosure` flag on Day 1 |
+| `js/engine/shared/core/SaveSlotManager.js` | Include tutorial state in `getSlotSummary` |
+
+### Presentation Files (Data Attributes + Tutorial Wiring)
+
+| File | Change |
+|------|--------|
+| `ux/App.vue` | Mount `TutorialOverlay` at root level; pass `tutorial` state; expose `ui` state (currentPage, activeTab) to engine; guard footer navigation |
+| `ux/main.js` | Add `tutorial` to reactive game state; provide tutorial service via injection |
+| `ux/adapters/EngineAdapter.js` | Map `skipTutorial` engine method to adapter action |
+| `ux/components/FooterNav.vue` | Add `:data-tutorial-target="'footer_nav_' + item.id"` to each nav button; accept `lockedTabs` prop |
+| `ux/components/TabNav.vue` | Add `:data-tutorial-target="'tab_' + tab.id"` to each tab button |
+| `ux/components/ModalFrame.vue` | Accept `tutorialLocked` prop; suppress Escape/close when locked |
+| `ux/components/TopBar.vue` | Add `data-tutorial-target="day_advance_button"` to next-day button |
+| `ux/features/heroes/HeroesPage.vue` | Wire `useTutorial` for `where.heroId` and `where.modal` enforcement; expose `selectedHeroId` and `activeModal` to `gameState.ui` |
+| `ux/features/heroes/components/HeroListItem.vue` | Add `:data-tutorial-target="'hero_card_' + hero.id"` to root button |
+| `ux/features/heroes/components/HeroActionBar.vue` | Add `:data-tutorial-target="'hero_action_' + action.id"` to each action button |
+| `ux/features/heroes/components/HeroStatsGrid.vue` | Add `data-tutorial-target="hero_stats_grid"` to root div; add `:data-tutorial-target="'hero_stat_assign_' + stat.key"` to each `+` button |
+| `ux/features/adventure/AdventurePage.vue` | Expose `currentTab` to `gameState.ui` for `where.tab` enforcement |
+| `ux/features/adventure/components/ExploreTab.vue` | Add `:data-tutorial-target="'region_card_' + regionId"` to region items; add `:data-tutorial-target="'expedition_node_' + node.id"` to tree nodes; expose `selectedRegion` and `selectedExp` to `gameState.ui` |
+| `ux/features/book/BookPage.vue` | Emit `book-first-closed` event on first closure during Day 1 |
+| `ux/features/village/components/VillageCanvas.vue` | Add `:data-tutorial-target="'building_' + buildingId"` to building buttons |
+| `js/engine/book/BookService.js` | Track first closure flag; emit closure event with `isFirstClosure` |
+
+**Note:** Adding `data-tutorial-target` attributes is the only change required to existing components for spotlight targeting. No event emitters, no ref exposure, no tutorial logic in components.
 
 ---
 
@@ -468,174 +604,269 @@ startTutorial(tutorialId, force = false) {
 
 ---
 
-## 5. Presentation (Vue) Changes
+## 5. Presentation (Vue) Changes — Synthetic Click Architecture
 
-### 5.1 TutorialOverlay.vue — Root Component
+### 5.1 Core Principle: Zero Page Refactoring
+
+Pages like `HeroesPage` and `ExploreTab` keep selection state in **local refs** (`selectedHeroId`, `selectedRegion`, etc.). Instead of refactoring every page to accept tutorial control, the system uses **synthetic DOM clicks** on `data-tutorial-target` elements. This works because all target elements are already clickable buttons/cards with existing `@click` handlers.
+
+### 5.2 `where` Resolution — `enforceWhere()` Algorithm
+
+```js
+async function enforceWhere(where) {
+  // 1. Navigate to page (TutorialOverlay is mounted in App.vue, direct ref access)
+  if (where.page && currentPage.value !== where.page) {
+    currentPage.value = where.page;
+    activeTab.value = where.tab || null;
+    await nextTick();
+    await delay(150); // Wait for page transition + render
+  }
+  
+  // 2. Select tab (AdventurePage, TownPage, etc.)
+  if (where.tab) {
+    const tabBtn = document.querySelector(`[data-tutorial-target="tab_${where.tab}"]`);
+    if (tabBtn && !tabBtn.classList.contains('active')) {
+      tabBtn.click();
+      await nextTick();
+      await delay(100);
+    }
+  }
+  
+  // 3. Select hero — synthetic click on hero card
+  if (where.heroId) {
+    await clickTarget(`hero_card_${where.heroId}`);
+  }
+  
+  // 4. Open modal — synthetic click on action button
+  if (where.modal) {
+    await clickTarget(`hero_action_${where.modal}`);
+  }
+  
+  // 5. Select region
+  if (where.regionId) {
+    await clickTarget(`region_card_${where.regionId}`);
+  }
+  
+  // 6. Select expedition node
+  if (where.expeditionId) {
+    await clickTarget(`expedition_node_${where.expeditionId}`);
+  }
+  
+  // 7. Navigate to building
+  if (where.buildingId) {
+    await clickTarget(`building_${where.buildingId}`);
+  }
+}
+
+// Retry logic for v-for rendered dynamic content
+async function clickTarget(targetId, maxRetries = 5) {
+  for (let i = 0; i < maxRetries; i++) {
+    const el = document.querySelector(`[data-tutorial-target="${targetId}"]`);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      await delay(100);
+      el.click();
+      await nextTick();
+      await delay(50);
+      return true;
+    }
+    await delay(100 + (i * 50));
+    await nextTick();
+  }
+  console.warn(`Tutorial target not found: ${targetId}`);
+  return false;
+}
+```
+
+**Why synthetic clicks work:**
+- `HeroListItem` emits `select(hero.id)` → `HeroesPage.selectedHeroId = heroId`
+- `HeroActionBar` emits `action(action.id)` → `HeroesPage.activeModal = actionId`
+- `ExploreTab` region items call `selectRegion(regionId)`
+- `ExploreTab` tree nodes call `handleNodeClick(node)`
+- `VillageCanvas` emits `navigate(tile.id)`
+- All via existing click handlers — **zero page logic changes**
+
+---
+
+### 5.3 `data-tutorial-target` Attribute Registry
+
+The `what.target` value maps 1:1 to a `data-tutorial-target` attribute. Each attribute added is **one line** in the component template.
+
+| Target ID | Component | Attribute |
+|---|---|---|
+| `footer_nav_village` | `FooterNav.vue` | `:data-tutorial-target="'footer_nav_' + item.id"` |
+| `footer_nav_heroes` | `FooterNav.vue` | `:data-tutorial-target="'footer_nav_' + item.id"` |
+| `footer_nav_adventure` | `FooterNav.vue` | `:data-tutorial-target="'footer_nav_' + item.id"` |
+| `footer_nav_town` | `FooterNav.vue` | `:data-tutorial-target="'footer_nav_' + item.id"` |
+| `footer_nav_book` | `FooterNav.vue` | `:data-tutorial-target="'footer_nav_' + item.id"` |
+| `tab_explore` | `TabNav.vue` | `:data-tutorial-target="'tab_' + tab.id"` |
+| `tab_bestiary` | `TabNav.vue` | `:data-tutorial-target="'tab_' + tab.id"` |
+| `tab_codex` | `TabNav.vue` | `:data-tutorial-target="'tab_' + tab.id"` |
+| `tab_chronicle` | `TabNav.vue` | `:data-tutorial-target="'tab_' + tab.id"` |
+| `hero_card_arthur` | `HeroListItem.vue` | `:data-tutorial-target="'hero_card_' + hero.id"` |
+| `hero_action_skills` | `HeroActionBar.vue` | `:data-tutorial-target="'hero_action_' + action.id"` |
+| `hero_action_trainer` | `HeroActionBar.vue` | `:data-tutorial-target="'hero_action_' + action.id"` |
+| `hero_stats_grid` | `HeroStatsGrid.vue` | `data-tutorial-target="hero_stats_grid"` |
+| `hero_stat_assign_baseStrength` | `HeroStatsGrid.vue` | `:data-tutorial-target="'hero_stat_assign_' + stat.key"` |
+| `region_card_reg_greenfields` | `ExploreTab.vue` | `:data-tutorial-target="'region_card_' + regionId"` |
+| `expedition_node_exp_tutorial_cave` | `ExploreTab.vue` | `:data-tutorial-target="'expedition_node_' + node.id"` |
+| `building_farm` | `VillageCanvas.vue` | `:data-tutorial-target="'building_' + tile.id"` |
+| `day_advance_button` | `TopBar.vue` | `data-tutorial-target="day_advance_button"` |
+
+---
+
+### 5.4 TutorialOverlay.vue — Root Component
 
 ```vue
 <template>
   <Teleport to="body">
-    <div v-if="active" class="tutorial-overlay" :class="{ 'no-interaction': locksInteraction }">
-      <!-- Darkened backdrop with a clipped hole -->
-      <TutorialSpotlight
-        :target="spotlightTarget"
-        :padding="spotlightPadding"
-        :rounded="spotlightRounded"
+    <div v-if="active" class="tutorial-overlay">
+      <!-- Spotlight hole — transparent with massive box-shadow -->
+      <div
+        v-if="spotlight && !darkeningDismissed"
+        class="spotlight-hole"
+        :style="spotlightStyle"
       />
       
-      <!-- Message bubble near the spotlight -->
+      <!-- Message bubble -->
       <TutorialMessage
-        :text="messageText"
+        :messages="currentMessages"
+        :current-index="messageIndex"
         :position="messagePosition"
-        :actions="messageActions"
-        @dismiss="onDismissMessage"
+        @advance="advanceMessage"
       />
       
-      <!-- Click-capture layer: dismisses darkening but NOT the tutorial -->
-      <div v-if="darkened" class="click-capture" @click="onDimissDarkening" />
+      <!-- Click capture layer -->
+      <div class="click-capture" @click="handleOverlayClick" />
     </div>
   </Teleport>
 </template>
-```
 
-**Key behaviors:**
-1. **Darkening dismissed by any click** — the overlay captures clicks globally, removes the darkening, but the tutorial step continues. The user can now see the full UI but is still constrained by `preventNav` and `modalLock`.
-2. **Spotlight stays** — even after darkening is dismissed, the target element keeps a subtle pulsing border or glow so the user knows where to look.
-3. **Message bubble** — positioned dynamically near the spotlight target. If the target is off-screen (e.g. scrolled), the overlay scrolls the page or repositions the bubble.
-4. **No "skip" button by default** — the user must perform the action. A hidden skip gesture (e.g. triple-click the message) can be added for testing.
+<script setup>
+import { ref, computed, watch, nextTick } from 'vue';
+import { useGameState } from './composables/useGameState.js';
+import TutorialMessage from './TutorialMessage.vue';
 
-### 5.2 TutorialSpotlight.vue — CSS Clip-Path Effect
+const { gameState } = useGameState();
+const tutorial = computed(() => gameState.value?.tutorial || null);
+const active = computed(() => !!tutorial.value);
+const darkeningDismissed = ref(false);
+const messageIndex = ref(0);
 
-```vue
-<template>
-  <div class="spotlight-layer" :style="layerStyle">
-    <div class="spotlight-hole" :style="holeStyle" />
-  </div>
-</template>
-```
+// Watch step changes → enforce navigation
+watch(() => tutorial.value?.stepId, async (stepId) => {
+  if (!stepId) return;
+  messageIndex.value = 0;
+  darkeningDismissed.value = false;
+  if (tutorial.value?.where) {
+    await enforceWhere(tutorial.value.where);
+  }
+}, { immediate: true });
 
-```css
-.spotlight-layer {
+const spotlight = computed(() => {
+  if (!tutorial.value?.what?.target) return null;
+  const el = document.querySelector(`[data-tutorial-target="${tutorial.value.what.target}"]`);
+  if (!el) return null;
+  const rect = el.getBoundingClientRect();
+  const padding = tutorial.value.what.padding || 8;
+  return {
+    x: rect.left - padding,
+    y: rect.top - padding,
+    width: rect.width + (padding * 2),
+    height: rect.height + (padding * 2),
+    rounded: tutorial.value.what.rounded !== false,
+    flash: tutorial.value.what.flash || false
+  };
+});
+
+const spotlightStyle = computed(() => {
+  if (!spotlight.value) return {};
+  const s = spotlight.value;
+  return {
+    position: 'fixed',
+    left: `${s.x}px`,
+    top: `${s.y}px`,
+    width: `${s.width}px`,
+    height: `${s.height}px`,
+    borderRadius: s.rounded ? 'var(--radius-md)' : '0',
+    boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.75)',
+    pointerEvents: 'none',
+    animation: s.flash ? 'tutorial-flash 2s infinite alternate' : 'none',
+    zIndex: 9998
+  };
+});
+
+const currentMessages = computed(() => tutorial.value?.messages || []);
+
+const messagePosition = computed(() => {
+  if (!spotlight.value) return { x: 20, y: 20 };
+  const s = spotlight.value;
+  return { x: s.x, y: s.y + s.height + 16 };
+});
+
+function advanceMessage() {
+  if (messageIndex.value < currentMessages.value.length - 1) {
+    messageIndex.value++;
+  }
+  // If all messages shown, wait for until() to auto-advance
+}
+
+function handleOverlayClick() {
+  if (!darkeningDismissed.value) {
+    darkeningDismissed.value = true;
+  } else {
+    advanceMessage();
+  }
+}
+
+// Clicking the spotlight target itself passes through (pointer-events: none on hole)
+// Clicking outside the hole triggers handleOverlayClick
+</script>
+
+<style>
+.tutorial-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.75);
-  z-index: 2000;
-  pointer-events: none; /* let clicks pass through to the capture layer */
+  z-index: 9997;
+  pointer-events: auto;
 }
 
-.spotlight-hole {
-  position: absolute;
-  background: transparent;
-  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.75);
-  border-radius: var(--radius-md);
-  animation: pulse-spotlight 2s infinite;
+@keyframes tutorial-flash {
+  0% { box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7); }
+  100% { box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.85); }
 }
-
-@keyframes pulse-spotlight {
-  0%, 100% { box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.75), 0 0 20px rgba(245, 158, 11, 0.3); }
-  50% { box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.75), 0 0 40px rgba(245, 158, 11, 0.6); }
-}
+</style>
 ```
 
-**Target Resolution:** The `useTutorial` composable finds the target element via:
-1. `data-tutorial-target="{id}"` attributes on DOM elements
-2. If not found, via `document.querySelector` using a mapping table
-3. If the target is inside a scrollable container, the composable calls `.scrollIntoView({ behavior: 'smooth', block: 'center' })` before measuring bounds
+---
 
-### 5.3 useTutorial.js — Composable
+### 5.5 Navigation Prevention
 
-```js
-export function useTutorial() {
-  const gameState = inject('gameState');
-  const adapter = inject('adapter');
-  const tutorial = computed(() => gameState.value?.tutorial || null);
-  
-  const isActive = computed(() => !!tutorial.value);
-  const spotlightTarget = computed(() => resolveTarget(tutorial.value?.spotlight));
-  const lockedTabs = computed(() => tutorial.value?.preventNav || []);
-  const lockedModal = computed(() => tutorial.value?.modalLock || null);
-  const allowedActions = computed(() => tutorial.value?.allowActions || []);
-  
-  // Navigation guard: only allow navigation to forcedNav destinations
-  function canNavigate(tabId) {
-    if (!isActive.value) return true;
-    if (tutorial.value?.forcedNav?.tab === tabId) return true;
-    if (lockedTabs.value.includes(tabId)) return false;
-    return true;
-  }
-  
-  // Action guard: only allow whitelisted engine actions during tutorial
-  function canDispatch(actionKey) {
-    if (!isActive.value) return true;
-    if (allowedActions.value.includes(actionKey)) return true;
-    return false;
-  }
-  
-  // Called by components when they perform the action the tutorial is waiting for
-  function reportStepCompletion(eventId, data = {}) {
-    if (!isActive.value) return;
-    if (tutorial.value?.completionEvent === eventId) {
-      adapter.dispatch('tutorial', 'advance', data);
-    }
-  }
-  
-  // Auto-navigate when step changes
-  watch(() => tutorial.value?.stepId, (newStepId) => {
-    if (!newStepId) return;
-    const forced = tutorial.value?.forcedNav;
-    if (forced?.tab) {
-      // Emit navigation event that App.vue handles
-      emitTutorialNav(forced);
-    }
-  }, { immediate: true });
-  
-  return {
-    isActive, spotlightTarget, lockedTabs, lockedModal, allowedActions,
-    canNavigate, canDispatch, reportStepCompletion
-  };
-}
+**FooterNav Tab Locking:**
+```vue
+<!-- App.vue -->
+<FooterNav
+  :current="currentPage"
+  :items="navItems"
+  :locked-tabs="tutorialLockedTabs"
+  @navigate="handlePageChange"
+/>
 ```
-
-### 5.4 App.vue Integration
 
 ```vue
-<template>
-  <div class="app-container">
-    <TopBar ... />
-    <main>
-      <component :is="currentPage" ... />
-    </main>
-    <FooterNav
-      :current="currentTab"
-      :items="navItems"
-      :locked-tabs="tutorialLockedTabs"
-      @navigate="handleNav"
-    />
-    
-    <!-- Tutorial Overlay mounted at root, outside the main layout -->
-    <TutorialOverlay
-      v-if="tutorialState"
-      :state="tutorialState"
-      @dismiss-darkening="tutorialDarkened = false"
-    />
-  </div>
-</template>
+<!-- FooterNav.vue — add locked-tabs prop -->
+<script setup>
+const props = defineProps({
+  current: { type: String, required: true },
+  items: { type: Array, required: true },
+  lockedTabs: { type: Array, default: () => [] }
+})
+</script>
 ```
 
-```js
-// In setup()
-const { lockedTabs, canNavigate } = useTutorial();
-
-function handleNav(tabId) {
-  if (!canNavigate(tabId)) return; // silently ignore, or show a subtle shake animation
-  currentTab.value = tabId;
-}
-```
-
-### 5.5 Modal Locking
-
-`ModalFrame.vue` modifications:
+**Modal Locking:**
 ```vue
+<!-- ModalFrame.vue — add tutorialLocked prop -->
 <script setup>
 const props = defineProps({
   title: { type: String, default: '' },
@@ -650,36 +881,161 @@ function onKeydown(e) {
 </script>
 ```
 
-`HeroesPage.vue` when opening the Learn Skill modal:
-```js
-const { lockedModal } = useTutorial();
-const isModalLocked = computed(() => 
-  lockedModal.value?.modal === 'learn_skill' && 
-  lockedModal.value?.untilEvent === 'skill_learned'
-);
-```
+**Global Click Interception:**
+The `TutorialOverlay` captures all clicks. The spotlight hole has `pointer-events: none`, so clicks on the target element pass through. Clicks outside the hole:
+1. First click: dismiss darkening
+2. Subsequent clicks: advance message (if messages remain)
 
 ---
 
-## 6. Component-by-Component Wiring
+### 5.6 useTutorial.js — Composable
 
-### HeroesPage.vue
+```js
+export function useTutorial() {
+  const { gameState } = useGameState();
+  const tutorial = computed(() => gameState.value?.tutorial || null);
+  
+  const isActive = computed(() => !!tutorial.value);
+  const lockedTabs = computed(() => {
+    if (!isActive.value) return [];
+    const where = tutorial.value?.where;
+    // Lock all tabs except the current page and allowed navigation targets
+    const allTabs = ['village', 'heroes', 'adventure', 'town', 'book'];
+    const allowed = [where?.page].filter(Boolean);
+    return allTabs.filter(t => !allowed.includes(t));
+  });
+  
+  const allowedActions = computed(() => tutorial.value?.allowActions || []);
+  
+  // Navigation guard
+  function canNavigate(tabId) {
+    if (!isActive.value) return true;
+    return !lockedTabs.value.includes(tabId);
+  }
+  
+  // Action guard — checked in EngineAdapter.dispatch()
+  function canDispatch(actionKey) {
+    if (!isActive.value) return true;
+    if (allowedActions.value.length === 0) return true;
+    return allowedActions.value.includes(actionKey);
+  }
+  
+  return {
+    isActive,
+    lockedTabs,
+    allowedActions,
+    canNavigate,
+    canDispatch
+  };
+}
+```
 
-1. **Tutorial forces Arthur selection:** When `forcedNav.heroId === 'arthur'`, programmatically call `selectHeroById('arthur')` even if user is on a different hero.
-2. **Tab switching blocked:** `useTutorial.canNavigate('village')` returns `false` during steps 1-4, so FooterNav disables those tabs.
-3. **Skill learned detection:** `HeroActionBar.vue` emits `skill-learned` with `{ heroId, familyId }`. HeroesPage catches this and calls `reportStepCompletion('skill_learned_arthur', { familyId })`.
-4. **Stat point spent detection:** `HeroStatsGrid.vue` emits `stat-assigned` with `{ heroId, statId }`. HeroesPage catches this and calls `reportStepCompletion('stat_point_spent_arthur', { statId })`.
+**Note:** No `reportStepCompletion`, no `forcedNav`, no `TutorialBus`. Step advancement is handled entirely by `TutorialService.evaluate(engine)` — the `until()` lambda checks engine state on every update cycle.
 
-### ExploreTab.vue / ExpeditionNode.vue
+---
 
-1. **Region forced:** When `forcedNav.regionId` is set, call `selectRegion(regionId)` programmatically.
-2. **Expedition forced:** When `forcedNav.expeditionId` is set, scroll the node into view and pulse it.
-3. **Expedition started detection:** `ExpeditionNode.vue` emits `expedition-started`. ExploreTab calls `reportStepCompletion('expedition_started_tutorial_cave')`.
+## 6. Component-by-Component Wiring — `data-tutorial-target` Only
+
+The only changes needed in existing components are **adding `data-tutorial-target` attributes**. No event emitters, no ref exposure, no tutorial logic.
+
+### FooterNav.vue
+```vue
+<button
+  v-for="item in items"
+  :key="item.id"
+  :data-tutorial-target="'footer_nav_' + item.id"
+  ...
+>
+```
+
+### TabNav.vue
+```vue
+<button
+  v-for="tab in tabs"
+  :key="tab.id"
+  :data-tutorial-target="'tab_' + tab.id"
+  ...
+>
+```
+
+### HeroListItem.vue
+```vue
+<button
+  class="hero-list-item"
+  :data-tutorial-target="'hero_card_' + hero.id"
+  ...
+>
+```
+
+### HeroActionBar.vue
+```vue
+<button
+  v-for="action in visibleActions"
+  :key="action.id"
+  :data-tutorial-target="'hero_action_' + action.id"
+  ...
+>
+```
+
+### HeroStatsGrid.vue
+```vue
+<div class="stats-grid" data-tutorial-target="hero_stats_grid">
+  <div v-for="stat in stats" :key="stat.id" ...>
+    ...
+    <button
+      v-if="canAllocate && stat.key"
+      :data-tutorial-target="'hero_stat_assign_' + stat.key"
+      ...
+    >+</button>
+  </div>
+</div>
+```
+
+### ExploreTab.vue — Region List
+```vue
+<div
+  v-for="[regionId, regionData] in regionEntries"
+  :key="regionId"
+  :data-tutorial-target="'region_card_' + regionId"
+  ...
+>
+```
+
+### ExploreTab.vue — Tree Nodes
+```vue
+<div
+  v-for="node in levelNodes"
+  :key="node.id"
+  :data-id="node.id"
+  :data-tutorial-target="'expedition_node_' + node.id"
+  ...
+>
+```
+
+### VillageCanvas.vue
+```vue
+<button
+  v-for="tile in tiles"
+  :key="tile.id"
+  :data-tutorial-target="'building_' + tile.id"
+  ...
+>
+```
+
+### TopBar.vue
+```vue
+<button
+  class="btn-next-day"
+  data-tutorial-target="day_advance_button"
+  @click="$emit('nextDay')"
+>
+```
 
 ### BookPage.vue
-
-1. **First closure detection:** Track `hasBeenClosed` in component state. On first close during Day 1, emit `book-first-closed`.
-2. **App.vue** catches this and dispatches `recordEvent({ type: 'book_first_closed', day: 1 })` to the engine. The engine stores `lastEvent` on state. `TutorialService.evaluateTriggers()` sees the event, checks that `tutorial_hero_skills` trigger `{ type: 'event', event: 'book_first_closed', day: 1 }` matches, and starts the first tutorial in the Day 1 chain.
+1. Track `hasBeenClosed` in component state.
+2. On first close during Day 1, emit `book-first-closed` event.
+3. `App.vue` catches this and dispatches `recordEvent({ type: 'book_first_closed', day: 1 })` to the engine.
+4. `TutorialService.evaluateTriggers()` sees the event and starts `tutorial_hero_skills`.
 
 ---
 
