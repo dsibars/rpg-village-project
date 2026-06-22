@@ -570,40 +570,99 @@ export const tutorial_en = {
 };
 ```
 
-**Naming convention:** `tutorial_{tutorialId}_{stepId}_{purpose}` where `purpose` is either `msg` (message) or `title` (title). This keeps keys organized and searchable.
+**i18n Enforcement Rules (Zero Hardcoded Strings):**
+- All tutorial messages MUST be declared as i18n keys in `TutorialRegistry.js`, never as literal strings.
+- `TutorialOverlay.vue` and `TutorialMessage.vue` MUST resolve keys via the existing `i18n` service (injected from the engine), never embed English fallback text in the template.
+- No `v-if` branches on language inside tutorial components; all translations live in the `tutorial_{lang}.js` files.
+- **Validation gate:** Add a `validateTutorialKeys()` unit test that asserts every key referenced in `TutorialRegistry` exists in all 5 language files. This test runs in Phase 1, before any Vue component is written.
+- **Ghost key prevention:** The acceptance criteria includes a check that no tutorial key is defined in translations but never referenced in the registry (unused keys bloat the bundle).
 
 ---
 
 ## 8. Test Plan
 
-### 8.1 Screenshot Test Scripts (Adapted from Existing Scripts)
+### 8.1 Screenshot Test Scripts — Tutorial Orchestrator Scenarios
 
-Add new screenshot scenarios to `scripts/screenshots/orchestrator.mjs`:
+The existing screenshot orchestrator (`scripts/screenshots/orchestrator.mjs`) must be extended to **drive the tutorial visually and assert overlays at each step**. This is not just "add a test" — the orchestrator itself needs new capabilities to detect tutorial state from the rendered DOM.
+
+#### New Orchestrator Capabilities Required
+
+| Capability | Purpose | Implementation |
+|---|---|---|
+| `assertTutorialOverlayVisible` | Confirms the darkening overlay is rendered and a `data-tutorial-active` attribute is present on `<body>` | DOM query for `.tutorial-overlay` or `document.body.dataset.tutorialActive` |
+| `assertSpotlightTarget` | Confirms the spotlight hole is positioned over the expected element | Query `[data-tutorial-target="{id}"]`, read `getBoundingClientRect()`, compare with `.spotlight-hole` rect (within 10px tolerance) |
+| `assertMessageText` | Confirms the i18n message is rendered in the correct language | Read `.tutorial-message` text, compare with expected translation from test fixture (do NOT rely on English default) |
+| `assertModalLocked` | Confirms Escape key and overlay click do NOT close the modal | Send `Escape` key event, screenshot, assert modal still present; click overlay, assert modal still present |
+| `assertTabLocked` | Confirms locked tabs are visually disabled and clicking them does nothing | Click locked tab, screenshot, assert page did not change |
+| `assertTutorialStateAfterReload` | Saves the game mid-tutorial, reloads the page, asserts the tutorial resumes at the same step | Use `localStorage` snapshot → reload → wait for engine init → assert `tutorial` state in `gameState` |
+
+#### New Screenshot Scenarios
+
+Add these scenarios to the orchestrator's scenario list. Each step produces a named screenshot for visual regression:
 
 ```js
 {
-  id: 'tutorial_day1_flow',
-  description: 'Full Day 1 tutorial flow with spotlight overlays',
+  id: 'tutorial_day1_full_flow',
+  description: 'Complete Day 1 tutorial with spotlight assertion at every step',
+  language: 'en',
+  steps: [
+    { action: 'start_new_game', assert: 'book_open' },
+    { action: 'close_book', assert: 'tutorial_overlay_heroes_tab', screenshot: '01_tutorial_heroes_tab_overlay' },
+    { action: 'click_anywhere', assert: 'darkening_dismissed_spotlight_remains', screenshot: '02_tutorial_heroes_tab_spotlight' },
+    { action: 'navigate_tab', tab: 'heroes', assert: 'tutorial_overlay_arthur_card', screenshot: '03_tutorial_arthur_card' },
+    { action: 'click_hero', heroId: 'arthur', assert: 'tutorial_overlay_learn_skill_button', screenshot: '04_tutorial_learn_skill_button' },
+    { action: 'click_action', action: 'learn_skill', assert: 'modal_open_learn_skill', screenshot: '05_tutorial_learn_skill_modal_locked' },
+    { action: 'assert_modal_locked', assert: 'escape_blocked_overlay_click_blocked', screenshot: '06_tutorial_modal_locked_proof' },
+    { action: 'select_skill', familyId: 'power_strike', assert: 'tutorial_overlay_stat_grid', screenshot: '07_tutorial_stat_grid' },
+    { action: 'assign_stat', statId: 'str', assert: 'tutorial_overlay_explore_tab', screenshot: '08_tutorial_explore_tab' },
+    { action: 'navigate_tab', tab: 'adventure', assert: 'tutorial_overlay_region_greenfields', screenshot: '09_tutorial_region_greenfields' },
+    { action: 'click_region', regionId: 'reg_greenfields', assert: 'tutorial_overlay_expedition_cave', screenshot: '10_tutorial_expedition_cave' },
+    { action: 'start_expedition', assert: 'tutorial_overlay_advance_day', screenshot: '11_tutorial_advance_day' },
+    { action: 'advance_day', assert: 'tutorial_complete_no_overlay', screenshot: '12_tutorial_complete' },
+  ]
+},
+{
+  id: 'tutorial_day1_reload_mid_step',
+  description: 'Reload during step 4 (learn skill) and assert resume',
   steps: [
     { action: 'start_new_game' },
-    { action: 'close_book', assert: 'book_closed' },
-    { action: 'screenshot', target: 'tutorial_overlay_heroes_tab' },
-    { action: 'navigate_tab', tab: 'heroes', assert: 'tutorial_overlay_arthur_card' },
-    { action: 'click_hero', heroId: 'arthur', assert: 'tutorial_overlay_learn_skill' },
-    { action: 'click_action', action: 'learn_skill', assert: 'modal_open_learn_skill' },
-    { action: 'screenshot', target: 'tutorial_modal_learn_skill_locked' },
-    { action: 'select_skill', familyId: 'power_strike', assert: 'skill_learned' },
-    { action: 'screenshot', target: 'tutorial_overlay_stat_grid' },
-    { action: 'assign_stat', statId: 'str', assert: 'stat_spent' },
-    { action: 'navigate_tab', tab: 'adventure', assert: 'tutorial_overlay_explore_tab' },
-    { action: 'click_region', regionId: 'reg_greenfields', assert: 'tutorial_overlay_region' },
-    { action: 'click_expedition', expeditionId: 'exp_tutorial_cave', assert: 'tutorial_overlay_node' },
-    { action: 'start_expedition', assert: 'tutorial_complete' },
-    { action: 'navigate_tab', tab: 'village', assert: 'tutorial_overlay_advance_day' },
-    { action: 'advance_day', assert: 'day_advanced' },
+    { action: 'close_book' },
+    { action: 'navigate_tab', tab: 'heroes' },
+    { action: 'click_hero', heroId: 'arthur' },
+    { action: 'click_action', action: 'learn_skill' },
+    { action: 'snapshot_localstorage' },
+    { action: 'reload_page' },
+    { action: 'assert_tutorial_state', expectedStep: 'day1_learn_skill', screenshot: '13_tutorial_resume_after_reload' },
+    { action: 'select_skill', familyId: 'power_strike' },
+    { action: 'assert_tutorial_advance', expectedStep: 'day1_assign_stats', screenshot: '14_tutorial_resumed_advance' },
+  ]
+},
+{
+  id: 'tutorial_i18n_roundtrip',
+  description: 'Run tutorial in Spanish and assert all messages are translated',
+  language: 'es',
+  steps: [
+    { action: 'start_new_game', language: 'es' },
+    { action: 'close_book', assert: 'tutorial_overlay_heroes_tab' },
+    { action: 'assert_message_text', key: 'tutorial_day1_msg_heroes_tab', language: 'es', screenshot: '15_tutorial_es_heroes_tab' },
   ]
 }
 ```
+
+#### Screenshot Audit Pipeline Update
+
+`scripts/screenshots/audit.mjs` must be updated to include a **tutorial overlay check** in its existing visual regression pass. Specifically:
+1. After the `book` feature audit, add a `tutorial` audit pass that runs the `tutorial_day1_full_flow` scenario.
+2. If a screenshot is missing (e.g., `07_tutorial_stat_grid`), the audit fails with a clear message: `Tutorial step 'day1_assign_stats' did not produce expected spotlight overlay`.
+3. The `audit.mjs` report should include a new section: `Tutorial Flow` with ✅/❌ for each of the 12 screenshots.
+
+#### Audit.mjs Update Plan
+
+| File | Change |
+|---|---|
+| `scripts/screenshots/orchestrator.mjs` | Add `tutorial_day1_full_flow`, `tutorial_day1_reload_mid_step`, `tutorial_i18n_roundtrip` scenarios; add new action handlers: `assert_modal_locked`, `assert_tutorial_state`, `snapshot_localstorage`, `reload_page` |
+| `scripts/screenshots/audit.mjs` | Add `tutorial` pass to the audit pipeline; import tutorial expected screenshots list; compare against `screenshots/tutorial/` directory |
+| `scripts/screenshots/README.md` | Document new tutorial actions and how to run `npm run test:tutorial` or `npm run audit:tutorial` |
 
 ### 8.2 Unit Tests (Engine)
 
@@ -661,9 +720,29 @@ if (!tutorialState && !this.isNewGame) {
 
 ---
 
-## 10. Implementation Order
+## 10. Documentation Updates
 
-### Phase 1: Engine Foundation (No Vue Changes)
+The tutorial system must be documented in the game's living docs so that players, testers, and future developers understand how it works and how to extend it.
+
+### Files to Create / Update
+
+| File | Action | Content |
+|---|---|---|
+| `docs/tutorial_system.md` | Create | Architecture overview: how the tutorial engine works, state machine diagram, how to add a new tutorial to the registry, how persistence works, how to skip a tutorial for testing |
+| `docs/tutorial_day1_flow.md` | Create | Player-facing walkthrough: what the player sees on Day 1, step-by-step screenshots (from the screenshot suite), what actions are locked and why. This is the "how to play" reference for new users. |
+| `docs/tutorial_registry.md` | Create | Developer reference: full schema of `TutorialRegistry` entries, all valid `spotlight` target types, `forcedNav` options, `completionEvent` values, and a copy-paste template for a new tutorial. |
+| `docs/tutorial_i18n.md` | Create | Translation guide: naming convention, how to add a new language, how to validate keys with the `validateTutorialKeys()` test, the "no hardcoded strings" rule. |
+| `README.md` (project root) | Update | Add a "Tutorial" section under "Features" or "Getting Started" that links to `docs/tutorial_day1_flow.md` for new players. |
+| `docs/screenshot_testing.md` | Update | Add the new tutorial scenarios to the screenshot testing documentation; explain how `tutorial_day1_full_flow` is the visual regression gate for the tutorial. |
+
+### Documentation Rules
+- All docs are written in the same language as the rest of the project docs (English). If the project later adds multilingual docs, these become `docs/tutorial_system_en.md`, etc.
+- Every diagram in the docs must have a matching code reference (e.g., the state machine diagram in `docs/tutorial_system.md` must link to `TutorialService.js` line numbers via a permalink or comment anchor).
+- Screenshots in `docs/tutorial_day1_flow.md` are pulled automatically from the screenshot suite output directory; they are not manually captured. This means the screenshot test must pass before the doc is considered complete.
+
+---
+
+## 11. Implementation Order
 1. Create `TutorialTypes.js`
 2. Create `TutorialRegistry.js` with Day 1 definition
 3. Create `TutorialService.js` with state machine + persistence
@@ -691,12 +770,25 @@ if (!tutorialState && !this.isNewGame) {
 7. Modify `ExpeditionNode.vue` — emit `expedition-started` event
 8. **Test:** Full screenshot flow `tutorial_day1_flow`
 
-### Phase 4: Extensibility & Polish
-1. Add `TutorialRegistry` entries for future tutorials (shop, tavern, etc.) — can be commented out
+### Phase 4: Documentation & Screenshot Integration
+1. Update `scripts/screenshots/orchestrator.mjs` with tutorial actions (`assert_modal_locked`, `assert_tutorial_state`, `snapshot_localstorage`, `reload_page`)
+2. Update `scripts/screenshots/audit.mjs` with tutorial pass and expected screenshot list
+3. Run `tutorial_day1_full_flow` scenario and capture all 12 screenshots
+4. Create `docs/tutorial_system.md` — architecture overview
+5. Create `docs/tutorial_day1_flow.md` — player walkthrough with screenshots
+6. Create `docs/tutorial_registry.md` — developer reference for adding new tutorials
+7. Create `docs/tutorial_i18n.md` — translation guide and validation rules
+8. Update `README.md` with Tutorial section linking to player walkthrough
+9. Update `docs/screenshot_testing.md` with new tutorial scenarios
+10. Run `validateTutorialKeys()` test across all 5 languages; fix any missing keys
+11. Verify migration/backfill logic on old saves
+12. Run full screenshot suite and fix any visual regressions
+
+### Phase 5: Extensibility & Polish
+1. Add `TutorialRegistry` entries for future tutorials (shop, tavern, etc.) — can be commented out as templates
 2. Add skip gesture for testing (triple-click message)
 3. Add subtle "shake" animation on locked tabs when user tries to click them
-4. Verify migration/backfill logic on old saves
-5. Run full screenshot suite and fix any visual regressions
+4. Final acceptance criteria sign-off
 
 ---
 
@@ -726,8 +818,9 @@ if (!tutorialState && !this.isNewGame) {
 - [ ] After starting the expedition, the tutorial advances to "advance day".
 - [ ] Reloading the page at any step restores the tutorial exactly at that step, with the correct spotlight and message.
 - [ ] Existing saves (Day > 1 or any expedition completed) never see the tutorial.
-- [ ] All tutorial text is translated in 5 languages.
-- [ ] Screenshot tests cover all 8 tutorial steps.
+- [ ] All tutorial text is translated in 5 languages. **Validation:** `validateTutorialKeys()` passes with zero missing keys and zero ghost keys.
+- [ ] Screenshot tests cover all 12 tutorial steps (including reload-resume and i18n roundtrip). **Validation:** `audit.mjs` tutorial pass reports all ✅.
+- [ ] Documentation is complete: `docs/tutorial_system.md`, `docs/tutorial_day1_flow.md`, `docs/tutorial_registry.md`, `docs/tutorial_i18n.md` are all written and `README.md` links to the player walkthrough. **Validation:** Docs are generated from passing screenshot artifacts, not manual captures.
 
 ---
 
