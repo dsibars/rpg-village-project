@@ -44,7 +44,7 @@
 ## Image 2: `assets/story/prologue_arthur_trail.webp`
 **Scene:** Arthur leading the group through a narrow rocky mountain trail. He is at the front, looking back to check on the exhausted refugees behind him. The path is dangerous and steep.
 **Prompt:** A group of small figures walking through a narrow rocky mountain trail, one leader figure at front looking back, others exhausted behind, steep dangerous path, cliffs on one side. Medieval manuscript ink drawing, black strokes only, transparent background, sketchy rough linework, small human figures, witnessed from afar, village scribe style.
-**Status:** pending
+**Status:** generated
 
 ---
 
@@ -282,9 +282,9 @@
 ## Overall Status
 
 **Total Images:** 35
-**Generated:** 1
-**Pending:** 34
-**Next to generate:** Image 2 (`prologue_arthur_trail.webp`)
+**Generated:** 2
+**Pending:** 33
+**Next to generate:** Image 3 (`prologue_first_stake.webp`)
 
 ---
 
