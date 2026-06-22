@@ -37,7 +37,7 @@
 ## Image 1: `assets/story/prologue_valley_dawn.webp`
 **Scene:** The refugees' first morning in the valley. A wide misty mountain valley with a winding river, jagged peaks in the background, and small tents or figures in the foreground. The scribe stands on a ridge and draws this view.
 **Prompt:** A wide misty mountain valley at dawn, river winding through the center, jagged peaks in background, tiny tents and figures in foreground, viewed from a ridge above. Medieval manuscript ink drawing, black strokes only, transparent background, sketchy rough linework, small human figures, witnessed from afar, village scribe style.
-**Status:** pending
+**Status:** generated
 
 ---
 
@@ -282,9 +282,9 @@
 ## Overall Status
 
 **Total Images:** 35
-**Generated:** 0
-**Pending:** 35
-**Next to generate:** Image 1 (`prologue_valley_dawn.webp`)
+**Generated:** 1
+**Pending:** 34
+**Next to generate:** Image 2 (`prologue_arthur_trail.webp`)
 
 ---
 
