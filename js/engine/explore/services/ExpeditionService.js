@@ -135,7 +135,8 @@ export class ExpeditionService {
      * Public method for GameEngine to call to check region unlocks.
      */
     checkRegionUnlocks() {
-        this.regionService.checkRegionUnlocks(this.state.completedIds);
+        const heroCount = this.heroService.getHeroes ? this.heroService.getHeroes().length : 0;
+        this.regionService.checkRegionUnlocks(this.state.completedIds, heroCount);
     }
 
     /**
@@ -342,7 +343,8 @@ export class ExpeditionService {
             const enemies = normalizedEnemies.map(e => {
                 const enemyLevel = stage.enemyLevel || 1;
                 const statMultiplier = stage.statMultiplier || 1.1;
-                const enemy = this._createEnemy(e.id, stage.isBoss, enemyLevel, e.isElite || false, e.eliteTier || 0, statMultiplier);
+                const rData = this.regionService.getRegionData(exp.regionId);
+                const enemy = this._createEnemy(e.id, stage.isBoss, enemyLevel, e.isElite || false, e.eliteTier || 0, statMultiplier, rData.baseLevel || 1);
                 if (enemyCounts[e.id] > 1) {
                     enemyIndices[e.id] = (enemyIndices[e.id] || 0) + 1;
                     const suffix = String.fromCharCode(64 + enemyIndices[e.id]); // A, B, C...
@@ -560,6 +562,15 @@ export class ExpeditionService {
 
             const hpLost = (ctx.initialHp[h.id] !== undefined ? ctx.initialHp[h.id] : h.maxHp) - h.hp;
 
+            // --- Fatigue gain from battle ---
+            // Base 5 fatigue per battle, +2 per enemy, +10 for defeat
+            const enemyCount = enemies.length;
+            const isBossBattle = enemies.some(e => e.isBoss);
+            const fatigueGain = isVictory
+                ? 5 + (enemyCount * 2) + (isBossBattle ? 5 : 0)
+                : 15 + (enemyCount * 3);
+            h.addFatigue(fatigueGain);
+
             combatLog.summary.push({
                 heroId: h.id,
                 heroName: h.name,
@@ -675,7 +686,8 @@ export class ExpeditionService {
         this._resolveEffects(exp, heroes);
 
         // Check if any new regions should unlock
-        this.regionService.checkRegionUnlocks(this.state.completedIds);
+        const heroCount = this.heroService.getHeroes ? this.heroService.getHeroes().length : 0;
+        this.regionService.checkRegionUnlocks(this.state.completedIds, heroCount);
         
         // Save each involved service exactly once
         this.heroService.saveAll();
@@ -698,6 +710,20 @@ export class ExpeditionService {
                 this.villageService.addItemToInventory(id, qty);
                 drops.items[id] = qty;
             });
+        }
+
+        // Closure bonus (path sealed)
+        if (exp.reward.closureBonus) {
+            if (exp.reward.closureBonus.gold) {
+                this.villageService.addGold(exp.reward.closureBonus.gold);
+                drops.closureGold = exp.reward.closureBonus.gold;
+            }
+            if (exp.reward.closureBonus.items) {
+                Object.entries(exp.reward.closureBonus.items).forEach(([id, qty]) => {
+                    this.villageService.addItemToInventory(id, qty);
+                    drops.items[id] = (drops.items[id] || 0) + qty;
+                });
+            }
         }
 
         // Loot drop (equipment)
@@ -854,18 +880,25 @@ export class ExpeditionService {
 
 
 
-    _createEnemy(templateId, isBoss, level = 1, isElite = false, eliteTier = 0, statMultiplier = 1.1) {
+    _createEnemy(templateId, isBoss, level = 1, isElite = false, eliteTier = 0, statMultiplier = 1.1, regionBaseLevel = 1) {
         const templates = this.getEnemyTemplates();
         const t = templates[templateId] || templates['slime_green'];
         
         // Apply level scaling: Base * statMultiplier^(level - 1)
         const levelMult = Math.pow(statMultiplier, level - 1);
+        
+        // Region-tier inherent bonuses (higher tier = stronger base stats)
+        const tierBonus = (regionBaseLevel - 1) * 2;
+        const tierHpBonus = tierBonus * 5;
+        const tierStrBonus = tierBonus;
+        const tierDefBonus = Math.floor(tierBonus / 2);
+        
         const scaled = {
             ...t,
             templateId: templateId || 'slime_green',
-            maxHp: Math.floor(t.maxHp * levelMult),
-            strength: Math.floor(t.strength * levelMult),
-            defense: Math.floor((t.defense || 1) * levelMult),
+            maxHp: Math.floor((t.maxHp * levelMult + tierHpBonus) * 1.5),
+            strength: Math.floor(t.strength * levelMult + tierStrBonus),
+            defense: Math.floor((t.defense || 1) * levelMult + tierDefBonus),
             speed: t.speed, // Speed stays flat to preserve turn-order feel
             level: level
         };

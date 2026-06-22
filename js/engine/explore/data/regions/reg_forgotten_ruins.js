@@ -14,12 +14,12 @@ export const reg_forgotten_ruins = {
     },
     lootProfile: {
         materials: [
-            { id: 'material_stone', min: 4, max: 7, chance: 1.0 },
-            { id: 'material_iron_ore', min: 2, max: 4, chance: 0.5 },
-            { id: 'material_mythril', min: 1, max: 1, chance: 0.15 }
+            { id: 'material_stone', min: 6, max: 12, chance: 1.0 },
+            { id: 'material_iron_ore', min: 4, max: 8, chance: 0.6 },
+            { id: 'material_mythril', min: 1, max: 3, chance: 0.3 }
         ],
-        goldBase: 40,
-        goldPerClear: 8
+        goldBase: 180,
+        goldPerClear: 36
     },
     narrative: null,
     glyphDropChance: 0.25,
@@ -30,9 +30,10 @@ export const reg_forgotten_ruins = {
     ],
 
     unlockRequirements: {
-        any: [
-            { minRegionClears: { reg_mystic_ruins: 6 } },
-            { minBuildingLevel: { building: 'explorer_guild', level: 3 } }
+        all: [
+            { minRegionClears: { reg_mystic_ruins: 12 } },
+            { minBuildingLevel: { building: 'explorer_guild', level: 3 } },
+            { minHeroes: 5 }
         ]
     },
 

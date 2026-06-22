@@ -467,6 +467,7 @@ export const en = {
     heroes_info_hp: "HP",
     heroes_info_stamina: "Stamina",
     heroes_info_mp: "MP",
+    heroes_info_fatigue: "Fatigue",
     heroes_info_effect_basic_attack: "Basic attack",
     heroes_info_effect_cleave: "Cleave",
     heroes_info_effect_hits: "hits",
@@ -785,6 +786,7 @@ export const en = {
     shop_uxelm_locked: "Shop Locked",
     shop_uxelm_locked_desc: "Complete the Tutorial Cave expedition to unlock the Shop.",
     shop_uxelm_no_items_to_sell: "No items to sell.",
+    shop_uxelm_no_items_week: "No items available this week. Check back after the market refresh!",
     shop_uxelm_sell: "Sell",
     shop_uxelm_select_item: "Select an item to view details.",
     shop_uxelm_storage_nearly_full: "Storage Nearly Full",
@@ -792,6 +794,7 @@ export const en = {
     shop_uxelm_title: "Village Shop",
 
     // ═══ VILLAGE INFO ════════════════════════════════════════════════════
+    village_info_building_level: 'Level',
     village_info_building_arcane_sanctum: "Arcane Sanctum",
     village_info_building_arcane_sanctum_desc: "A mystical tower dedicated to the study and teaching of magical glyphs. Unlocks the Glyph Academy.",
     village_info_building_arcane_sanctum_effect_academy: "Glyph Academy",
@@ -885,6 +888,8 @@ export const en = {
     village_uxelm_population: "Population",
     village_uxelm_tooltip_gold: "Available gold for spending",
     village_uxelm_tooltip_wood: "Wood materials in inventory",
+    village_uxelm_tooltip_stone: "Stone materials in inventory",
+    village_uxelm_tooltip_iron: "Iron materials in inventory",
     village_uxelm_tooltip_population: "Current villagers / Housing capacity",
     village_uxelm_tooltip_storage: "Storage used: {used} / {max}",
     village_uxelm_storage_warning: "Storage nearly full!",
@@ -1077,6 +1082,23 @@ export const en = {
     codex_feature_glyph_academy_desc: "The Glyph Academy, housed within the Arcane Sanctum, allows heroes to teach Glyphs to one another. A teacher hero shares a known Glyph with student heroes over several days.\\n\\nAcademy Mechanics:\\n- Requires Arcane Sanctum Level 2+.\\n- 1 teacher + up to 2 students per session.\\n- Teaching takes 3–5 days depending on Sanctum level.\\n- During teaching, all participants are busy and cannot be sent on expeditions.\\n- The Design Library allows copying spell designs between heroes for gold + time (no teacher required).\\n\\nHigher Sanctum levels increase student capacity and learning speed.\\n\\nTip: Teach warriors utility Glyphs so they can cast basic spells, or teach mages physical skill families for hybrid builds.",
     codex_feature_glyph_academy_unlock: "Upgrade the Arcane Sanctum to Level 2.",
 
+    // ═══ NEW PHASE 2 FEATURES ═══════════════════════════════════════════
+    codex_feature_fatigue: "Hero Fatigue",
+    codex_feature_fatigue_desc: "Heroes accumulate fatigue from battles and expeditions. High fatigue reduces combat effectiveness and can only be recovered through rest.\n\nHow Fatigue Accumulates:\n- Victory: 5 + (2 × enemy count) + 5 if boss battle\n- Defeat: 15 + (3 × enemy count)\n- Expedition stages: +2 fatigue per stage\n\nFatigue Thresholds:\n- > 50: -5% to all stats\n- > 75: -10% to all stats\n- > 90: -20% to all stats, -10 accuracy\n\nRecovery:\n- Idle heroes recover 15 fatigue per day\n- Heroes on expedition recover 5 fatigue per day\n- Resting at the village (daily action): +20 fatigue recovery\n- Infirmary bonus: +5 additional recovery per day\n\nVisual Indicator:\n- Green (0-30): Well rested\n- Yellow (31-60): Tired\n- Orange (61-85): Exhausted\n- Red (86-100): Critical fatigue",
+    codex_feature_fatigue_unlock: "Complete your first battle.",
+    codex_feature_market_rotation: "Weekly Market Rotation",
+    codex_feature_market_rotation_desc: "The village shop stock rotates every 7 days, offering a fresh selection of weapons, armor, and consumables. Higher-level Blacksmith buildings unlock better gear tiers.\n\nRotation Mechanics:\n- Every 7 days, all shop stock refreshes with new items\n- Each item has limited quantity (1-5 units depending on rarity)\n- Once sold out, an item is gone until next rotation\n\nStock Tiers by Blacksmith Level:\n- Level 0: Rank 1 (Wood) equipment, basic consumables\n- Level 1: Rank 2 (Iron) equipment unlocked\n- Level 2: Rank 3 (Steel) equipment unlocked\n- Level 3: Rank 4 (Gold) equipment unlocked\n\nTip: Plan your purchases before rotation day. Rare items may not appear again for weeks!",
+    codex_feature_market_rotation_unlock: "Complete the Tutorial Cave expedition.",
+    codex_feature_village_events: "Village Random Events",
+    codex_feature_village_events_desc: "Random events occur in the village as time passes, bringing opportunities and challenges. Events have a 30% daily chance (with a 2-day cooldown between events).\n\nEvent Types:\n- Traveling Merchant: Sells rare items at discounted prices\n- Wandering Healer: Heals wounded heroes for free\n- Training Inspiration: Bonus XP for all idle heroes\n- Bumper Crop: Bonus food production (farm-dependent)\n- Drought Warning: Reduced farm production\n- Drunken Brawl: Minor gold loss, but heroes gain combat XP\n- Rumor Heard: Hints about hidden expeditions or treasures\n- Monster Attack: Late-game event requiring defense\n- Ancient Discovery: Rare materials or unique items found\n\nImpact:\n- Events can provide bonuses or penalties\n- All events are recorded in the Chronicle\n- Some events require specific buildings (Tavern, Farm, etc.)",
+    codex_feature_village_events_unlock: "Reach village day 5.",
+    codex_feature_daily_actions: "Daily Hero Actions",
+    codex_feature_daily_actions_desc: "Each idle hero can perform one action per day to contribute to the village or improve themselves. Actions are assigned before ending the day and resolve on day advance.\n\nAvailable Actions:\n- Rest: +20 fatigue recovery, +20% HP heal\n- Train: Gain XP based on Training Grounds level\n- Scout: Reveal hidden expedition nodes in unlocked regions\n- Craft: Attempt to craft a random consumable (food, potion, scroll)\n- Socialize: Visit the Tavern for random social events (may trigger special interactions)\n\nAssignment:\n- Select a hero and choose an action from their profile\n- Actions resolve automatically when the day advances\n- Heroes on expedition cannot perform daily actions\n- Action results appear in the daily report",
+    codex_feature_daily_actions_unlock: "Construct a Tavern building.",
+    codex_feature_chronicle: "Chronicle",
+    codex_feature_chronicle_desc: "The Chronicle & Book are your village's narrative surfaces.\n\n- The Book is the readable journal. It records battles, expeditions, hero recruitment, building completion, village events, and daily actions as structured pages that you can read at any time.\n- The Chronicle is the achievement index. It tracks major story events and milestones, shows which are locked or unlocked, and links each unlocked entry to the exact Book page where it is narrated.\n\nUsage:\n- Open the Book from the top-bar button after events.\n- Open the Chronicle from the Explore page.\n- Click any unlocked Chronicle entry to jump to its Book page.",
+    codex_feature_chronicle_unlock: "Complete your first expedition.",
+
     // ═══ SAVE SLOT ════════════════════════════════════════════════════════
     shared_uxelm_save_slot_empty: "Empty",
     shared_uxelm_save_slot_new_game: "Start New Game",
@@ -1102,6 +1124,68 @@ export const en = {
 
     // ═══ NAVIGATION ═══════════════════════════════════════════════════════
     nav_codex: "Codex",
+
+    // ═══ THE BOOK — CHRONICLER'S VOICE ═════════════════════════════════
+    // The Book is a villager's personal journal. History events are written
+    // with care and artistry. Village updates are quick scribbles. The writer
+    // is an unseen character who reveals themselves later.
+
+    book_uxelm_title: "The Book",
+    book_uxelm_prev: "Previous",
+    book_uxelm_next: "Next",
+    book_uxelm_spread: "{current} / {total}",
+    book_uxelm_milestone: "A Mark Worth Remembering",
+
+    // Chapter Titles — Dramatic, proud, literary
+    book_chapter_default_title: "Chapter {chapter}",
+    book_chapter_1_title: "Chapter I: The Ashes of the Past",
+    book_chapter_2_title: "Chapter II: The Arcane Age",
+    book_chapter_3_title: "Chapter III: The Frozen North",
+    book_chapter_4_title: "Chapter IV: The Astral Threshold",
+    book_chapter_5_title: "Chapter V: The Final Stand",
+    book_chapter_2_event_block: "The villagers discovered ancient runes beneath the first stones of the new settlement. I watched them brush away the dirt, and there they were — symbols older than any of us, glowing faintly in the dark.",
+
+    // Village Updates — Quick, practical, the scribe's hurried hand
+    book_village_updates_title: "Day {day} — Notes from the Village",
+    book_update_village_founded: "They drove the first stake at dawn. By midday, three walls stood. I drew the valley from the ridge — the river runs silver there.",
+    book_update_food_consumed: "Food stores down by {amount}. The winter larder grows thin.",
+    book_update_villager_joined: "{amount} new soul(s) arrived today. The fire in the square burned brighter.",
+    book_update_hero_rested: "{hero} slept. The infirmary creaked in the wind. Good.",
+    book_update_hero_trained: "{hero} trained until their hands blistered. Saw them from the window.",
+    book_update_hero_scouted: "{hero} returned from the wilds with news of {region}. Eyes wide with wonder.",
+    book_update_hero_crafted: "{hero} made {item} in the workshop. Clang of hammer echoed till dusk.",
+    book_update_hero_socialized: "{hero} sat with the others by the fire. Laughter. That's what I heard.",
+    book_update_building_completed: "The {building} is done! Bell rang three times. Everyone came running.",
+    book_update_region_unlocked: "We found {region}. I marked it on my map with a shaky hand — the ink smudged from excitement.",
+    book_update_expedition_started: "Sent a party to {region}. Watched them go until they were dots, then nothing.",
+    book_update_expedition_completed: "They're back from {region}. Tired, dusty, but alive. Thank the stars.",
+    book_update_combat_victory: "Victory! I saw it from the ridge — they stood when the enemy fell. Cheered so loud my throat hurts.",
+    book_update_combat_defeat: "They came back wounded. Fewer than they left. I didn't write last night. Couldn't.",
+    book_update_hero_recruited: "{hero} has joined us! New face, new stories. The village feels bigger now.",
+    book_update_market_rotation: "Market restocked. Heard the traders arguing about prices before dawn.",
+    book_update_raid_defended: "Raiders came. We stood. They didn't. I counted the arrows in the wall — seventeen.",
+    book_update_raid_lost: "Raiders broke through. Took what they wanted. I hid the journal under the floorboards. Will write more when I can.",
+    book_update_quiet_day: "Nothing stirred. Even the wind held its breath.",
+
+    // History Events — Witnessed accounts, literary
+    book_history_combat_victory: "{heroes} stood against {enemyCount} {enemies} and prevailed. I watched from the ridge, heart pounding, as the last of the enemy fell. The valley grew quiet again, save for their breathing.",
+    book_history_combat_defeat: "{heroes} fought bravely, but the enemy was too strong. I saw them retreat, dragging the wounded. The valley felt darker after.",
+
+    // Milestones — Celebratory, personal, excited
+    book_milestone_first_victory: "First Victory!!!",
+    book_milestone_first_boss: "We Defeated the Boss!",
+    book_milestone_first_region: "First Region Explored!",
+    book_milestone_first_building: "First Building Complete!",
+    book_milestone_first_spell: "First Spell Composed!",
+    book_milestone_first_academy: "First Academy Session!",
+    book_milestone_first_body_inscription: "First Body Inscription!",
+
+    // Writer Revelation — The chronicler's confession
+    book_milestone_writer_revelation: "The Chronicler's Confession",
+    book_milestone_writer_revelation_text: "I noticed that with these dangers, I may not always be present, so I'm leaving notes for the next owner of this tiny journal I've been keeping to document the beautiful image Arthur is creating from scratch... maybe in the future, when the village becomes a big city, someone will take these notes and write a proper history book of how our village became great.",
+    book_milestone_writer_note_12: "The raids are getting closer. I write by candlelight now, and the wax drips onto the pages. If something happens to me, find this journal in the tavern — I keep it under the counter where the ale barrels meet the wall.",
+    book_milestone_writer_note_14: "Twelve pages of history now. The village has grown so much. I never thought I'd see a blacksmith's forge here, or hear children laughing in the square. Arthur doesn't know I watch, but I think he suspects. Sometimes he looks up at my window.",
+    book_unlock_lore_writer_revelation: "You met the one who wrote the Book.",
 
     // ═══ NARRATIVE / PROLOGUE ═════════════════════════════════════════════
     intro_btn: "Start Journey",
@@ -1313,6 +1397,45 @@ export const en = {
     chronicle_day_prefix: 'Day',
     chronicle_day_unknown: '—',
 
+    // New catalog (post-refactor)
+    chronicle_catalog_title: 'Chronicle',
+    chronicle_catalog_empty: 'No chronicle entries unlocked yet.',
+    chronicle_unlocked: 'Unlocked',
+    chronicle_open_in_book: 'Open in Book',
+    chronicle_chapter: 'Chapter',
+    chronicle_page: 'Page',
+
+    // Chronicle entry labels
+    chronicle_hero_recruited: 'Hero Recruited',
+    chronicle_combat_victory: 'Victory in Battle',
+    chronicle_combat_defeat: 'Defeat in Battle',
+
+    // Chronicle requirement labels
+    chronicle_req_recruit: 'Recruit a hero',
+    chronicle_req_combat_victory: 'Win a battle',
+    chronicle_req_combat_defeat: 'Suffer a defeat',
+
+    // Presentation chronicle entries
+    chronicle_prologue: 'Prologue',
+    chronicle_first_harvest: 'The First Harvest',
+    chronicle_shield_dark: 'A Shield in the Dark',
+    chronicle_warm_fire: 'A Warm Fire',
+    chronicle_mission_board: 'The Mission Board',
+    chronicle_discipline: 'Discipline',
+    chronicle_first_spark: 'The First Spark',
+    chronicle_first_victory: 'First Victory',
+    chronicle_first_equip: 'First Equipment',
+    chronicle_first_defeat: 'First Defeat',
+    chronicle_chapter1_finale: 'Chapter 1 Finale',
+    chronicle_language_world: 'The Language of the World',
+    chronicle_name_flame: 'The Name and the Flame',
+    chronicle_veil_thins: 'The Veil Thins',
+    chronicle_world_opens: 'The World Opens',
+    chronicle_first_spell_cast: 'First Spell Cast',
+    chronicle_first_boss_defeated: 'First Boss Defeated',
+    chronicle_first_raid_victory: 'First Raid Victory',
+    chronicle_chapter2_finale: 'Chapter 2 Finale',
+
     // Discovery Log
     chronicle_discovery_title: 'Discovery Log',
     chronicle_discovery_empty: 'No discoveries yet. Send heroes on expeditions and build your village to uncover the valley\'s secrets.',
@@ -1369,6 +1492,10 @@ export const en = {
     shop_uxelm_tab_resources: "Resources",
     shop_uxelm_storage_warning: "Warning: Your storage is full or nearly full!",
     shop_uxelm_no_items: "No items available in shop.",
+    shop_uxelm_week: "Week",
+    shop_uxelm_refresh_in: "Refresh in",
+    shop_uxelm_days: "days",
+    shop_uxelm_specials: "Specials",
     daily_uxelm_objectives_title: "Daily Objectives",
     calendar_info_day: "Day {day}",
     calendar_uxelm_upcoming: "Upcoming Events",
@@ -1437,10 +1564,17 @@ export const en = {
     shared_uxelm_gold: "Gold",
     shared_uxelm_toast_gold_earned: "+{amount}g",
     shared_uxelm_toast_resource_sold: "+{amount}g ({count} {resource})",
+    shared_uxelm_toast_resource_bought: "-{amount}g (+{count} {resource})",
     shared_uxelm_toast_preset_applied: "Applied {preset} (+{count} gambits)",
     shared_uxelm_toast_glyph_learned: "{hero} learned {glyph}!",
     shared_uxelm_toast_consumable_used: "{hero} +{amount} {stat}",
     combat_log_stamina_regen: "{actor} regenerates {amount} stamina",
     combat_log_victory: "Victory! Enemies defeated!",
     combat_log_defeat: "Defeat... The party has fallen...",
+
+  // Skip battle risk indicators
+  combat_uxelm_skip_safe: 'Safe',
+  combat_uxelm_skip_risky: 'Risky',
+  combat_uxelm_skip_dangerous: 'Dangerous',
+  combat_uxelm_skip_suicide: 'Suicide',
 };

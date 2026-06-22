@@ -792,6 +792,7 @@ export const ca = {
     shop_uxelm_title: "Botiga de la Vila",
 
     // ═══ VILLAGE INFO ════════════════════════════════════════════════════
+    village_info_building_level: 'Nivell',
     village_info_building_arcane_sanctum: "Sagrari Arcà",
     village_info_building_arcane_sanctum_desc: "Una torre mística dedicada a l'estudi i l'ensenyament de glifs màgics. Desbloqueja l'Acadèmia de Glifs.",
     village_info_building_arcane_sanctum_effect_academy: "Acadèmia de Glifs",
@@ -885,6 +886,8 @@ export const ca = {
     village_uxelm_population: "Població",
     village_uxelm_tooltip_gold: "Or disponible per gastar",
     village_uxelm_tooltip_wood: "Materials de fusta a l'inventari",
+    village_uxelm_tooltip_stone: "Materials de pedra a l'inventari",
+    village_uxelm_tooltip_iron: "Materials de ferro a l'inventari",
     village_uxelm_tooltip_population: "Pagesos actuals / Capacitat d'habitatge",
     village_uxelm_tooltip_storage: "Emmagatzematge usat: {used} / {max}",
     village_uxelm_storage_warning: "Emmagatzematge gairebé ple!",
@@ -1077,6 +1080,23 @@ export const ca = {
     codex_feature_glyph_academy_desc: "La l'Acadèmia de glifs, ubicada dins del Sagrari Arcà, permet als herois ensenyar-se glifs entre si. Un heroi mestre comparteix un glif conegut amb herois estudiants durant diversos dies.\\n\\nMecànica de l'Acadèmia:\\n- Requereix Sagrari Arcà Nivell 2+.\\n- 1 mestre + fins a 2 estudiants per sessió.\\n- L'ensenyament dura de 3 a 5 dies segons el nivell del Sagrari.\\n- Durant l'ensenyament, tots els participants estan ocupats i no poden ser enviats a expedicions.\\n- La biblioteca de dissenys permet copiar dissenys de conjurs entre herois per or i temps (no es requereix mestre).\\n\\nEls nivells més alts de Sagrari augmenten la capacitat d'estudiants i la velocitat d'aprenentatge.\\n\\nConsell: ensenya glifs d'utilitat als guerrers perquè puguin llançar conjurs bàsics, o ensenya famílies de tècniques físiques als mags per a configuracions híbrides.",
     codex_feature_glyph_academy_unlock: "Mejora el Sagrari Arcà al Nivell 2.",
 
+    // ═══ NOVES CARACTERÍSTIQUES FASE 2 ════════════════════════════════════
+    codex_feature_fatigue: "Fatiga de l'Heroi",
+    codex_feature_fatigue_desc: "Els herois acumulen fatiga de les batalles i expedicions. La fatiga alta redueix l'efectivitat en combat i només es recupera mitjançant descans.\n\nCom s'acumula la fatiga:\n- Victòria: 5 + (2 × nombre d'enemics) + 5 si cap\n- Derrota: 15 + (3 × nombre d'enemics)\n- Etapes d'expedició: +2 de fatiga per etapa\n\nLlindars de fatiga:\n- > 50: -5% a totes les estadístiques\n- > 75: -10% a totes les estadístiques\n- > 90: -20% a totes les estadístiques, -10 de precisió\n\nRecuperació:\n- Herois inactius recuperen 15 de fatiga per dia\n- Herois en expedició recuperen 5 de fatiga per dia\n- Descansar a la vila (acció diària): +20 de recuperació\n- Bonus de l'infermeria: +5 de recuperació addicional per dia\n\nIndicador visual:\n- Verd (0-30): Ben descansat\n- Groc (31-60): Cansat\n- Taronja (61-85): Exhaust\n- Vermell (86-100): Fatiga crítica",
+    codex_feature_fatigue_unlock: "Completa la teva primera batalla.",
+    codex_feature_market_rotation: "Rotació Setmanal del Mercat",
+    codex_feature_market_rotation_desc: "L'stock de la botiga de la vila rota cada 7 dies, oferint una selecció fresca d'armes, armadures i consumibles. Les ferreries de nivell superior desbloquegen millors rangs d'equip.\n\nMecànica de rotació:\n- Cada 7 dies, tot l'stock es refresca amb nous objectes\n- Cada objecte té quantitat limitada (1-5 unitats segons raresa)\n- Un cop esgotat, un objecte no torna fins a la següent rotació\n\nStock per nivell de ferreria:\n- Nivell 0: Equip rang 1 (Fusta), consumibles bàsics\n- Nivell 1: Equip rang 2 (Ferro) desbloquejat\n- Nivell 2: Equip rang 3 (Acer) desbloquejat\n- Nivell 3: Equip rang 4 (Or) desbloquejat\n\nConsell: Planifica les teves compres abans del dia de rotació. Els objectes rars poden no aparèixer durant setmanes!",
+    codex_feature_market_rotation_unlock: "Completa l'expedició de la Cova Tutorial.",
+    codex_feature_village_events: "Esdeveniments Aleatoris de la Vila",
+    codex_feature_village_events_desc: "Esdeveniments aleatoris ocorren a la vila a mesura que passa el temps, portant oportunitats i desafiaments. Els esdeveniments tenen un 30% de probabilitat diària (amb 2 dies d'enfriament entre esdeveniments).\n\nTipus d'esdeveniments:\n- Comerciant ambulant: Ven objectes rars amb descompte\n- Sanador errant: Cura herois ferits de franc\n- Inspiració d'entrenament: EXP bonus per a herois inactius\n- Collita abundant: Producció extra d'aliments\n- Advertència de sequera: Producció reduïda de granges\n- Baralla de taverna: Pèrdua menor d'or, però herois guanyen EXP de combat\n- Rumor escoltat: Pistes sobre expedicions o tresors ocults\n- Atac de monstre: Esdeveniment de joc avançat que requereix defensa\n- Descobriment antic: Materials rars o objectes únics trobats\n\nImpacte:\n- Els esdeveniments poden proporcionar bonificacions o penalitzacions\n- Tots els esdeveniments es registren a la Crònica\n- Alguns esdeveniments requereixen edificis específics (Taberna, Granja, etc.)",
+    codex_feature_village_events_unlock: "Assoleix el dia 5 de la vila.",
+    codex_feature_daily_actions: "Accions Diàries de l'Heroi",
+    codex_feature_daily_actions_desc: "Cada heroi inactiu pot realitzar una acció per dia per contribuir a la vila o millorar-se a si mateix. Les accions s'assignen abans de terminar el dia i es resolen en avançar el dia.\n\nAccions disponibles:\n- Descansar: +20 recuperació de fatiga, +20% curació de PV\n- Entrenar: Guanya EXP basada en el nivell del Camp d'Entrenament\n- Explorar: Revela nodes d'expedició ocults en regions desbloquejades\n- Fabricar: Intenta fabricar un consumible aleatori (menjar, poció, pergamí)\n- Socialitzar: Visita la taberna per a esdeveniments socials aleatoris\n\nAssignació:\n- Selecciona un heroi i tria una acció des del seu perfil\n- Les accions es resolen automàticament en avançar el dia\n- Els herois en expedició no poden realitzar accions diàries\n- Els resultats apareixen a l'informe diari",
+    codex_feature_daily_actions_unlock: "Construeix una Taberna.",
+    codex_feature_chronicle: "Crònica",
+    codex_feature_chronicle_desc: "La Crònica i el Llibre són les superfícies narratives de la teva vila.\n\n- El Llibre és el diari llegible. Registra batalles, expedicions, reclutament d'herois, construcció, esdeveniments de vila i accions diàries com a pàgines estructurades que pots llegir en qualsevol moment.\n- La Crònica és l'índex d'assoliments. Fa un seguiment d'esdeveniments importants de la història i fites, mostra quins estan bloquejats o desbloquejats, i enllaça cada entrada desbloquejada amb la pàgina exacta del Llibre on es narra.\n\nÚs:\n- Obre el Llibre des del botó de la barra superior després dels esdeveniments.\n- Obre la Crònica des de la pàgina d'Explorar.\n- Fes clic a qualsevol entrada desbloquejada de la Crònica per saltar a la seva pàgina del Llibre.",
+    codex_feature_chronicle_unlock: "Completa la teva primera expedició.",
+
     // ═══ SAVE SLOT ════════════════════════════════════════════════════════
     shared_uxelm_save_slot_empty: "Buit",
     shared_uxelm_save_slot_new_game: "Començar Nova Partida",
@@ -1102,6 +1122,69 @@ export const ca = {
 
     // ═══ NAVIGATION ═══════════════════════════════════════════════════════
     nav_codex: "Còdex",
+
+    // ═══ THE BOOK — VEU DEL CRONISTA ═════════════════════════════════
+    // El Llibre és el diari personal d'un veí. Els esdeveniments històrics
+    // s'escriuen amb cura i art. Les actualitzacions del poble són
+    // apunts ràpids. L'escriptor és un personatge invisible que es revela
+    // més endavant.
+
+    book_uxelm_title: "El Llibre",
+    book_uxelm_prev: "Anterior",
+    book_uxelm_next: "Següent",
+    book_uxelm_spread: "{current} / {total}",
+    book_uxelm_milestone: "Una marca per recordar",
+
+    // Títols de capítol — Dramàtics, orgullosos, literaris
+    book_chapter_default_title: "Capítol {chapter}",
+    book_chapter_1_title: "Capítol I: Les Cendres del Passat",
+    book_chapter_2_title: "Capítol II: L'Edat Arcana",
+    book_chapter_3_title: "Capítol III: El Nord Gelat",
+    book_chapter_4_title: "Capítol IV: El Llindar Astral",
+    book_chapter_5_title: "Capítol V: L'Última Defensa",
+    book_chapter_2_event_block: "Sota les primeres pedres de l'assentament vam descobrir runes que ningú recordava. Les vaig fregar amb el revers de la mà i allà eren, brillant tènue en la foscor — símbols més antics que nosaltres.",
+
+    // Actualitzacions del poble — Ràpides, pràctiques, la mà apressada de l'escrivà
+    book_village_updates_title: "Dia {day} — Notes del poble",
+    book_update_village_founded: "Van clavar la primera estaca a l'alba. A migdia, tres murs ja s'aixecaven. Vaig dibuixar la vall des de la cresta — el riu hi corre plata.",
+    book_update_food_consumed: "La celler va baixar {amount} unitats. La reserva d'hivern s'esvaeix.",
+    book_update_villager_joined: "{amount} ànima(s) nova(va) arribada avui. La foguera de la plaça va cremar més alt.",
+    book_update_hero_rested: "{hero} va dormir. L'hospital cruixia amb el vent. Bé.",
+    book_update_hero_trained: "{hero} va entrenar fins que les mans li van sangrar. El vaig veure des de la finestra.",
+    book_update_hero_scouted: "{hero} va tornar de salvatge amb notícies de {region}. Els ulls brillaven d'astorament.",
+    book_update_hero_crafted: "{hero} va fer {item} al taller. El cop del martell va ressonar fins al capvespre.",
+    book_update_hero_socialized: "{hero} es va asseure amb els altres vora el foc. Rialles. Això és el que vaig sentir.",
+    book_update_building_completed: "El {building} està llest! La campana va tocar tres vegades. Tots van sortir corrent.",
+    book_update_region_unlocked: "Hem trobat {region}. Ho vaig marcar al mapa amb mà trêmola — la tinta es va córrer d'emoció.",
+    book_update_expedition_started: "Vaig enviar una partida a {region}. Els vaig seguir amb la mirada fins que eren punts, després res.",
+    book_update_expedition_completed: "Han tornat de {region}. Cansats, polsegosos, però vius. Gràcies als astres.",
+    book_update_combat_victory: "Victòria! Ho vaig veure des de la cresta — es van mantenir drets quan l'enemic va caure. Vaig cridar tant que em fa mal la gola.",
+    book_update_combat_defeat: "Van tornar ferits. Menys dels que van partir. Ahir no vaig escriure. No vaig poder.",
+    book_update_hero_recruited: "{hero} s'ha unit a nosaltres! Cara nova, històries noves. El poble es fa més gran.",
+    book_update_market_rotation: "Mercat reabastit. Vaig sentir els comerciants discutint preus abans de l'alba.",
+    book_update_raid_defended: "Van venir els assaltants. Ens vam mantenir. Ells no. Vaig comptar les fletxes al mur — disset.",
+    book_update_raid_lost: "Els assaltants van trencar el seter. Es van endur el que van voler. Vaig amagar el diari sota el terra. Escriuré més quan pugui.",
+    book_update_quiet_day: "No es va moure res. Fins el vent va contenir l'alè.",
+
+    // Esdeveniments històrics — Relats presenciats, literaris
+    book_history_combat_victory: "{heroes} es van enfrontar a {enemyCount} {enemies} i van prevaler. Vaig observar des de la cresta, el cor desbocat, mentre l'últim enemic caia. La vall va tornar a quedar en silenci, llevat de la seva respiració.",
+    book_history_combat_defeat: "{heroes} van lluitar amb valentia, però l'enemic va ser massa fort. Els vaig veure retirar-se, arrossegant els ferits. La vall es va sentir més fosca després.",
+
+    // Fites — Celebratòries, personals, emocionades
+    book_milestone_first_victory: "¡¡¡Primera victòria!!!",
+    book_milestone_first_boss: "¡Primer Cap Derrotat!",
+    book_milestone_first_region: "¡Primera regió explorada!",
+    book_milestone_first_building: "¡Primera construcció completa!",
+    book_milestone_first_spell: "¡Primer encanteri compost!",
+    book_milestone_first_academy: "¡Primera sessió de l'Acadèmia!",
+    book_milestone_first_body_inscription: "¡Primera inscripció corporal!",
+
+    // Revelació de l'escriptor — La confessió del cronista
+    book_milestone_writer_revelation: "La confessió del cronista",
+    book_milestone_writer_revelation_text: "M'he adonat que, amb aquests perills, potser no sempre hi seré, així que deixo notes per al proper propietari d'aquest petit diari que he anat portant per documentar la bella imatge que l'Arthur està creant des de zero... potser en el futur, quan el poble es converteixi en una gran ciutat, algú prendrà aquestes notes i escriurà un llibre d'història adequat sobre com la nostra vila es va fer gran.",
+    book_milestone_writer_note_12: "Els atacs s'acosten. Escribo a la llum de la cera ara, i la cera degota sobre les pàgines. Si em passa alguna cosa, trobeu aquest diari a la taverna — el guardo sota el taulell on els barrils de cervesa toquen la paret.",
+    book_milestone_writer_note_14: "Dotze pàgines d'història ja. El poble ha crescut tant. Mai vaig pensar que veuria una farga de ferrer aquí, ni que sentiria nens riure a la plaça. L'Arthur no sap que l'observo, però crec que ho sospita. A vegades aixeca la vista cap a la meva finestra.",
+    book_unlock_lore_writer_revelation: "Has conegut qui va escriure el Llibre.",
 
     // ═══ NARRATIVE / PROLOGUE ═════════════════════════════════════════════
     intro_btn: "Començar Viatge",
@@ -1313,6 +1396,45 @@ export const ca = {
     chronicle_day_prefix: "Dia",
     chronicle_day_unknown: "—",
 
+    // New catalog (post-refactor)
+    chronicle_catalog_title: 'Crònica',
+    chronicle_catalog_empty: "Encara no s'han desbloquejat entrades de la crònica.",
+    chronicle_unlocked: 'Desbloquejat',
+    chronicle_open_in_book: 'Obrir al Llibre',
+    chronicle_chapter: 'Capítol',
+    chronicle_page: 'Pàgina',
+
+    // Chronicle entry labels
+    chronicle_hero_recruited: 'Heroi Reclutat',
+    chronicle_combat_victory: 'Victòria en Batalla',
+    chronicle_combat_defeat: 'Derrota en Batalla',
+
+    // Chronicle requirement labels
+    chronicle_req_recruit: 'Recluta un heroi',
+    chronicle_req_combat_victory: 'Guanya una batalla',
+    chronicle_req_combat_defeat: 'Sofreix una derrota',
+
+    // Presentation chronicle entries
+    chronicle_prologue: 'Pròleg',
+    chronicle_first_harvest: 'La Primera Collita',
+    chronicle_shield_dark: 'Un Escut a la Foscor',
+    chronicle_warm_fire: 'Un Foc Calent',
+    chronicle_mission_board: 'El Tauler de Missions',
+    chronicle_discipline: 'Disciplina',
+    chronicle_first_spark: 'La Primera Guspira',
+    chronicle_first_victory: 'Primera Victòria',
+    chronicle_first_equip: 'Primer Equipament',
+    chronicle_first_defeat: 'Primera Derrota',
+    chronicle_chapter1_finale: 'Final del Capítol 1',
+    chronicle_language_world: 'El Llenguatge del Món',
+    chronicle_name_flame: 'El Nom i la Flama',
+    chronicle_veil_thins: 'El Vel s\'Afebleix',
+    chronicle_world_opens: 'El Món s\'Obre',
+    chronicle_first_spell_cast: 'Primer Encanteri Llançat',
+    chronicle_first_boss_defeated: 'Primer Cap Derrotat',
+    chronicle_first_raid_victory: 'Primera Victòria d\'Incursió',
+    chronicle_chapter2_finale: 'Final del Capítol 2',
+
     // Discovery Log
     chronicle_discovery_title: "Registre de Descobriments",
     chronicle_discovery_empty: "Encara no hi ha descobriments. Envia herois d'expedició i construeix la teva vila per desvelar els secrets de la vall.",
@@ -1437,10 +1559,17 @@ export const ca = {
     shared_uxelm_gold: "Or",
     shared_uxelm_toast_gold_earned: "+{amount}g",
     shared_uxelm_toast_resource_sold: "+{amount}g ({count} {resource})",
+    shared_uxelm_toast_resource_bought: "-{amount}g (+{count} {resource})",
     shared_uxelm_toast_preset_applied: "Aplicat {preset} (+{count} gambits)",
     shared_uxelm_toast_glyph_learned: "{hero} ha après {glyph}!",
     shared_uxelm_toast_consumable_used: "{hero} +{amount} {stat}",
     combat_log_stamina_regen: "{actor} regenera {amount} d'estamina",
     combat_log_victory: "Victòria! Enemics derrotats!",
     combat_log_defeat: "Derrota... El grup ha caigut...",
+
+  // Skip battle risk indicators
+  combat_uxelm_skip_safe: 'Segur',
+  combat_uxelm_skip_risky: 'Arriscat',
+  combat_uxelm_skip_dangerous: 'Perillós',
+  combat_uxelm_skip_suicide: 'Suïcida',
 };

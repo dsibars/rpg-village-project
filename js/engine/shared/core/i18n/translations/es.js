@@ -792,6 +792,7 @@ export const es = {
     shop_uxelm_title: "Tienda de la Aldea",
 
     // ═══ VILLAGE INFO ════════════════════════════════════════════════════
+    village_info_building_level: 'Nivel',
     village_info_building_arcane_sanctum: "Sagrario Arcano",
     village_info_building_arcane_sanctum_desc: "Una torre mística dedicada al estudio y la enseñanza de glifos mágicos. Desbloquea la Academia de Glifos.",
     village_info_building_arcane_sanctum_effect_academy: "Academia de Glifos",
@@ -885,6 +886,8 @@ export const es = {
     village_uxelm_population: "Población",
     village_uxelm_tooltip_gold: "Oro disponible para gastar",
     village_uxelm_tooltip_wood: "Materiales de madera en el inventario",
+    village_uxelm_tooltip_stone: "Materiales de piedra en el inventario",
+    village_uxelm_tooltip_iron: "Materiales de hierro en el inventario",
     village_uxelm_tooltip_population: "Aldeanos actuales / Capacidad de vivienda",
     village_uxelm_tooltip_storage: "Almacenamiento usado: {used} / {max}",
     village_uxelm_storage_warning: "¡Almacenamiento casi lleno!",
@@ -1077,6 +1080,23 @@ export const es = {
     codex_feature_glyph_academy_desc: "La Academia de glifos, ubicada dentro del Sagrario Arcano, permite a los héroes enseñarse glifos entre sí. Un héroe maestro comparte un glifo conocido con héroes estudiantes durante varios días.\\n\\nMecánica de la Academia:\\n- Requiere Sagrario Arcano Nivel 2+.\\n- 1 maestro + hasta 2 estudiantes por sesión.\\n- La enseñanza dura de 3 a 5 días según el nivel del Sagrario.\\n- Durante la enseñanza, todos los participantes están ocupados y no pueden ser enviados a expediciones.\\n- La biblioteca de diseños permite copiar diseños de hechizos entre héroes por oro y tiempo (no se requiere maestro).\\n\\nLos niveles más altos de Sagrario aumentan la capacidad de estudiantes y la velocidad de aprendizaje.\\n\\nConsejo: enseña glifos de utilidad a los guerreros para que puedan lanzar hechizos básicos, o enseña familias de técnicas físicas a los magos para configuraciones híbridas.",
     codex_feature_glyph_academy_unlock: "Mejora el Sagrario Arcano al Nivel 2.",
 
+    // ═══ NUEVAS CARACTERÍSTICAS FASE 2 ════════════════════════════════════
+    codex_feature_fatigue: "Fatiga del Héroe",
+    codex_feature_fatigue_desc: "Los héroes acumulan fatiga de las batallas y expediciones. La fatiga alta reduce la efectividad en combate y solo se recupera mediante descanso.\n\nCómo se acumula la fatiga:\n- Victoria: 5 + (2 × número de enemigos) + 5 si jefe\n- Derrota: 15 + (3 × número de enemigos)\n- Etapas de expedición: +2 de fatiga por etapa\n\nUmbrales de fatiga:\n- > 50: -5% a todas las estadísticas\n- > 75: -10% a todas las estadísticas\n- > 90: -20% a todas las estadísticas, -10 de precisión\n\nRecuperación:\n- Héroes inactivos recuperan 15 de fatiga por día\n- Héroes en expedición recuperan 5 de fatiga por día\n- Descansar en la aldea (acción diaria): +20 de recuperación\n- Bonus del hospital: +5 de recuperación adicional por día\n\nIndicador visual:\n- Verde (0-30): Bien descansado\n- Amarillo (31-60): Cansado\n- Naranja (61-85): Exhausto\n- Rojo (86-100): Fatiga crítica",
+    codex_feature_fatigue_unlock: "Completa tu primera batalla.",
+    codex_feature_market_rotation: "Rotación Semanal del Mercado",
+    codex_feature_market_rotation_desc: "El stock de la tienda de la aldea rota cada 7 días, ofreciendo una selección fresca de armas, armaduras y consumibles. Los herrerías de mayor nivel desbloquean mejores rangos de equipo.\n\nMecánica de rotación:\n- Cada 7 días, todo el stock se refresca con nuevos objetos\n- Cada objeto tiene cantidad limitada (1-5 unidades según rareza)\n- Una vez agotado, un objeto no vuelve hasta la siguiente rotación\n\nStock por nivel de herrería:\n- Nivel 0: Equipo rango 1 (Madera), consumibles básicos\n- Nivel 1: Equipo rango 2 (Hierro) desbloqueado\n- Nivel 2: Equipo rango 3 (Acero) desbloqueado\n- Nivel 3: Equipo rango 4 (Oro) desbloqueado\n\nConsejo: Planifica tus compras antes del día de rotación. ¡Los objetos raros pueden no aparecer durante semanas!",
+    codex_feature_market_rotation_unlock: "Completa la expedición de la Cueva Tutorial.",
+    codex_feature_village_events: "Eventos Aleatorios de la Aldea",
+    codex_feature_village_events_desc: "Eventos aleatorios ocurren en la aldea a medida que pasa el tiempo, trayendo oportunidades y desafíos. Los eventos tienen un 30% de probabilidad diaria (con 2 días de enfriamiento entre eventos).\n\nTipos de eventos:\n- Mercader ambulante: Vende objetos raros con descuento\n- Sanador errante: Cura héroes heridos gratis\n- Inspiración de entrenamiento: EXP bonus para héroes inactivos\n- Cosecha abundante: Producción extra de alimentos\n- Advertencia de sequía: Producción reducida de granjas\n- Pelea de taberna: Pérdida menor de oro, pero héroes ganan EXP de combate\n- Rumor escuchado: Pistas sobre expediciones o tesoros ocultos\n- Ataque de monstruo: Evento de juego avanzado que requiere defensa\n- Descubrimiento antiguo: Materiales raros o objetos únicos encontrados\n\nImpacto:\n- Los eventos pueden proporcionar bonificaciones o penalizaciones\n- Todos los eventos se registran en la Crónica\n- Algunos eventos requieren edificios específicos (Taberna, Granja, etc.)",
+    codex_feature_village_events_unlock: "Alcanza el día 5 de la aldea.",
+    codex_feature_daily_actions: "Acciones Diarias del Héroe",
+    codex_feature_daily_actions_desc: "Cada héroe inactivo puede realizar una acción por día para contribuir a la aldea o mejorarse a sí mismo. Las acciones se asignan antes de terminar el día y se resuelven al avanzar el día.\n\nAcciones disponibles:\n- Descansar: +20 recuperación de fatiga, +20% curación de PV\n- Entrenar: Gana EXP basada en el nivel del Campo de Entrenamiento\n- Explorar: Revela nodos de expedición ocultos en regiones desbloqueadas\n- Fabricar: Intenta fabricar un consumible aleatorio (comida, poción, pergamino)\n- Socializar: Visita la taberna para eventos sociales aleatorios\n\nAsignación:\n- Selecciona un héroe y elige una acción desde su perfil\n- Las acciones se resuelven automáticamente al avanzar el día\n- Los héroes en expedición no pueden realizar acciones diarias\n- Los resultados aparecen en el informe diario",
+    codex_feature_daily_actions_unlock: "Construye una Taberna.",
+    codex_feature_chronicle: "Crónica",
+    codex_feature_chronicle_desc: "La Crónica y el Libro son las superficies narrativas de tu aldea.\n\n- El Libro es el diario legible. Registra batallas, expediciones, reclutamiento de héroes, construcción, eventos de aldea y acciones diarias como páginas estructuradas que puedes leer en cualquier momento.\n- La Crónica es el índice de logros. Rastrea eventos importantes de la historia y hitos, muestra cuáles están bloqueados o desbloqueados, y vincula cada entrada desbloqueada a la página exacta del Libro donde se narra.\n\nUso:\n- Abre el Libro desde el botón de la barra superior después de los eventos.\n- Abre la Crónica desde la página de Explorar.\n- Haz clic en cualquier entrada desbloqueada de la Crónica para saltar a su página del Libro.",
+    codex_feature_chronicle_unlock: "Completa tu primera expedición.",
+
     // ═══ SAVE SLOT ════════════════════════════════════════════════════════
     shared_uxelm_save_slot_empty: "Vacío",
     shared_uxelm_save_slot_new_game: "Comenzar Nueva Partida",
@@ -1102,6 +1122,69 @@ export const es = {
 
     // ═══ NAVIGATION ═══════════════════════════════════════════════════════
     nav_codex: "Códice",
+
+    // ═══ THE BOOK — VOZ DEL CRONISTA ══════════════════════════════════
+    // El Libro es el diario personal de un aldeano. Los eventos históricos
+    // se escriben con cuidado y arte. Las actualizaciones del pueblo son
+    // apuntes rápidos. El escritor es un personaje invisible que se revela
+    // más adelante.
+
+    book_uxelm_title: "El Libro",
+    book_uxelm_prev: "Anterior",
+    book_uxelm_next: "Siguiente",
+    book_uxelm_spread: "{current} / {total}",
+    book_uxelm_milestone: "Una marca para recordar",
+
+    // Títulos de capítulo — Dramáticos, orgullosos, literarios
+    book_chapter_default_title: "Capítulo {chapter}",
+    book_chapter_1_title: "Capítulo I: Las Cenizas del Pasado",
+    book_chapter_2_title: "Capítulo II: La Era Arcana",
+    book_chapter_3_title: "Capítulo III: El Norte Helado",
+    book_chapter_4_title: "Capítulo IV: El Umbral Astral",
+    book_chapter_5_title: "Capítulo V: La Última Defensa",
+    book_chapter_2_event_block: "Bajo las primeras piedras del asentamiento descubrimos runas que nadie recordaba. Las cepillé con el dorso de la mano y allí estaban, brillando tenuemente en la oscuridad — símbolos más antiguos que nosotros.",
+
+    // Actualizaciones del pueblo — Rápidas, prácticas, la mano apresurada del escriba
+    book_village_updates_title: "Día {day} — Notas del pueblo",
+    book_update_village_founded: "Clavaron la primera estaca al amanecer. A mediodía, tres muros ya se alzaban. Dibujé el valle desde la cresta — el río corre plateado allí.",
+    book_update_food_consumed: "Despensa bajó {amount} unidades. La despensa de invierno se vacía.",
+    book_update_villager_joined: "{amount} alma(s) nueva(s) llegaron hoy. La hoguera de la plaza ardió más alta.",
+    book_update_hero_rested: "{hero} durmió. El hospital crujía con el viento. Bien.",
+    book_update_hero_trained: "{hero} entrenó hasta que las manos le sangraron. Lo vi desde la ventana.",
+    book_update_hero_scouted: "{hero} volvió de salvaje con noticias de {region}. Los ojos brillaban de asombro.",
+    book_update_hero_crafted: "{hero} hizo {item} en el taller. El golpe del martillo resonó hasta el anochecer.",
+    book_update_hero_socialized: "{hero} se sentó con los demás junto al fuego. Risas. Eso es lo que oí.",
+    book_update_building_completed: "¡El {building} está listo! La campana tocó tres veces. Todos salieron corriendo.",
+    book_update_region_unlocked: "Encontramos {region}. Lo marqué en el mapa con mano temblorosa — la tinta se corrió de la emoción.",
+    book_update_expedition_started: "Envié una partida a {region}. Los seguí con la mirada hasta que fueron puntos, luego nada.",
+    book_update_expedition_completed: "Han vuelto de {region}. Cansados, polvorientos, pero vivos. Gracias a los cielos.",
+    book_update_combat_victory: "¡Victoria! Lo vi desde la cresta — se mantuvieron en pie cuando el enemigo cayó. Grité tanto que me duele la garganta.",
+    book_update_combat_defeat: "Volvieron heridos. Menos de los que partieron. Anoche no escribí. No pude.",
+    book_update_hero_recruited: "¡{hero} se ha unido a nosotros! Cara nueva, historias nuevas. El pueblo se siente más grande.",
+    book_update_market_rotation: "Mercado reabastecido. Oí a los comerciantes discutiendo precios antes del amanecer.",
+    book_update_raid_defended: "Vinieron los asaltantes. Nos mantuvimos. Ellos no. Conté las flechas en el muro — diecisiete.",
+    book_update_raid_lost: "Los asaltantes rompieron el cerco. Se llevaron lo que quisieron. Escondí el diario bajo el suelo. Escribiré más cuando pueda.",
+    book_update_quiet_day: "Nada se movió. Hasta el viento contuvo la respiración.",
+
+    // Eventos históricos — Relatos presenciados, literarios
+    book_history_combat_victory: "{heroes} se enfrentaron a {enemyCount} {enemies} y prevalecieron. Observé desde la cresta, el corazón desbocado, mientras el último enemigo caía. El valle volvió a quedar en silencio, salvo por su respiración.",
+    book_history_combat_defeat: "{heroes} lucharon con valentía, pero el enemigo fue demasiado fuerte. Los vi retirarse, arrastrando a los heridos. El valle se sintió más oscuro después.",
+
+    // Hitos — Celebratorios, personales, emocionados
+    book_milestone_first_victory: "¡¡¡Primera victoria!!!",
+    book_milestone_first_boss: "¡Primer Jefe Derrotado!",
+    book_milestone_first_region: "¡Primera región explorada!",
+    book_milestone_first_building: "¡Primera construcción completa!",
+    book_milestone_first_spell: "¡Primer hechizo compuesto!",
+    book_milestone_first_academy: "¡Primera sesión de la Academia!",
+    book_milestone_first_body_inscription: "¡Primera inscripción corporal!",
+
+    // Revelación del escritor — La confesión del cronista
+    book_milestone_writer_revelation: "La confesión del cronista",
+    book_milestone_writer_revelation_text: "Me di cuenta de que, con estos peligros, puede que no siempre esté presente, así que dejo notas para el próximo dueño de este pequeño diario que he estado llevando para documentar la bella imagen que Arthur está creando desde cero... quizás en el futuro, cuando el pueblo se convierta en una gran ciudad, alguien tomará estas notas y escribirá un libro de historia adecuado sobre cómo nuestra aldea se hizo grande.",
+    book_milestone_writer_note_12: "Los ataques se acercan. Escribo a la luz de la vela ahora, y la cera gotea sobre las páginas. Si algo me pasa, encontrad este diario en la taberna — lo guardo bajo el mostrador donde los barriles de cerveza tocan la pared.",
+    book_milestone_writer_note_14: "Doce páginas de historia ya. El pueblo ha crecido tanto. Nunca pensé que vería una fragua de herrero aquí, ni que oiría a niños reír en la plaza. Arthur no sabe que lo observo, pero creo que lo sospecha. A veces levanta la vista hacia mi ventana.",
+    book_unlock_lore_writer_revelation: "Conociste a quien escribió el Libro.",
 
     // ═══ NARRATIVE / PROLOGUE ═════════════════════════════════════════════
     intro_btn: "Comenzar Viaje",
@@ -1313,6 +1396,45 @@ export const es = {
     chronicle_day_prefix: "Día",
     chronicle_day_unknown: "—",
 
+    // New catalog (post-refactor)
+    chronicle_catalog_title: 'Crónica',
+    chronicle_catalog_empty: 'Aún no se han desbloqueado entradas de la crónica.',
+    chronicle_unlocked: 'Desbloqueado',
+    chronicle_open_in_book: 'Abrir en el Libro',
+    chronicle_chapter: 'Capítulo',
+    chronicle_page: 'Página',
+
+    // Chronicle entry labels
+    chronicle_hero_recruited: 'Héroe Reclutado',
+    chronicle_combat_victory: 'Victoria en Batalla',
+    chronicle_combat_defeat: 'Derrota en Batalla',
+
+    // Chronicle requirement labels
+    chronicle_req_recruit: 'Recluta un héroe',
+    chronicle_req_combat_victory: 'Gana una batalla',
+    chronicle_req_combat_defeat: 'Sufre una derrota',
+
+    // Presentation chronicle entries
+    chronicle_prologue: 'Prólogo',
+    chronicle_first_harvest: 'La Primera Cosecha',
+    chronicle_shield_dark: 'Un Escudo en la Oscuridad',
+    chronicle_warm_fire: 'Un Fuego Caliente',
+    chronicle_mission_board: 'El Tablón de Misiones',
+    chronicle_discipline: 'Disciplina',
+    chronicle_first_spark: 'La Primera Chispa',
+    chronicle_first_victory: 'Primera Victoria',
+    chronicle_first_equip: 'Primer Equipo',
+    chronicle_first_defeat: 'Primera Derrota',
+    chronicle_chapter1_finale: 'Finale del Capítulo 1',
+    chronicle_language_world: 'El Lenguaje del Mundo',
+    chronicle_name_flame: 'El Nombre y la Llama',
+    chronicle_veil_thins: 'El Velo se Adelgaza',
+    chronicle_world_opens: 'El Mundo se Abre',
+    chronicle_first_spell_cast: 'Primer Hechizo Lanzado',
+    chronicle_first_boss_defeated: 'Primer Jefe Derrotado',
+    chronicle_first_raid_victory: 'Primera Victoria de Incursión',
+    chronicle_chapter2_finale: 'Finale del Capítulo 2',
+
     // Discovery Log
     chronicle_discovery_title: "Registro de Descubrimientos",
     chronicle_discovery_empty: "Aún no hay descubrimientos. Envía héroes de expedición y construye tu aldea para desvelar los secretos del valle.",
@@ -1437,10 +1559,17 @@ export const es = {
     shared_uxelm_gold: "Oro",
     shared_uxelm_toast_gold_earned: "+{amount}g",
     shared_uxelm_toast_resource_sold: "+{amount}g ({count} {resource})",
+    shared_uxelm_toast_resource_bought: "-{amount}g (+{count} {resource})",
     shared_uxelm_toast_preset_applied: "Aplicado {preset} (+{count} gambits)",
     shared_uxelm_toast_glyph_learned: "¡{hero} aprendió {glyph}!",
     shared_uxelm_toast_consumable_used: "{hero} +{amount} {stat}",
     combat_log_stamina_regen: "{actor} regenera {amount} de estamina",
     combat_log_victory: "¡Victoria! ¡Enemigos derrotados!",
     combat_log_defeat: "Derrota... El grupo ha caído...",
+
+  // Skip battle risk indicators
+  combat_uxelm_skip_safe: 'Seguro',
+  combat_uxelm_skip_risky: 'Arriesgado',
+  combat_uxelm_skip_dangerous: 'Peligroso',
+  combat_uxelm_skip_suicide: 'Suicida',
 };

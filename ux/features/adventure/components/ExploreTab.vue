@@ -275,6 +275,7 @@ function getRegions(regs) {
 }
 
 const regionEntries = computed(() => {
+  const day = gameState.value.village?.day || 0
   return getRegions(gameState.value.expeditionRegions)
 })
 
@@ -284,11 +285,16 @@ const selectedRegionData = computed(() => {
   return entry ? entry[1] : null
 })
 
-const activeExpeditions = computed(() => gameState.value.activeExpeditions || [])
+const activeExpeditions = computed(() => {
+  const day = gameState.value.village?.day || 0
+  return gameState.value.activeExpeditions || []
+})
 const maxConcurrent = computed(() => gameState.value.maxConcurrentExpeditions || 1)
 const isAtMaxExpeditions = computed(() => activeExpeditions.value.length >= maxConcurrent.value)
 
 const allNodes = computed(() => {
+  // Force re-evaluation when day changes (shallowRef doesn't detect deep mutations)
+  const day = gameState.value.village?.day || 0
   const regions = gameState.value.expeditionRegions
   if (!regions || !selectedRegion.value) return []
   const regionData = regions[selectedRegion.value]

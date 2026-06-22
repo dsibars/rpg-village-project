@@ -15,8 +15,11 @@
         :population="population"
         :max-population="maxPopulation"
         :wood="wood"
+        :stone="stone"
+        :iron="iron"
         :storage-used="storageUsed"
         :storage-max="storageMax"
+        :has-book-glow="hasBookUnread"
         @nextDay="onNextDay"
         @openSettings="currentPage = 'settings'"
         @navigate="handleNavigate"
@@ -37,7 +40,6 @@
           :active-tab="activeTab"
           @openSettings="currentPage = 'settings'"
           @navigate="handleNavigate"
-          @recallDailyReport="showDailyReport = true"
         />
       </main>
 
@@ -53,13 +55,6 @@
     <CombatOverlay
       v-if="showCombatOverlay"
       @close="showCombatOverlay = false"
-    />
-
-    <DailyReportModal
-      v-if="showDailyReport"
-      :open="true"
-      :report="dailyReport"
-      @close="onCloseDailyReport"
     />
 
     <ExpeditionResultModal
@@ -88,13 +83,13 @@ import TopBar from './components/TopBar.vue'
 import FooterNav from './components/FooterNav.vue'
 import ToastContainer from './components/ToastContainer.vue'
 import SaveSlotPage from './features/saveSlots/SaveSlotPage.vue'
+import BookPage from './features/book/BookPage.vue'
 import VillagePage from './features/village/VillagePage.vue'
 import HeroesPage from './features/heroes/HeroesPage.vue'
 import AdventurePage from './features/adventure/AdventurePage.vue'
 import TownPage from './features/town/TownPage.vue'
 import SettingsPage from './features/settings/SettingsPage.vue'
 import CombatOverlay from './features/combat/CombatOverlay.vue'
-import DailyReportModal from './features/village/components/modals/DailyReportModal.vue'
 import PresentationModal from './features/shared/PresentationModal.vue'
 import ExpeditionResultModal from './features/shared/ExpeditionResultModal.vue'
 import { useAdapter } from './core/composables/useAdapter.js'
@@ -113,7 +108,6 @@ useNarrativeToasts()
 const currentPage = ref('village')
 const activeTab = ref(null)
 const showCombatOverlay = ref(false)
-const showDailyReport = ref(false)
 const pageError = shallowRef(null)
 const saveSlots = ref([])
 const slotIndex = ref(props.persistence?.slotIndex ?? null)
@@ -145,7 +139,6 @@ const showPresentation = ref(false)
 const presentationsDone = ref(true)
 
 // Post-day sequencing state
-const pendingReport = ref(null)
 const pendingPostCombatReport = ref(null)
 const expeditionResultReport = ref(null)
 const showExpeditionResult = ref(false)
@@ -167,15 +160,6 @@ watch(showCombatOverlay, (newVal, oldVal) => {
 })
 
 // Daily report watcher — gated behind presentation completion
-const dailyReport = computed(() => gameState.value.village?.lastDailyReport || null)
-const dismissedReportDay = ref(null)
-
-watch(dailyReport, (report) => {
-  if (report && report.day !== dismissedReportDay.value && presentationsDone.value && !showExpeditionResult.value) {
-    showDailyReport.value = true
-  }
-})
-
 const hasSlotSelected = computed(() => slotIndex.value !== null)
 
 const gold = computed(() => village.value.gold || 0)
@@ -187,15 +171,42 @@ const wood = computed(() => {
   }
   return village.value.wood || 0
 })
+const stone = computed(() => {
+  const mats = gameState.value.inventory?.materials
+  if (typeof mats === 'object' && mats !== null && !Array.isArray(mats)) {
+    return mats.material_stone || 0
+  }
+  return 0
+})
+const iron = computed(() => {
+  const mats = gameState.value.inventory?.materials
+  if (typeof mats === 'object' && mats !== null && !Array.isArray(mats)) {
+    return mats.material_iron || 0
+  }
+  return 0
+})
 const maxPopulation = computed(() => village.value.maxPopulation || 0)
 const storageUsed = computed(() => inventory.value.totalUsed || 0)
 const storageMax = computed(() => maxStorage.value)
+
+const hasBookUnread = computed(() => {
+  const book = gameState.value?.book
+  if (!book) return false
+  const autoOpenTypes = ['history_block', 'milestone']
+  for (const page of book.pages || []) {
+    for (const pcs of page.pageContentSections || []) {
+      if (!pcs.read && autoOpenTypes.includes(pcs.type)) return true
+    }
+  }
+  return false
+})
 
 const pages = {
   village: VillagePage,
   heroes: HeroesPage,
   adventure: AdventurePage,
   town: TownPage,
+  book: BookPage,
   settings: SettingsPage
 }
 
@@ -206,6 +217,7 @@ const currentPageLabel = computed(() => {
     heroes: 'shared_uxelm_nav_heroes',
     adventure: 'shared_uxelm_nav_adventure',
     town: 'shared_uxelm_nav_town',
+    book: 'book_uxelm_title',
     settings: 'shared_uxelm_nav_settings'
   }
   return t(labels[currentPage.value] || 'shared_uxelm_nav_main')
@@ -215,7 +227,8 @@ const navItems = computed(() => [
   { id: 'village', label: t('shared_uxelm_nav_main'), icon: '🏡' },
   { id: 'heroes', label: t('shared_uxelm_nav_heroes'), icon: '⚔' },
   { id: 'adventure', label: t('shared_uxelm_nav_adventure'), icon: '🗺' },
-  { id: 'town', label: t('shared_uxelm_nav_town'), icon: '🏘' }
+  { id: 'town', label: t('shared_uxelm_nav_town'), icon: '🏘' },
+  { id: 'book', label: t('book_uxelm_title'), icon: '📖' }
 ])
 
 function refreshSaveSlots() {
@@ -256,13 +269,12 @@ function onSelectSlot(index) {
   slotIndex.value = index
 
   props.engine?.initialize?.()
-  if (props.engine?.isNewGame) {
-    const prologue = props.engine?.presentationService?.replayPresentation?.('pres_prologue')
-    if (prologue) {
-      currentPresentation.value = prologue
-      showPresentation.value = true
-    }
-  }
+  // Force a reactive state update so Book auto-open detection works immediately
+  const freshState = props.engine?.update?.() || {}
+  gameState.value = freshState
+
+  // Book auto-opens via proceedToPresentations if there are unread history_block/milestone entries
+  proceedToPresentations()
   refreshSaveSlots()
 }
 
@@ -277,9 +289,9 @@ function showNextPresentation() {
     currentPresentation.value = null
     showPresentation.value = false
     presentationsDone.value = true
-    // Now allow daily report to show
-    if (dailyReport.value && dailyReport.value.day !== dismissedReportDay.value) {
-      showDailyReport.value = true
+    // Auto-open the Book if there's unread auto-open content
+    if (hasBookUnread.value) {
+      currentPage.value = 'book'
     }
     return
   }
@@ -317,8 +329,6 @@ function onNextDay() {
 }
 
 function runPostDaySequence(report) {
-  pendingReport.value = report
-
   // Step 1: Expedition result modal
   let expData = report?.expedition
   // If the stale report says battle_started, check if combat actually resolved the expedition
@@ -351,13 +361,6 @@ function onCloseExpeditionResult() {
   proceedToPresentations()
 }
 
-function onCloseDailyReport() {
-  showDailyReport.value = false
-  if (dailyReport.value) {
-    dismissedReportDay.value = dailyReport.value.day
-  }
-}
-
 function handleNavigate({ page, tab }) {
   if (page && pages[page]) {
     currentPage.value = page
@@ -382,8 +385,9 @@ function proceedToPresentations() {
     showNextPresentation()
   } else {
     presentationsDone.value = true
-    if (pendingReport.value) {
-      showDailyReport.value = true
+    // Auto-open Book if there are unread history_block/milestone entries
+    if (hasBookUnread.value) {
+      currentPage.value = 'book'
     }
   }
 }

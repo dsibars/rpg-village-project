@@ -16,7 +16,17 @@ async function resetSaveSlots(page) {
   await page.reload({ waitUntil: 'networkidle' })
 }
 
+async function dismissBookIfVisible(page) {
+  const visible = await page.$(selectors.bookView)
+  if (visible) {
+    // Navigate back to village by clicking the village nav button
+    await clickElement(page, selectors.navVillage)
+    await page.waitForTimeout(500)
+  }
+}
+
 async function dismissIntroIfVisible(page) {
+  // Legacy: handle old presentation overlay if present (e.g. old saves)
   const visible = await page.$(selectors.introOverlay)
   if (visible) {
     await clickElement(page, selectors.introSkip)
@@ -93,22 +103,25 @@ export async function run({ page, snap }) {
   await waitForVisible(page, selectors.saveSlotScreen)
   await snap({ flow: 'onboarding', state: 'save_slot_occupied' })
 
-  // --- intro_prologue (requires new empty slot) ---
+  // --- book_prologue (Book auto-opens on new game) ---
   await resetSaveSlots(page)
   await waitForVisible(page, selectors.saveSlotScreen)
   const emptySlot = await page.$(selectors.emptySlot)
   const slotBtn = emptySlot || (await page.$$(selectors.saveSlot))[0]
   if (slotBtn) await slotBtn.click()
-  await waitForVisible(page, selectors.introOverlay, 3000)
+  // Book auto-opens because prologue history_block is unread
+  await waitForVisible(page, selectors.bookView, 5000)
   await page.waitForTimeout(400)
-  await snap({ flow: 'onboarding', state: 'intro_prologue' })
+  await snap({ flow: 'onboarding', state: 'book_prologue' })
 
-  // --- intro_skip_visible ---
-  await waitForVisible(page, selectors.introSkip, 2000)
-  await snap({ flow: 'onboarding', state: 'intro_skip_visible' })
+  // --- book_spread_navigation ---
+  // Navigate to next spread to show navigation buttons in active state
+  await clickElement(page, selectors.bookNavNext)
+  await page.waitForTimeout(400)
+  await snap({ flow: 'onboarding', state: 'book_spread_navigation' })
 
   // --- village_fresh ---
-  await dismissIntroIfVisible(page)
+  await dismissBookIfVisible(page)
   await page.waitForTimeout(500)
   await waitForVisible(page, selectors.mainView, 3000)
   await snap({ flow: 'onboarding', state: 'village_fresh' })

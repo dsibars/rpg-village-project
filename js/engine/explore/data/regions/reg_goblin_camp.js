@@ -14,19 +14,20 @@ export const reg_goblin_camp = {
     },
     lootProfile: {
         materials: [
-            { id: 'material_iron_ore', min: 3, max: 6, chance: 1.0 },
-            { id: 'material_stone', min: 2, max: 4, chance: 0.4 },
-            { id: 'material_steel_ingot', min: 1, max: 1, chance: 0.15 }
+            { id: 'material_iron_ore', min: 5, max: 10, chance: 1.0 },
+            { id: 'material_stone', min: 4, max: 8, chance: 0.5 },
+            { id: 'material_steel_ingot', min: 1, max: 3, chance: 0.3 }
         ],
-        goldBase: 40,
-        goldPerClear: 8
+        goldBase: 120,
+        goldPerClear: 24
     },
     narrative: null,
     glyphDropTable: null,
     unlockRequirements: {
-        any: [
-            { minRegionClears: { reg_dark_forest: 3 } },
-            { minBuildingLevel: { building: 'explorer_guild', level: 2 } }
+        all: [
+            { minRegionClears: { reg_dark_forest: 6 } },
+            { minBuildingLevel: { building: 'explorer_guild', level: 2 } },
+            { minHeroes: 3 }
         ]
     },
     storyMissions: []

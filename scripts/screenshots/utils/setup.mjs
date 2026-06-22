@@ -20,14 +20,13 @@ export async function startNewGame(page, selectors) {
   const slotBtn = emptySlot || (await page.$$(selectors.saveSlot))[0]
   if (slotBtn) await slotBtn.click()
 
-  // Wait for and dismiss intro
-  await waitForVisible(page, selectors.introOverlay, 10000)
+  // Book auto-opens on new game (prologue content is a history_block)
+  await waitForVisible(page, selectors.bookView, 10000)
   await page.waitForTimeout(400)
-  await clickElement(page, selectors.introSkip)
 
-  // Wait for presentation overlay to fully leave the DOM (Vue transition takes ~400ms)
-  await page.waitForSelector(selectors.introOverlay, { state: 'hidden', timeout: 5000 })
-  await page.waitForTimeout(300)
+  // Navigate to village to dismiss Book and continue with tests
+  await clickElement(page, selectors.navVillage)
+  await page.waitForTimeout(500)
 
   await waitForVisible(page, selectors.mainView, 10000)
 }

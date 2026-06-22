@@ -14,12 +14,12 @@ export const reg_tiny_cave = {
     },
     lootProfile: {
         materials: [
-            { id: 'material_stone', min: 4, max: 8, chance: 1.0 },
-            { id: 'material_iron_ore', min: 1, max: 3, chance: 0.5 },
-            { id: 'material_steel_ingot', min: 1, max: 1, chance: 0.15 }
+            { id: 'material_stone', min: 6, max: 12, chance: 1.0 },
+            { id: 'material_iron_ore', min: 2, max: 5, chance: 0.6 },
+            { id: 'material_steel_ingot', min: 1, max: 2, chance: 0.25 }
         ],
-        goldBase: 40,
-        goldPerClear: 8
+        goldBase: 60,
+        goldPerClear: 12
     },
     narrative: null,
     glyphDropTable: null,

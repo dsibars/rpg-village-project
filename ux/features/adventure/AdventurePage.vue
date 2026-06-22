@@ -16,7 +16,7 @@
         { id: 'chronicle', label: t('nav_chronicle'), icon: '📜' }
       ]"
     />
-    <component :is="tabs[currentTab]" />
+    <component :is="tabs[currentTab]" @navigate="$emit('navigate', $event)" />
   </div>
 </template>
 
@@ -33,6 +33,8 @@ import Button from '@/components/Button.vue'
 const props = defineProps({
   activeTab: { type: String, default: null }
 })
+
+defineEmits(['navigate'])
 
 const { t } = useI18n()
 

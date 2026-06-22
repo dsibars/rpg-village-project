@@ -48,6 +48,15 @@ function getSuccessToast(i18n, domain, action, payload, data) {
       })
     }
 
+    case domain === 'shop' && action === 'buyResource': {
+      const resName = i18n.t(payload?.resourceId)
+      return i18n.t('shared_uxelm_toast_resource_bought', {
+        amount: data?.goldSpent,
+        count: data?.bought,
+        resource: resName
+      })
+    }
+
     case domain === 'inventory' && action === 'cookMeal': {
       return i18n.t('inventory_uxelm_cooked') + ' ' + i18n.t(payload?.recipeId)
     }
@@ -145,8 +154,9 @@ const ACTION_MAP = {
     retireExpedition: (engine, p) => engine.retireExpedition(p.expId)
   },
   shop: {
-    buyItem: (engine, p) => engine.buyItem(p.itemData, p.costGold),
+    buyItem: (engine, p) => engine.buyMarketItem(p.itemData, p.costGold),
     sellItem: (engine, p) => engine.sellItem(p.itemId, p.itemType, p.sellPrice),
+    buyResource: (engine, p) => engine.buyResource(p.resourceId, p.quantity),
     sellResource: (engine, p) => engine.sellResource(p.resourceId, p.quantity),
     getSellPrice: (engine, p) => engine.getSellPrice(p.item)
   },
@@ -181,9 +191,24 @@ const ACTION_MAP = {
     claimMission: (engine, p) => engine.claimMissionReward(p.missionId),
     rerollMission: (engine, p) => engine.rerollMission(p.missionId)
   },
+  chronicle: {
+    getEntries: (engine, p) => ({ success: true, data: engine.getChronicleEntries(p.options || {}) }),
+    getStats: (engine) => engine.getChronicleStats(),
+    unlockEntry: (engine, p) => ({ success: true, data: engine.unlockChronicleEntry(p.chronicleId, p.day, p.bookLink) })
+  },
+  book: {
+    getPage: (engine, p) => ({ success: true, data: engine.getBookPage(p.pageNumber) }),
+    getSpread: (engine, p) => ({ success: true, data: engine.getBookSpread(p.firstPageNumber) }),
+    markRead: (engine, p) => ({ success: true, data: engine.markBookRead(p.spreadFirstPage) })
+  },
   daily: {
     pickObjectives: (engine, p) => engine.dailyObjectivesService.pickObjectives(p.objectiveIds),
     claimReward: (engine, p) => engine.dailyObjectivesService.claimReward(p.objectiveId)
+  },
+  heroActions: {
+    assign: (engine, p) => engine.assignHeroAction(p.heroId, p.action, p.target),
+    clear: (engine, p) => engine.clearHeroAction(p.heroId),
+    getAssignments: (engine) => engine.getCurrentActionAssignments()
   },
   combat: {
     nextTurn: (engine) => engine.nextBattleTurn(),

@@ -36,10 +36,13 @@ export function createVueApp({ engine, persistence, saveSlotManager, container }
 
   app.mount(container)
 
-  // Expose engine for screenshot automation and debugging.
+  // Expose engine and a manual UI refresh helper for screenshot automation and debugging.
   // This is safe: it's only used by test/audit tooling and does not affect gameplay.
   if (typeof window !== 'undefined') {
     window.__ENGINE__ = engine
+    window.__REFRESH_UI__ = () => {
+      gameState.value = engine?.update() || {}
+    }
   }
 
   // Throttled game loop: update reactive gameState at 10 FPS.

@@ -11,7 +11,7 @@
     "electron:run": "ELECTRON_RUN_AS_NODE= electron infrastructure/electron/main.js",
     "electron:package": "ELECTRON_RUN_AS_NODE= electron-forge package",
     "electron:make": "ELECTRON_RUN_AS_NODE= electron-forge make",
-    "test": "node --test tests/unit/*.test.js tests/behaviour/*.test.js",
+    "test": "node --test $(find tests/unit tests/behaviour -name '*.test.js')",
     "test:vue": "vitest run tests/vue/",
     "test:vue:watch": "vitest tests/vue/",
     "screenshots": "node scripts/screenshots/orchestrator.mjs",
