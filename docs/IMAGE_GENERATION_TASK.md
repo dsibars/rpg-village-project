@@ -128,7 +128,7 @@
 ## Image 14: `assets/story/char_valen_arthur_together.webp`
 **Scene:** Arthur and Valen standing side by side, looking toward the village they built. Friends, partners. Their postures are relaxed, shoulders almost touching. Quiet pride.
 **Prompt:** Two standing warrior figures side by side, looking toward distant buildings, relaxed postures, shoulders nearly touching, friendship and partnership. Medieval manuscript ink drawing, black strokes only, transparent background, sketchy rough linework, small illustrative figures, village scribe style.
-**Status:** pending
+**Status:** generated
 
 ---
 
@@ -282,9 +282,9 @@
 ## Overall Status
 
 **Total Images:** 35
-**Generated:** 13
-**Pending:** 22
-**Next to generate:** Image 14 (`char_valen_arthur_together.webp`)
+**Generated:** 14
+**Pending:** 21
+**Next to generate:** Image 15 (`combat_first_victory.webp`)
 
 ---
 
