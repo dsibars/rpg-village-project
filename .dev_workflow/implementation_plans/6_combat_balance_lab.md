@@ -659,14 +659,76 @@ Create `docs/shared/combat/combat_balance_lab.md`:
 
 ---
 
-## 11. Follow-Up Work (Post-Lab)
+---
 
-Use the lab to drive actual combat fixes, with each fix validated by a scenario that previously failed:
+## 12. Pickable Implementation Steps
 
-1. Fix magic scaling in `BattleService._castOffensiveSpell`.
-2. Convert consumables to percentage-based healing.
-3. Tune hero stat growth or enemy scaling.
-4. Implement/evaluate advanced gambit conditions.
-5. Verify status effects and AoE targeting end-to-end.
-6. Implement Hybrid Body Inscription and enable the pending `HY.*` scenarios.
-6. When Hybrid Body Inscription is implemented, enable the pending scenarios.
+Each step is a **single commit**, independently reviewable, and produces a working increment. Stop after any step and the codebase is better than before.
+
+| Step | Name | What to Do | Estimated Time | Files Created/Modified |
+|------|------|-----------|----------------|----------------------|
+| 1 | **Directory structure** | Create `scripts/combat-lab/`, subdirs, `.gitignore`, `README.md` placeholder | 5 min | `scripts/combat-lab/*` |
+| 2 | **Hero builder** | `buildHero()` — construct `Hero` instances from scenario definitions without full `GameEngine` | 20 min | `scenarios/builder.mjs` |
+| 3 | **Encounter builder** | `buildEnemies()` / `buildEncounter()` — create enemy arrays from templates | 15 min | `scenarios/builder.mjs` |
+| 4 | **Metrics parser** | Parse `combatLog` → per-combat metrics (damage, healing, turns, etc.) | 25 min | `metrics.mjs` |
+| 5 | **Assertion engine** | Range-based checks (`expectedMin`, `expectedMax`, `tolerance`) | 15 min | `assertions.mjs` |
+| 6 | **Minimal report** | Markdown output with pass/fail summary and per-scenario tables | 20 min | `report.mjs` |
+| 7 | **Basic runner** | Load scenarios → run N iterations → collect metrics → assert → write report. No CLI flags yet. | 25 min | `runner.mjs` |
+| 8 | **Scenario: mage scaling** | `knownFailure: true` — Arcane Initiate spell damage should scale with `magicPower` | 15 min | `scenarios/priority/mage_scaling.mjs` |
+| 9 | **Scenario: healing potions** | `knownFailure: true` — potions should restore % of max HP/MP, not flat | 15 min | `scenarios/priority/healing_potions.mjs` |
+| 10 | **Scenario: gambit conditions** | `knownFailure: true` — `enemy_element`, `enemy_type`, `battle_phase` conditions not evaluated | 15 min | `scenarios/priority/gambit_conditions.mjs` |
+| 11 | **Scenario: physical vs magic DPS** | Compare warrior vs. arcane initiate sustained damage over 10 turns | 15 min | `scenarios/priority/physical_vs_magic_dps.mjs` |
+| 12 | **Scenario: status effects** | Verify poison tick, burn tick, stun skip, haste speed | 15 min | `scenarios/priority/status_effects.mjs` |
+| 13 | **Runner CLI flags** | Add `--scenario`, `--tag`, `--full`, `--iterations`, `--seed`. Add `npm run combat:lab` script. | 20 min | `runner.mjs`, `package.json` |
+| 14 | **Generator: magic circle** | Element × target × tier × magicPower matrix (~200 scenarios) | 30 min | `generators/magicCircle.generator.mjs` |
+| 15 | **Generator: equipment** | Weapon family × material × armor archetype (~60 scenarios) | 25 min | `generators/equipment.generator.mjs` |
+| 16 | **Generator: physical skills** | Family × tier × STR × weapon (~100 scenarios) | 25 min | `generators/physicalSkill.generator.mjs` |
+| 17 | **Generator: enemy scaling** | Enemy × level × encounter size (~50 scenarios) | 20 min | `generators/enemyScaling.generator.mjs` |
+| 18 | **Generator: party composition** | Origin combos × size (~30 scenarios) | 20 min | `generators/partyComposition.generator.mjs` |
+| 19 | **Generator: consumables** | Item × hero level × wound state (~20 scenarios) | 20 min | `generators/consumable.generator.mjs` |
+| 20 | **Generator: status effects** | Effect × duration × resistance (~30 scenarios) | 20 min | `generators/statusEffect.generator.mjs` |
+| 21 | **Generator: gambits** | Condition × action × priority (~40 scenarios) | 20 min | `generators/gambit.generator.mjs` |
+| 22 | **CI regression tests** | `tests/behaviour/combat/combat_balance_lab.test.js` — run priority scenarios with low iterations | 20 min | `tests/behaviour/combat/*` |
+| 23 | **Parallel execution** | Run scenarios in parallel with `Promise.all` | 15 min | `runner.mjs` |
+| 24 | **Empirical calibration** | Replace formula-based expectations with "golden master" baseline runs | 25 min | `assertions.mjs`, `calibration.mjs` |
+| 25 | **Documentation** | `docs/shared/combat/combat_balance_lab.md` — how to run, add scenarios, read reports | 15 min | `docs/shared/combat/*` |
+
+**Total:** ~25 steps, ~8–10 sessions of work (vs. 3–4 in original estimate)
+
+### Step Dependency Graph
+
+```
+Steps 1–7 (framework):  1 → 2 → 3 → 4 → 5 → 6 → 7 (sequential)
+Steps 8–12 (scenarios): 8, 9, 10, 11, 12 (parallel, each depends on 7)
+Step 13 (CLI):          depends on 7
+Steps 14–21 (generators): parallel, each depends on 7
+Steps 22–25 (polish):   depend on 13 and generators
+```
+
+### Definition of Done per Step
+
+Each step must:
+1. **Compile** — no syntax errors
+2. **Test** — at least one test passes (even if it's a `knownFailure`)
+3. **Commit** — single commit with descriptive message
+4. **Report** — if the step adds a scenario, it appears in the report
+
+### Status Tracking
+
+Create `tasks/active/combat-balance-lab/STATUS.md`:
+
+```markdown
+# Combat Balance Lab — Status
+
+## Current Step
+Step X: [Name]
+
+## Completed
+- Step 1: Directory structure ✅
+- ...
+
+## Blockers
+None / [describe if any]
+```
+
+The cron agent reads this file, implements the current step, updates it, and moves to the next.
