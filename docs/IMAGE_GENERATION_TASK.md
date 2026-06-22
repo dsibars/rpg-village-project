@@ -79,7 +79,7 @@
 ## Image 7: `assets/story/village_training_grounds.webp`
 **Scene:** Training grounds at midday. Two figures sparring with wooden swords, a training dummy with simple crossed lines, an open dirt area. Dynamic but simple.
 **Prompt:** Outdoor training grounds, two small figures sparring with wooden swords, simple training dummy made of crossed wood beams, open dirt area. Medieval manuscript ink drawing, black strokes only, transparent background, sketchy rough linework, small human figures, dynamic poses, village scribe style.
-**Status:** pending
+**Status:** generated
 
 ---
 
@@ -282,9 +282,9 @@
 ## Overall Status
 
 **Total Images:** 35
-**Generated:** 6
-**Pending:** 29
-**Next to generate:** Image 7 (`village_training_grounds.webp`)
+**Generated:** 7
+**Pending:** 28
+**Next to generate:** Image 8 (`village_village_above.webp`)
 
 ---
 
