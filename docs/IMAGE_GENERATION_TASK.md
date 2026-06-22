@@ -65,7 +65,7 @@
 ## Image 5: `assets/story/village_tavern_dusk.webp`
 **Scene:** The tavern exterior at dusk. A simple wooden building with warm light spilling from windows, smoke from chimney, small figures in the doorway. Inviting and communal.
 **Prompt:** A simple wooden tavern building at dusk, warm light rectangles for windows, smoke lines from chimney, tiny figures in doorway, inviting atmosphere. Medieval manuscript ink drawing, black strokes only, transparent background, sketchy rough linework, small human figures, village scribe style.
-**Status:** pending
+**Status:** generated
 
 ---
 
@@ -282,9 +282,9 @@
 ## Overall Status
 
 **Total Images:** 35
-**Generated:** 4
-**Pending:** 31
-**Next to generate:** Image 5 (`village_tavern_dusk.webp`)
+**Generated:** 5
+**Pending:** 30
+**Next to generate:** Image 6 (`village_tavern_inside.webp`)
 
 ---
 
