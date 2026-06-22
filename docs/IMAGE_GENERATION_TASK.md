@@ -72,7 +72,7 @@
 ## Image 6: `assets/story/village_tavern_inside.webp`
 **Scene:** Inside the tavern. A hearth with simple flame lines, villagers sitting on benches, rough tables with tankard shapes, someone playing a string instrument in the corner. Warm and communal.
 **Prompt:** Interior of a village tavern, hearth with simple flame lines, figures sitting on benches at rough tables, tankard shapes on tables, one figure with a lute in corner. Medieval manuscript ink drawing, black strokes only, transparent background, sketchy rough linework, small human figures, village scribe style.
-**Status:** pending
+**Status:** generated
 
 ---
 
@@ -282,9 +282,9 @@
 ## Overall Status
 
 **Total Images:** 35
-**Generated:** 5
-**Pending:** 30
-**Next to generate:** Image 6 (`village_tavern_inside.webp`)
+**Generated:** 6
+**Pending:** 29
+**Next to generate:** Image 7 (`village_training_grounds.webp`)
 
 ---
 
