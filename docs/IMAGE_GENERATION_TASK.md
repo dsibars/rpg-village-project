@@ -114,7 +114,7 @@
 ## Image 12: `assets/story/char_elara_glyph.webp`
 **Scene:** Elara's hands forming a magic glyph. Close-up of hands with a glowing geometric pattern between them. Concentration, discovery.
 **Prompt:** Close-up of two hands cupping a floating geometric glyph pattern, magic circle visible below, concentration in the finger positioning. Medieval manuscript ink drawing, black strokes only, transparent background, sketchy rough linework, village scribe style.
-**Status:** pending
+**Status:** generated
 
 ---
 
@@ -282,9 +282,9 @@
 ## Overall Status
 
 **Total Images:** 35
-**Generated:** 11
-**Pending:** 24
-**Next to generate:** Image 12 (`char_elara_glyph.webp`)
+**Generated:** 12
+**Pending:** 23
+**Next to generate:** Image 13 (`char_valen_rubble.webp`)
 
 ---
 
