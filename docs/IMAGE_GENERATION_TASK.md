@@ -135,7 +135,7 @@
 ## Image 15: `assets/story/combat_first_victory.webp`
 **Scene:** The party's first victory. Enemies fleeing into the distance, heroes standing with weapons lowered (not raised in triumph — just relief). The scribe drew this from a hiding spot behind rocks.
 **Prompt:** A small group of figures standing with weapons lowered, enemy figures fleeing into the distance, relief not triumph, viewed from behind rocks. Medieval manuscript ink drawing, black strokes only, transparent background, sketchy rough linework, small figures, village scribe style.
-**Status:** pending
+**Status:** generated
 
 ---
 
@@ -282,9 +282,9 @@
 ## Overall Status
 
 **Total Images:** 35
-**Generated:** 14
-**Pending:** 21
-**Next to generate:** Image 15 (`combat_first_victory.webp`)
+**Generated:** 15
+**Pending:** 20
+**Next to generate:** Image 16 (`combat_first_defeat.webp`)
 
 ---
 
