@@ -165,13 +165,14 @@ export class BookService {
         this.save();
 
         // Step 5: Check for writer revelation milestones after history events
+        let writerRevelations = [];
         if (
             section.category === BOOK_SECTION_CATEGORIES.HISTORY_EVENT ||
             section.category === BOOK_SECTION_CATEGORIES.CHAPTER_HISTORY_EVENT
         ) {
             const historyBlockCount = pcsList.filter(pcs => pcs.type === PCS_TYPES.HISTORY_BLOCK).length;
             this.state._totalHistoryBlocks = (this.state._totalHistoryBlocks || 0) + historyBlockCount;
-            this._checkWriterRevelation();
+            writerRevelations = this._checkWriterRevelation();
             this.save();
         }
 
@@ -179,6 +180,7 @@ export class BookService {
             pageSectionId: pageSection.id,
             pages: pageSection.pages,
             chapterNumber: currentChapter.chapterNumber,
+            writerRevelations,
         };
     }
 
@@ -194,11 +196,14 @@ export class BookService {
             { threshold: 14, titleKey: 'book_milestone_writer_note_14', textKey: 'book_milestone_writer_note_14' },
         ];
 
+        const injected = [];
         for (const m of milestones) {
             if (total >= m.threshold && !this._hasWriterMilestone(m.threshold)) {
-                this._injectWriterMilestone(m.titleKey, m.textKey, m.threshold);
+                const pageSection = this._injectWriterMilestone(m.titleKey, m.textKey, m.threshold);
+                if (pageSection) injected.push(pageSection);
             }
         }
+        return injected;
     }
 
     /**
@@ -266,6 +271,7 @@ export class BookService {
         }
 
         this.state.pageSections.push(pageSection);
+        return pageSection;
     }
 
     /**
@@ -340,6 +346,37 @@ export class BookService {
                             section.entry.weight
                         ),
                     });
+                } else if (section.blocks && section.blocks.length > 0) {
+                    // Narrative milestone: first block is the title/mark,
+                    // remaining blocks are body text rendered as history blocks.
+                    const titleBlock = section.blocks[0];
+                    pcsList.push({
+                        id: this._generatePcsId(),
+                        category: section.category,
+                        type: PCS_TYPES.MILESTONE,
+                        image: titleBlock.image || section.metadata?.image || null,
+                        textKey: titleBlock.textKey,
+                        values: titleBlock.values || {},
+                        weight: clampWeight(
+                            getPcsDefaultWeight(PCS_TYPES.MILESTONE),
+                            titleBlock.weight
+                        ),
+                    });
+                    for (let i = 1; i < section.blocks.length; i++) {
+                        const block = section.blocks[i];
+                        pcsList.push({
+                            id: this._generatePcsId(),
+                            category: section.category,
+                            type: PCS_TYPES.HISTORY_BLOCK,
+                            image: block.image || null,
+                            textKey: block.textKey,
+                            values: block.values || {},
+                            weight: clampWeight(
+                                getPcsDefaultWeight(PCS_TYPES.HISTORY_BLOCK),
+                                block.weight
+                            ),
+                        });
+                    }
                 }
                 break;
             }

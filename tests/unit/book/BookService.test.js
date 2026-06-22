@@ -644,6 +644,95 @@ describe('BookService', () => {
         });
     });
 
+    describe('Writer Revelation Milestones', () => {
+        test('injects first writer revelation at 10 history blocks', () => {
+            for (let i = 0; i < 10; i++) {
+                const result = book.addSection({
+                    id: `hist_${i}`,
+                    category: BOOK_SECTION_CATEGORIES.HISTORY_EVENT,
+                    day: i + 1,
+                    blocks: [{ textKey: 'block', values: {}, weight: 1 }],
+                });
+                if (i === 9) {
+                    assert.ok(result, 'addSection should return result');
+                    assert.strictEqual(result.writerRevelations.length, 1, 'Should inject one revelation');
+                    assert.strictEqual(result.writerRevelations[0].id, 'writer_milestone_10');
+                }
+            }
+
+            const state = book.getState();
+            assert.strictEqual(state._totalHistoryBlocks, 10);
+            const writerSection = state.pageSections.find(ps => ps.id === 'writer_milestone_10');
+            assert.ok(writerSection, 'Writer milestone section should exist');
+            assert.strictEqual(writerSection.metadata.writerMilestone, 10);
+
+            const pcsIds = writerSection.pageContentSectionIds;
+            const pcsList = state.pages.flatMap(p => p.pageContentSections).filter(pcs => pcsIds.includes(pcs.id));
+            assert.strictEqual(pcsList.length, 2);
+            assert.strictEqual(pcsList[0].type, PCS_TYPES.MILESTONE);
+            assert.strictEqual(pcsList[0].textKey, 'book_milestone_writer_revelation');
+            assert.strictEqual(pcsList[1].type, PCS_TYPES.HISTORY_BLOCK);
+            assert.strictEqual(pcsList[1].textKey, 'book_milestone_writer_revelation_text');
+        });
+
+        test('injects all three writer revelations at 10, 12 and 14 history blocks', () => {
+            for (let i = 0; i < 14; i++) {
+                book.addSection({
+                    id: `hist_${i}`,
+                    category: BOOK_SECTION_CATEGORIES.HISTORY_EVENT,
+                    day: i + 1,
+                    blocks: [{ textKey: 'block', values: {}, weight: 1 }],
+                });
+            }
+
+            const state = book.getState();
+            assert.strictEqual(state._totalHistoryBlocks, 14);
+            const thresholds = [10, 12, 14];
+            for (const threshold of thresholds) {
+                const writerSection = state.pageSections.find(ps => ps.metadata?.writerMilestone === threshold);
+                assert.ok(writerSection, `Writer milestone ${threshold} should exist`);
+            }
+        });
+
+        test('writer revelation is idempotent and does not duplicate', () => {
+            for (let i = 0; i < 11; i++) {
+                book.addSection({
+                    id: `hist_${i}`,
+                    category: BOOK_SECTION_CATEGORIES.HISTORY_EVENT,
+                    day: i + 1,
+                    blocks: [{ textKey: 'block', values: {}, weight: 1 }],
+                });
+            }
+
+            const state = book.getState();
+            const writerSections = state.pageSections.filter(ps => ps.id.startsWith('writer_milestone'));
+            assert.strictEqual(writerSections.length, 1, 'Only one writer milestone should exist');
+        });
+
+        test('chapter history events also count toward writer revelation', () => {
+            for (let i = 0; i < 9; i++) {
+                book.addSection({
+                    id: `hist_${i}`,
+                    category: BOOK_SECTION_CATEGORIES.HISTORY_EVENT,
+                    day: i + 1,
+                    blocks: [{ textKey: 'block', values: {}, weight: 1 }],
+                });
+            }
+
+            const result = book.addSection({
+                id: 'chapter_event',
+                category: BOOK_SECTION_CATEGORIES.CHAPTER_HISTORY_EVENT,
+                day: 10,
+                blocks: [{ textKey: 'block', values: {}, weight: 1 }],
+                metadata: { titleKey: 'book_chapter_2_title' },
+            });
+
+            assert.ok(result.writerRevelations.length > 0, 'Chapter history event should trigger revelation');
+            const state = book.getState();
+            assert.strictEqual(state._totalHistoryBlocks, 10);
+        });
+    });
+
     describe('Persistence', () => {
         test('saves and loads state', () => {
             book.addSection({

@@ -1444,6 +1444,7 @@ export class GameEngine {
                             pageNumber: bookResult.pages[0] || 1,
                             chapterNumber: bookResult.chapterNumber
                         });
+                        this._unlockWriterRevelationChronicle(bookResult);
                     }
                 } else {
                     const bookResult = this.bookService.addSection({
@@ -1465,6 +1466,7 @@ export class GameEngine {
                             pageNumber: bookResult.pages[0] || 1,
                             chapterNumber: bookResult.chapterNumber
                         });
+                        this._unlockWriterRevelationChronicle(bookResult);
                     }
                 }
             }
@@ -1790,6 +1792,8 @@ export class GameEngine {
             { id: 'pres_first_boss_defeated', labelKey: 'chronicle_first_boss_defeated', requirementKey: 'chronicle_hint_event', category: 'milestone' },
             { id: 'pres_first_raid_victory', labelKey: 'chronicle_first_raid_victory', requirementKey: 'chronicle_hint_event', category: 'milestone' },
             { id: 'pres_chapter2_finale', labelKey: 'chronicle_chapter2_finale', requirementKey: 'chronicle_hint_event', category: 'milestone' },
+            // Writer revelation (unlocked automatically at 10+ history blocks)
+            { id: 'book_unlock_lore_writer_revelation', labelKey: 'book_unlock_lore_writer_revelation', requirementKey: 'chronicle_hint_event', category: 'unlock' },
         ];
         this.chronicleService.registerEntriesFromCatalog(catalog);
     }
@@ -1835,6 +1839,7 @@ export class GameEngine {
                     pageNumber: bookResult.pages[0] ?? 1,
                     chapterNumber: bookResult.chapterNumber
                 });
+                this._unlockWriterRevelationChronicle(bookResult);
             }
         }
 
@@ -1842,6 +1847,23 @@ export class GameEngine {
         this.bookService.save();
         this.chronicleService.save();
         return newlyTriggered;
+    }
+
+    /**
+     * Unlock the writer-revelation chronicle entry when the Book injects
+     * a narrative milestone at 10/12/14 history blocks.
+     */
+    _unlockWriterRevelationChronicle(bookResult) {
+        const revelations = bookResult?.writerRevelations || [];
+        if (revelations.length === 0) return;
+
+        const currentDay = this.villageService?.getState?.()?.day || 1;
+        const firstRevelation = revelations[0];
+        this.chronicleService.unlockEntry('book_unlock_lore_writer_revelation', currentDay, {
+            pageSectionId: firstRevelation.id,
+            pageNumber: firstRevelation.pages[0] ?? 1,
+            chapterNumber: this.bookService.getPageSectionChapter?.(firstRevelation.id) ?? 1
+        });
     }
 
     _loadStats() {

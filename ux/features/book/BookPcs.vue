@@ -86,11 +86,6 @@ const props = defineProps({
 
 const normalizedType = computed(() => props.pcs?.type || 'unknown')
 
-const chapterNumber = computed(() => {
-  const values = props.pcs?.values || {}
-  return values.chapter || '?'
-})
-
 const text = computed(() => {
   const pcs = props.pcs
   if (!pcs) return ''
