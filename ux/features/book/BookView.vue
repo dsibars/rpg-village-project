@@ -289,7 +289,9 @@ function goToPage(pageNumber) {
   flex-direction: column;
   gap: var(--spacing-md);
   padding: var(--spacing-lg);
+  padding-bottom: calc(var(--spacing-lg) + 1.5rem);
   flex: 1;
+  position: relative;
 }
 
 .page-number {

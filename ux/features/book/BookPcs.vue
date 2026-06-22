@@ -3,7 +3,6 @@
     <!-- Chapter Title -->
     <template v-if="normalizedType === 'chapter_title'">
       <div class="chapter-header">
-        <div class="chapter-number">{{ chapterNumber }}</div>
         <h3 class="chapter-title">{{ text }}</h3>
       </div>
     </template>
@@ -100,14 +99,6 @@ const text = computed(() => {
   padding: var(--spacing-lg) 0;
   border-bottom: 2px solid var(--glass-border);
   margin-bottom: var(--spacing-md);
-}
-
-.chapter-number {
-  font-family: var(--font-heading);
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 2px;
 }
 
 .chapter-title {

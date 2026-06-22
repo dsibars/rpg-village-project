@@ -11,7 +11,6 @@ export async function run({ page, snap }) {
 
   // --- book_fresh_prologue ---
   // Start a fresh game and capture the Book BEFORE it gets dismissed
-  // (startNewGame dismisses the Book, so we do our own setup here)
   await page.evaluate(() => {
     Object.keys(localStorage)
       .filter((k) => k.startsWith('rpg_village_v1_'))
@@ -36,10 +35,28 @@ export async function run({ page, snap }) {
     const btn = document.querySelector('.btn-next-day')
     if (btn) btn.click()
   })
-  await page.waitForTimeout(1500)
+  // Wait for day processing (expedition resolution, book updates, etc.)
+  await page.waitForTimeout(2500)
 
   const bookVisible = await page.$(selectors.bookView)
   if (!bookVisible) {
+    // Inject a village update for the current day to ensure Book has new content
+    await page.evaluate(() => {
+      const e = window.__ENGINE__
+      const day = e.villageService?.getState?.()?.day || 2
+      e.bookService.addSection({
+        id: `village_day_${day}_screenshot`,
+        category: 'village_updates',
+        day: day,
+        entries: [
+          { key: 'book_update_hero_recruited', values: { hero: 'Mira' }, weight: 1 },
+          { key: 'book_update_building_completed', values: { building: 'Farm' }, weight: 1 }
+        ]
+      })
+      e.bookService.save()
+    })
+    await refreshUI(page)
+    await page.waitForTimeout(500)
     await clickNav(page, selectors.navBook)
     await waitForVisible(page, selectors.bookView, 3000)
   }
