@@ -177,7 +177,7 @@
 ## Image 21: `assets/story/magic_circle_flare.webp`
 **Scene:** A magic circle flaring to life. Radiant lines bursting outward from a central geometric pattern, energy suggested by sharp radiating strokes. The scribe had to squint — draw it energetically.
 **Prompt:** A geometric circle pattern with sharp radiating lines bursting outward, energy and light suggested by explosive linework, dynamic and energetic. Medieval manuscript ink drawing, black strokes only, transparent background, rough energetic linework, village scribe style.
-**Status:** pending
+**Status:** generated
 
 ---
 
@@ -282,9 +282,9 @@
 ## Overall Status
 
 **Total Images:** 35
-**Generated:** 20
-**Pending:** 15
-**Next to generate:** Image 21 (`magic_circle_flare.webp`)
+**Generated:** 21
+**Pending:** 14
+**Next to generate:** Image 22 (`magic_hero_awe.webp`)
 
 ---
 
