@@ -226,7 +226,7 @@
 ## Image 28: `assets/story/finale_chapter1_elara_window.webp`
 **Scene:** Elara looking out a window at the village below. A small smile, her hand resting on the windowsill. She has found her place. Viewed from behind/inside.
 **Prompt:** A figure seen from behind looking out a window at a village below, one hand on windowsill, small smile suggested by simple line, sense of belonging. Medieval manuscript ink drawing, black strokes only, transparent background, sketchy rough linework, small figure, village scribe style.
-**Status:** pending
+**Status:** generated
 
 ---
 
@@ -282,9 +282,9 @@
 ## Overall Status
 
 **Total Images:** 35
-**Generated:** 27
-**Pending:** 8
-**Next to generate:** Image 28 (`finale_chapter1_elara_window.webp`)
+**Generated:** 28
+**Pending:** 7
+**Next to generate:** Image 29 (`finale_chapter2_night_colors.webp`)
 
 ---
 
