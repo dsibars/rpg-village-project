@@ -247,7 +247,7 @@
 ## Image 31: `assets/story/milestone_first_building.webp`
 **Scene:** Villagers raising a wooden building frame together. Ropes, teamwork, the first permanent structure. Hopeful, communal effort.
 **Prompt:** Small figures working together to raise a wooden building frame, ropes and beams, teamwork and community effort, hopeful atmosphere. Medieval manuscript ink drawing, black strokes only, transparent background, sketchy rough linework, small figures, village scribe style.
-**Status:** pending
+**Status:** generated
 
 ---
 
@@ -282,9 +282,9 @@
 ## Overall Status
 
 **Total Images:** 35
-**Generated:** 30
-**Pending:** 5
-**Next to generate:** Image 31 (`milestone_first_building.webp`)
+**Generated:** 31
+**Pending:** 4
+**Next to generate:** Image 32 (`milestone_first_recruit.webp`)
 
 ---
 
