@@ -8,9 +8,9 @@ import { triggerNextDay, setStorageFull, refreshUI } from '../utils/state-inject
 import { selectors } from '../selectors/selectors.mjs'
 
 
-export async function run({ page, snap }) {
+export async function run({ page, snap, reset = true }) {
 
-  await startNewGame(page, selectors)
+  await startNewGame(page, selectors, reset)
 
   // --- village_main ---
   await snap({ flow: 'village', state: 'village_main' })

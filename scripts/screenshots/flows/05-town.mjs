@@ -49,9 +49,9 @@ async function unlockForge(page) {
   await refreshUI(page)
 }
 
-export async function run({ page, snap }) {
+export async function run({ page, snap, reset = true }) {
 
-  await startNewGame(page, selectors)
+  await startNewGame(page, selectors, reset)
   await clickNav(page, selectors.navTown)
   await waitForVisible(page, selectors.townTab, 3000)
 

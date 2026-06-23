@@ -6,8 +6,8 @@ import { startNewGame } from '../utils/setup.mjs'
 import { refreshUI } from '../utils/state-injector.mjs'
 import { selectors } from '../selectors/selectors.mjs'
 
-export async function run({ page, snap }) {
-  await startNewGame(page, selectors)
+export async function run({ page, snap, reset = true }) {
+  await startNewGame(page, selectors, reset)
 
   // --- mission_locked ---
   // No mission board built — the DailyObjectives component shows locked state

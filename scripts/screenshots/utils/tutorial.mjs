@@ -100,7 +100,8 @@ export async function waitForElementVisible(page, selector, timeout = 10000) {
   }
 }
 
-export async function resetSaveSlots(page) {
+export async function resetSaveSlots(page, reset = true) {
+  if (!reset) return
   await page.evaluate(() => {
     Object.keys(localStorage)
       .filter((k) => k.startsWith('rpg_village_'))
@@ -109,7 +110,8 @@ export async function resetSaveSlots(page) {
   await page.reload({ waitUntil: 'networkidle' })
 }
 
-export async function selectFirstSlot(page) {
+export async function selectFirstSlot(page, reset = true) {
+  if (!reset) return
   const selectors = (await import('../selectors/selectors.mjs')).selectors
   await waitForElementVisible(page, selectors.saveSlotScreen)
   const emptySlot = await page.$(selectors.emptySlot)

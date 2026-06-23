@@ -38,9 +38,9 @@ async function clickActionButton(page, labelSubstring) {
   }, labelSubstring)
 }
 
-export async function run({ page, snap }) {
+export async function run({ page, snap, reset = true }) {
 
-  await startNewGame(page, selectors)
+  await startNewGame(page, selectors, reset)
   await injectHero(page, { name: 'Aria', origin: 'origin_arcane_initiate', level: 10 })
   await injectHero(page, { name: 'Bran', origin: 'origin_warrior', level: 5 })
 

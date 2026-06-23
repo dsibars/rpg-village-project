@@ -30,9 +30,9 @@ async function dismissAnyModal(page) {
   } catch { /* ignore */ }
 }
 
-export async function run({ page, snap }) {
+export async function run({ page, snap, reset = true }) {
 
-  await startNewGame(page, selectors)
+  await startNewGame(page, selectors, reset)
 
   // Pre-seed bestiary with some discovered enemies for "mixed" state
   await page.evaluate(() => {

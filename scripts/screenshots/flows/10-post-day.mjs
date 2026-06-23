@@ -8,9 +8,9 @@ import { injectHero, refreshUI } from '../utils/state-injector.mjs'
 import { selectors } from '../selectors/selectors.mjs'
 
 
-export async function run({ page, snap }) {
+export async function run({ page, snap, reset = true }) {
 
-  await startNewGame(page, selectors)
+  await startNewGame(page, selectors, reset)
 
   // Inject a hero and assign to tutorial cave expedition
   await injectHero(page, { name: 'Aria', origin: 'origin_arcane_initiate', level: 5 })

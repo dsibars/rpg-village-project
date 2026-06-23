@@ -38,9 +38,9 @@ async function setupBattle(page) {
   await refreshUI(page)
 }
 
-export async function run({ page, snap }) {
+export async function run({ page, snap, reset = true }) {
 
-  await startNewGame(page, selectors)
+  await startNewGame(page, selectors, reset)
   await setupBattle(page)
 
   // --- combat_overlay_open ---

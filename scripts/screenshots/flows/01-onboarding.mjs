@@ -90,16 +90,18 @@ async function createOccupiedSlot(page, index) {
   }, index)
 }
 
-export async function run({ page, snap }) {
+export async function run({ page, snap, reset = true }) {
 
   // --- save_slot_empty ---
-  await resetSaveSlots(page)
+  await resetSaveSlots(page, reset)
   await waitForVisible(page, selectors.saveSlotScreen)
   await snap({ flow: 'onboarding', state: 'save_slot_empty' })
 
   // --- save_slot_occupied ---
   await createOccupiedSlot(page, 0)
-  await page.reload({ waitUntil: 'networkidle' })
+  if (reset) {
+    await page.reload({ waitUntil: 'networkidle' })
+  }
   await waitForVisible(page, selectors.saveSlotScreen)
   await snap({ flow: 'onboarding', state: 'save_slot_occupied' })
 

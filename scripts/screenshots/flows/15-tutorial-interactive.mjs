@@ -45,10 +45,10 @@ async function snapshotTutorialStep({ page, snap, state }) {
   await snap({ flow: 'tutorial-interactive', state })
 }
 
-export async function run({ page, snap }) {
+export async function run({ page, snap, reset = true }) {
   // ── Start fresh ──
-  await resetSaveSlots(page)
-  await selectFirstSlot(page)
+  await resetSaveSlots(page, reset)
+  await selectFirstSlot(page, reset)
 
   // Disable overlay auto-enforcement so this flow exercises real user clicks
   // step by step and can screenshot each intermediate state.

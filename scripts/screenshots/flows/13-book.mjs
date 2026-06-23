@@ -7,27 +7,31 @@ import { refreshUI } from '../utils/state-injector.mjs'
 import { selectors } from '../selectors/selectors.mjs'
 
 
-export async function run({ page, snap }) {
+export async function run({ page, snap, reset = true }) {
 
   // --- book_fresh_prologue ---
-  // Start a fresh game and capture the Book BEFORE it gets dismissed
-  await page.evaluate(() => {
-    Object.keys(localStorage)
-      .filter((k) => k.startsWith('rpg_village_v1_'))
-      .forEach((k) => localStorage.removeItem(k))
-  })
-  await page.reload({ waitUntil: 'networkidle' })
-  await waitForVisible(page, selectors.saveSlotScreen, 10000)
+  // Start a fresh game and capture the Book BEFORE it gets dismissed.
+  // This only makes sense when the flow is resetting; skip it when continuing
+  // a continuous playthrough.
+  if (reset) {
+    await page.evaluate(() => {
+      Object.keys(localStorage)
+        .filter((k) => k.startsWith('rpg_village_v1_'))
+        .forEach((k) => localStorage.removeItem(k))
+    })
+    await page.reload({ waitUntil: 'networkidle' })
+    await waitForVisible(page, selectors.saveSlotScreen, 10000)
 
-  // Click first empty slot - Book will auto-open with prologue
-  const emptySlot = await page.$(selectors.emptySlot)
-  const slotBtn = emptySlot || (await page.$$(selectors.saveSlot))[0]
-  if (slotBtn) await slotBtn.click()
+    // Click first empty slot - Book will auto-open with prologue
+    const emptySlot = await page.$(selectors.emptySlot)
+    const slotBtn = emptySlot || (await page.$$(selectors.saveSlot))[0]
+    if (slotBtn) await slotBtn.click()
 
-  // Wait for Book to auto-open and render
-  await waitForVisible(page, selectors.bookView, 10000)
-  await page.waitForTimeout(600)
-  await snap({ flow: 'book', state: 'book_fresh_prologue' })
+    // Wait for Book to auto-open and render
+    await waitForVisible(page, selectors.bookView, 10000)
+    await page.waitForTimeout(600)
+    await snap({ flow: 'book', state: 'book_fresh_prologue' })
+  }
 
   // --- book_village_update ---
   // Advance a day to trigger a second village update in the Book
