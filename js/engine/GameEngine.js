@@ -1002,6 +1002,8 @@ export class GameEngine {
         // Trigger Point 2: Building Completion
         if (villageReport.completed && villageReport.completed.length > 0) {
             for (const buildingId of villageReport.completed) {
+                // Report tutorial event for building construction
+                this.reportTutorialEvent({ event: 'building_constructed', buildingId });
                 const level = this.villageService.getState().infrastructure[buildingId] || 1;
                 this._processPresentationTriggers({
                     type: 'building_complete',

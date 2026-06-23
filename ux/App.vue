@@ -40,6 +40,7 @@
           :active-tab="activeTab"
           @openSettings="currentPage = 'settings'"
           @navigate="handleNavigate"
+          @tutorial:event="handleTutorialReport"
         />
       </main>
 
@@ -348,6 +349,9 @@ function onNextDay() {
   // Run the day
   const report = props.engine.nextDay()
 
+  // Report day advance for tutorial auto-advancement
+  reportEvent({ event: 'day_advanced' })
+
   // Check for expedition battle
   if (report?.expedition?.status === 'battle_started') {
     pendingPostCombatReport.value = report
@@ -392,9 +396,16 @@ function onCloseExpeditionResult() {
 
 function handleNavigate({ page, tab }) {
   if (page && pages[page]) {
+    const oldPage = currentPage.value
+    const oldTab = activeTab.value
     currentPage.value = page
     activeTab.value = tab || null
     pageError.value = null
+
+    // Report tab change for tutorial auto-advancement
+    if (oldPage !== page || oldTab !== tab) {
+      reportEvent({ event: 'tab_changed', page, tab: tab || null })
+    }
   }
 }
 
@@ -403,9 +414,15 @@ function handlePageChange(page) {
     showToast(t('tutorial_uxelm_nav_blocked'), 'warning')
     return
   }
+  const oldPage = currentPage.value
   currentPage.value = page
   activeTab.value = null
   pageError.value = null
+
+  // Report tab change for tutorial auto-advancement
+  if (oldPage !== page) {
+    reportEvent({ event: 'tab_changed', page })
+  }
 }
 
 function handleTutorialReport(evt) {

@@ -234,6 +234,8 @@ const { gameState, heroes } = useGameState()
 const { dispatch } = useAdapter()
 const engine = inject('engine')
 
+const emit = defineEmits(['tutorial:event'])
+
 const viewMode = ref(localStorage.getItem('explore_view_mode') || 'tree')
 const selectedRegion = ref(null)
 const selectedExp = ref(null)
@@ -326,6 +328,7 @@ function selectRegion(regionId) {
   selectedRegion.value = regionId
   selectedExp.value = null
   selectedHeroIds.value = []
+  emit('tutorial:event', { event: 'region_selected', regionId })
 }
 
 // Tree computation
@@ -445,7 +448,10 @@ function selectExpedition(exp) {
 
 function startExpedition({ expId, heroIds }) {
   showDetailModal.value = false
-  dispatch('explore', 'assignExpedition', { expId, heroIds })
+  const result = dispatch('explore', 'assignExpedition', { expId, heroIds })
+  if (result?.success) {
+    emit('tutorial:event', { event: 'expedition_started', nodeId: expId })
+  }
   selectedHeroIds.value = []
 }
 
