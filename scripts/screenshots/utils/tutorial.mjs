@@ -121,6 +121,14 @@ export async function selectFirstSlot(page, reset = true) {
   await page.waitForTimeout(600)
 }
 
+export async function clearToasts(page) {
+  // Dismiss visible toasts by clicking them. This uses the app's own click
+  // handler so Vue's DOM state stays consistent (unlike innerHTML clearing).
+  await page.evaluate(() => {
+    document.querySelectorAll('.toast-container .toast').forEach((toast) => toast.click())
+  })
+}
+
 export async function dismissTutorialDarkening(page) {
   // Dispatch a click on the darkening capture layer to dismiss it. We use a
   // JS click because the tutorial message bubble may overlap the layer and

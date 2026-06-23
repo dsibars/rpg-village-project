@@ -22,6 +22,7 @@
         :visible="active"
         :current-text="currentMessageText"
         :interactive="!darkeningDismissed"
+        :placement="messagePosition.placement"
         @advance="advanceMessage"
       />
 
@@ -52,14 +53,29 @@ const active = computed(() => !!tutorial.value)
 
 const darkeningDismissed = ref(false)
 const messageIndex = ref(0)
+const messageSize = ref({ width: 320, height: 100 })
+
+function measureMessage() {
+  const el = document.querySelector('.tutorial-message')
+  if (el) {
+    messageSize.value = {
+      width: el.offsetWidth || 320,
+      height: el.offsetHeight || 100
+    }
+  }
+}
 
 // Reset state when the tutorial step changes
 watch(
   () => tutorial.value?.stepId,
-  (stepId) => {
+  async (stepId) => {
     if (stepId) {
       messageIndex.value = 0
       darkeningDismissed.value = false
+      // Reset to a safe estimate while the new message renders
+      messageSize.value = { width: 320, height: 100 }
+      await nextTick()
+      measureMessage()
       // Attempt to enforce navigation context
       nextTick(() => {
         enforceWhere(tutorial.value?.where)
@@ -108,8 +124,8 @@ const spotlightConfig = computed(() => {
     }
   }
 
-  // Scroll into view if needed
-  el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  // Scroll into view if needed (auto to avoid animation/jitter in screenshots)
+  el.scrollIntoView({ behavior: 'auto', block: 'center' })
 
   const rect = el.getBoundingClientRect()
   const padding = what.padding || 8
@@ -125,33 +141,41 @@ const spotlightConfig = computed(() => {
   }
 })
 
-// Position the message bubble below the spotlight
+// Position the message bubble centered over the spotlight target.
+// We measure the rendered message size so the arrow points at the highlighted
+// element and the bubble stays within the viewport.
 const messagePosition = computed(() => {
   const sc = spotlightConfig.value
+  const bw = messageSize.value.width
+  const bh = messageSize.value.height
+  const margin = 16
+  const arrowH = 10
+  const padding = 20
+
   if (!sc) {
     // No spotlight — center the message
     return {
-      x: Math.max(20, window.innerWidth / 2 - 160),
-      y: Math.max(20, window.innerHeight / 2 - 40)
+      x: Math.max(padding, window.innerWidth / 2 - bw / 2),
+      y: Math.max(padding, window.innerHeight / 2 - bh / 2),
+      placement: 'bottom'
     }
   }
 
-  let x = sc.x
-  let y = sc.y + sc.height + 16
+  // Center horizontally over the spotlight
+  let x = sc.x + sc.width / 2 - bw / 2
+  const maxX = window.innerWidth - bw - padding
+  if (x < padding) x = padding
+  if (x > maxX) x = maxX
 
-  // Keep message within viewport
-  const maxWidth = 320
-  if (x + maxWidth > window.innerWidth - 20) {
-    x = window.innerWidth - maxWidth - 20
+  // Prefer above the target so the down-arrow points at it
+  let y = sc.y - bh - arrowH - margin
+  let placement = 'top'
+  if (y < padding) {
+    y = sc.y + sc.height + margin
+    placement = 'bottom'
   }
-  if (x < 20) x = 20
-  if (y + 120 > window.innerHeight - 20) {
-    // Place above the spotlight if below doesn't fit
-    y = sc.y - 120
-  }
-  if (y < 20) y = 20
 
-  return { x, y }
+  return { x, y, placement }
 })
 
 function advanceMessage() {

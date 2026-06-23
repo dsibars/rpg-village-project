@@ -43,6 +43,10 @@ export function createVueApp({ engine, persistence, saveSlotManager, container }
     window.__REFRESH_UI__ = () => {
       gameState.value = engine?.update() || {}
     }
+    // Restore screenshot-automation flags that survive page reloads.
+    if (sessionStorage.getItem('__TUTORIAL_DISABLE_ENFORCE__') === '1') {
+      window.__TUTORIAL_DISABLE_ENFORCE__ = true
+    }
   }
 
   // Throttled game loop: update reactive gameState at 10 FPS.

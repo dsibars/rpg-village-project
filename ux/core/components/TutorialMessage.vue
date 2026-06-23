@@ -2,10 +2,11 @@
   <div
     v-if="visible"
     class="tutorial-message"
-    :class="{ 'non-interactive': interactive === false }"
+    :class="{ 'non-interactive': interactive === false, [`placement-${placement}`]: true }"
     :style="positionStyle"
     @click="handleClick"
   >
+    <div v-if="placement === 'bottom'" class="tutorial-message-arrow up" />
     <div class="tutorial-message-bubble">
       <p class="tutorial-message-text">{{ currentText }}</p>
       <div class="tutorial-message-indicator">
@@ -18,7 +19,7 @@
       </div>
       <span class="tutorial-message-hint">{{ hintText }}</span>
     </div>
-    <div class="tutorial-message-arrow" />
+    <div v-if="placement === 'top'" class="tutorial-message-arrow down" />
   </div>
 </template>
 
@@ -56,6 +57,13 @@ const props = defineProps({
   interactive: {
     type: Boolean,
     default: true
+  },
+  /** Placement of the bubble relative to the spotlight target:
+   *  'top' = bubble above target (arrow points down)
+   *  'bottom' = bubble below target (arrow points up) */
+  placement: {
+    type: String,
+    default: 'top'
   }
 })
 
@@ -145,8 +153,24 @@ function handleClick() {
   height: 0;
   border-left: 10px solid transparent;
   border-right: 10px solid transparent;
-  border-top: 10px solid var(--color-accent, #f5c542);
   margin: 0 auto;
+}
+
+.tutorial-message-arrow.down {
+  border-top: 10px solid var(--color-accent, #f5c542);
+}
+
+.tutorial-message-arrow.up {
+  border-bottom: 10px solid var(--color-accent, #f5c542);
+}
+
+/* Pull the arrow slightly into the bubble border so it looks attached */
+.tutorial-message.placement-top .tutorial-message-arrow.down {
+  margin-top: -2px;
+}
+
+.tutorial-message.placement-bottom .tutorial-message-arrow.up {
+  margin-bottom: -2px;
 }
 
 @media (max-width: 480px) {

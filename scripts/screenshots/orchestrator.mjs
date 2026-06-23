@@ -61,6 +61,13 @@ try {
   if (!DRY_RUN && CONTINUOUS) {
     // In continuous mode we load the app once and share state across all flows.
     await page.goto(`http://localhost:${PORT}/index.html`, { waitUntil: 'networkidle' })
+    // Disable tutorial auto-enforcement so the Day-1 tutorial does not progress
+    // on its own between flows; the interactive tutorial flow will drive it.
+    // We use sessionStorage so the flag survives the page reloads some flows perform.
+    await page.evaluate(() => {
+      sessionStorage.setItem('__TUTORIAL_DISABLE_ENFORCE__', '1')
+      window.__TUTORIAL_DISABLE_ENFORCE__ = true
+    })
   }
 
   for (let i = 0; i < flowsToRun.length; i++) {

@@ -13,7 +13,8 @@ import {
   waitForTutorialStep,
   waitForTutorialInactive,
   waitForElementVisible,
-  dismissTutorialDarkening
+  dismissTutorialDarkening,
+  clearToasts,
 } from '../utils/tutorial.mjs'
 
 async function clickFirstByText(page, text, selector = 'button') {
@@ -41,7 +42,8 @@ async function waitForTutorialUpdate(page, expectedStepId, timeout = 10000) {
 
 async function snapshotTutorialStep({ page, snap, state }) {
   await dismissTutorialDarkening(page)
-  await page.waitForTimeout(200)
+  await clearToasts(page)
+  await page.waitForTimeout(300)
   await snap({ flow: 'tutorial-interactive', state })
 }
 
@@ -56,15 +58,20 @@ export async function run({ page, snap, reset = true }) {
     window.__TUTORIAL_DISABLE_ENFORCE__ = true
   })
 
-  // ── Book prologue on fresh game ──
-  await waitForElementVisible(page, '.book-view')
-  await snap({ flow: 'tutorial-interactive', state: 'book_prologue' })
+  if (reset) {
+    // ── Book prologue on fresh game ──
+    await waitForElementVisible(page, '.book-view')
+    await snap({ flow: 'tutorial-interactive', state: 'book_prologue' })
 
-  // ── Close book → tutorial triggers ──
-  await closeBookAndWaitForTutorial(page)
+    // ── Close book → tutorial triggers ──
+    await closeBookAndWaitForTutorial(page)
+  } else {
+    // Continuing from a previous flow (e.g. onboarding in continuous mode).
+    // The tutorial should already be active at the first step.
+    await waitForTutorialUpdate(page, 'navigate_heroes')
+  }
 
   // Step 1: navigate to Heroes
-  await waitForTutorialUpdate(page, 'navigate_heroes')
   await snapshotTutorialStep({ page, snap, state: 'tutorial_heroes_tab' })
   await clickTarget(page, 'footer_nav_heroes')
 
