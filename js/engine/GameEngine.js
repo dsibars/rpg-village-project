@@ -36,6 +36,7 @@ import { WitchService } from './witch/WitchService.js';
 import { getEquipmentStats } from './shared/inventory/EquipmentService.js';
 import { getWeaponBaseCost, getArmorBaseCost } from './shared/data/ShopCatalog.js';
 
+import { BookService } from './book/BookService.js';
 import { TutorialService } from './tutorial/TutorialService.js';
 export class GameEngine {
     constructor() {
