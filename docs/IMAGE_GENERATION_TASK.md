@@ -191,7 +191,7 @@
 ## Image 23: `assets/story/witch_appears.webp`
 **Scene:** The witch's first appearance. A cloaked figure standing at the edge of the village, mist around the feet, face hidden in shadow. Ominous but not clearly evil — ambiguous.
 **Prompt:** A cloaked figure standing at the edge of a village, mist lines around the feet, face hidden deep in hood shadow, ambiguous ominous presence. Medieval manuscript ink drawing, black strokes only, transparent background, sketchy rough linework, small figure, village scribe style.
-**Status:** pending
+**Status:** generated
 
 ---
 
@@ -282,9 +282,9 @@
 ## Overall Status
 
 **Total Images:** 35
-**Generated:** 22
-**Pending:** 13
-**Next to generate:** Image 23 (`witch_appears.webp`)
+**Generated:** 23
+**Pending:** 12
+**Next to generate:** Image 24 (`witch_reading.webp`)
 
 ---
 
