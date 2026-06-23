@@ -163,7 +163,7 @@
 ## Image 19: `assets/story/magic_sanctum_hum.webp`
 **Scene:** Inside the Arcane Sanctum. Stone walls with geometric glyphs carved into them, a low altar or table, a figure standing in the center. Mysterious, reverent, quiet power.
 **Prompt:** Interior of a stone sanctum, geometric glyphs carved into walls, simple altar in center, one figure standing before it, mysterious atmosphere. Medieval manuscript ink drawing, black strokes only, transparent background, sketchy rough linework, small figure, village scribe style.
-**Status:** pending
+**Status:** generated
 
 ---
 
@@ -282,9 +282,9 @@
 ## Overall Status
 
 **Total Images:** 35
-**Generated:** 18
-**Pending:** 17
-**Next to generate:** Image 19 (`magic_sanctum_hum.webp`)
+**Generated:** 19
+**Pending:** 16
+**Next to generate:** Image 20 (`magic_circle_first.webp`)
 
 ---
 
