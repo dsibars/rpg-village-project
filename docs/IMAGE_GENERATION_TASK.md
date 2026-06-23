@@ -261,7 +261,7 @@
 ## Image 33: `assets/story/milestone_quiet_day.webp`
 **Scene:** An empty village square. No figures. Just a banner hanging from a pole, moving slightly in the wind. Peaceful, eerie, beautiful in its emptiness.
 **Prompt:** An empty village square with no figures, a banner hanging from a pole moving in wind, peaceful eerie beautiful emptiness. Medieval manuscript ink drawing, black strokes only, transparent background, sketchy rough linework, village scribe style.
-**Status:** pending
+**Status:** generated
 
 ---
 
@@ -282,9 +282,9 @@
 ## Overall Status
 
 **Total Images:** 35
-**Generated:** 32
-**Pending:** 3
-**Next to generate:** Image 33 (`milestone_quiet_day.webp`)
+**Generated:** 33
+**Pending:** 2
+**Next to generate:** Image 34 (`milestone_raid_aftermath.webp`)
 
 ---
 
