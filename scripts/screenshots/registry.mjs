@@ -89,6 +89,18 @@ export const screenshotRegistry = [
   { flow: 'book', state: 'book_milestone', description: 'Book showing milestone entry (e.g., hero recruited)' },
   { flow: 'book', state: 'book_chapter_title', description: 'Book showing chapter title page' },
 
+  // === Tutorial ===
+  { flow: 'tutorial', state: 'tutorial_heroes_tab', description: 'Tutorial overlay highlighting Heroes tab' },
+  { flow: 'tutorial', state: 'tutorial_arthur_card', description: 'Tutorial overlay highlighting Arthur card' },
+  { flow: 'tutorial', state: 'tutorial_learn_skill', description: 'Tutorial overlay highlighting Learn Skill button' },
+  { flow: 'tutorial', state: 'tutorial_stat_grid', description: 'Tutorial overlay highlighting stat grid' },
+  { flow: 'tutorial', state: 'tutorial_village_tab', description: 'Tutorial overlay highlighting Village tab' },
+  { flow: 'tutorial', state: 'tutorial_build_farm', description: 'Tutorial overlay highlighting Farm building' },
+  { flow: 'tutorial', state: 'tutorial_explore_tab', description: 'Tutorial overlay highlighting Adventure tab' },
+  { flow: 'tutorial', state: 'tutorial_region_greenfields', description: 'Tutorial overlay highlighting Greenfields region' },
+  { flow: 'tutorial', state: 'tutorial_expedition_cave', description: 'Tutorial overlay highlighting Tutorial Cave expedition' },
+  { flow: 'tutorial', state: 'tutorial_advance_day', description: 'Tutorial overlay highlighting day advance button' },
+
   // === Settings ===
   { flow: 'settings', state: 'settings_main', description: 'Settings page main view' },
   { flow: 'settings', state: 'settings_simulator', description: 'Magic Circle Simulator open from settings' },

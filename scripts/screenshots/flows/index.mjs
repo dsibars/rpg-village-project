@@ -11,6 +11,7 @@ import * as postDay from './10-post-day.mjs'
 import * as buildingModals from './11-building-modals.mjs'
 import * as missions from './12-missions.mjs'
 import * as book from './13-book.mjs'
+import * as tutorial from './14-tutorial.mjs'
 
 export const flowModules = {
   onboarding,
@@ -26,6 +27,7 @@ export const flowModules = {
   'building-modals': buildingModals,
   missions,
   book,
+  tutorial,
 }
 
 

@@ -113,6 +113,12 @@ test('TutorialValidator: validateRegistry() detects tutorial id mismatch', () =>
     tutorial.id = originalId;
 });
 
+import { en } from '../../../js/engine/shared/core/i18n/translations/en.js';
+import { es } from '../../../js/engine/shared/core/i18n/translations/es.js';
+import { ca } from '../../../js/engine/shared/core/i18n/translations/ca.js';
+import { gl } from '../../../js/engine/shared/core/i18n/translations/gl.js';
+import { eu } from '../../../js/engine/shared/core/i18n/translations/eu.js';
+
 // ─── i18n Validation ───────────────────────────────────────────────────────
 
 test('TutorialValidator: _validateI18nKeys() detects missing translations', () => {
@@ -175,6 +181,54 @@ test('TutorialValidator: findGhostKeys() finds unreferenced tutorial keys', () =
 
     const ghosts = TutorialValidator.findGhostKeys(translations, 'en');
     assert.deepStrictEqual(ghosts.sort(), ['tutorial_ghost_key_1', 'tutorial_ghost_key_2']);
+});
+
+// ─── Real Translation File Validation ───────────────────────────────────────
+
+test('TutorialValidator: all tutorial message keys exist in all 5 language files', () => {
+    const translations = { en, es, ca, gl, eu };
+    const requiredLangs = ['en', 'es', 'ca', 'gl', 'eu'];
+
+    // Collect all tutorial message keys from the registry
+    const allTutorialKeys = new Set();
+    for (const tutorial of TutorialRegistry.values()) {
+        for (const step of tutorial.steps || []) {
+            if (step.messages) {
+                for (const key of step.messages) {
+                    allTutorialKeys.add(key);
+                }
+            }
+        }
+    }
+
+    // Validate all keys exist in all languages
+    const result = TutorialValidator._validateI18nKeys(translations, requiredLangs, allTutorialKeys);
+
+    assert.strictEqual(result.length, 0,
+        `Missing tutorial translations:\n${result.map(e => `  ${e.lang}: ${e.message}`).join('\n')}`);
+});
+
+test('TutorialValidator: no ghost tutorial keys in any language file', () => {
+    const translations = { en, es, ca, gl, eu };
+    const allGhostKeys = new Set();
+
+    // Known tutorial keys used outside step messages (UI guard messages, etc.)
+    const knownNonMessageKeys = new Set([
+        'tutorial_uxelm_action_blocked',
+        'tutorial_uxelm_nav_blocked'
+    ]);
+
+    for (const lang of ['en', 'es', 'ca', 'gl', 'eu']) {
+        const ghosts = TutorialValidator.findGhostKeys(translations, lang);
+        for (const key of ghosts) {
+            if (!knownNonMessageKeys.has(key)) {
+                allGhostKeys.add(`${lang}:${key}`);
+            }
+        }
+    }
+
+    assert.strictEqual(allGhostKeys.size, 0,
+        `Ghost tutorial keys found (unreferenced in registry):\n${[...allGhostKeys].map(k => `  ${k}`).join('\n')}`);
 });
 
 // ─── Event Matching ────────────────────────────────────────────────────────
