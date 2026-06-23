@@ -101,6 +101,23 @@ export const screenshotRegistry = [
   { flow: 'tutorial', state: 'tutorial_expedition_cave', description: 'Tutorial overlay highlighting Tutorial Cave expedition' },
   { flow: 'tutorial', state: 'tutorial_advance_day', description: 'Tutorial overlay highlighting day advance button' },
 
+  // === Tutorial Interactive (real playthrough) ===
+  { flow: 'tutorial-interactive', state: 'book_prologue', description: 'Book auto-open on fresh game before tutorial starts' },
+  { flow: 'tutorial-interactive', state: 'tutorial_heroes_tab', description: 'Tutorial overlay highlighting Heroes tab (interactive)' },
+  { flow: 'tutorial-interactive', state: 'tutorial_arthur_card', description: 'Tutorial overlay highlighting Arthur card (interactive)' },
+  { flow: 'tutorial-interactive', state: 'tutorial_learn_skill', description: 'Tutorial overlay highlighting Learn Skill button (interactive)' },
+  { flow: 'tutorial-interactive', state: 'tutorial_skills_modal', description: 'Locked skills modal during tutorial (interactive)' },
+  { flow: 'tutorial-interactive', state: 'tutorial_stat_grid', description: 'Tutorial overlay highlighting stat grid (interactive)' },
+  { flow: 'tutorial-interactive', state: 'tutorial_village_tab', description: 'Tutorial overlay highlighting Village tab before farm (interactive)' },
+  { flow: 'tutorial-interactive', state: 'tutorial_build_farm_tile', description: 'Tutorial overlay highlighting Farm tile in Village (interactive)' },
+  { flow: 'tutorial-interactive', state: 'tutorial_build_farm_detail', description: 'Farm building detail in Town/Buildings (interactive)' },
+  { flow: 'tutorial-interactive', state: 'tutorial_explore_tab', description: 'Tutorial overlay highlighting Adventure tab (interactive)' },
+  { flow: 'tutorial-interactive', state: 'tutorial_region_greenfields', description: 'Tutorial overlay highlighting Greenfields region (interactive)' },
+  { flow: 'tutorial-interactive', state: 'tutorial_expedition_cave', description: 'Tutorial overlay highlighting Tutorial Cave node (interactive)' },
+  { flow: 'tutorial-interactive', state: 'tutorial_expedition_detail', description: 'Tutorial Cave expedition detail with hero selector (interactive)' },
+  { flow: 'tutorial-interactive', state: 'tutorial_advance_day', description: 'Tutorial overlay highlighting day advance button (interactive)' },
+  { flow: 'tutorial-interactive', state: 'tutorial_completed', description: 'Game state after Day 1 tutorial chain completes (interactive)' },
+
   // === Settings ===
   { flow: 'settings', state: 'settings_main', description: 'Settings page main view' },
   { flow: 'settings', state: 'settings_simulator', description: 'Magic Circle Simulator open from settings' },

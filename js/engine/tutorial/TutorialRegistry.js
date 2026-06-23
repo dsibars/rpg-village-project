@@ -95,7 +95,7 @@ export const TutorialRegistry = new Map([
           id: 'construct_farm',
           messages: ['tutorial_build_farm_msg_construct_farm'],
           what: { target: 'building_farm', flash: true },
-          where: { page: 'village' },
+          where: { page: 'town', tab: 'buildings' },
           allowActions: ['buildings.startProject'],
           advanceOn: { event: 'building_constructed', buildingId: 'farm' }
         }

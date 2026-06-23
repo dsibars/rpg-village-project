@@ -9,6 +9,7 @@
           v-for="building in visibleBuildings"
           :key="building.id"
           class="building-card"
+          :data-tutorial-target="'building_' + building.id"
           :class="{ active: selectedId === building.id, locked: !building.active }"
           @click="selectBuilding(building.id)"
         >

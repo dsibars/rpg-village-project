@@ -12,6 +12,7 @@ import * as buildingModals from './11-building-modals.mjs'
 import * as missions from './12-missions.mjs'
 import * as book from './13-book.mjs'
 import * as tutorial from './14-tutorial.mjs'
+import * as tutorialInteractive from './15-tutorial-interactive.mjs'
 
 export const flowModules = {
   onboarding,
@@ -28,6 +29,7 @@ export const flowModules = {
   missions,
   book,
   tutorial,
+  'tutorial-interactive': tutorialInteractive,
 }
 
 
