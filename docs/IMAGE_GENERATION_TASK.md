@@ -170,7 +170,7 @@
 ## Image 20: `assets/story/magic_circle_first.webp`
 **Scene:** The first complete magic circle drawn on stone floor. Imperfect, slightly shaky lines, but complete. A historic moment captured simply.
 **Prompt:** A circular geometric pattern drawn on flat stone surface, imperfect shaky lines but complete, chalk or charcoal marks, historic moment. Medieval manuscript ink drawing, black strokes only, transparent background, sketchy rough linework, village scribe style.
-**Status:** pending
+**Status:** generated
 
 ---
 
@@ -282,9 +282,9 @@
 ## Overall Status
 
 **Total Images:** 35
-**Generated:** 19
-**Pending:** 16
-**Next to generate:** Image 20 (`magic_circle_first.webp`)
+**Generated:** 20
+**Pending:** 15
+**Next to generate:** Image 21 (`magic_circle_flare.webp`)
 
 ---
 
