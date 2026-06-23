@@ -67,11 +67,7 @@
 
     <TutorialOverlay
       v-if="tutorialActive"
-      :step="currentTutorialStep"
       @navigate="handleNavigate"
-      @report="handleTutorialReport"
-      @complete="completeTutorial"
-      @skip="skipTutorial"
     />
 
     <PresentationModal
@@ -116,7 +112,7 @@ const props = defineProps({
 const { t } = useI18n()
 const { gameState, day, village, activeBattle } = useGameState()
 const { dispatch } = useAdapter()
-const { canNavigate, canDispatch, lockedTabs, isActive: tutorialActive, stepData: currentTutorialStep, reportEvent, skip: skipTutorialFn, complete: completeTutorialFn } = useTutorial()
+const { canNavigate, canDispatch, lockedTabs, isActive: tutorialActive, reportEvent } = useTutorial()
 useNarrativeToasts()
 
 const currentPage = ref('village')
@@ -429,13 +425,7 @@ function handleTutorialReport(evt) {
   reportEvent(evt)
 }
 
-function completeTutorial() {
-  completeTutorialFn()
-}
 
-function skipTutorial() {
-  skipTutorialFn()
-}
 
 function proceedToPresentations() {
   const ps = props.engine?.presentationService

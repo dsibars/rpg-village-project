@@ -3,7 +3,7 @@
     <div class="modal-body">
       <header class="modal-header">
         <h3 v-if="title">{{ title }}</h3>
-        <CloseButton @close="$emit('close')" />
+        <CloseButton :disabled="tutorialLocked" @close="$emit('close')" />
       </header>
       <div class="modal-content">
         <slot />

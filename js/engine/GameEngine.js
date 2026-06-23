@@ -189,6 +189,7 @@ export class GameEngine {
         const currentHeroes = this.heroService.list();
         if (currentHeroes.length === 0) {
             this.heroService.add({
+                id: 'arthur',
                 name: "Arthur",
                 origin: "origin_warrior",
                 avatar: "arthur.webp",
@@ -1948,6 +1949,10 @@ export class GameEngine {
 
     reportTutorialEvent(payload) {
         return this.tutorialService.reportEvent(payload);
+    }
+
+    getTutorialState() {
+        return this.tutorialService.getState();
     }
 
     evaluateTutorialTriggers() {
