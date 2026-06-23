@@ -51,10 +51,31 @@ export async function run({ page, snap }) {
   // ── Close book → tutorial triggers ──
   const initialState = await closeBookAndWaitForTutorial(page)
   await assertTutorialOverlayVisible(page, 'after closing book')
+  // Give overlay auto-navigation time to run
+  await page.waitForTimeout(1500)
+  const postAutoNav = await getTutorialState(page)
+  console.log('  [debug] after auto-nav wait:', postAutoNav?.stepId)
   await snap({ flow: 'tutorial-interactive', state: 'tutorial_heroes_tab' })
 
   // ── Step 1: navigate to Heroes ──
+  console.log('  [debug] before heroes click:', await getTutorialState(page))
   await clickTutorialTargetAfterDismiss(page, 'footer_nav_heroes')
+  await page.waitForTimeout(1000)
+  console.log('  [debug] after heroes click:', await getTutorialState(page))
+  console.log('  [debug] currentPage:', await page.evaluate(() => document.querySelector('.app-main')?.className))
+  console.log('  [debug] nav active:', await page.evaluate(() => {
+    const active = document.querySelector('.footer-nav .nav-item.active')
+    return active ? active.textContent : 'none'
+  }))
+
+  // Direct engine test: does the event path work?
+  const directResult = await page.evaluate(() => {
+    const e = window.__ENGINE__
+    if (!e?.reportTutorialEvent) return 'no reportTutorialEvent'
+    return e.reportTutorialEvent({ event: 'tab_changed', page: 'heroes' })
+  })
+  console.log('  [debug] direct reportTutorialEvent result:', directResult)
+  console.log('  [debug] state after direct event:', await getTutorialState(page))
   await waitForTutorialUpdate(page, 'select_arthur')
   await snap({ flow: 'tutorial-interactive', state: 'tutorial_arthur_card' })
 

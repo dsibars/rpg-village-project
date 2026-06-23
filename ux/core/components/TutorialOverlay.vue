@@ -172,10 +172,12 @@ function handleOverlayClick() {
 
 // Enforce navigation context by emitting events for App.vue to handle
 async function enforceWhere(where) {
+  console.log('[TutorialOverlay] enforceWhere', where)
   if (!where) return
 
   // Emit navigate event so App.vue can change currentPage/activeTab
   if (where.page) {
+    console.log('[TutorialOverlay] emitting navigate', { page: where.page, tab: where.tab || null })
     emit('navigate', { page: where.page, tab: where.tab || null })
     await nextTick()
     await delay(200)
