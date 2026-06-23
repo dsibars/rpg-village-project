@@ -212,7 +212,7 @@
 ## Image 26: `assets/story/explore_map_table.webp`
 **Scene:** Close-up of hands on a map table. Fingers tracing routes, small wooden markers placed on destinations. Planning an expedition.
 **Prompt:** Close-up of hands on a large map, fingers tracing lines, small wooden marker pieces placed on the map, expedition planning. Medieval manuscript ink drawing, black strokes only, transparent background, sketchy rough linework, village scribe style.
-**Status:** pending
+**Status:** generated
 
 ---
 
@@ -282,9 +282,9 @@
 ## Overall Status
 
 **Total Images:** 35
-**Generated:** 25
-**Pending:** 10
-**Next to generate:** Image 26 (`explore_map_table.webp`)
+**Generated:** 26
+**Pending:** 9
+**Next to generate:** Image 27 (`finale_chapter1_village_glow.webp`)
 
 ---
 
