@@ -36,7 +36,7 @@ import { WitchService } from './witch/WitchService.js';
 import { getEquipmentStats } from './shared/inventory/EquipmentService.js';
 import { getWeaponBaseCost, getArmorBaseCost } from './shared/data/ShopCatalog.js';
 
-import { BookService } from './book/BookService.js';
+import { TutorialService } from './tutorial/TutorialService.js';
 export class GameEngine {
     constructor() {
         this.STORAGE_KEY = 'village_state';
@@ -74,6 +74,7 @@ export class GameEngine {
         );
         this.chronicleService = new ChronicleService();
         this.bookService = new BookService();
+        this.tutorialService = new TutorialService({ persistence, slotIndex: persistence.slotIndex });
         this.i18n = i18n;
         this.isNewGame = true;
         this.stats = this._loadStats();
@@ -98,6 +99,7 @@ export class GameEngine {
         this.dailyHeroActionsService.load();
         this.chronicleService.load();
         this.bookService.load();
+        this.tutorialService.load();
 
         // Register Chronicle catalog entries from game data
         this._registerChronicleCatalog();
@@ -157,6 +159,9 @@ export class GameEngine {
         const vState = this.villageService.getState();
         this.missionSeedService.checkUnlocks(vState.day, vState.infrastructure || {});
         this.missionSeedService.fillSlots(this.missionSeedService.getBoardSlots());
+
+        // ─── Tutorial system: evaluate triggers after all services loaded ───
+        this.tutorialService.evaluateTriggers(this.update());
     }
 
 
@@ -307,7 +312,8 @@ export class GameEngine {
             ),
             book: JSON.parse(JSON.stringify(this.bookService.getState())),
             hasBookAutoOpen: this.bookService.hasAutoOpenContent(),
-            unlockedNarratives: this.unlockService.getShownNarratives()
+            unlockedNarratives: this.unlockService.getShownNarratives(),
+            tutorial: this.tutorialService.getState()
         };
     }
 
@@ -1903,5 +1909,31 @@ export class GameEngine {
             milestones.push(totalBossDefeats >= 1);
         }
         return { met: milestones.filter(Boolean).length, total: milestones.length };
+    }
+
+    // ─── Tutorial Facade ─────────────────────────────────────────────────────
+
+    advanceTutorial(data = {}) {
+        return this.tutorialService.advance(data);
+    }
+
+    skipTutorial() {
+        return this.tutorialService.skip();
+    }
+
+    startTutorial(tutorialId, force = false) {
+        return this.tutorialService.start(tutorialId, force);
+    }
+
+    reportTutorialEvent(payload) {
+        return this.tutorialService.reportEvent(payload);
+    }
+
+    evaluateTutorialTriggers() {
+        return this.tutorialService.evaluateTriggers(this.update());
+    }
+
+    isTutorialCompleted(tutorialId) {
+        return this.tutorialService.isCompleted(tutorialId);
     }
 }
