@@ -233,7 +233,7 @@
 ## Image 29: `assets/story/finale_chapter2_night_colors.webp`
 **Scene:** The village under unusual magical lights in the night sky. Aurora-like patterns above the buildings. The scribe has never seen this before — draw it with wonder.
 **Prompt:** A village at night with unusual wavy light patterns in the sky above, aurora-like magical lights, sense of wonder and mystery. Medieval manuscript ink drawing, black strokes only, transparent background, sketchy rough linework, small buildings, village scribe style.
-**Status:** pending
+**Status:** generated
 
 ---
 
@@ -282,9 +282,9 @@
 ## Overall Status
 
 **Total Images:** 35
-**Generated:** 28
-**Pending:** 7
-**Next to generate:** Image 29 (`finale_chapter2_night_colors.webp`)
+**Generated:** 29
+**Pending:** 6
+**Next to generate:** Image 30 (`finale_chapter2_sky_rift.webp`)
 
 ---
 
