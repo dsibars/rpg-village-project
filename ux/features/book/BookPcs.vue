@@ -14,7 +14,7 @@
 
     <!-- History Block -->
     <template v-else-if="normalizedType === 'history_block'">
-      <div class="history-block">
+      <div class="history-block" :class="{ 'has-image': pcs.image }">
         <div v-if="pcs.image" class="block-image">
           <img :src="pcs.image" :alt="text" />
         </div>
@@ -161,6 +161,13 @@ const text = computed(() => {
   position: relative;
 }
 
+/* Side-by-side layout when image is present */
+.history-block.has-image {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+}
+
 /* Subtle indent feel */
 .history-block::before {
   content: '';
@@ -196,12 +203,31 @@ const text = computed(() => {
   box-shadow: 0 2px 6px rgba(44, 24, 16, 0.08);
 }
 
+/* When side-by-side, image takes ~35% width */
+.history-block.has-image .block-image {
+  width: 35%;
+  max-height: none;
+  flex-shrink: 0;
+  align-self: stretch;
+}
+
 .block-image img {
   max-width: 100%;
   max-height: 130px;
   object-fit: cover;
   border-radius: 1px;
   filter: sepia(0.15) contrast(0.95);
+}
+
+.history-block.has-image .block-image img {
+  max-height: 100%;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+.block-text {
+  flex: 1;
 }
 
 .block-text p {
@@ -371,6 +397,15 @@ const text = computed(() => {
 
   .history-block {
     padding-left: var(--spacing-sm);
+  }
+
+  .history-block.has-image {
+    flex-direction: column;
+  }
+
+  .history-block.has-image .block-image {
+    width: 100%;
+    max-height: 140px;
   }
 }
 </style>
