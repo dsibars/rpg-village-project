@@ -64,7 +64,14 @@
       @close="onCloseExpeditionResult"
     />
 
-    <TutorialOverlay @navigate="handleNavigate" />
+    <TutorialOverlay
+      v-if="tutorialActive"
+      :step="currentTutorialStep"
+      @navigate="handleNavigate"
+      @report="handleTutorialReport"
+      @complete="completeTutorial"
+      @skip="skipTutorial"
+    />
 
     <PresentationModal
       v-if="showPresentation"
@@ -108,7 +115,7 @@ const props = defineProps({
 const { t } = useI18n()
 const { gameState, day, village, activeBattle } = useGameState()
 const { dispatch } = useAdapter()
-const { canNavigate, canDispatch, lockedTabs } = useTutorial()
+const { canNavigate, canDispatch, lockedTabs, isActive: tutorialActive, stepData: currentTutorialStep, reportEvent, skip: skipTutorialFn, complete: completeTutorialFn } = useTutorial()
 useNarrativeToasts()
 
 const currentPage = ref('village')
@@ -389,6 +396,18 @@ function handlePageChange(page) {
   currentPage.value = page
   activeTab.value = null
   pageError.value = null
+}
+
+function handleTutorialReport(evt) {
+  reportEvent(evt)
+}
+
+function completeTutorial() {
+  completeTutorialFn()
+}
+
+function skipTutorial() {
+  skipTutorialFn()
 }
 
 function proceedToPresentations() {

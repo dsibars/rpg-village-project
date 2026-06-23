@@ -219,6 +219,17 @@ const ACTION_MAP = {
     skip: (engine) => engine.skipBattle(),
     toggleAuto: (engine) => engine.toggleAutoBattle()
   },
+  tutorial: {
+    reportEvent: (engine, p) => {
+      const result = engine.reportTutorialEvent(p.event)
+      return { success: result, data: engine.getTutorialState() }
+    },
+    skip: (engine) => {
+      engine.tutorialService.skip()
+      return { success: true, data: engine.getTutorialState() }
+    },
+    getState: (engine) => ({ success: true, data: engine.getTutorialState() })
+  },
   settings: {
     devCheatActivate: (engine) => engine.activateDeveloperCheat(),
     wipeSlot: (engine) => engine.wipeCurrentSlot(),
@@ -281,7 +292,8 @@ export function createEngineAdapter(engine, gameStateRef) {
                       (domain === 'presentation' && action === 'getNext') ||
                       (domain === 'presentation' && action === 'hasPending') ||
                       (domain === 'presentation' && action === 'markAsSeen') ||
-                      (domain === 'presentation' && action === 'replay')
+                      (domain === 'presentation' && action === 'replay') ||
+                      (domain === 'tutorial' && action === 'getState')
 
       if (!isQuery && gameStateRef?.value?.tutorial) {
         const allowed = gameStateRef.value.tutorial.allowActions || []
