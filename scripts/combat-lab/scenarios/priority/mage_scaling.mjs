@@ -20,6 +20,8 @@ export default {
       level: 5,
       name: 'Mage Test',
       stats: {
+        baseMaxHp: 60,
+        baseMaxMp: 100,
         baseMagicPower: 30,    // High magic power
         baseStrength: 5,
         baseSpeed: 6,
@@ -32,10 +34,11 @@ export default {
       ],
       gambits: [
         {
-          id: 'gambit_always_spell_0',
-          condition: { type: 'always' },
-          action: { type: 'spell', spellIndex: 0 },
-          priority: 1
+          id: 'gambit_always_fire_spark',
+          conditions: [{ op: 'SINGLE', left: { type: 'always', value: true }, right: null }],
+          action: { type: 'spell', payload: 'Lesser Fire Spark' },
+          target: 'lowest_hp_enemy',
+          enabled: true
         }
       ]
     }
@@ -50,7 +53,7 @@ export default {
   assertions: [
     // With 30 MAG, even a basic fire spell should deal noticeable damage
     // Currently fails because spell damage ignores magicPower
-    { metric: 'damage.spell.\"Fire Spark\".avgPerHit', expectedMin: 25 },
+    { metric: 'damage.spell."Lesser Fire Spark".avgPerHit', expectedMin: 25 },
     // Should win reliably against a weak slime
     { metric: 'winRate', expectedMin: 0.80 }
   ]

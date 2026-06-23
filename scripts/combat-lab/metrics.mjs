@@ -297,7 +297,13 @@ export function aggregateMetrics(metricsArray) {
  * @returns {number|undefined}
  */
 export function resolveMetric(metrics, path) {
-  const parts = path.split('.');
+  // Support quoted keys e.g. damage.spell."Lesser Fire Spark".avgPerHit
+  const parts = path.split('.').map(p => {
+    if (p.startsWith('"') && p.endsWith('"')) {
+      return p.slice(1, -1);
+    }
+    return p;
+  });
   let value = metrics;
   for (const part of parts) {
     if (value === null || value === undefined) return undefined;
