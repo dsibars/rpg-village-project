@@ -254,7 +254,7 @@
 ## Image 32: `assets/story/milestone_first_recruit.webp`
 **Scene:** A new hero arriving at the village gate. They stand cautiously, looking around, while a villager welcomes them with an outstretched hand. New beginnings.
 **Prompt:** A figure standing at a village gate looking around cautiously, another figure welcoming them with outstretched hand, new beginning atmosphere. Medieval manuscript ink drawing, black strokes only, transparent background, sketchy rough linework, small figures, village scribe style.
-**Status:** pending
+**Status:** generated
 
 ---
 
@@ -282,9 +282,9 @@
 ## Overall Status
 
 **Total Images:** 35
-**Generated:** 31
-**Pending:** 4
-**Next to generate:** Image 32 (`milestone_first_recruit.webp`)
+**Generated:** 32
+**Pending:** 3
+**Next to generate:** Image 33 (`milestone_quiet_day.webp`)
 
 ---
 
