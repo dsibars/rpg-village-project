@@ -156,7 +156,7 @@
 ## Image 18: `assets/story/combat_raid_defense.webp`
 **Scene:** Village wall defense. Defenders on a wooden wall with bows and spears, raiders approaching through smoke below. Viewed from the bell tower above.
 **Prompt:** A wooden wall with figures holding bows and spears, enemy figures approaching through smoke below, viewed from above. Medieval manuscript ink drawing, black strokes only, transparent background, sketchy rough linework, small figures, village scribe style.
-**Status:** pending
+**Status:** generated
 
 ---
 
@@ -282,9 +282,9 @@
 ## Overall Status
 
 **Total Images:** 35
-**Generated:** 17
-**Pending:** 18
-**Next to generate:** Image 18 (`combat_raid_defense.webp`)
+**Generated:** 18
+**Pending:** 17
+**Next to generate:** Image 19 (`magic_sanctum_hum.webp`)
 
 ---
 
