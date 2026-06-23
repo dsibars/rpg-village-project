@@ -280,6 +280,12 @@ export function buildHero(def) {
     }
   }
 
+  // Post-construction: inject pre-combat status effects
+  if (def.statusEffects) {
+    hero.statusEffects = [...def.statusEffects];
+    hero.recalculateStats({});
+  }
+
   // Recalculate after all post-construction changes
   hero.recalculateStats({});
 
@@ -363,7 +369,13 @@ export function buildEnemy(def) {
     scaled.eliteTier = eliteTier;
   }
 
-  return new Enemy({ ...scaled, isBoss });
+  const enemy = new Enemy({ ...scaled, isBoss });
+
+  if (def.statusEffects) {
+    enemy.statusEffects = [...def.statusEffects];
+  }
+
+  return enemy;
 }
 
 /**
@@ -398,7 +410,8 @@ export function buildEnemies(encounter) {
         isElite: entry.isElite || false,
         eliteTier: entry.eliteTier || 0,
         statMultiplier: entry.statMultiplier || defaultStatMult,
-        regionBaseLevel: entry.regionBaseLevel || defaultRegionBase
+        regionBaseLevel: entry.regionBaseLevel || defaultRegionBase,
+        statusEffects: entry.statusEffects || []
       });
 
       // Suffix duplicate names (A, B, C...)
