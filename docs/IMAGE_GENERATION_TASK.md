@@ -268,7 +268,7 @@
 ## Image 34: `assets/story/milestone_raid_aftermath.webp`
 **Scene:** After a raid. A broken fence, scattered arrows on the ground, a single figure patching a wall with wood and nails. Resilience, not defeat.
 **Prompt:** A broken wooden fence, scattered arrow shapes on ground, one figure patching a wall with wood planks, resilience and repair. Medieval manuscript ink drawing, black strokes only, transparent background, sketchy rough linework, small figure, village scribe style.
-**Status:** pending
+**Status:** generated
 
 ---
 
@@ -282,9 +282,9 @@
 ## Overall Status
 
 **Total Images:** 35
-**Generated:** 33
-**Pending:** 2
-**Next to generate:** Image 34 (`milestone_raid_aftermath.webp`)
+**Generated:** 34
+**Pending:** 1
+**Next to generate:** Image 35 (`writer_journal_closeup.webp`)
 
 ---
 
