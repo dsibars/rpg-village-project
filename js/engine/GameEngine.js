@@ -77,6 +77,7 @@ export class GameEngine {
         this.tutorialService = new TutorialService({ persistence, slotIndex: persistence.slotIndex });
         this.i18n = i18n;
         this.isNewGame = true;
+        this.lastEvent = null;
         this.stats = this._loadStats();
     }
 
@@ -313,7 +314,9 @@ export class GameEngine {
             book: JSON.parse(JSON.stringify(this.bookService.getState())),
             hasBookAutoOpen: this.bookService.hasAutoOpenContent(),
             unlockedNarratives: this.unlockService.getShownNarratives(),
-            tutorial: this.tutorialService.getState()
+            tutorial: this.tutorialService.getState(),
+            lastEvent: this.lastEvent,
+            isNewGame: this.isNewGame
         };
     }
 
@@ -1930,6 +1933,11 @@ export class GameEngine {
     }
 
     evaluateTutorialTriggers() {
+        return this.tutorialService.evaluateTriggers(this.update());
+    }
+
+    recordEvent(type, data = {}) {
+        this.lastEvent = { type, ...data, timestamp: Date.now() };
         return this.tutorialService.evaluateTriggers(this.update());
     }
 

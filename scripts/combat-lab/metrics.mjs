@@ -147,6 +147,15 @@ export function parseCombatLog(log, winner = null) {
     if (event.type === 'USE_CONSUMABLE') {
       const itemId = event.consumableId || 'unknown';
       metrics.items.used[itemId] = (metrics.items.used[itemId] || 0) + 1;
+
+      // Track healing amount from consumables (for balance lab)
+      if (event.amount && event.amount > 0) {
+        const healType = event.healType || 'UNKNOWN';
+        const key = `${itemId}_${healType}`;
+        const src = (metrics.healing.bySource[key] ||= { total: 0, ticks: 0 });
+        src.total += event.amount;
+        src.ticks++;
+      }
       continue;
     }
 

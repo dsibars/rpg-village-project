@@ -181,9 +181,9 @@ test('TutorialService: reportEvent() returns false when no tutorial active', () 
 
 // ─── evaluateTriggers() ─────────────────────────────────────────────────────
 
-test('TutorialService: evaluateTriggers() starts new_game tutorial', () => {
+test('TutorialService: evaluateTriggers() starts tutorial on book_first_closed event', () => {
     const { service } = createService();
-    const gameState = { isNewGame: true };
+    const gameState = { lastEvent: { type: 'book_first_closed' }, village: { day: 1 } };
     const result = service.evaluateTriggers(gameState);
     assert.strictEqual(result, true);
     assert.strictEqual(service.getState().tutorialId, 'tutorial_hero_skills');
@@ -193,7 +193,7 @@ test('TutorialService: evaluateTriggers() skips completed tutorials', () => {
     const { service } = createService();
     service.start('tutorial_hero_skills');
     service.skip();
-    const result = service.evaluateTriggers({ isNewGame: true });
+    const result = service.evaluateTriggers({ lastEvent: { type: 'book_first_closed' }, village: { day: 1 } });
     // tutorial_hero_skills is completed, tutorial_hero_stats requires prerequisites
     assert.strictEqual(result, false);
 });
@@ -201,7 +201,7 @@ test('TutorialService: evaluateTriggers() skips completed tutorials', () => {
 test('TutorialService: evaluateTriggers() respects prerequisites', () => {
     const { service } = createService();
     // tutorial_hero_stats requires tutorial_hero_skills completed
-    const result = service.evaluateTriggers({ isNewGame: true });
+    const result = service.evaluateTriggers({ lastEvent: { type: 'book_first_closed' }, village: { day: 1 } });
     // Only tutorial_hero_skills should start (it has no prerequisites)
     assert.strictEqual(result, true);
     assert.strictEqual(service.getState().tutorialId, 'tutorial_hero_skills');
@@ -212,8 +212,7 @@ test('TutorialService: evaluateTriggers() checks prerequisites for chained tutor
     // Pre-complete the first 3 tutorials so tutorial_expeditions can trigger
     service.state.completedTutorialIds = ['tutorial_hero_skills', 'tutorial_hero_stats', 'tutorial_build_farm'];
 
-    // tutorial_expeditions trigger is { type: 'new_game' }, not building_built
-    const gameState = { isNewGame: true };
+    const gameState = { lastEvent: { type: 'book_first_closed' }, village: { day: 1 } };
     const result = service.evaluateTriggers(gameState);
     assert.strictEqual(result, true);
     assert.strictEqual(service.getState().tutorialId, 'tutorial_expeditions');

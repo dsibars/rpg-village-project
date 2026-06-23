@@ -26,7 +26,7 @@ export const TutorialRegistry = new Map([
     'tutorial_hero_skills',
     {
       id: 'tutorial_hero_skills',
-      trigger: { type: 'new_game' },
+      trigger: { type: 'event', event: 'book_first_closed', day: 1 },
       prerequisites: [],
       steps: [
         {
@@ -61,7 +61,7 @@ export const TutorialRegistry = new Map([
     'tutorial_hero_stats',
     {
       id: 'tutorial_hero_stats',
-      trigger: { type: 'new_game' },
+      trigger: { type: 'event', event: 'book_first_closed', day: 1 },
       prerequisites: ['tutorial_hero_skills'],
       steps: [
         {
@@ -81,7 +81,7 @@ export const TutorialRegistry = new Map([
     'tutorial_build_farm',
     {
       id: 'tutorial_build_farm',
-      trigger: { type: 'new_game' },
+      trigger: { type: 'event', event: 'book_first_closed', day: 1 },
       prerequisites: ['tutorial_hero_skills', 'tutorial_hero_stats'],
       steps: [
         {
@@ -108,7 +108,7 @@ export const TutorialRegistry = new Map([
     'tutorial_expeditions',
     {
       id: 'tutorial_expeditions',
-      trigger: { type: 'new_game' },
+      trigger: { type: 'event', event: 'book_first_closed', day: 1 },
       prerequisites: ['tutorial_hero_skills', 'tutorial_hero_stats', 'tutorial_build_farm'],
       steps: [
         {

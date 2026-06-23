@@ -124,6 +124,7 @@ const showCombatOverlay = ref(false)
 const pageError = shallowRef(null)
 const saveSlots = ref([])
 const slotIndex = ref(props.persistence?.slotIndex ?? null)
+const bookFirstClosed = ref(false)
 
 // Storage warning state (PF-012)
 const storageWarningDismissed = ref(false)
@@ -142,6 +143,14 @@ watch(storagePercent, (pct) => {
   }
   if (pct < 80) {
     storageWarningDismissed.value = false
+  }
+})
+
+// Tutorial trigger: record book-first-closed event on Day 1
+watch(currentPage, (newPage, oldPage) => {
+  if (oldPage === 'book' && newPage !== 'book' && day.value === 1 && !bookFirstClosed.value) {
+    bookFirstClosed.value = true
+    props.engine?.recordEvent?.('book_first_closed', { day: 1 })
   }
 })
 
@@ -280,6 +289,7 @@ function onSelectSlot(index) {
     props.persistence.setSlot(index)
   }
   slotIndex.value = index
+  bookFirstClosed.value = false
 
   props.engine?.initialize?.()
   // Force a reactive state update so Book auto-open detection works immediately
