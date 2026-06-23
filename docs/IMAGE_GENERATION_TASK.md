@@ -219,7 +219,7 @@
 ## Image 27: `assets/story/finale_chapter1_village_glow.webp`
 **Scene:** The village at night, warm light from windows. A sense of safety and home. The scribe drew this from their window, feeling proud and protective.
 **Prompt:** A village at night seen from nearby window, warm light rectangles in building windows, stars above, sense of safety and home. Medieval manuscript ink drawing, black strokes only, transparent background, sketchy rough linework, small buildings, village scribe style.
-**Status:** pending
+**Status:** generated
 
 ---
 
@@ -282,9 +282,9 @@
 ## Overall Status
 
 **Total Images:** 35
-**Generated:** 26
-**Pending:** 9
-**Next to generate:** Image 27 (`finale_chapter1_village_glow.webp`)
+**Generated:** 27
+**Pending:** 8
+**Next to generate:** Image 28 (`finale_chapter1_elara_window.webp`)
 
 ---
 
