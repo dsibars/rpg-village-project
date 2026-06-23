@@ -198,7 +198,7 @@
 ## Image 24: `assets/story/witch_reading.webp`
 **Scene:** The witch in her hut, reading a scroll by candlelight. Old, wise, slightly amused expression. Books and herbs scattered around her. Candle flame suggested by simple lines.
 **Prompt:** An old figure with wrinkles reading a scroll, candle flame suggested by simple lines, books and herb bundles scattered around, wise amused expression. Medieval manuscript ink drawing, black strokes only, transparent background, sketchy rough linework, small illustrative figure, village scribe style.
-**Status:** pending
+**Status:** generated
 
 ---
 
@@ -282,9 +282,9 @@
 ## Overall Status
 
 **Total Images:** 35
-**Generated:** 23
-**Pending:** 12
-**Next to generate:** Image 24 (`witch_reading.webp`)
+**Generated:** 24
+**Pending:** 11
+**Next to generate:** Image 25 (`explore_guild_maps.webp`)
 
 ---
 
