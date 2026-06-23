@@ -142,7 +142,7 @@
 ## Image 16: `assets/story/combat_first_defeat.webp`
 **Scene:** The party retreating, carrying a wounded companion. Darker mood, rain suggested by diagonal lines, heads bowed. The scribe drew this with a shaking hand — the lines should feel slightly unsteady.
 **Prompt:** A group of figures retreating, one being carried by two others, heads bowed, diagonal lines suggesting rain, darker somber mood, unsteady shaky linework. Medieval manuscript ink drawing, black strokes only, transparent background, rough shaky linework, small figures, village scribe style.
-**Status:** pending
+**Status:** generated
 
 ---
 
@@ -282,9 +282,9 @@
 ## Overall Status
 
 **Total Images:** 35
-**Generated:** 15
-**Pending:** 20
-**Next to generate:** Image 16 (`combat_first_defeat.webp`)
+**Generated:** 16
+**Pending:** 19
+**Next to generate:** Image 17 (`combat_boss_defeated.webp`)
 
 ---
 
