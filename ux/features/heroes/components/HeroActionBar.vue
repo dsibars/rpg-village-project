@@ -4,6 +4,7 @@
       v-for="action in visibleActions"
       :key="action.id"
       class="btn btn-secondary btn-sm"
+      :data-tutorial-target="'hero_action_' + action.id"
       @click="$emit('action', action.id)"
     >
       {{ action.icon }} {{ action.label }}

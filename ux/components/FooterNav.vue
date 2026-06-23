@@ -8,6 +8,7 @@
       :disabled="item.locked"
       :aria-current="current === item.id ? 'page' : undefined"
       :aria-disabled="item.locked ? 'true' : undefined"
+      :data-tutorial-target="'footer_nav_' + item.id"
       @click="!item.locked && $emit('navigate', item.id)"
     >
       <span class="nav-icon" aria-hidden="true">{{ item.icon }}</span>

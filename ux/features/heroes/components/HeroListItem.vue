@@ -1,6 +1,7 @@
 <template>
   <button
     class="hero-list-item"
+    :data-tutorial-target="'hero_card_' + hero.id"
     :class="{ active: selected }"
     :aria-selected="selected"
     role="option"

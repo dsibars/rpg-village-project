@@ -36,6 +36,7 @@
             v-for="[regionId, regionData] in regionEntries"
             :key="regionId"
             class="region-list-item"
+            :data-tutorial-target="'region_card_' + regionId"
             :class="{ selected: selectedRegion === regionId }"
             @click="selectRegion(regionId)"
           >
@@ -87,6 +88,7 @@
                   v-for="node in levelNodes"
                   :key="node.id"
                   :data-id="node.id"
+                  :data-tutorial-target="'expedition_node_' + node.id"
                   class="tree-node"
                   :class="[nodeStateClass(node), { selected: selectedExp?.id === node.id }]"
                   :title="nodeTooltip(node)"

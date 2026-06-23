@@ -6,7 +6,7 @@
     </div>
 
     <div class="top-bar-center">
-      <button class="btn-next-day" @click="$emit('nextDay')">
+      <button class="btn-next-day" data-tutorial-target="day_advance_button" @click="$emit('nextDay')">
         ☀️ {{ t('shared_uxelm_next_day') }}
       </button>
       <button

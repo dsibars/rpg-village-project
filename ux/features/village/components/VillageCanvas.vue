@@ -4,6 +4,7 @@
       v-for="tile in tiles"
       :key="tile.id"
       class="village-tile"
+      :data-tutorial-target="'building_' + tile.id"
       :class="{ active: tile.active, locked: !tile.active }"
       @click="tile.active && $emit('navigate', tile.id)"
     >
