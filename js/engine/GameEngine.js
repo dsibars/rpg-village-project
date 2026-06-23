@@ -162,6 +162,21 @@ export class GameEngine {
         this.missionSeedService.checkUnlocks(vState.day, vState.infrastructure || {});
         this.missionSeedService.fillSlots(this.missionSeedService.getBoardSlots());
 
+        // ─── Tutorial backfill: mark Day 1 tutorials complete for existing saves ───
+        const tutorialBackfillDay = vState.day ?? 1;
+        const tutorialBackfillCompletedIds = this.expeditionService.getCompletedIds();
+        const tutorialBackfillFarmLevel = vState.infrastructure?.farm || 0;
+        const isPastDay1 = tutorialBackfillDay > 1;
+        const hasCompletedExpedition = tutorialBackfillCompletedIds.length > 0;
+        const hasBuiltFarm = tutorialBackfillFarmLevel >= 1;
+
+        if (isPastDay1 || hasCompletedExpedition || hasBuiltFarm) {
+            const day1TutorialIds = ['tutorial_hero_skills', 'tutorial_hero_stats', 'tutorial_build_farm', 'tutorial_expeditions'];
+            for (const tid of day1TutorialIds) {
+                this.tutorialService.markCompleted(tid);
+            }
+        }
+
         // ─── Tutorial system: evaluate triggers after all services loaded ───
         this.tutorialService.evaluateTriggers(this.update());
     }

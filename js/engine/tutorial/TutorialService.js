@@ -116,6 +116,21 @@ export class TutorialService {
     }
 
     /**
+     * Mark a tutorial as completed without requiring it to be active.
+     * Used for backfill / migration logic.
+     * @param {string} tutorialId
+     * @returns {boolean} — true if the tutorial was newly marked complete
+     */
+    markCompleted(tutorialId) {
+        if (this.state.completedTutorialIds.includes(tutorialId)) {
+            return false;
+        }
+        this.state.completedTutorialIds.push(tutorialId);
+        this._save();
+        return true;
+    }
+
+    /**
      * Evaluate trigger conditions and auto-start any matching tutorial.
      * @param {Object} gameState — current engine state snapshot
      * @returns {boolean} — true if a tutorial was started
