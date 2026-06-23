@@ -16,7 +16,9 @@
     "test:vue:watch": "vitest tests/vue/",
     "screenshots": "node scripts/screenshots/orchestrator.mjs",
     "screenshots:dry": "node scripts/screenshots/orchestrator.mjs --dry-run",
-    "screenshots:audit": "node scripts/screenshots/audit.mjs"
+    "screenshots:audit": "node scripts/screenshots/audit.mjs",
+    "combat:lab": "node scripts/combat-lab/runner.mjs",
+    "combat:lab:full": "node scripts/combat-lab/runner.mjs --full"
   },
   "devDependencies": {
     "@electron-forge/cli": "^7.11.2",
