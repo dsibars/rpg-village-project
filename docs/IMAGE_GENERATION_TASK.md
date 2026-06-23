@@ -240,7 +240,7 @@
 ## Image 30: `assets/story/finale_chapter2_sky_rift.webp`
 **Scene:** A tear or rift in the sky above jagged mountains. Dark, ominous, sharp jagged edges. Far away but threatening. The scribe drew this quickly, afraid.
 **Prompt:** Jagged mountains with a sharp tear-like rift in the sky above, dark ominous atmosphere, sharp jagged edges on the rift, threatening presence. Medieval manuscript ink drawing, black strokes only, transparent background, rough shaky linework, village scribe style.
-**Status:** pending
+**Status:** generated
 
 ---
 
@@ -282,9 +282,9 @@
 ## Overall Status
 
 **Total Images:** 35
-**Generated:** 29
-**Pending:** 6
-**Next to generate:** Image 30 (`finale_chapter2_sky_rift.webp`)
+**Generated:** 30
+**Pending:** 5
+**Next to generate:** Image 31 (`milestone_first_building.webp`)
 
 ---
 
