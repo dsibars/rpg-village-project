@@ -184,7 +184,7 @@
 ## Image 22: `assets/story/magic_hero_awe.webp`
 **Scene:** A hero's face lit by magic. Pure awe and wonder, mouth slightly open, eyes wide. The magic light is suggested by simple radiating lines around the face. Small illustrative figure, not a portrait.
 **Prompt:** A small figure's face with wide eyes and slightly open mouth, radiating lines around the head suggesting magical light, expression of pure awe. Medieval manuscript ink drawing, black strokes only, transparent background, sketchy rough linework, small illustrative figure, village scribe style.
-**Status:** pending
+**Status:** generated
 
 ---
 
@@ -282,9 +282,9 @@
 ## Overall Status
 
 **Total Images:** 35
-**Generated:** 21
-**Pending:** 14
-**Next to generate:** Image 22 (`magic_hero_awe.webp`)
+**Generated:** 22
+**Pending:** 13
+**Next to generate:** Image 23 (`witch_appears.webp`)
 
 ---
 
