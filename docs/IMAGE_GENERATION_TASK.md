@@ -149,7 +149,7 @@
 ## Image 17: `assets/story/combat_boss_defeated.webp`
 **Scene:** The goblin king defeated. A large hulking figure lying on the ground, three small hero figures catching their breath nearby. Perspective from ground level looking up slightly.
 **Prompt:** A large defeated hulking creature lying on ground, three small figures catching breath nearby, ground-level perspective, epic but weary atmosphere. Medieval manuscript ink drawing, black strokes only, transparent background, sketchy rough linework, small figures, village scribe style.
-**Status:** pending
+**Status:** generated
 
 ---
 
@@ -282,9 +282,9 @@
 ## Overall Status
 
 **Total Images:** 35
-**Generated:** 16
-**Pending:** 19
-**Next to generate:** Image 17 (`combat_boss_defeated.webp`)
+**Generated:** 17
+**Pending:** 18
+**Next to generate:** Image 18 (`combat_raid_defense.webp`)
 
 ---
 
