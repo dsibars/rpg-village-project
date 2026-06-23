@@ -275,16 +275,16 @@
 ## Image 35: `assets/story/writer_journal_closeup.webp`
 **Scene:** The chronicler's hands holding an open journal. Ink-stained fingers, a quill pen, a candle nearby. This is the writer revealing themselves — meta, intimate.
 **Prompt:** Close-up of ink-stained hands holding an open book or journal, quill pen nearby, candle flame suggested by simple lines, intimate self-revelation. Medieval manuscript ink drawing, black strokes only, transparent background, sketchy rough linework, village scribe style.
-**Status:** pending
+**Status:** generated
 
 ---
 
 ## Overall Status
 
 **Total Images:** 35
-**Generated:** 34
-**Pending:** 1
-**Next to generate:** Image 35 (`writer_journal_closeup.webp`)
+**Generated:** 35
+**Pending:** 0
+**Next to generate:** None
 
 ---
 
