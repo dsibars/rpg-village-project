@@ -1567,9 +1567,15 @@ export const es = {
     combat_log_victory: "¡Victoria! ¡Enemigos derrotados!",
     combat_log_defeat: "Derrota... El grupo ha caído...",
 
-  // Skip battle risk indicators
-  combat_uxelm_skip_safe: 'Seguro',
-  combat_uxelm_skip_risky: 'Arriesgado',
-  combat_uxelm_skip_dangerous: 'Peligroso',
-  combat_uxelm_skip_suicide: 'Suicida',
+    // ═══ TUTORIAL ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    tutorial_hero_skills_msg_navigate_heroes: "Tus héroes son el corazón del pueblo. Toca aquí para verlos.",
+    tutorial_hero_skills_msg_select_arthur: "Este es Arthur, tu primer héroe. Echemos un vistazo.",
+    tutorial_hero_skills_msg_learn_skill: "Arthur puede aprender una nueva técnica de combate. Toca este botón para abrir sus habilidades.",
+    tutorial_hero_stats_msg_assign_stats: "A medida que los héroes crecen, ganan puntos para mejorar su fuerza, velocidad y otras estadísticas.",
+    tutorial_build_farm_msg_navigate_village: "Construyamos una granja para producir comida para el pueblo.",
+    tutorial_build_farm_msg_construct_farm: "Toca aquí para iniciar la construcción. Tomará algo de tiempo.",
+    tutorial_expeditions_msg_navigate_explore: "El mundo más allá del pueblo esconde peligros y tesoros. ¡Vamos a explorar!",
+    tutorial_expeditions_msg_select_region: "Los Prados Verdes son el lugar más seguro para comenzar tus aventuras.",
+    tutorial_expeditions_msg_select_expedition: "Esta cueva es un buen primer desafío. Tócala para enviar a Arthur dentro.",
+    tutorial_expeditions_msg_advance_day: "Cuando estés listo, avanza al siguiente día para ver qué pasa.",
 };

@@ -1572,9 +1572,15 @@ export const en = {
     combat_log_victory: "Victory! Enemies defeated!",
     combat_log_defeat: "Defeat... The party has fallen...",
 
-  // Skip battle risk indicators
-  combat_uxelm_skip_safe: 'Safe',
-  combat_uxelm_skip_risky: 'Risky',
-  combat_uxelm_skip_dangerous: 'Dangerous',
-  combat_uxelm_skip_suicide: 'Suicide',
+    // ═══ TUTORIAL ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    tutorial_hero_skills_msg_navigate_heroes: "Your heroes are the heart of the village. Tap here to see them.",
+    tutorial_hero_skills_msg_select_arthur: "This is Arthur, your first hero. Let's take a look at him.",
+    tutorial_hero_skills_msg_learn_skill: "Arthur can learn a new fighting technique. Tap this button to open his skills.",
+    tutorial_hero_stats_msg_assign_stats: "As heroes grow, they gain points to improve their strength, speed, and other stats.",
+    tutorial_build_farm_msg_navigate_village: "Let's build a farm to produce food for the village.",
+    tutorial_build_farm_msg_construct_farm: "Tap here to start construction. It will take some time.",
+    tutorial_expeditions_msg_navigate_explore: "The world beyond the village holds dangers and treasures. Let's explore!",
+    tutorial_expeditions_msg_select_region: "The Greenfields are the safest place to start your adventures.",
+    tutorial_expeditions_msg_select_expedition: "This cave is a good first challenge. Tap it to send Arthur inside.",
+    tutorial_expeditions_msg_advance_day: "When you're ready, advance to the next day to see what happens.",
 };

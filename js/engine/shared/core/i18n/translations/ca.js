@@ -1567,9 +1567,15 @@ export const ca = {
     combat_log_victory: "Victòria! Enemics derrotats!",
     combat_log_defeat: "Derrota... El grup ha caigut...",
 
-  // Skip battle risk indicators
-  combat_uxelm_skip_safe: 'Segur',
-  combat_uxelm_skip_risky: 'Arriscat',
-  combat_uxelm_skip_dangerous: 'Perillós',
-  combat_uxelm_skip_suicide: 'Suïcida',
+    // ═══ TUTORIAL ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    tutorial_hero_skills_msg_navigate_heroes: "Els teus herois són el cor del poble. Toca aquí per veure'ls.",
+    tutorial_hero_skills_msg_select_arthur: "Aquest és l'Arthur, el teu primer heroi. Donem-hi un cop d'ull.",
+    tutorial_hero_skills_msg_learn_skill: "L'Arthur pot aprendre una nova tècnica de combat. Toca aquest botó per obrir les seves habilitats.",
+    tutorial_hero_stats_msg_assign_stats: "A mesura que els herois creixen, guanyen punts per millorar la seva força, velocitat i altres estadístiques.",
+    tutorial_build_farm_msg_navigate_village: "Construïm una granja per produir menjar per al poble.",
+    tutorial_build_farm_msg_construct_farm: "Toca aquí per iniciar la construcció. Trigarà una estona.",
+    tutorial_expeditions_msg_navigate_explore: "El món més enllà del poble amaga perills i tresors. Anem a explorar!",
+    tutorial_expeditions_msg_select_region: "Els Camps Verds són el lloc més segur per començar les teves aventures.",
+    tutorial_expeditions_msg_select_expedition: "Aquesta cova és un bon primer repte. Toca-la per enviar l'Arthur a dins.",
+    tutorial_expeditions_msg_advance_day: "Quan estiguis llest, avança al dia següent per veure què passa.",
 };

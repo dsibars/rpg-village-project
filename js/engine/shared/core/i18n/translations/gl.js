@@ -1565,9 +1565,15 @@ export const gl = {
     combat_log_victory: "Vitoria! Inimigos derrotados!",
     combat_log_defeat: "Derrota... O grupo caíu...",
 
-  // Skip battle risk indicators
-  combat_uxelm_skip_safe: 'Seguro',
-  combat_uxelm_skip_risky: 'Arriscado',
-  combat_uxelm_skip_dangerous: 'Perigoso',
-  combat_uxelm_skip_suicide: 'Suicida',
+    // ═══ TUTORIAL ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    tutorial_hero_skills_msg_navigate_heroes: "Os teus heroes son o corazón da aldea. Toca aquí para velos.",
+    tutorial_hero_skills_msg_select_arthur: "Este é Arthur, o teu primeiro heroe. Bótemos un ollo.",
+    tutorial_hero_skills_msg_learn_skill: "Arthur pode aprender unha nova técnica de combate. Toca este botón para abrir as súas habilidades.",
+    tutorial_hero_stats_msg_assign_stats: "A medida que os heroes crecen, gañan puntos para mellorar a súa forza, velocidade e outras estatísticas.",
+    tutorial_build_farm_msg_navigate_village: "Construamos unha granxa para producir comida para a aldea.",
+    tutorial_build_farm_msg_construct_farm: "Toca aquí para iniciar a construción. Levará algún tempo.",
+    tutorial_expeditions_msg_navigate_explore: "O mundo máis aló da aldea agocha perigos e tesouros. Imos explorar!",
+    tutorial_expeditions_msg_select_region: "Os Campos Verdes son o lugar máis seguro para comezar as túas aventuras.",
+    tutorial_expeditions_msg_select_expedition: "Esta cova é un bo primeiro desafío. Tócaa para enviar a Arthur dentro.",
+    tutorial_expeditions_msg_advance_day: "Cando estea listo, avanza ao seguinte día para ver que pasa.",
 };

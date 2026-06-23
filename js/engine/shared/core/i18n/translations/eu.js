@@ -1565,9 +1565,15 @@ export const eu = {
     combat_log_victory: "Garaipena! Etsaiak garaitu dira!",
     combat_log_defeat: "Porrota... Taldea erori da...",
 
-  // Skip battle risk indicators
-  combat_uxelm_skip_safe: 'Seguru',
-  combat_uxelm_skip_risky: 'Arriskutsu',
-  combat_uxelm_skip_dangerous: 'Arriskutsu',
-  combat_uxelm_skip_suicide: 'Suizida',
+    // ═══ TUTORIAL ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    tutorial_hero_skills_msg_navigate_heroes: "Zure heroiek herriaren bihotza dira. Sakatu hemen haiek ikusteko.",
+    tutorial_hero_skills_msg_select_arthur: "Hau Arthur da, zure lehen heroia. Begirada bat bota diezaiogun.",
+    tutorial_hero_skills_msg_learn_skill: "Arthurrek borroka-teknika berri bat ikas dezake. Sakatu botoi hau bere gaitasunak irekitzeko.",
+    tutorial_hero_stats_msg_assign_stats: "Heroiek hazten diren heinean, indarra, abiadura eta beste estatistika batzuk hobetzeko puntuak lortzen dituzte.",
+    tutorial_build_farm_msg_navigate_village: "Baserri bat eraiki dezagun herriarentzako janaria ekoizteko.",
+    tutorial_build_farm_msg_construct_farm: "Sakatu hemen eraikuntza hasteko. Denbora bat beharko du.",
+    tutorial_expeditions_msg_navigate_explore: "Herriaz haraindiko munduak arriskuak eta altxorrak ezkutatzen ditu. Goazen arakatzera!",
+    tutorial_expeditions_msg_select_region: "Greenfields zure abenturetan hasteko lekurik seguruena da.",
+    tutorial_expeditions_msg_select_expedition: "Leize hau erronka ona da hasteko. Sakatu Arthur bertara bidaltzeko.",
+    tutorial_expeditions_msg_advance_day: "Prest zaudenean, joan hurrengo egunera ikusteko zer gertatzen den.",
 };
