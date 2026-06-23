@@ -49,7 +49,7 @@ export const TutorialRegistry = new Map([
           what: { target: 'hero_action_skills', flash: true },
           where: { page: 'heroes', heroId: 'arthur', modal: 'skills' },
           modalLock: true,
-          allowActions: ['learnHeroFamily'],
+          allowActions: ['hero.learnFamily'],
           advanceOn: { event: 'skill_learned', heroId: 'arthur' }
         }
       ],
@@ -69,7 +69,7 @@ export const TutorialRegistry = new Map([
           messages: ['tutorial_hero_stats_msg_assign_stats'],
           what: { target: 'hero_stats_grid', flash: false },
           where: { page: 'heroes', heroId: 'arthur' },
-          allowActions: ['increaseHeroStat'],
+          allowActions: ['hero.increaseStat'],
           advanceOn: { event: 'stat_assigned', heroId: 'arthur' }
         }
       ],
@@ -96,7 +96,7 @@ export const TutorialRegistry = new Map([
           messages: ['tutorial_build_farm_msg_construct_farm'],
           what: { target: 'building_farm', flash: true },
           where: { page: 'village' },
-          allowActions: ['build'],
+          allowActions: ['buildings.startProject'],
           advanceOn: { event: 'building_constructed', buildingId: 'farm' }
         }
       ],
@@ -135,14 +135,14 @@ export const TutorialRegistry = new Map([
             regionId: 'reg_greenfields',
             expeditionId: 'exp_tutorial_cave'
           },
-          allowActions: ['startExpedition'],
+          allowActions: ['explore.assignExpedition'],
           advanceOn: { event: 'expedition_started', nodeId: 'exp_tutorial_cave' }
         },
         {
           id: 'advance_day',
           messages: ['tutorial_expeditions_msg_advance_day'],
           what: { target: 'day_advance_button', flash: true },
-          allowActions: ['advanceDay'],
+          allowActions: ['village.nextDay'],
           advanceOn: { event: 'day_advanced' }
         }
       ],

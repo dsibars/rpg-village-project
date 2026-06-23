@@ -1576,4 +1576,6 @@ export const eu = {
     tutorial_expeditions_msg_select_region: "Greenfields zure abenturetan hasteko lekurik seguruena da.",
     tutorial_expeditions_msg_select_expedition: "Leize hau erronka ona da hasteko. Sakatu Arthur bertara bidaltzeko.",
     tutorial_expeditions_msg_advance_day: "Prest zaudenean, joan hurrengo egunera ikusteko zer gertatzen den.",
+    tutorial_uxelm_action_blocked: "Ekintza hau blokeatuta dago tutoriala aktibo dagoen bitartean.",
+    tutorial_uxelm_nav_blocked: "Nabigazioa mugatuta dago tutorialaren bitartean.",
 };

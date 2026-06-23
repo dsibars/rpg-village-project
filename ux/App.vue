@@ -46,6 +46,7 @@
       <FooterNav
         :current="currentPage"
         :items="navItems"
+        :locked-tabs="lockedTabs"
         @navigate="handlePageChange"
       />
     </template>
@@ -80,6 +81,7 @@ import { ref, computed, shallowRef, onErrorCaptured, watch } from 'vue'
 import { useI18n } from './core/composables/useI18n.js'
 import { useGameState } from './core/composables/useGameState.js'
 import { useNarrativeToasts } from './core/composables/useNarrativeToasts.js'
+import { useTutorial } from './core/composables/useTutorial.js'
 import { showToast } from './core/toast.js'
 import TopBar from './components/TopBar.vue'
 import FooterNav from './components/FooterNav.vue'
@@ -106,6 +108,7 @@ const props = defineProps({
 const { t } = useI18n()
 const { gameState, day, village, activeBattle } = useGameState()
 const { dispatch } = useAdapter()
+const { canNavigate, canDispatch, lockedTabs } = useTutorial()
 useNarrativeToasts()
 
 const currentPage = ref('village')
@@ -316,6 +319,12 @@ function onPresentationComplete() {
 function onNextDay() {
   if (!props.engine) return
 
+  // Tutorial action guard
+  if (!canDispatch('village.nextDay')) {
+    showToast(t('tutorial_uxelm_action_blocked'), 'warning')
+    return
+  }
+
   // Prevent daily report from showing until post-day sequence is complete
   presentationsDone.value = false
 
@@ -373,6 +382,10 @@ function handleNavigate({ page, tab }) {
 }
 
 function handlePageChange(page) {
+  if (!canNavigate(page)) {
+    showToast(t('tutorial_uxelm_nav_blocked'), 'warning')
+    return
+  }
   currentPage.value = page
   activeTab.value = null
   pageError.value = null

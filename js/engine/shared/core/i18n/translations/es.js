@@ -1578,4 +1578,6 @@ export const es = {
     tutorial_expeditions_msg_select_region: "Los Prados Verdes son el lugar más seguro para comenzar tus aventuras.",
     tutorial_expeditions_msg_select_expedition: "Esta cueva es un buen primer desafío. Tócala para enviar a Arthur dentro.",
     tutorial_expeditions_msg_advance_day: "Cuando estés listo, avanza al siguiente día para ver qué pasa.",
+    tutorial_uxelm_action_blocked: "Esta acción está bloqueada mientras el tutorial está activo.",
+    tutorial_uxelm_nav_blocked: "La navegación está restringida durante el tutorial.",
 };

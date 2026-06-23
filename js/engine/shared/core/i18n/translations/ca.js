@@ -1578,4 +1578,6 @@ export const ca = {
     tutorial_expeditions_msg_select_region: "Els Camps Verds són el lloc més segur per començar les teves aventures.",
     tutorial_expeditions_msg_select_expedition: "Aquesta cova és un bon primer repte. Toca-la per enviar l'Arthur a dins.",
     tutorial_expeditions_msg_advance_day: "Quan estiguis llest, avança al dia següent per veure què passa.",
+    tutorial_uxelm_action_blocked: "Aquesta acció està bloquejada mentre el tutorial està actiu.",
+    tutorial_uxelm_nav_blocked: "La navegació està restringida durant el tutorial.",
 };

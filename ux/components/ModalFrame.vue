@@ -1,5 +1,5 @@
 <template>
-  <div class="modal-overlay" @click.self="$emit('close')">
+  <div class="modal-overlay" @click.self="!props.tutorialLocked && $emit('close')">
     <div class="modal-body">
       <header class="modal-header">
         <h3 v-if="title">{{ title }}</h3>
@@ -20,13 +20,14 @@ import { onMounted, onUnmounted } from 'vue'
 import CloseButton from './CloseButton.vue'
 
 const props = defineProps({
-  title: { type: String, default: '' }
+  title: { type: String, default: '' },
+  tutorialLocked: { type: Boolean, default: false }
 })
 
 const emit = defineEmits(['close'])
 
 function onKeydown(e) {
-  if (e.key === 'Escape') {
+  if (e.key === 'Escape' && !props.tutorialLocked) {
     emit('close')
   }
 }

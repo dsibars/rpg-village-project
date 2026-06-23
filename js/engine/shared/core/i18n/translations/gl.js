@@ -1576,4 +1576,6 @@ export const gl = {
     tutorial_expeditions_msg_select_region: "Os Campos Verdes son o lugar máis seguro para comezar as túas aventuras.",
     tutorial_expeditions_msg_select_expedition: "Esta cova é un bo primeiro desafío. Tócaa para enviar a Arthur dentro.",
     tutorial_expeditions_msg_advance_day: "Cando estea listo, avanza ao seguinte día para ver que pasa.",
+    tutorial_uxelm_action_blocked: "Esta acción está bloqueada mentres o tutorial está activo.",
+    tutorial_uxelm_nav_blocked: "A navegación está restrinxida durante o tutorial.",
 };

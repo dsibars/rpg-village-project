@@ -220,6 +220,7 @@ export class TutorialService {
             messages: step.messages || [],
             advanceOn: step.advanceOn || null,
             allowActions: step.allowActions || [],
+            modalLock: step.modalLock || false,
             stepData: this.state.stepData
         };
     }

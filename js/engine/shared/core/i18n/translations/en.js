@@ -1583,4 +1583,6 @@ export const en = {
     tutorial_expeditions_msg_select_region: "The Greenfields are the safest place to start your adventures.",
     tutorial_expeditions_msg_select_expedition: "This cave is a good first challenge. Tap it to send Arthur inside.",
     tutorial_expeditions_msg_advance_day: "When you're ready, advance to the next day to see what happens.",
+    tutorial_uxelm_action_blocked: "This action is blocked while the tutorial is active.",
+    tutorial_uxelm_nav_blocked: "Navigation is restricted during the tutorial.",
 };
