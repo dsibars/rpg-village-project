@@ -255,16 +255,9 @@ watch(viewMode, (mode) => {
   localStorage.setItem('explore_view_mode', mode)
 })
 
-// Auto-select first region
-watch(() => gameState.value.expeditionRegions, (regs) => {
-  console.log('watch expeditionRegions fired, regions:', Object.keys(regs || {}))
-  if (!selectedRegion.value && regs) {
-    const entries = getRegions(regs)
-    if (entries.length > 0) {
-      selectedRegion.value = entries[0][0]
-    }
-  }
-}, { immediate: true })
+// Note: we no longer auto-select the first region on load. The player must
+// explicitly click a region, which lets the Day 1 tutorial's "select region"
+// step receive the region_selected event reliably.
 
 
 

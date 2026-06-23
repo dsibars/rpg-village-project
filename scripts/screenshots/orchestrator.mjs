@@ -52,7 +52,6 @@ try {
   browser = await chromium.launch({ headless: true })
   const context = await browser.newContext({ viewport: VIEWPORT })
   const page = await context.newPage()
-  page.on('console', msg => console.log('[browser]', msg.text()))
 
   for (const flowName of flowsToRun) {
     const label = flowName

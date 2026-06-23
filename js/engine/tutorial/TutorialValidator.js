@@ -22,6 +22,7 @@ export const KNOWN_EVENT_TYPES = new Set([
   'skill_learned',
   'stat_assigned',
   'building_constructed',
+  'building_project_started',
   'region_selected',
   'expedition_started',
   'day_advanced',

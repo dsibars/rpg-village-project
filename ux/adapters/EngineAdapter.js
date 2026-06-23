@@ -221,7 +221,7 @@ const ACTION_MAP = {
   },
   tutorial: {
     reportEvent: (engine, p) => {
-      const result = engine.reportTutorialEvent(p.event)
+      const result = engine.reportTutorialEvent(p)
       return { success: result, data: engine.getTutorialState() }
     },
     skip: (engine) => {
@@ -293,7 +293,9 @@ export function createEngineAdapter(engine, gameStateRef) {
                       (domain === 'presentation' && action === 'hasPending') ||
                       (domain === 'presentation' && action === 'markAsSeen') ||
                       (domain === 'presentation' && action === 'replay') ||
-                      (domain === 'tutorial' && action === 'getState')
+                      (domain === 'tutorial' && action === 'getState') ||
+                      (domain === 'tutorial' && action === 'reportEvent') ||
+                      (domain === 'tutorial' && action === 'skip')
 
       if (!isQuery && gameStateRef?.value?.tutorial) {
         const allowed = gameStateRef.value.tutorial.allowActions || []

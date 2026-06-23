@@ -48,6 +48,32 @@ test('Day 1 tutorial starts after book_first_closed event and advances through h
     assert.strictEqual(skillResult, true, 'skill_learned event should advance tutorial');
     state = engine.update();
     assert.strictEqual(state.tutorial.tutorialId, 'tutorial_hero_stats');
+
+    // Report assigning a stat point
+    const statResult = engine.reportTutorialEvent({ event: 'stat_assigned', heroId: 'arthur', statId: 'baseStrength' });
+    assert.strictEqual(statResult, true, 'stat_assigned event should advance tutorial');
+    state = engine.update();
+    assert.strictEqual(state.tutorial.tutorialId, 'tutorial_build_farm');
+    assert.strictEqual(state.tutorial.stepId, 'navigate_village');
+
+    // Report navigating to Village
+    const villageResult = engine.reportTutorialEvent({ event: 'tab_changed', page: 'village' });
+    assert.strictEqual(villageResult, true, 'tab_changed to village should advance tutorial');
+    state = engine.update();
+    assert.strictEqual(state.tutorial.stepId, 'construct_farm');
+
+    // Report starting the farm project
+    const farmResult = engine.reportTutorialEvent({ event: 'building_project_started', buildingId: 'farm' });
+    assert.strictEqual(farmResult, true, 'building_project_started event should advance tutorial');
+    state = engine.update();
+    assert.strictEqual(state.tutorial.tutorialId, 'tutorial_expeditions');
+    assert.strictEqual(state.tutorial.stepId, 'navigate_explore');
+
+    // Report navigating to Adventure (no tab required)
+    const adventureResult = engine.reportTutorialEvent({ event: 'tab_changed', page: 'adventure' });
+    assert.strictEqual(adventureResult, true, 'tab_changed to adventure should advance tutorial');
+    state = engine.update();
+    assert.strictEqual(state.tutorial.stepId, 'select_region');
 });
 
 test('GameEngine exposes getTutorialState() matching tutorialService.getState()', () => {

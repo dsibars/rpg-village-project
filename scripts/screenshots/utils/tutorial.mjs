@@ -120,14 +120,25 @@ export async function selectFirstSlot(page) {
 }
 
 export async function dismissTutorialDarkening(page) {
-  // Click the darkening capture layer directly to dismiss it.
-  // This is the same as the user clicking anywhere outside the spotlight/message.
-  const capture = await page.$('.tutorial-overlay .click-capture')
-  if (capture) {
-    await capture.click()
-  } else {
-    // Fallback: click the overlay itself
-    await page.click('.tutorial-overlay')
+  // Dispatch a click on the darkening capture layer to dismiss it. We use a
+  // JS click because the tutorial message bubble may overlap the layer and
+  // Playwright's actionability hit-test does not always honour its
+  // pointer-events: none state.
+  const captured = await page.evaluate(() => {
+    const capture = document.querySelector('.tutorial-overlay .click-capture')
+    if (capture) {
+      capture.click()
+      return true
+    }
+    const overlay = document.querySelector('.tutorial-overlay')
+    if (overlay) {
+      overlay.click()
+      return true
+    }
+    return false
+  })
+  if (!captured) {
+    throw new Error('Tutorial overlay/capture layer not found')
   }
   await page.waitForTimeout(200)
 }
@@ -138,8 +149,10 @@ export async function closeBookAndWaitForTutorial(page) {
   await page.waitForTimeout(600)
 
   // Click village nav to close the book and trigger book_first_closed
-  const villageNav = await page.$('[data-tutorial-target="footer_nav_village"]')
-  if (villageNav) await villageNav.click()
+  await page.evaluate(() => {
+    const villageNav = document.querySelector('[data-tutorial-target="footer_nav_village"]')
+    if (villageNav) villageNav.click()
+  })
 
   // Wait for tutorial overlay
   const start = Date.now()

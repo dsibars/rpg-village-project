@@ -1406,6 +1406,9 @@ export class GameEngine {
         if (result.success) {
             this.missionSeedService.trackProgress('spend', 'gold', costGold);
             this.missionSeedService.trackProgress('upgrade', 'building', 1);
+            // Report tutorial event so the Day 1 "construct farm" step can advance
+            // immediately when the player starts the project.
+            this.reportTutorialEvent({ event: 'building_project_started', buildingId });
         }
         return result;
     }

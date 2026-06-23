@@ -2,6 +2,7 @@
   <div
     v-if="visible"
     class="tutorial-message"
+    :class="{ 'non-interactive': interactive === false }"
     :style="positionStyle"
     @click="handleClick"
   >
@@ -49,6 +50,12 @@ const props = defineProps({
   currentText: {
     type: String,
     default: ''
+  },
+  /** Whether the bubble should capture pointer events. Set to false once the
+   *  darkening layer is dismissed so the highlighted target remains clickable. */
+  interactive: {
+    type: Boolean,
+    default: true
   }
 })
 
@@ -73,6 +80,7 @@ const hintText = computed(() => {
 })
 
 function handleClick() {
+  if (props.interactive === false) return
   emit('advance')
 }
 </script>
@@ -81,6 +89,12 @@ function handleClick() {
 .tutorial-message {
   pointer-events: auto;
   max-width: 320px;
+}
+
+.tutorial-message.non-interactive,
+.tutorial-message.non-interactive *,
+.tutorial-message.non-interactive .tutorial-message-bubble {
+  pointer-events: none !important;
 }
 
 .tutorial-message-bubble {

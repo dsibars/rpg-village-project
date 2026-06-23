@@ -391,7 +391,6 @@ function onCloseExpeditionResult() {
 }
 
 function handleNavigate({ page, tab }) {
-  console.log('[App] handleNavigate', { page, tab, from: currentPage.value })
   if (page && pages[page]) {
     const oldPage = currentPage.value
     const oldTab = activeTab.value
@@ -401,10 +400,7 @@ function handleNavigate({ page, tab }) {
 
     // Report tab change for tutorial auto-advancement
     if (oldPage !== page || oldTab !== tab) {
-      console.log('[App] reporting tab_changed', { page, tab: tab || null })
       reportEvent({ event: 'tab_changed', page, tab: tab || null })
-    } else {
-      console.log('[App] no tab change, not reporting')
     }
   }
 }

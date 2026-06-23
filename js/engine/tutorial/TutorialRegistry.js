@@ -97,7 +97,7 @@ export const TutorialRegistry = new Map([
           what: { target: 'building_farm', flash: true },
           where: { page: 'town', tab: 'buildings' },
           allowActions: ['buildings.startProject'],
-          advanceOn: { event: 'building_constructed', buildingId: 'farm' }
+          advanceOn: { event: 'building_project_started', buildingId: 'farm' }
         }
       ],
       nextTutorialId: 'tutorial_expeditions'
@@ -116,7 +116,7 @@ export const TutorialRegistry = new Map([
           messages: ['tutorial_expeditions_msg_navigate_explore'],
           what: { target: 'footer_nav_adventure', flash: true },
           where: { page: 'adventure', tab: 'explore' },
-          advanceOn: { event: 'tab_changed', page: 'adventure', tab: 'explore' }
+          advanceOn: { event: 'tab_changed', page: 'adventure' }
         },
         {
           id: 'select_region',

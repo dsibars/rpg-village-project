@@ -21,6 +21,7 @@
         :position="messagePosition"
         :visible="active"
         :current-text="currentMessageText"
+        :interactive="!darkeningDismissed"
         @advance="advanceMessage"
       />
 
@@ -170,14 +171,17 @@ function handleOverlayClick() {
   }
 }
 
-// Enforce navigation context by emitting events for App.vue to handle
+// Enforce navigation context by emitting events for App.vue to handle.
+// This is skipped when the screenshot/test harness disables it so the flow
+// can exercise user actions one at a time.
 async function enforceWhere(where) {
-  console.log('[TutorialOverlay] enforceWhere', where)
   if (!where) return
+  if (typeof window !== 'undefined' && window.__TUTORIAL_DISABLE_ENFORCE__) {
+    return
+  }
 
   // Emit navigate event so App.vue can change currentPage/activeTab
   if (where.page) {
-    console.log('[TutorialOverlay] emitting navigate', { page: where.page, tab: where.tab || null })
     emit('navigate', { page: where.page, tab: where.tab || null })
     await nextTick()
     await delay(200)

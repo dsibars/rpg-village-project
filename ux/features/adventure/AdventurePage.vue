@@ -16,7 +16,11 @@
         { id: 'chronicle', label: t('nav_chronicle'), icon: '📜' }
       ]"
     />
-    <component :is="tabs[currentTab]" @navigate="$emit('navigate', $event)" />
+    <component
+      :is="tabs[currentTab]"
+      @navigate="$emit('navigate', $event)"
+      @tutorial:event="$emit('tutorial:event', $event)"
+    />
   </div>
 </template>
 
@@ -34,7 +38,7 @@ const props = defineProps({
   activeTab: { type: String, default: null }
 })
 
-defineEmits(['navigate'])
+defineEmits(['navigate', 'tutorial:event'])
 
 const { t } = useI18n()
 
