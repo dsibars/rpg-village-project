@@ -230,7 +230,7 @@ export function aggregateMetrics(metricsArray) {
     statusEffect: createDamageBucket()
   };
 
-  const healing = { total: 0, ticks: 0 };
+  const healing = { total: 0, ticks: 0, bySource: {} };
   const statusEffects = { applied: {}, ticks: {} };
   const items = { used: {} };
   const resources = {
@@ -250,6 +250,11 @@ export function aggregateMetrics(metricsArray) {
 
     healing.total += m.healing.total;
     healing.ticks += m.healing.ticks;
+    for (const [srcKey, srcVal] of Object.entries(m.healing.bySource || {})) {
+      const target = (healing.bySource[srcKey] ||= { total: 0, ticks: 0 });
+      target.total += srcVal.total;
+      target.ticks += srcVal.ticks;
+    }
 
     for (const [k, v] of Object.entries(m.statusEffects.applied)) {
       statusEffects.applied[k] = (statusEffects.applied[k] || 0) + v;
