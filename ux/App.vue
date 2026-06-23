@@ -63,6 +63,8 @@
       @close="onCloseExpeditionResult"
     />
 
+    <TutorialOverlay @navigate="handleNavigate" />
+
     <PresentationModal
       v-if="showPresentation"
       :open="showPresentation"
@@ -92,6 +94,7 @@ import SettingsPage from './features/settings/SettingsPage.vue'
 import CombatOverlay from './features/combat/CombatOverlay.vue'
 import PresentationModal from './features/shared/PresentationModal.vue'
 import ExpeditionResultModal from './features/shared/ExpeditionResultModal.vue'
+import TutorialOverlay from './core/components/TutorialOverlay.vue'
 import { useAdapter } from './core/composables/useAdapter.js'
 
 const props = defineProps({
