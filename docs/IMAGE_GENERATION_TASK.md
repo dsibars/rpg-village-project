@@ -205,7 +205,7 @@
 ## Image 25: `assets/story/explore_guild_maps.webp`
 **Scene:** The Explorer Guild interior. Maps pinned to walls, a large table with a world map spread on it, small figures pointing at locations. Adventure planning.
 **Prompt:** Interior room with maps pinned to walls, large table with map spread on it, small figures pointing at locations on the map, adventure planning atmosphere. Medieval manuscript ink drawing, black strokes only, transparent background, sketchy rough linework, small figures, village scribe style.
-**Status:** pending
+**Status:** generated
 
 ---
 
@@ -282,9 +282,9 @@
 ## Overall Status
 
 **Total Images:** 35
-**Generated:** 24
-**Pending:** 11
-**Next to generate:** Image 25 (`explore_guild_maps.webp`)
+**Generated:** 25
+**Pending:** 10
+**Next to generate:** Image 26 (`explore_map_table.webp`)
 
 ---
 
