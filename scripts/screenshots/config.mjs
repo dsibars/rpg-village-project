@@ -39,6 +39,7 @@ function parseArgs() {
   return {
     dryRun: args.includes('--dry-run'),
     continuous: args.includes('--continuous'),
+    playthrough: args.includes('--playthrough'),
     flowsArg: args.includes('--flows') ? args[args.indexOf('--flows') + 1] : null,
   }
 }
@@ -46,4 +47,5 @@ function parseArgs() {
 const parsed = parseArgs()
 export const DRY_RUN = parsed.dryRun
 export const CONTINUOUS = parsed.continuous
+export const PLAYTHROUGH = parsed.playthrough
 export const FLOWS_ARG = parsed.flowsArg

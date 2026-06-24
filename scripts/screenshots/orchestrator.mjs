@@ -11,6 +11,7 @@
  *   node scripts/screenshots/orchestrator.mjs
  *   node scripts/screenshots/orchestrator.mjs --flows onboarding,village
  *   node scripts/screenshots/orchestrator.mjs --continuous
+ *   node scripts/screenshots/orchestrator.mjs --playthrough
  *   node scripts/screenshots/orchestrator.mjs --dry-run
  */
 
@@ -19,7 +20,7 @@ import fs from 'fs'
 import { chromium } from 'playwright'
 import { fileURLToPath } from 'url'
 
-import { DIST_DIR, OUT_DIR, PORT, VIEWPORT, DRY_RUN, CONTINUOUS, FLOWS_ARG, PLAYTHROUGH_FLOWS } from './config.mjs'
+import { DIST_DIR, OUT_DIR, PORT, VIEWPORT, DRY_RUN, CONTINUOUS, PLAYTHROUGH, FLOWS_ARG, PLAYTHROUGH_FLOWS } from './config.mjs'
 import { startServer } from './utils/server.mjs'
 import { createSnapshot } from './utils/snapshot.mjs'
 import { screenshotRegistry, getFlows } from './registry.mjs'
@@ -29,11 +30,13 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 const selectedFlows = FLOWS_ARG ? FLOWS_ARG.split(',').map((s) => s.trim()) : null
 
-const flowsToRun = selectedFlows
-  ? [...new Set(screenshotRegistry
-      .filter((entry) => selectedFlows.includes(entry.flow))
-      .map((entry) => entry.flow))]
-  : (CONTINUOUS ? PLAYTHROUGH_FLOWS : getFlows())
+const flowsToRun = PLAYTHROUGH
+  ? ['playthrough']
+  : selectedFlows
+    ? [...new Set(screenshotRegistry
+        .filter((entry) => selectedFlows.includes(entry.flow))
+        .map((entry) => entry.flow))]
+    : (CONTINUOUS ? PLAYTHROUGH_FLOWS : getFlows())
 
 if (flowsToRun.length === 0) {
   console.error('No flows matching the requested filters.')
@@ -44,7 +47,7 @@ const registryEntries = selectedFlows
   ? screenshotRegistry.filter((entry) => selectedFlows.includes(entry.flow))
   : screenshotRegistry
 
-console.log(`Orchestrator starting: dryRun=${DRY_RUN} continuous=${CONTINUOUS} flows=${flowsToRun.join(',')} states=${registryEntries.length}`)
+console.log(`Orchestrator starting: dryRun=${DRY_RUN} continuous=${CONTINUOUS} playthrough=${PLAYTHROUGH} flows=${flowsToRun.join(',')} states=${registryEntries.length}`)
 
 // Ensure output directory exists
 fs.mkdirSync(OUT_DIR, { recursive: true })

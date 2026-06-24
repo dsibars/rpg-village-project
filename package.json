@@ -15,6 +15,7 @@
     "test:vue": "vitest run tests/vue/",
     "test:vue:watch": "vitest tests/vue/",
     "screenshots": "node scripts/screenshots/orchestrator.mjs",
+    "screenshots:playthrough": "node scripts/screenshots/orchestrator.mjs --playthrough",
     "screenshots:dry": "node scripts/screenshots/orchestrator.mjs --dry-run",
     "screenshots:audit": "node scripts/screenshots/audit.mjs",
     "combat:lab": "node scripts/combat-lab/runner.mjs",

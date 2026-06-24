@@ -14,6 +14,8 @@ import * as book from './13-book.mjs'
 import * as tutorial from './14-tutorial.mjs'
 import * as tutorialInteractive from './15-tutorial-interactive.mjs'
 
+import * as playthrough from './99-playthrough.mjs'
+
 export const flowModules = {
   onboarding,
   village,
@@ -30,6 +32,7 @@ export const flowModules = {
   book,
   tutorial,
   'tutorial-interactive': tutorialInteractive,
+  playthrough,
 }
 
 
