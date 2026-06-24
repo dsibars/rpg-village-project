@@ -29,12 +29,6 @@ test('Day 1 tutorial starts after book_first_closed event and advances through h
     // Hero skills tutorial should be active
     assert.ok(state.tutorial, 'Tutorial should be active after book_first_closed');
     assert.strictEqual(state.tutorial.tutorialId, 'tutorial_hero_skills');
-    assert.strictEqual(state.tutorial.stepId, 'navigate_heroes');
-
-    // Report navigation to heroes tab
-    const navResult = engine.reportTutorialEvent({ event: 'tab_changed', page: 'heroes' });
-    assert.strictEqual(navResult, true, 'tab_changed event should advance tutorial');
-    state = engine.update();
     assert.strictEqual(state.tutorial.stepId, 'select_arthur');
 
     // Report selecting Arthur

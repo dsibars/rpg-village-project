@@ -1568,7 +1568,6 @@ export const es = {
     combat_log_defeat: "Derrota... El grupo ha caído...",
 
     // ═══ TUTORIAL ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-    tutorial_hero_skills_msg_navigate_heroes: "Tus héroes son el corazón del pueblo. Toca aquí para verlos.",
     tutorial_hero_skills_msg_select_arthur: "Este es Arthur, tu primer héroe. Echemos un vistazo.",
     tutorial_hero_skills_msg_learn_skill: "Arthur puede aprender una nueva técnica de combate. Toca este botón para abrir sus habilidades.",
     tutorial_hero_stats_msg_assign_stats: "A medida que los héroes crecen, ganan puntos para mejorar su fuerza, velocidad y otras estadísticas.",

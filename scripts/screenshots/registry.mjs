@@ -10,7 +10,6 @@ export const screenshotRegistry = [
   { flow: 'onboarding', state: 'save_slot_empty', description: 'Save slot screen with only empty slots' },
   { flow: 'onboarding', state: 'save_slot_occupied', description: 'Save slot screen with at least one occupied slot' },
   { flow: 'onboarding', state: 'book_prologue', description: 'Book auto-open showing prologue content on new game' },
-  { flow: 'onboarding', state: 'book_spread_navigation', description: 'Book showing spread navigation with next page active' },
   { flow: 'onboarding', state: 'village_fresh', description: 'Village main screen right after dismissing Book' },
 
   // === Village ===
@@ -90,7 +89,6 @@ export const screenshotRegistry = [
   { flow: 'book', state: 'book_chapter_title', description: 'Book showing chapter title page' },
 
   // === Tutorial ===
-  { flow: 'tutorial', state: 'tutorial_heroes_tab', description: 'Tutorial overlay highlighting Heroes tab' },
   { flow: 'tutorial', state: 'tutorial_arthur_card', description: 'Tutorial overlay highlighting Arthur card' },
   { flow: 'tutorial', state: 'tutorial_learn_skill', description: 'Tutorial overlay highlighting Learn Skill button' },
   { flow: 'tutorial', state: 'tutorial_stat_grid', description: 'Tutorial overlay highlighting stat grid' },
@@ -103,9 +101,7 @@ export const screenshotRegistry = [
 
   // === Tutorial Interactive (real playthrough) ===
   { flow: 'tutorial-interactive', state: 'book_prologue', description: 'Book auto-open on fresh game before tutorial starts' },
-  { flow: 'tutorial-interactive', state: 'tutorial_heroes_tab', description: 'Tutorial overlay highlighting Heroes tab (interactive)' },
   { flow: 'tutorial-interactive', state: 'tutorial_arthur_card', description: 'Tutorial overlay highlighting Arthur card (interactive)' },
-  { flow: 'tutorial-interactive', state: 'tutorial_learn_skill', description: 'Tutorial overlay highlighting Learn Skill button (interactive)' },
   { flow: 'tutorial-interactive', state: 'tutorial_skills_modal', description: 'Locked skills modal during tutorial (interactive)' },
   { flow: 'tutorial-interactive', state: 'tutorial_stat_grid', description: 'Tutorial overlay highlighting stat grid (interactive)' },
   { flow: 'tutorial-interactive', state: 'tutorial_village_tab', description: 'Tutorial overlay highlighting Village tab before farm (interactive)' },

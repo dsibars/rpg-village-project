@@ -1568,7 +1568,6 @@ export const ca = {
     combat_log_defeat: "Derrota... El grup ha caigut...",
 
     // ═══ TUTORIAL ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-    tutorial_hero_skills_msg_navigate_heroes: "Els teus herois són el cor del poble. Toca aquí per veure'ls.",
     tutorial_hero_skills_msg_select_arthur: "Aquest és l'Arthur, el teu primer heroi. Donem-hi un cop d'ull.",
     tutorial_hero_skills_msg_learn_skill: "L'Arthur pot aprendre una nova tècnica de combat. Toca aquest botó per obrir les seves habilitats.",
     tutorial_hero_stats_msg_assign_stats: "A mesura que els herois creixen, guanyen punts per millorar la seva força, velocitat i altres estadístiques.",

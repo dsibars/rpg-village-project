@@ -79,9 +79,6 @@ test('TutorialService: start() with force=true restarts completed tutorial', () 
 test('TutorialService: advance() progresses through steps', () => {
     const { service } = createService();
     service.start('tutorial_hero_skills');
-    assert.strictEqual(service.getState().stepId, 'navigate_heroes');
-
-    service.advance();
     assert.strictEqual(service.getState().stepId, 'select_arthur');
 
     service.advance();
@@ -91,9 +88,8 @@ test('TutorialService: advance() progresses through steps', () => {
 test('TutorialService: advance() completes tutorial at final step and chains to next', () => {
     const { service } = createService();
     service.start('tutorial_hero_skills');
-    service.advance(); // step 1
-    service.advance(); // step 2
-    const result = service.advance(); // step 3 (final) → completes, chains to hero_stats
+    service.advance(); // step 1 → learn_skill
+    const result = service.advance(); // step 2 (final) → completes, chains to hero_stats
 
     assert.strictEqual(result, true);
     // Chains to tutorial_hero_stats
@@ -139,10 +135,10 @@ test('TutorialService: skip() returns false when no tutorial is active', () => {
 test('TutorialService: reportEvent() advances on matching event', () => {
     const { service } = createService();
     service.start('tutorial_hero_skills');
-    // Step 0: navigate_heroes, advanceOn: { event: 'tab_changed', page: 'heroes' }
-    const result = service.reportEvent({ event: 'tab_changed', page: 'heroes' });
+    // Step 0: select_arthur, advanceOn: { event: 'hero_selected', heroId: 'arthur' }
+    const result = service.reportEvent({ event: 'hero_selected', heroId: 'arthur' });
     assert.strictEqual(result, true);
-    assert.strictEqual(service.getState().stepId, 'select_arthur');
+    assert.strictEqual(service.getState().stepId, 'learn_skill');
 });
 
 test('TutorialService: reportEvent() ignores non-matching event type', () => {
@@ -150,16 +146,16 @@ test('TutorialService: reportEvent() ignores non-matching event type', () => {
     service.start('tutorial_hero_skills');
     const result = service.reportEvent({ event: 'skill_learned', heroId: 'arthur' });
     assert.strictEqual(result, false);
-    assert.strictEqual(service.getState().stepId, 'navigate_heroes');
+    assert.strictEqual(service.getState().stepId, 'select_arthur');
 });
 
 test('TutorialService: reportEvent() ignores event with mismatched filter', () => {
     const { service } = createService();
     service.start('tutorial_hero_skills');
-    // Step 0 expects tab_changed with page: 'heroes', not 'village'
-    const result = service.reportEvent({ event: 'tab_changed', page: 'village' });
+    // Step 0 expects hero_selected with heroId: 'arthur', not 'morgana'
+    const result = service.reportEvent({ event: 'hero_selected', heroId: 'morgana' });
     assert.strictEqual(result, false);
-    assert.strictEqual(service.getState().stepId, 'navigate_heroes');
+    assert.strictEqual(service.getState().stepId, 'select_arthur');
 });
 
 test('TutorialService: reportEvent() advances hero_stats tutorial on stat_assigned and chains', () => {
@@ -232,12 +228,13 @@ test('TutorialService: getState() returns correct step view', () => {
     const state = service.getState();
     assert.strictEqual(state.tutorialId, 'tutorial_hero_skills');
     assert.strictEqual(state.stepIndex, 0);
-    assert.strictEqual(state.totalSteps, 3);
-    assert.strictEqual(state.stepId, 'navigate_heroes');
-    assert.deepStrictEqual(state.messages, ['tutorial_hero_skills_msg_navigate_heroes']);
+    assert.strictEqual(state.totalSteps, 2);
+    assert.strictEqual(state.stepId, 'select_arthur');
+    assert.deepStrictEqual(state.messages, ['tutorial_hero_skills_msg_select_arthur']);
     assert.deepStrictEqual(state.allowActions, []);
     assert.strictEqual(state.where.page, 'heroes');
-    assert.strictEqual(state.what.target, 'footer_nav_heroes');
+    assert.strictEqual(state.where.heroId, 'arthur');
+    assert.strictEqual(state.what.target, 'hero_card_arthur');
 });
 
 test('TutorialService: getState() returns null when no tutorial active', () => {
@@ -258,7 +255,7 @@ test('TutorialService: persistence round-trip', () => {
     const state = service2.getState();
     assert.strictEqual(state.tutorialId, 'tutorial_hero_skills');
     assert.strictEqual(state.stepIndex, 1);
-    assert.strictEqual(state.stepId, 'select_arthur');
+    assert.strictEqual(state.stepId, 'learn_skill');
     assert.deepStrictEqual(state.stepData, { heroId: 'arthur' });
 });
 
@@ -288,9 +285,8 @@ test('TutorialService: loads default state when no persisted data', () => {
 test('TutorialService: completing tutorial_hero_skills chains to tutorial_hero_stats', () => {
     const { service } = createService();
     service.start('tutorial_hero_skills');
-    service.advance(); // step 1
-    service.advance(); // step 2
-    service.advance(); // step 3 → completes, should chain to tutorial_hero_stats
+    service.advance(); // step 1 → learn_skill
+    service.advance(); // step 2 → completes, should chain to tutorial_hero_stats
     assert.strictEqual(service.getState().tutorialId, 'tutorial_hero_stats');
 });
 

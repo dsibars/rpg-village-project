@@ -1,6 +1,6 @@
 <template>
   <div class="book-page-wrapper">
-    <BookView ref="bookView" :book-state="bookState" @markRead="handleMarkRead" />
+    <BookView ref="bookView" :book-state="bookState" @markRead="handleMarkRead" @close="handleClose" />
   </div>
 </template>
 
@@ -23,6 +23,12 @@ const bookState = computed(() => gameState.value?.book || null)
 
 function handleMarkRead(spreadFirstPage) {
   dispatch('book', 'markRead', { spreadFirstPage })
+}
+
+const emit = defineEmits(['close'])
+
+function handleClose() {
+  emit('close')
 }
 
 // Navigate to target page when activeTab changes (from Chronicle click-through)

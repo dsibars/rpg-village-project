@@ -1566,7 +1566,6 @@ export const gl = {
     combat_log_defeat: "Derrota... O grupo caíu...",
 
     // ═══ TUTORIAL ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-    tutorial_hero_skills_msg_navigate_heroes: "Os teus heroes son o corazón da aldea. Toca aquí para velos.",
     tutorial_hero_skills_msg_select_arthur: "Este é Arthur, o teu primeiro heroe. Bótemos un ollo.",
     tutorial_hero_skills_msg_learn_skill: "Arthur pode aprender unha nova técnica de combate. Toca este botón para abrir as súas habilidades.",
     tutorial_hero_stats_msg_assign_stats: "A medida que os heroes crecen, gañan puntos para mellorar a súa forza, velocidade e outras estatísticas.",

@@ -124,19 +124,16 @@ import { eu } from '../../../js/engine/shared/core/i18n/translations/eu.js';
 test('TutorialValidator: _validateI18nKeys() detects missing translations', () => {
     const translations = {
         en: {
-            tutorial_hero_skills_msg_navigate_heroes: 'Navigate to heroes',
             tutorial_hero_skills_msg_select_arthur: 'Select Arthur',
             tutorial_hero_stats_msg_assign_stats: 'Assign stats',
         },
         es: {
-            tutorial_hero_skills_msg_navigate_heroes: 'Navegar a héroes',
             // Missing tutorial_hero_skills_msg_select_arthur and tutorial_hero_stats_msg_assign_stats
         }
     };
 
     // Directly test _validateI18nKeys with controlled inputs
     const controlledKeys = new Set([
-        'tutorial_hero_skills_msg_navigate_heroes',
         'tutorial_hero_skills_msg_select_arthur',
         'tutorial_hero_stats_msg_assign_stats'
     ]);
@@ -172,7 +169,7 @@ test('TutorialValidator: validateRegistry() validates i18n keys against real reg
 test('TutorialValidator: findGhostKeys() finds unreferenced tutorial keys', () => {
     const translations = {
         en: {
-            tutorial_hero_skills_msg_navigate_heroes: 'Navigate to heroes',
+
             tutorial_ghost_key_1: 'This is not referenced',
             tutorial_ghost_key_2: 'Neither is this',
             some_other_key: 'Not a tutorial key'

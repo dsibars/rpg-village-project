@@ -154,14 +154,15 @@ export async function dismissTutorialDarkening(page) {
 }
 
 export async function closeBookAndWaitForTutorial(page) {
-  // Book should auto-open on a fresh game. Wait for it, then navigate away.
+  // Book should auto-open on a fresh game. Wait for it, then close it.
   await waitForElementVisible(page, '.book-view', 10000)
   await page.waitForTimeout(600)
 
-  // Click village nav to close the book and trigger book_first_closed
+  // Click the book's own close control; App.vue will land on Heroes and start
+  // the Day-1 tutorial at its first step.
   await page.evaluate(() => {
-    const villageNav = document.querySelector('[data-tutorial-target="footer_nav_village"]')
-    if (villageNav) villageNav.click()
+    const closeBtn = document.querySelector('.book-view .btn-close')
+    if (closeBtn) closeBtn.click()
   })
 
   // Wait for tutorial overlay

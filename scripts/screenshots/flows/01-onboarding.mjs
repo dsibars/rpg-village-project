@@ -19,7 +19,24 @@ async function resetSaveSlots(page) {
 async function dismissBookIfVisible(page) {
   const visible = await page.$(selectors.bookView)
   if (visible) {
-    // Navigate back to village by clicking the village nav button
+    // Close the book via its own control. App.vue lands on Heroes and starts the
+    // Day-1 tutorial; mark it completed so onboarding can proceed to Village.
+    await page.evaluate(() => {
+      const closeBtn = document.querySelector('.book-view .btn-close')
+      if (closeBtn) closeBtn.click()
+
+      const e = window.__ENGINE__
+      if (e?.tutorialService) {
+        const day1Ids = ['tutorial_hero_skills', 'tutorial_hero_stats', 'tutorial_build_farm', 'tutorial_expeditions']
+        day1Ids.forEach((tid) => e.tutorialService.markCompleted(tid))
+        e.tutorialService.state.activeTutorialId = null
+        e.tutorialService.state.currentStepIndex = 0
+        e.tutorialService.state.stepData = {}
+        if (e.tutorialService._save) e.tutorialService._save()
+      }
+      if (window.__REFRESH_UI__) window.__REFRESH_UI__()
+    })
+    await page.waitForTimeout(800)
     await clickElement(page, selectors.navVillage)
     await page.waitForTimeout(500)
   }
@@ -116,13 +133,8 @@ export async function run({ page, snap, reset = true }) {
   await page.waitForTimeout(400)
   await snap({ flow: 'onboarding', state: 'book_prologue' })
 
-  // --- book_spread_navigation ---
-  // Navigate to next spread to show navigation buttons in active state
-  await clickElement(page, selectors.bookNavNext)
-  await page.waitForTimeout(400)
-  await snap({ flow: 'onboarding', state: 'book_spread_navigation' })
-
   // --- village_fresh ---
+  // The Book has no next spread on the prologue; close it and continue.
   await dismissBookIfVisible(page)
   await page.waitForTimeout(500)
   await waitForVisible(page, selectors.mainView, 3000)

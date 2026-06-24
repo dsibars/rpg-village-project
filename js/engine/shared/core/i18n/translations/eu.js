@@ -1566,7 +1566,6 @@ export const eu = {
     combat_log_defeat: "Porrota... Taldea erori da...",
 
     // ═══ TUTORIAL ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-    tutorial_hero_skills_msg_navigate_heroes: "Zure heroiek herriaren bihotza dira. Sakatu hemen haiek ikusteko.",
     tutorial_hero_skills_msg_select_arthur: "Hau Arthur da, zure lehen heroia. Begirada bat bota diezaiogun.",
     tutorial_hero_skills_msg_learn_skill: "Arthurrek borroka-teknika berri bat ikas dezake. Sakatu botoi hau bere gaitasunak irekitzeko.",
     tutorial_hero_stats_msg_assign_stats: "Heroiek hazten diren heinean, indarra, abiadura eta beste estatistika batzuk hobetzeko puntuak lortzen dituzte.",

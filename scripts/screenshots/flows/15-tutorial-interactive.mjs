@@ -16,6 +16,7 @@ import {
   dismissTutorialDarkening,
   clearToasts,
 } from '../utils/tutorial.mjs'
+import { closeFullViewOverlay } from '../utils/nav.mjs'
 
 async function clickFirstByText(page, text, selector = 'button') {
   const el = await page.$(`${selector}:has-text("${text}")`)
@@ -63,20 +64,32 @@ export async function run({ page, snap, reset = true }) {
     await waitForElementVisible(page, '.book-view')
     await snap({ flow: 'tutorial-interactive', state: 'book_prologue' })
 
-    // ── Close book → tutorial triggers ──
+    // ── Close book → lands on Heroes and triggers tutorial ──
     await closeBookAndWaitForTutorial(page)
   } else {
     // Continuing from a previous flow (e.g. onboarding in continuous mode).
-    // The tutorial should already be active at the first step.
-    await waitForTutorialUpdate(page, 'navigate_heroes')
+    // The book is closed and earlier flows may have skipped the Day-1 tutorial.
+    // Reset tutorial progress, move to Heroes, and re-trigger the chain.
+    await page.evaluate(() => {
+      const e = window.__ENGINE__
+      if (e?.tutorialService) {
+        e.tutorialService.state.completedTutorialIds = []
+        e.tutorialService.state.activeTutorialId = null
+        e.tutorialService.state.currentStepIndex = 0
+        e.tutorialService.state.stepData = {}
+        e.tutorialService._save?.()
+      }
+    })
+    await clickTarget(page, 'footer_nav_heroes')
+    await page.waitForTimeout(400)
+    await page.evaluate(() => {
+      const e = window.__ENGINE__
+      e?.recordEvent?.('book_first_closed', { day: e?.villageService?.state?.day || 1 })
+    })
+    await waitForTutorialUpdate(page, 'select_arthur')
   }
 
-  // Step 1: navigate to Heroes
-  await snapshotTutorialStep({ page, snap, state: 'tutorial_heroes_tab' })
-  await clickTarget(page, 'footer_nav_heroes')
-
-  // Step 2: select Arthur
-  await waitForTutorialUpdate(page, 'select_arthur')
+  // Step 1: select Arthur
   await snapshotTutorialStep({ page, snap, state: 'tutorial_arthur_card' })
   await clickTarget(page, 'hero_card_arthur')
 
@@ -156,4 +169,8 @@ export async function run({ page, snap, reset = true }) {
   await waitForTutorialInactive(page, 10000)
   await page.waitForTimeout(800)
   await snap({ flow: 'tutorial-interactive', state: 'tutorial_completed' })
+
+  // Expedition resolution may have opened a combat overlay; close it so later
+  // continuous flows are not blocked.
+  await closeFullViewOverlay(page)
 }

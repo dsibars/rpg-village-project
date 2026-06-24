@@ -10,9 +10,6 @@
       >
         <span class="nav-arrow">&#8592;</span>
       </button>
-      <div class="book-title">
-        <span class="spine-title">{{ t('book_uxelm_title') }}</span>
-      </div>
       <button
         class="btn-nav"
         :disabled="currentSpread >= maxSpread"
@@ -21,6 +18,18 @@
       >
         <span class="nav-arrow">&#8594;</span>
       </button>
+      <div class="book-title">
+        <span class="spine-title">{{ t('book_uxelm_title') }}</span>
+      </div>
+      <div class="book-header-actions">
+        <button
+          class="btn-nav btn-close"
+          @click="emit('close')"
+          :aria-label="t('shared_uxelm_close')"
+        >
+          <span class="nav-arrow">&#10005;</span>
+        </button>
+      </div>
     </div>
 
     <!-- Spread Display (two pages) -->
@@ -103,7 +112,7 @@ import BookPcs from './BookPcs.vue'
 
 const { t } = useI18n()
 
-const emit = defineEmits(['markRead'])
+const emit = defineEmits(['markRead', 'close'])
 
 const props = defineProps({
   bookState: { type: Object, required: true }
@@ -230,6 +239,22 @@ function goToPage(pageNumber) {
   justify-content: space-between;
   padding: var(--spacing-sm) var(--spacing-md);
   flex-shrink: 0;
+}
+
+.book-header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.btn-close {
+  background: rgba(139, 69, 19, 0.4);
+  border-color: rgba(212, 180, 140, 0.4);
+}
+
+.btn-close:hover {
+  background: rgba(139, 69, 19, 0.6);
+  border-color: rgba(212, 180, 140, 0.7);
 }
 
 .book-title {

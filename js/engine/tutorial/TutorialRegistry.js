@@ -30,13 +30,6 @@ export const TutorialRegistry = new Map([
       prerequisites: [],
       steps: [
         {
-          id: 'navigate_heroes',
-          messages: ['tutorial_hero_skills_msg_navigate_heroes'],
-          what: { target: 'footer_nav_heroes', flash: true },
-          where: { page: 'heroes' },
-          advanceOn: { event: 'tab_changed', page: 'heroes' }
-        },
-        {
           id: 'select_arthur',
           messages: ['tutorial_hero_skills_msg_select_arthur'],
           what: { target: 'hero_card_arthur', flash: true },

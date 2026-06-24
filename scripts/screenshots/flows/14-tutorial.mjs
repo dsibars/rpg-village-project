@@ -11,9 +11,8 @@ import { selectors } from '../selectors/selectors.mjs'
 // Tutorial step definitions for screenshot capture
 // Each entry: { tutorialId, advanceCount, state, description }
 const tutorialSteps = [
-  { tutorialId: 'tutorial_hero_skills', advanceCount: 0, state: 'tutorial_heroes_tab', description: 'Tutorial overlay highlighting Heroes tab' },
-  { tutorialId: 'tutorial_hero_skills', advanceCount: 1, state: 'tutorial_arthur_card', description: 'Tutorial overlay highlighting Arthur card' },
-  { tutorialId: 'tutorial_hero_skills', advanceCount: 2, state: 'tutorial_learn_skill', description: 'Tutorial overlay highlighting Learn Skill button' },
+  { tutorialId: 'tutorial_hero_skills', advanceCount: 0, state: 'tutorial_arthur_card', description: 'Tutorial overlay highlighting Arthur card' },
+  { tutorialId: 'tutorial_hero_skills', advanceCount: 1, state: 'tutorial_learn_skill', description: 'Tutorial overlay highlighting Learn Skill button' },
   { tutorialId: 'tutorial_hero_stats', advanceCount: 0, state: 'tutorial_stat_grid', description: 'Tutorial overlay highlighting stat grid' },
   { tutorialId: 'tutorial_build_farm', advanceCount: 0, state: 'tutorial_village_tab', description: 'Tutorial overlay highlighting Village tab' },
   { tutorialId: 'tutorial_build_farm', advanceCount: 1, state: 'tutorial_build_farm', description: 'Tutorial overlay highlighting Farm building' },

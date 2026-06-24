@@ -510,13 +510,6 @@ export const TutorialRegistry = new Map([
     prerequisites: [],
     steps: [
       {
-        id: 'navigate_heroes',
-        messages: ['tutorial_hero_skills_msg_navigate_heroes'],
-        what: { target: 'footer_nav_heroes', flash: true },
-        where: { page: 'heroes' },
-        advanceOn: { event: 'tab_changed', page: 'heroes' }
-      },
-      {
         id: 'select_arthur',
         messages: ['tutorial_hero_skills_msg_select_arthur'],
         what: { target: 'hero_card_arthur', flash: true },
@@ -1123,7 +1116,6 @@ The only changes needed in existing components are **adding `data-tutorial-targe
 ```js
 // tutorial_en.js (pattern: tutorial_{tutorialId}_{stepId}_{purpose})
 export const tutorial_en = {
-  tutorial_hero_skills_msg_navigate_heroes: 'Your heroes are the heart of the village. Tap here to see them.',
   tutorial_hero_skills_msg_select_arthur: 'This is Arthur, your first hero. Let\'s take a look at him.',
   tutorial_hero_skills_msg_learn_skill: 'Arthur can learn a new fighting technique. Tap this button to open his skills.',
   tutorial_hero_stats_msg_assign_stats: 'As heroes grow, they gain points to improve their strength, speed, and other stats.',
@@ -1173,10 +1165,9 @@ Add these scenarios to the orchestrator's scenario list. Each step produces a na
   language: 'en',
   steps: [
     { action: 'start_new_game', assert: 'book_open' },
-    { action: 'close_book', assert: 'tutorial_overlay_heroes_tab', screenshot: '01_tutorial_heroes_tab_overlay' },
-    { action: 'click_anywhere', assert: 'darkening_dismissed_spotlight_remains', screenshot: '02_tutorial_heroes_tab_spotlight' },
-    { action: 'navigate_tab', tab: 'heroes', assert: 'tutorial_overlay_arthur_card', screenshot: '03_tutorial_arthur_card' },
-    { action: 'click_hero', heroId: 'arthur', assert: 'tutorial_overlay_learn_skill_button', screenshot: '04_tutorial_learn_skill_button' },
+    { action: 'close_book', assert: 'tutorial_overlay_arthur_card', screenshot: '01_tutorial_arthur_card_overlay' },
+    { action: 'click_anywhere', assert: 'darkening_dismissed_spotlight_remains', screenshot: '02_tutorial_arthur_card_spotlight' },
+    { action: 'click_hero', heroId: 'arthur', assert: 'tutorial_overlay_learn_skill_button', screenshot: '03_tutorial_learn_skill_button' },
     { action: 'click_action', action: 'learn_skill', assert: 'modal_open_learn_skill', screenshot: '05_tutorial_learn_skill_modal_locked' },
     { action: 'assert_modal_locked', assert: 'escape_blocked_overlay_click_blocked', screenshot: '06_tutorial_modal_locked_proof' },
     { action: 'select_skill', familyId: 'power_strike', assert: 'tutorial_overlay_stat_grid', screenshot: '07_tutorial_stat_grid' },
@@ -1194,7 +1185,6 @@ Add these scenarios to the orchestrator's scenario list. Each step produces a na
   steps: [
     { action: 'start_new_game' },
     { action: 'close_book' },
-    { action: 'navigate_tab', tab: 'heroes' },
     { action: 'click_hero', heroId: 'arthur' },
     { action: 'click_action', action: 'learn_skill' },
     { action: 'snapshot_localstorage' },
@@ -1210,8 +1200,8 @@ Add these scenarios to the orchestrator's scenario list. Each step produces a na
   language: 'es',
   steps: [
     { action: 'start_new_game', language: 'es' },
-    { action: 'close_book', assert: 'tutorial_overlay_heroes_tab' },
-    { action: 'assert_message_text', key: 'tutorial_hero_skills_msg_navigate_heroes', language: 'es', screenshot: '16_tutorial_es_heroes_tab' },
+    { action: 'close_book', assert: 'tutorial_overlay_arthur_card' },
+    { action: 'assert_message_text', key: 'tutorial_hero_skills_msg_select_arthur', language: 'es', screenshot: '16_tutorial_es_arthur_card' },
   ]
 }
 ```

@@ -46,3 +46,27 @@ export async function clickNav(page, selector) {
 export async function clickSubNav(page, selector) {
   return clickElement(page, selector)
 }
+
+/**
+ * Close any open fullview overlay (combat, book, etc.) and wait for it to leave.
+ * Uses Escape and a direct close-button click; retries a few times if needed.
+ */
+export async function closeFullViewOverlay(page, maxAttempts = 3) {
+  for (let i = 0; i < maxAttempts; i++) {
+    const hasOverlay = await page.evaluate(() => !!document.querySelector('.fullview-overlay'))
+    if (!hasOverlay) return true
+
+    await page.evaluate(() => {
+      const e = window.__ENGINE__
+      if (e?.battleService) {
+        e.battleService.isOver = true
+        e.battleService.winner = e.battleService.winner || 'heroes'
+      }
+      const closeBtn = document.querySelector('.fullview-overlay .btn-close')
+      if (closeBtn && !closeBtn.disabled) closeBtn.click()
+    })
+    await page.keyboard.press('Escape')
+    await page.waitForTimeout(400)
+  }
+  return !(await page.evaluate(() => !!document.querySelector('.fullview-overlay')))
+}

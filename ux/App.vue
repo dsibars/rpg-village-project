@@ -9,46 +9,56 @@
     </template>
 
     <template v-else>
-      <TopBar
-        :day="day"
-        :gold="gold"
-        :population="population"
-        :max-population="maxPopulation"
-        :wood="wood"
-        :stone="stone"
-        :iron="iron"
-        :storage-used="storageUsed"
-        :storage-max="storageMax"
-        :has-book-glow="hasBookUnread"
-        @nextDay="onNextDay"
-        @openSettings="currentPage = 'settings'"
-        @navigate="handleNavigate"
-      />
-
-      <main class="app-main" role="main" :aria-label="currentPageLabel">
-        <div v-if="pageError" class="page-error" role="alert">
-          <h2>{{ t('shared_uxelm_error_title') }}</h2>
-          <p>{{ t('shared_uxelm_error_message') }}</p>
-          <button class="btn-retry" @click="clearPageError">
-            {{ t('shared_uxelm_close') }}
-          </button>
-        </div>
-
-        <component
-          :is="currentPageComponent"
-          v-else
-          :active-tab="activeTab"
+      <template v-if="!isBookOpen">
+        <TopBar
+          :day="day"
+          :gold="gold"
+          :population="population"
+          :max-population="maxPopulation"
+          :wood="wood"
+          :stone="stone"
+          :iron="iron"
+          :storage-used="storageUsed"
+          :storage-max="storageMax"
+          :has-book-glow="hasBookUnread"
+          @nextDay="onNextDay"
           @openSettings="currentPage = 'settings'"
           @navigate="handleNavigate"
-          @tutorial:event="handleTutorialReport"
         />
-      </main>
 
-      <FooterNav
-        :current="currentPage"
-        :items="navItems"
-        :locked-tabs="lockedTabs"
-        @navigate="handlePageChange"
+        <main class="app-main" role="main" :aria-label="currentPageLabel">
+          <div v-if="pageError" class="page-error" role="alert">
+            <h2>{{ t('shared_uxelm_error_title') }}</h2>
+            <p>{{ t('shared_uxelm_error_message') }}</p>
+            <button class="btn-retry" @click="clearPageError">
+              {{ t('shared_uxelm_close') }}
+            </button>
+          </div>
+
+          <component
+            :is="currentPageComponent"
+            v-else
+            :active-tab="activeTab"
+            @openSettings="currentPage = 'settings'"
+            @navigate="handleNavigate"
+            @tutorial:event="handleTutorialReport"
+          />
+        </main>
+
+        <FooterNav
+          :current="currentPage"
+          :items="navItems"
+          :locked-tabs="lockedTabs"
+          @navigate="handlePageChange"
+        />
+      </template>
+
+      <!-- Book is rendered as an immersive full-screen overlay so it cannot be
+           accidentally dismissed by clicking the footer nav or top bar. -->
+      <BookPage
+        v-else
+        class="book-overlay"
+        @close="closeBook"
       />
     </template>
 
@@ -122,6 +132,8 @@ const pageError = shallowRef(null)
 const saveSlots = ref([])
 const slotIndex = ref(props.persistence?.slotIndex ?? null)
 const bookFirstClosed = ref(false)
+const preBookPage = ref('village')
+const isBookOpen = computed(() => currentPage.value === 'book')
 
 // Storage warning state (PF-012)
 const storageWarningDismissed = ref(false)
@@ -143,13 +155,31 @@ watch(storagePercent, (pct) => {
   }
 })
 
-// Tutorial trigger: record book-first-closed event on Day 1
+// Track the page the user was on before opening the Book, and trigger the
+// Day-1 tutorial when the Book is closed for the first time.
 watch(currentPage, (newPage, oldPage) => {
+  if (newPage === 'book' && oldPage !== 'book') {
+    preBookPage.value = oldPage || 'village'
+  }
   if (oldPage === 'book' && newPage !== 'book' && day.value === 1 && !bookFirstClosed.value) {
     bookFirstClosed.value = true
     props.engine?.recordEvent?.('book_first_closed', { day: 1 })
   }
 })
+
+function closeBook() {
+  if (day.value === 1 && !bookFirstClosed.value) {
+    // First close on Day 1: start the tutorial on the Heroes screen.
+    bookFirstClosed.value = true
+    props.engine?.recordEvent?.('book_first_closed', { day: 1 })
+    handlePageChange('heroes')
+  } else {
+    // Return to the page that was open before the Book.
+    currentPage.value = preBookPage.value
+    activeTab.value = null
+    pageError.value = null
+  }
+}
 
 // Presentation queue (PostDaySequencer Step 1)
 const presentationQueue = ref([])
@@ -507,5 +537,12 @@ refreshSaveSlots()
 .btn-retry:focus-visible {
   outline: 2px solid var(--color-primary-light);
   outline-offset: 2px;
+}
+
+.book-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  background: linear-gradient(135deg, #2a1d14 0%, #1a120e 50%, #231813 100%);
 }
 </style>

@@ -1573,7 +1573,6 @@ export const en = {
     combat_log_defeat: "Defeat... The party has fallen...",
 
     // ═══ TUTORIAL ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-    tutorial_hero_skills_msg_navigate_heroes: "Your heroes are the heart of the village. Tap here to see them.",
     tutorial_hero_skills_msg_select_arthur: "This is Arthur, your first hero. Let's take a look at him.",
     tutorial_hero_skills_msg_learn_skill: "Arthur can learn a new fighting technique. Tap this button to open his skills.",
     tutorial_hero_stats_msg_assign_stats: "As heroes grow, they gain points to improve their strength, speed, and other stats.",

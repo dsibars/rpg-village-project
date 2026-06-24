@@ -50,7 +50,7 @@ test('RegionService: greenfields loot drops configured materials', () => {
     const node = regionService.generateExpedition('reg_greenfields', 0);
     const items = node.reward.items;
     assert.ok(items.material_wood, 'Should drop wood');
-    assert.ok(items.material_wood >= 5 && items.material_wood <= 10, 'Wood qty in configured range');
+    assert.ok(items.material_wood >= 8 && items.material_wood <= 15, 'Wood qty in configured range');
 });
 
 test('RegionService: tiny_cave loot drops stone and ore', () => {
@@ -63,12 +63,12 @@ test('RegionService: tiny_cave loot drops stone and ore', () => {
 test('RegionService: loot respects goldBase and goldPerClear', () => {
     const { regionService } = createServices();
     const node1 = regionService.generateExpedition('reg_greenfields', 0);
-    // greenfields: goldBase=40, goldPerClear=8, baseLevel=1 -> baseGold=40, ±20% -> 32-48
-    assert.ok(node1.reward.gold >= 32 && node1.reward.gold <= 48, `Gold ${node1.reward.gold} in expected range`);
+    // greenfields: goldBase=60, goldPerClear=12, baseLevel=1 -> baseGold=60, ±20% -> 48-72
+    assert.ok(node1.reward.gold >= 48 && node1.reward.gold <= 72, `Gold ${node1.reward.gold} in expected range`);
 
     const node10 = regionService.generateExpedition('reg_greenfields', 10);
-    // baseGold = 40 + 10*8 = 120, ±20% -> 96-144
-    assert.ok(node10.reward.gold >= 96 && node10.reward.gold <= 144, `Gold ${node10.reward.gold} in expected range for clears=10`);
+    // baseGold = 60 + 10*12 = 180, ±20% -> 144-216
+    assert.ok(node10.reward.gold >= 144 && node10.reward.gold <= 216, `Gold ${node10.reward.gold} in expected range for clears=10`);
 });
 
 // --- Scaling Tests ---

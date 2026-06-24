@@ -3,6 +3,7 @@
  */
 
 import { waitForVisible, clickElement } from './nav.mjs'
+import { refreshUI } from './state-injector.mjs'
 
 export async function startNewGame(page, selectors, reset = true) {
   if (!reset) {
@@ -29,7 +30,29 @@ export async function startNewGame(page, selectors, reset = true) {
   await waitForVisible(page, selectors.bookView, 10000)
   await page.waitForTimeout(400)
 
-  // Navigate to village to dismiss Book and continue with tests
+  // Close the book via its own close control; App.vue lands on Heroes and the
+  // Day-1 tutorial starts. Screenshot flows other than the dedicated tutorial
+  // flow need a clean UI, so mark the Day-1 chain as completed.
+  await page.evaluate(() => {
+    const closeBtn = document.querySelector('.book-view .btn-close')
+    if (closeBtn) closeBtn.click()
+
+    const e = window.__ENGINE__
+    if (e?.tutorialService) {
+      const day1Ids = ['tutorial_hero_skills', 'tutorial_hero_stats', 'tutorial_build_farm', 'tutorial_expeditions']
+      day1Ids.forEach((tid) => e.tutorialService.markCompleted(tid))
+      // Make sure no tutorial remains active so the overlay does not block UI
+      e.tutorialService.state.activeTutorialId = null
+      e.tutorialService.state.currentStepIndex = 0
+      e.tutorialService.state.stepData = {}
+      if (e.tutorialService._save) e.tutorialService._save()
+    }
+  })
+  await page.waitForTimeout(600)
+  await refreshUI(page)
+  await page.waitForTimeout(200)
+
+  // Most non-tutorial flows expect to start from the village view.
   await clickElement(page, selectors.navVillage)
   await page.waitForTimeout(500)
 
