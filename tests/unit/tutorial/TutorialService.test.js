@@ -93,8 +93,9 @@ test('TutorialService: advance() completes tutorial at final step and chains to 
     service.start('tutorial_hero_skills');
     service.advance(); // step 1 → open_skills
     service.advance(); // step 2 → learn_skill
-    service.advance(); // step 3 → skills_done
-    const result = service.advance(); // step 4 (final) → completes, chains to hero_stats
+    service.advance(); // step 3 → close_skills
+    service.advance(); // step 4 → skills_done
+    const result = service.advance(); // step 5 (final) → completes, chains to hero_stats
 
     assert.strictEqual(result, true);
     // Chains to tutorial_hero_stats
@@ -246,7 +247,7 @@ test('TutorialService: getState() returns correct step view', () => {
     const state = service.getState();
     assert.strictEqual(state.tutorialId, 'tutorial_hero_skills');
     assert.strictEqual(state.stepIndex, 0);
-    assert.strictEqual(state.totalSteps, 4);
+    assert.strictEqual(state.totalSteps, 5);
     assert.strictEqual(state.stepId, 'select_arthur');
     assert.deepStrictEqual(state.messages, ['tutorial_hero_skills_msg_select_arthur']);
     assert.deepStrictEqual(state.allowActions, []);
@@ -305,8 +306,9 @@ test('TutorialService: completing tutorial_hero_skills chains to tutorial_hero_s
     service.start('tutorial_hero_skills');
     service.advance(); // step 1 → open_skills
     service.advance(); // step 2 → learn_skill
-    service.advance(); // step 3 → skills_done
-    service.advance(); // step 4 → completes, should chain to tutorial_hero_stats
+    service.advance(); // step 3 → close_skills
+    service.advance(); // step 4 → skills_done
+    service.advance(); // step 5 → completes, should chain to tutorial_hero_stats
     assert.strictEqual(service.getState().tutorialId, 'tutorial_hero_stats');
 });
 

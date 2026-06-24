@@ -1580,6 +1580,7 @@ export const en = {
     tutorial_hero_skills_msg_select_arthur: "This is Arthur, your first hero. Let's take a look at him.",
     tutorial_hero_skills_msg_open_skills: "Arthur can learn a new fighting technique. Tap the Skills button to open his skills.",
     tutorial_hero_skills_msg_learn_skill: "Now tap a locked technique to learn it.",
+    tutorial_hero_skills_msg_close_modal: "Now that you spent your skill point, close the modal to continue.",
     tutorial_hero_skills_msg_done: "Good! Arthur is ready to grow stronger.",
     tutorial_hero_stats_msg_assign_stats: "As heroes grow, they gain points to improve their strength, speed, and other stats.",
     tutorial_hero_stats_msg_done: "Great work! Now let's build up the village.",
@@ -1590,7 +1591,6 @@ export const en = {
     tutorial_expeditions_msg_select_region: "The Greenfields are the safest place to start your adventures.",
     tutorial_expeditions_msg_select_expedition: "This cave is a good first challenge. Tap it to send Arthur inside.",
     tutorial_expeditions_msg_advance_day: "When you're ready, advance to the next day to see what happens.",
-    shared_uxelm_continue: "Continue",
     tutorial_uxelm_action_blocked: "This action is blocked while the tutorial is active.",
     tutorial_uxelm_nav_blocked: "Navigation is restricted during the tutorial.",
 };

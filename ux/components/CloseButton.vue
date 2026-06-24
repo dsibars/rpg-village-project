@@ -3,6 +3,7 @@
     class="btn-close"
     :disabled="disabled"
     :aria-label="t('shared_uxelm_close')"
+    :data-tutorial-target="tutorialTarget"
     @click="onClick"
   >✕</button>
 </template>
@@ -13,7 +14,8 @@ import { useI18n } from '@/core/composables/useI18n.js'
 const { t } = useI18n()
 
 const props = defineProps({
-  disabled: { type: Boolean, default: false }
+  disabled: { type: Boolean, default: false },
+  tutorialTarget: { type: String, default: null }
 })
 
 const emit = defineEmits(['close'])

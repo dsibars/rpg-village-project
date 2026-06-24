@@ -1575,6 +1575,7 @@ export const es = {
     tutorial_hero_skills_msg_select_arthur: "Este es Arthur, tu primer héroe. Echemos un vistazo.",
     tutorial_hero_skills_msg_open_skills: "Arthur puede aprender una nueva técnica de combate. Toca el botón de Habilidades para abrir sus habilidades.",
     tutorial_hero_skills_msg_learn_skill: "Ahora toca una técnica bloqueada para aprenderla.",
+    tutorial_hero_skills_msg_close_modal: "Ahora que gastaste tu punto de habilidad, cierra el modal para continuar.",
     tutorial_hero_skills_msg_done: "¡Bien! Arthur está listo para volverse más fuerte.",
     tutorial_hero_stats_msg_assign_stats: "A medida que los héroes crecen, ganan puntos para mejorar su fuerza, velocidad y otras estadísticas.",
     tutorial_hero_stats_msg_done: "¡Gran trabajo! Ahora construyamos el pueblo.",
@@ -1585,7 +1586,6 @@ export const es = {
     tutorial_expeditions_msg_select_region: "Los Prados Verdes son el lugar más seguro para comenzar tus aventuras.",
     tutorial_expeditions_msg_select_expedition: "Esta cueva es un buen primer desafío. Tócala para enviar a Arthur dentro.",
     tutorial_expeditions_msg_advance_day: "Cuando estés listo, avanza al siguiente día para ver qué pasa.",
-    shared_uxelm_continue: "Continuar",
     tutorial_uxelm_action_blocked: "Esta acción está bloqueada mientras el tutorial está activo.",
     tutorial_uxelm_nav_blocked: "La navegación está restringida durante el tutorial.",
 };

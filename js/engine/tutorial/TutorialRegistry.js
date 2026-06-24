@@ -53,6 +53,13 @@ export const TutorialRegistry = new Map([
           advanceOn: { event: 'skill_learned', heroId: 'arthur' }
         },
         {
+          id: 'close_skills',
+          messages: ['tutorial_hero_skills_msg_close_modal'],
+          what: { target: 'hero_skills_modal_close', flash: true },
+          where: { page: 'heroes', heroId: 'arthur', modal: 'skills' },
+          advanceOn: { event: 'skill_modal_closed', heroId: 'arthur' }
+        },
+        {
           id: 'skills_done',
           messages: ['tutorial_hero_skills_msg_done'],
           where: { page: 'heroes', heroId: 'arthur' },

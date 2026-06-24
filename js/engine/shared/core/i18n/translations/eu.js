@@ -1573,6 +1573,7 @@ export const eu = {
     tutorial_hero_skills_msg_select_arthur: "Hau Arthur da, zure lehen heroia. Begirada bat bota diezaiogun.",
     tutorial_hero_skills_msg_open_skills: "Arthurrek borroka-teknika berri bat ikas dezake. Sakatu Gaitasunak botoia bere gaitasunak irekitzeko.",
     tutorial_hero_skills_msg_learn_skill: "Orain sakatu blokeatutako teknik bat ikasteko.",
+    tutorial_hero_skills_msg_close_modal: "Orain zure trebetasun puntuak gastatu dituzunez, itxi modala jarraitzeko.",
     tutorial_hero_skills_msg_done: "Ondo! Arthur prest dago indartsuago egiteko.",
     tutorial_hero_stats_msg_assign_stats: "Heroiek hazten diren heinean, indarra, abiadura eta beste estatistika batzuk hobetzeko puntuak lortzen dituzte.",
     tutorial_hero_stats_msg_done: "Lan bikaina! Orain herria eraiki dezagun.",
@@ -1583,7 +1584,6 @@ export const eu = {
     tutorial_expeditions_msg_select_region: "Greenfields zure abenturetan hasteko lekurik seguruena da.",
     tutorial_expeditions_msg_select_expedition: "Leize hau erronka ona da hasteko. Sakatu Arthur bertara bidaltzeko.",
     tutorial_expeditions_msg_advance_day: "Prest zaudenean, joan hurrengo egunera ikusteko zer gertatzen den.",
-    shared_uxelm_continue: "Jarraitu",
     tutorial_uxelm_action_blocked: "Ekintza hau blokeatuta dago tutoriala aktibo dagoen bitartean.",
     tutorial_uxelm_nav_blocked: "Nabigazioa mugatuta dago tutorialaren bitartean.",
 };

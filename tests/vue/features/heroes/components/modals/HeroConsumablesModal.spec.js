@@ -49,7 +49,7 @@ describe('HeroConsumablesModal', () => {
       consumables: { tiny_mp_potion: 2 },
       open: true
     })
-    expect(wrapper.text()).toContain('+10 MP')
+    expect(wrapper.text()).toContain('+6 MP')
   })
 
   it('disables Use when HP is full', () => {

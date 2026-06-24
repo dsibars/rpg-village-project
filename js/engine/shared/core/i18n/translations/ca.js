@@ -1575,6 +1575,7 @@ export const ca = {
     tutorial_hero_skills_msg_select_arthur: "Aquest és l'Arthur, el teu primer heroi. Donem-hi un cop d'ull.",
     tutorial_hero_skills_msg_open_skills: "L'Arthur pot aprendre una nova tècnica de combat. Toca el botó d'Habilitats per obrir les seves habilitats.",
     tutorial_hero_skills_msg_learn_skill: "Ara toca una tècnica bloquejada per aprendre-la.",
+    tutorial_hero_skills_msg_close_modal: "Ara que has gastat el teu punt d'habilitat, tanca el modal per continuar.",
     tutorial_hero_skills_msg_done: "Bé! L'Arthur està a punt per fer-se més fort.",
     tutorial_hero_stats_msg_assign_stats: "A mesura que els herois creixen, guanyen punts per millorar la seva força, velocitat i altres estadístiques.",
     tutorial_hero_stats_msg_done: "Molt bé! Ara construïm el poble.",
@@ -1585,7 +1586,6 @@ export const ca = {
     tutorial_expeditions_msg_select_region: "Els Camps Verds són el lloc més segur per començar les teves aventures.",
     tutorial_expeditions_msg_select_expedition: "Aquesta cova és un bon primer repte. Toca-la per enviar l'Arthur a dins.",
     tutorial_expeditions_msg_advance_day: "Quan estiguis llest, avança al dia següent per veure què passa.",
-    shared_uxelm_continue: "Continuar",
     tutorial_uxelm_action_blocked: "Aquesta acció està bloquejada mentre el tutorial està actiu.",
     tutorial_uxelm_nav_blocked: "La navegació està restringida durant el tutorial.",
 };

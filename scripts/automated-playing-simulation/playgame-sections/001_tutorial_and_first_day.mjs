@@ -97,7 +97,7 @@ export default async function runSection({ page, capture, log, stepNumber }) {
   stepNumber = await record(
     stepNumber,
     'after_learning_first_skill',
-    'Clicked the Skills button, then clicked a locked technique to learn it. Arthur unlocked it, the skills modal closed, and after acknowledging the closing message the tutorial advanced to "assign_stats".',
+    'Clicked the Skills button, learned a locked technique, closed the skills modal, and acknowledged the closing message. The tutorial advanced to "assign_stats".',
     async () => {
       await clickTutorialTarget(page, 'hero_action_skills')
       await waitForTutorialStep(page, 'learn_skill')
@@ -106,10 +106,11 @@ export default async function runSection({ page, capture, log, stepNumber }) {
       const lockedBtn = await page.$('.skill-item.locked button')
       if (!lockedBtn) throw new Error('No learnable locked skill button found')
       await page.evaluate((btn) => btn.click(), lockedBtn)
+      await waitForTutorialStep(page, 'close_skills')
+      await clickTutorialTarget(page, 'hero_skills_modal_close')
       await waitForTutorialStep(page, 'skills_done')
       await acknowledgeTutorialStep(page)
       await waitForTutorialStep(page, 'assign_stats')
-      await closeAnyOpenModal(page)
       await page.waitForTimeout(300)
     }
   )

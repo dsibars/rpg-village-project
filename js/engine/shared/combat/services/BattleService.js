@@ -23,6 +23,7 @@ export class BattleService {
         this.enemies = [];
         this.turnOrder = [];
         this.currentTurnIndex = 0;
+        this.turnCount = 1;
         this.isOver = false;
         this.winner = null;
         this.log = [];
@@ -255,7 +256,8 @@ export class BattleService {
 
         // Spec 4.0: Gambits override CombatAI entirely when enabled
         if (entity.gambits && entity.gambits.length > 0) {
-            const gambitDecision = GambitService.evaluate(entity, allies, enemies);
+            const battleState = this._buildBattleState();
+            const gambitDecision = GambitService.evaluate(entity, allies, enemies, battleState);
             if (gambitDecision) {
                 if (gambitDecision.skillId) {
                     return this.executeAction(entity, gambitDecision.skillId, gambitDecision.targetIndex, statusResults, gambitDecision.tier);
@@ -268,7 +270,15 @@ export class BattleService {
                 }
                 if (gambitDecision.itemId) {
                     const targetId = gambitDecision.targetIndex !== null ? allies[gambitDecision.targetIndex]?.id : entity.id;
-                    return this.useConsumable(entity, gambitDecision.itemId, targetId);
+                    const itemResult = this.useConsumable(entity, gambitDecision.itemId, targetId);
+                    if (itemResult.success) {
+                        const event = itemResult.data?.event;
+                        if (this.isOver) {
+                            return Result.ok({ actionEvents: event ? [event] : [], battleOver: true, winner: this.winner });
+                        }
+                        return this._advanceTurn({ actionEvents: event ? [event] : [] });
+                    }
+                    // Item could not be used (e.g. already used this turn) → fall through to fallback
                 }
                 if (gambitDecision.defend) {
                     return this._handleDefend(entity);
@@ -278,7 +288,7 @@ export class BattleService {
                 }
             }
             // No gambit matched OR action failed → Slot 0 Fallback
-            const fallback = GambitService.getFallbackAction(entity, allies);
+            const fallback = GambitService.getFallbackAction(entity, allies, enemies);
             if (fallback.skillId) {
                 return this.executeAction(entity, fallback.skillId, fallback.targetIndex, statusResults);
             }
@@ -679,7 +689,9 @@ export class BattleService {
 
             // Defense reduction
             const targetDefense = CombatCalculator.getFinalStat(target, 'defense');
-            const rawDamage = spell.damage * elementMult;
+            const magicPower = actor.magicPower || 0;
+            const magMult = 1 + (magicPower / 20);
+            const rawDamage = spell.damage * magMult * elementMult;
             const defMult = CombatCalculator.calculateDamageMultiplier(rawDamage, targetDefense);
 
             let finalDamage = Math.max(1, Math.floor(rawDamage * defMult));
@@ -849,10 +861,12 @@ export class BattleService {
         let type = data.type;
 
         if (type === 'HEAL_HP') {
-            amount = Math.min(data.amount, target.maxHp - target.hp);
+            const heal = data.percent ? Math.floor(target.maxHp * data.amount) : data.amount;
+            amount = Math.min(heal, target.maxHp - target.hp);
             target.hp = Math.min(target.maxHp, target.hp + amount);
         } else if (type === 'HEAL_MP') {
-            amount = Math.min(data.amount, target.maxMp - target.mp);
+            const restore = data.percent ? Math.floor(target.maxMp * data.amount) : data.amount;
+            amount = Math.min(restore, target.maxMp - target.mp);
             target.mp = Math.min(target.maxMp, target.mp + amount);
         } else if (type === 'ESCAPE') {
             this.isOver = true;
@@ -919,12 +933,24 @@ export class BattleService {
     _advanceTurn(data = {}) {
         this.currentTurnIndex++;
         this.itemUsedThisTurn = false;
+        this.turnCount++;
         if (this.currentTurnIndex >= this.turnOrder.length) {
             this._determineTurnOrder();
             this.currentTurnIndex = 0;
         }
         const nextEntity = this.turnOrder[this.currentTurnIndex];
         return Result.ok({ ...data, nextEntityId: nextEntity?.id });
+    }
+
+    _buildBattleState() {
+        const turnCount = this.turnCount || 1;
+        let phase = 'early';
+        if (turnCount > 6) {
+            phase = 'late';
+        } else if (turnCount > 3) {
+            phase = 'mid';
+        }
+        return { turnCount, phase };
     }
 
     /**

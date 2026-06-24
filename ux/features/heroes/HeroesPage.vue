@@ -182,10 +182,13 @@ watch(selectedHeroId, (newId, oldId) => {
   }
 })
 
-// Tutorial: report when the skills modal is opened
+// Tutorial: report when the skills modal opens or closes
 watch(activeModal, (newModal, oldModal) => {
   if (newModal === 'skills' && oldModal !== 'skills' && selectedHeroId.value) {
     emit('tutorial:event', { event: 'skill_modal_opened', heroId: selectedHeroId.value })
+  }
+  if (oldModal === 'skills' && newModal !== 'skills' && selectedHeroId.value) {
+    emit('tutorial:event', { event: 'skill_modal_closed', heroId: selectedHeroId.value })
   }
 })
 
@@ -246,9 +249,6 @@ function learnFamily(familyId) {
   const result = dispatch('hero', 'learnFamily', { heroId: selectedHeroId.value, familyId })
   if (result?.success) {
     emit('tutorial:event', { event: 'skill_learned', heroId: selectedHeroId.value, familyId })
-    // Close the skills modal so the player returns to the hero profile for the
-    // next tutorial step.
-    activeModal.value = null
   }
 }
 
