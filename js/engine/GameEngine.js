@@ -432,10 +432,12 @@ export class GameEngine {
 
         let amountRestored = 0;
         if (data.type === 'HEAL_HP') {
-            amountRestored = Math.min(data.amount, hero.maxHp - hero.hp);
+            const heal = data.percent ? Math.floor(hero.maxHp * data.amount) : data.amount;
+            amountRestored = Math.min(heal, hero.maxHp - hero.hp);
             hero.hp = Math.min(hero.maxHp, hero.hp + amountRestored);
         } else if (data.type === 'HEAL_MP') {
-            amountRestored = Math.min(data.amount, hero.maxMp - hero.mp);
+            const restore = data.percent ? Math.floor(hero.maxMp * data.amount) : data.amount;
+            amountRestored = Math.min(restore, hero.maxMp - hero.mp);
             hero.mp = Math.min(hero.maxMp, hero.mp + amountRestored);
         } else {
             return Result.fail('combat_error_consumable_invalid');

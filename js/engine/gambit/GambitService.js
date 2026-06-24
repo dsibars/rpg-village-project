@@ -46,14 +46,14 @@ export class GambitService {
      * @param {Array} allies
      * @returns {Object}
      */
-    static getFallbackAction(hero, allies) {
+    static getFallbackAction(hero, allies, enemies = []) {
         const fallback = hero.fallbackAction || 'basic_attack';
         if (fallback === 'defend') {
             return { defend: true, targetIndex: allies.findIndex(a => a.id === hero.id) };
         }
         // Default: basic attack on lowest HP enemy
-        const aliveEnemies = enemies => enemies.map((e, idx) => ({ e, idx })).filter(item => item.e.hp > 0);
-        const targets = aliveEnemies([]); // empty array fallback
+        const aliveEnemies = enemies.map((e, idx) => ({ e, idx })).filter(item => item.e.hp > 0);
+        const targets = aliveEnemies.sort((a, b) => a.e.hp - b.e.hp);
         const targetIndex = targets.length > 0 ? targets[0].idx : 0;
         return { skillId: 'single_strike', targetIndex };
     }
@@ -107,6 +107,12 @@ export class GambitService {
             }
             case 'enemy_hp': {
                 return aliveEnemies.some(e => this._compare(e.hp / e.maxHp, operator, value));
+            }
+            case 'enemy_element': {
+                return aliveEnemies.some(e => this._compare(e.element || 'neutral', operator, value));
+            }
+            case 'enemy_type': {
+                return aliveEnemies.some(e => this._compare(e.type || 'neutral', operator, value));
             }
             case 'enemy_status': {
                 return aliveEnemies.some(e => e.statusEffects && e.statusEffects.some(s => s.type === value));
@@ -163,19 +169,22 @@ export class GambitService {
         if (!knownFamilies.includes(skillId)) return null;
 
         // Resource check
+        let effectiveTier = forcedTier;
         if (skillData.category === 'physical') {
             const tier = forcedTier !== undefined ? forcedTier : (hero.techniqueTiers && hero.techniqueTiers[skillId] || 1);
             const staCost = skillData.staminaCostBase + skillData.staminaCostPerTier * (tier - 1);
             if ((hero.stamina || 0) < staCost) return null;
+            effectiveTier = tier;
         } else {
             if (hero.mp < (skillData.mpCost || 0)) return null;
         }
 
+        const effectiveTargetType = target || skillData.targetType;
         const targetIndex = this._pickTarget(skillData.targetType, target, hero, allies, enemies);
-        if (targetIndex === null && skillData.targetType !== 'all_enemies' && skillData.targetType !== 'all_allies') {
+        if (targetIndex === null && effectiveTargetType !== 'all_enemies' && effectiveTargetType !== 'all_allies') {
             return null; // No valid target
         }
-        return { skillId, targetIndex, tier: forcedTier };
+        return { skillId, targetIndex, tier: effectiveTier };
     }
 
     static _resolveSpellAction(spellName, hero, allies, enemies, target) {
@@ -186,8 +195,9 @@ export class GambitService {
 
         if (hero.mp < (spell.mpCost || 0)) return null;
 
+        const effectiveTargetType = target || spell.targetType;
         const targetIndex = this._pickTarget(spell.targetType, target, hero, allies, enemies);
-        if (targetIndex === null && spell.targetType !== 'all_enemies' && spell.targetType !== 'all_allies') {
+        if (targetIndex === null && effectiveTargetType !== 'all_enemies' && effectiveTargetType !== 'all_allies') {
             return null;
         }
         return { spellIndex, targetIndex };
