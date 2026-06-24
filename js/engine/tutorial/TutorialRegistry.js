@@ -37,13 +37,26 @@ export const TutorialRegistry = new Map([
           advanceOn: { event: 'hero_selected', heroId: 'arthur' }
         },
         {
+          id: 'open_skills',
+          messages: ['tutorial_hero_skills_msg_open_skills'],
+          what: { target: 'hero_action_skills', flash: true },
+          where: { page: 'heroes', heroId: 'arthur' },
+          advanceOn: { event: 'skill_modal_opened', heroId: 'arthur' }
+        },
+        {
           id: 'learn_skill',
           messages: ['tutorial_hero_skills_msg_learn_skill'],
-          what: { target: 'hero_action_skills', flash: true },
-          where: { page: 'heroes', heroId: 'arthur', modal: 'skills' },
+          what: { target: 'hero_first_locked_skill', flash: true },
+          where: { page: 'heroes', heroId: 'arthur' },
           modalLock: true,
           allowActions: ['hero.learnFamily'],
           advanceOn: { event: 'skill_learned', heroId: 'arthur' }
+        },
+        {
+          id: 'skills_done',
+          messages: ['tutorial_hero_skills_msg_done'],
+          where: { page: 'heroes', heroId: 'arthur' },
+          advanceOn: { event: 'tutorial_ack' }
         }
       ],
       nextTutorialId: 'tutorial_hero_stats'
@@ -63,7 +76,13 @@ export const TutorialRegistry = new Map([
           what: { target: 'hero_stats_grid', flash: false },
           where: { page: 'heroes', heroId: 'arthur' },
           allowActions: ['hero.increaseStat'],
-          advanceOn: { event: 'stat_assigned', heroId: 'arthur' }
+          advanceOn: { event: 'stat_assigned', heroId: 'arthur', remainingPoints: 0 }
+        },
+        {
+          id: 'stats_done',
+          messages: ['tutorial_hero_stats_msg_done'],
+          where: { page: 'heroes', heroId: 'arthur' },
+          advanceOn: { event: 'tutorial_ack' }
         }
       ],
       nextTutorialId: 'tutorial_build_farm'
@@ -91,6 +110,12 @@ export const TutorialRegistry = new Map([
           where: { page: 'town', tab: 'buildings' },
           allowActions: ['buildings.startProject'],
           advanceOn: { event: 'building_project_started', buildingId: 'farm' }
+        },
+        {
+          id: 'farm_done',
+          messages: ['tutorial_build_farm_msg_done'],
+          where: { page: 'town', tab: 'buildings' },
+          advanceOn: { event: 'tutorial_ack' }
         }
       ],
       nextTutorialId: 'tutorial_expeditions'

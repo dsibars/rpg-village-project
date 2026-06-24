@@ -221,8 +221,8 @@ const ACTION_MAP = {
   },
   tutorial: {
     reportEvent: (engine, p) => {
-      const result = engine.reportTutorialEvent(p)
-      return { success: result, data: engine.getTutorialState() }
+      const advanced = engine.reportTutorialEvent(p)
+      return { success: true, data: { state: engine.getTutorialState(), advanced } }
     },
     skip: (engine) => {
       engine.tutorialService.skip()

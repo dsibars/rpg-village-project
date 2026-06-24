@@ -107,6 +107,10 @@ import { useAdapter } from '@/core/composables/useAdapter.js'
 import Button from '@/components/Button.vue'
 import EmptyState from '@/components/EmptyState.vue'
 
+const props = defineProps({
+  initialBuildingId: { type: String, default: null }
+})
+
 const { t } = useI18n()
 const { gameState } = useGameState()
 const { dispatch } = useAdapter()
@@ -157,6 +161,13 @@ const visibleBuildings = computed(() => {
     return true
   })
 })
+
+// Select a building requested by an external navigation (e.g. locked village tile)
+watch(() => props.initialBuildingId, (id) => {
+  if (id && visibleBuildings.value.some(b => b.id === id)) {
+    selectedId.value = id
+  }
+}, { immediate: true })
 
 const selectedBuilding = computed(() =>
   buildings.value.find((b) => b.id === selectedId.value)

@@ -20,6 +20,7 @@ export const KNOWN_EVENT_TYPES = new Set([
   'tab_changed',
   'hero_selected',
   'skill_learned',
+  'skill_modal_opened',
   'stat_assigned',
   'building_constructed',
   'building_project_started',
@@ -27,7 +28,8 @@ export const KNOWN_EVENT_TYPES = new Set([
   'expedition_started',
   'day_advanced',
   'book_first_closed',
-  'tutorial_completed'
+  'tutorial_completed',
+  'tutorial_ack'
 ]);
 
 // ─── Known Spotlight Targets ───────────────────────────────────────────────
@@ -53,6 +55,9 @@ export const KNOWN_TARGETS = new Set([
   // Hero actions
   'hero_action_skills',
   'hero_action_trainer',
+
+  // Skill modal
+  'hero_first_locked_skill',
 
   // Stats
   'hero_stats_grid',
@@ -397,7 +402,7 @@ export class TutorialValidator {
     if (advanceOn.event !== payload.event) return false;
 
     // Check optional filters
-    const filters = ['heroId', 'buildingId', 'nodeId', 'statId', 'familyId', 'page', 'tab', 'regionId'];
+    const filters = ['heroId', 'buildingId', 'nodeId', 'statId', 'remainingPoints', 'familyId', 'page', 'tab', 'regionId'];
     for (const filter of filters) {
       if (advanceOn[filter] !== undefined && advanceOn[filter] !== payload[filter]) {
         return false;

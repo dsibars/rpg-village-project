@@ -23,6 +23,8 @@
         :current-text="currentMessageText"
         :interactive="!darkeningDismissed"
         :placement="messagePosition.placement"
+        :show-continue="isAckStep"
+        :continue-label="t('shared_uxelm_continue')"
         @advance="advanceMessage"
       />
 
@@ -46,7 +48,7 @@ import TutorialMessage from './TutorialMessage.vue'
 const { gameState } = useGameState()
 const { t } = useI18n()
 
-const emit = defineEmits(['navigate'])
+const emit = defineEmits(['navigate', 'tutorial:event'])
 
 const tutorial = computed(() => gameState.value?.tutorial || null)
 const active = computed(() => !!tutorial.value)
@@ -178,16 +180,33 @@ const messagePosition = computed(() => {
   return { x, y, placement }
 })
 
+const isAckStep = computed(() => tutorial.value?.advanceOn?.event === 'tutorial_ack')
+
 function advanceMessage() {
   const msgs = tutorial.value?.messages || []
   if (messageIndex.value < msgs.length - 1) {
     messageIndex.value++
+    return
   }
-  // When all messages are shown, the user must perform the action
-  // (the step auto-advances via event-driven reportEvent)
+
+  if (isAckStep.value) {
+    // Acknowledgement step: clicking the final message advances the tutorial
+    // instead of dismissing the darkening layer.
+    emit('tutorial:event', { event: 'tutorial_ack' })
+    return
+  }
+
+  // On the last message, clicking the bubble dismisses the darkening so
+  // the user can interact with the highlighted target underneath.
+  darkeningDismissed.value = true
 }
 
 function handleOverlayClick() {
+  if (isAckStep.value) {
+    // Acknowledgement steps require an explicit click on the message/continue
+    // button; clicks outside the bubble should not advance.
+    return
+  }
   if (!darkeningDismissed.value) {
     darkeningDismissed.value = true
   } else {
@@ -204,47 +223,15 @@ async function enforceWhere(where) {
     return
   }
 
-  // Emit navigate event so App.vue can change currentPage/activeTab
+  // Only navigate to the required page/tab. We intentionally do NOT perform
+  // synthetic clicks on tutorial targets here: clicking them automatically
+  // (e.g. opening the Skills modal) leaves the UI in a state where the
+  // tutorial spotlight points at a control that is now hidden or disabled.
   if (where.page) {
     emit('navigate', { page: where.page, tab: where.tab || null })
     await nextTick()
     await delay(200)
   }
-
-  // Synthetic clicks for deeper navigation (hero selection, modal open, etc.)
-  if (where.heroId) {
-    await clickTarget(`hero_card_${where.heroId}`)
-  }
-  if (where.modal) {
-    await clickTarget(`hero_action_${where.modal}`)
-  }
-  if (where.regionId) {
-    await clickTarget(`region_card_${where.regionId}`)
-  }
-  if (where.expeditionId) {
-    await clickTarget(`expedition_node_${where.expeditionId}`)
-  }
-  if (where.buildingId) {
-    await clickTarget(`building_${where.buildingId}`)
-  }
-}
-
-async function clickTarget(targetId, maxRetries = 5) {
-  for (let i = 0; i < maxRetries; i++) {
-    const el = document.querySelector(`[data-tutorial-target="${targetId}"]`)
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' })
-      await delay(100)
-      el.click()
-      await nextTick()
-      await delay(50)
-      return true
-    }
-    await delay(100 + i * 50)
-    await nextTick()
-  }
-  console.warn(`Tutorial target not found: ${targetId}`)
-  return false
 }
 
 function delay(ms) {

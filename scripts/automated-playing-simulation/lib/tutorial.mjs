@@ -54,7 +54,25 @@ export async function dismissTutorialDarkening(page) {
 
   const capture = await page.$('.tutorial-overlay .click-capture')
   if (capture) {
-    await capture.click()
+    // Use evaluate so the click reaches the capture layer even when the
+    // tutorial message bubble is positioned on top of it on small screens.
+    await page.evaluate((el) => el.click(), capture)
+    await page.waitForTimeout(300)
+  }
+}
+
+export async function acknowledgeTutorialStep(page) {
+  const continueBtn = await page.$('.tutorial-message-continue')
+  if (continueBtn) {
+    await page.evaluate((el) => el.click(), continueBtn)
+    await page.waitForTimeout(300)
+    return
+  }
+
+  // Fallback: click the message bubble if no button is rendered.
+  const bubble = await page.$('.tutorial-message-bubble')
+  if (bubble) {
+    await page.evaluate((el) => el.click(), bubble)
     await page.waitForTimeout(300)
   }
 }

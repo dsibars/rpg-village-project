@@ -192,6 +192,9 @@ export class TutorialService {
         if (advanceOn.statId && advanceOn.statId !== payload.statId) {
             return false;
         }
+        if (advanceOn.remainingPoints !== undefined && advanceOn.remainingPoints !== payload.remainingPoints) {
+            return false;
+        }
         if (advanceOn.familyId && advanceOn.familyId !== payload.familyId) {
             return false;
         }

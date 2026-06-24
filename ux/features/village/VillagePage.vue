@@ -171,7 +171,7 @@ function unassignDefense(heroId) {
 }
 
 function navigateToBuildings(buildingId) {
-  emit('navigate', { page: 'town', tab: 'buildings' })
+  emit('navigate', { page: 'town', tab: 'buildings', buildingId })
 }
 </script>
 

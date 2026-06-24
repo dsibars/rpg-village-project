@@ -35,17 +35,37 @@ test('Day 1 tutorial starts after book_first_closed event and advances through h
     const selectResult = engine.reportTutorialEvent({ event: 'hero_selected', heroId: 'arthur' });
     assert.strictEqual(selectResult, true, 'hero_selected event should advance tutorial');
     state = engine.update();
+    assert.strictEqual(state.tutorial.stepId, 'open_skills');
+
+    // Report opening the skills modal
+    const openSkillsResult = engine.reportTutorialEvent({ event: 'skill_modal_opened', heroId: 'arthur' });
+    assert.strictEqual(openSkillsResult, true, 'skill_modal_opened event should advance tutorial');
+    state = engine.update();
     assert.strictEqual(state.tutorial.stepId, 'learn_skill');
 
     // Report learning a skill
     const skillResult = engine.reportTutorialEvent({ event: 'skill_learned', heroId: 'arthur', familyId: 'power_strike' });
     assert.strictEqual(skillResult, true, 'skill_learned event should advance tutorial');
     state = engine.update();
+    assert.strictEqual(state.tutorial.tutorialId, 'tutorial_hero_skills');
+    assert.strictEqual(state.tutorial.stepId, 'skills_done');
+
+    // Acknowledge the closing message to move on
+    const skillsAckResult = engine.reportTutorialEvent({ event: 'tutorial_ack' });
+    assert.strictEqual(skillsAckResult, true, 'tutorial_ack should advance from skills_done');
+    state = engine.update();
     assert.strictEqual(state.tutorial.tutorialId, 'tutorial_hero_stats');
 
-    // Report assigning a stat point
-    const statResult = engine.reportTutorialEvent({ event: 'stat_assigned', heroId: 'arthur', statId: 'baseStrength' });
-    assert.strictEqual(statResult, true, 'stat_assigned event should advance tutorial');
+    // Report assigning a stat point (only advances when all points are spent)
+    const statResult = engine.reportTutorialEvent({ event: 'stat_assigned', heroId: 'arthur', statId: 'baseStrength', remainingPoints: 0 });
+    assert.strictEqual(statResult, true, 'stat_assigned event should advance tutorial when all points are spent');
+    state = engine.update();
+    assert.strictEqual(state.tutorial.tutorialId, 'tutorial_hero_stats');
+    assert.strictEqual(state.tutorial.stepId, 'stats_done');
+
+    // Acknowledge the stats closing message
+    const statsAckResult = engine.reportTutorialEvent({ event: 'tutorial_ack' });
+    assert.strictEqual(statsAckResult, true, 'tutorial_ack should advance from stats_done');
     state = engine.update();
     assert.strictEqual(state.tutorial.tutorialId, 'tutorial_build_farm');
     assert.strictEqual(state.tutorial.stepId, 'navigate_village');
@@ -59,6 +79,13 @@ test('Day 1 tutorial starts after book_first_closed event and advances through h
     // Report starting the farm project
     const farmResult = engine.reportTutorialEvent({ event: 'building_project_started', buildingId: 'farm' });
     assert.strictEqual(farmResult, true, 'building_project_started event should advance tutorial');
+    state = engine.update();
+    assert.strictEqual(state.tutorial.tutorialId, 'tutorial_build_farm');
+    assert.strictEqual(state.tutorial.stepId, 'farm_done');
+
+    // Acknowledge the farm closing message
+    const farmAckResult = engine.reportTutorialEvent({ event: 'tutorial_ack' });
+    assert.strictEqual(farmAckResult, true, 'tutorial_ack should advance from farm_done');
     state = engine.update();
     assert.strictEqual(state.tutorial.tutorialId, 'tutorial_expeditions');
     assert.strictEqual(state.tutorial.stepId, 'navigate_explore');

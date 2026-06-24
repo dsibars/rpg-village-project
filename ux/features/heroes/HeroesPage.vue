@@ -182,6 +182,13 @@ watch(selectedHeroId, (newId, oldId) => {
   }
 })
 
+// Tutorial: report when the skills modal is opened
+watch(activeModal, (newModal, oldModal) => {
+  if (newModal === 'skills' && oldModal !== 'skills' && selectedHeroId.value) {
+    emit('tutorial:event', { event: 'skill_modal_opened', heroId: selectedHeroId.value })
+  }
+})
+
 const tavernLevel = computed(() => village.value.infrastructure?.tavern || 0)
 const canRecruit = computed(() => tavernLevel.value >= 1)
 
@@ -204,7 +211,8 @@ function allocateStat(statId) {
   if (!selectedHeroId.value) return
   const result = dispatch('hero', 'increaseStat', { heroId: selectedHeroId.value, statId })
   if (result?.success) {
-    emit('tutorial:event', { event: 'stat_assigned', heroId: selectedHeroId.value, statId })
+    const remainingPoints = selectedHero.value?.statPoints ?? 0
+    emit('tutorial:event', { event: 'stat_assigned', heroId: selectedHeroId.value, statId, remainingPoints })
   }
 }
 
@@ -238,6 +246,9 @@ function learnFamily(familyId) {
   const result = dispatch('hero', 'learnFamily', { heroId: selectedHeroId.value, familyId })
   if (result?.success) {
     emit('tutorial:event', { event: 'skill_learned', heroId: selectedHeroId.value, familyId })
+    // Close the skills modal so the player returns to the hero profile for the
+    // next tutorial step.
+    activeModal.value = null
   }
 }
 

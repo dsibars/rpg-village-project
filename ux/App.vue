@@ -39,6 +39,7 @@
             :is="currentPageComponent"
             v-else
             :active-tab="activeTab"
+            :active-building-id="activeBuildingId"
             @openSettings="currentPage = 'settings'"
             @navigate="handleNavigate"
             @tutorial:event="handleTutorialReport"
@@ -78,6 +79,7 @@
     <TutorialOverlay
       v-if="tutorialActive"
       @navigate="handleNavigate"
+      @tutorial:event="handleTutorialReport"
     />
 
     <PresentationModal
@@ -127,6 +129,7 @@ useNarrativeToasts()
 
 const currentPage = ref('village')
 const activeTab = ref(null)
+const activeBuildingId = ref(null)
 const showCombatOverlay = ref(false)
 const pageError = shallowRef(null)
 const saveSlots = ref([])
@@ -420,12 +423,13 @@ function onCloseExpeditionResult() {
   proceedToPresentations()
 }
 
-function handleNavigate({ page, tab }) {
+function handleNavigate({ page, tab, buildingId }) {
   if (page && pages[page]) {
     const oldPage = currentPage.value
     const oldTab = activeTab.value
     currentPage.value = page
     activeTab.value = tab || null
+    activeBuildingId.value = buildingId || null
     pageError.value = null
 
     // Report tab change for tutorial auto-advancement
@@ -443,6 +447,7 @@ function handlePageChange(page) {
   const oldPage = currentPage.value
   currentPage.value = page
   activeTab.value = null
+  activeBuildingId.value = null
   pageError.value = null
 
   // Report tab change for tutorial auto-advancement

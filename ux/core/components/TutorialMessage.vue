@@ -17,7 +17,15 @@
           :class="{ active: idx === currentIndex }"
         />
       </div>
-      <span class="tutorial-message-hint">{{ hintText }}</span>
+      <button
+        v-if="showContinue"
+        type="button"
+        class="tutorial-message-continue"
+        @click.stop="handleClick"
+      >
+        {{ continueLabel }}
+      </button>
+      <span v-else class="tutorial-message-hint">{{ hintText }}</span>
     </div>
     <div v-if="placement === 'top'" class="tutorial-message-arrow down" />
   </div>
@@ -64,6 +72,14 @@ const props = defineProps({
   placement: {
     type: String,
     default: 'top'
+  },
+  showContinue: {
+    type: Boolean,
+    default: false
+  },
+  continueLabel: {
+    type: String,
+    default: 'Continue'
   }
 })
 
@@ -146,6 +162,31 @@ function handleClick() {
   font-size: 11px;
   color: var(--color-text-muted, #888);
   font-style: italic;
+}
+
+.tutorial-message-continue {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  padding: 8px 12px;
+  background: var(--color-primary, #f5c542);
+  color: var(--color-bg-base, #1a1a2e);
+  border: none;
+  border-radius: var(--radius-sm, 4px);
+  font-family: var(--font-body, sans-serif);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+}
+
+.tutorial-message-continue:hover {
+  background: var(--color-primary-light, #f7d164);
+}
+
+.tutorial-message-continue:focus-visible {
+  outline: 2px solid var(--color-primary-light, #f7d164);
+  outline-offset: 2px;
 }
 
 .tutorial-message-arrow {

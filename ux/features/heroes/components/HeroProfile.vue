@@ -311,7 +311,19 @@ const skillAlertSuffix = computed(() => {
 
 @media (max-width: 768px) {
   .hero-profile {
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .hero-profile-left,
+  .hero-profile-right {
+    flex: 0 0 auto;
+    overflow: visible;
+  }
+
+  .hero-portrait-container {
+    max-width: 160px;
   }
 }
 </style>

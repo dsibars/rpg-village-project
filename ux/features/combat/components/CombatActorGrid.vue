@@ -361,12 +361,23 @@ function isTargetable(actor, isHero) {
 
 @media (max-width: 768px) {
   .combat-grid {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto auto auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    overflow-y: auto;
   }
+
   .combat-grid::before {
     display: none;
   }
+
+  .combat-column,
+  .combat-action-column {
+    flex: 0 0 auto;
+    min-height: 0;
+    overflow: visible;
+  }
+
   :deep(.hero-card),
   :deep(.enemy-card) {
     border-radius: var(--radius-md) !important;

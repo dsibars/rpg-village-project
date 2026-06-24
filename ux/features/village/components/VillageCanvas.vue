@@ -6,7 +6,7 @@
       class="village-tile"
       :data-tutorial-target="'building_' + tile.id"
       :class="{ active: tile.active, locked: !tile.active }"
-      @click="tile.active && $emit('navigate', tile.id)"
+      @click="$emit('navigate', tile.id)"
     >
       <span class="tile-icon">{{ tile.active ? tile.icon : '🔒' }}</span>
       <span class="tile-name">{{ tile.name }}</span>
@@ -86,7 +86,12 @@ const tiles = computed(() => {
 
 .village-tile.locked {
   opacity: 0.5;
-  cursor: not-allowed;
+  cursor: pointer;
+}
+
+.village-tile.locked:hover {
+  border-color: var(--color-primary-light);
+  background: rgba(74, 222, 128, 0.08);
 }
 
 .tile-icon {

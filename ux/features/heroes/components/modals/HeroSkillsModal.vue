@@ -37,7 +37,12 @@
 
         <div v-if="lockedList.length" class="locked-divider">{{ t('heroes_uxelm_skill_locked_section') }}</div>
 
-        <div v-for="family in lockedList" :key="family.id" class="skill-item locked">
+        <div
+          v-for="(family, index) in lockedList"
+          :key="family.id"
+          class="skill-item locked"
+          :data-tutorial-target="index === 0 ? 'hero_first_locked_skill' : null"
+        >
           <div class="skill-info">
             <span class="skill-name">🔒 {{ familyName(family.id) }}</span>
             <span class="skill-meta">
