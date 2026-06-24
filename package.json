@@ -19,7 +19,8 @@
     "screenshots:dry": "node scripts/screenshots/orchestrator.mjs --dry-run",
     "screenshots:audit": "node scripts/screenshots/audit.mjs",
     "combat:lab": "node scripts/combat-lab/runner.mjs",
-    "combat:lab:full": "node scripts/combat-lab/runner.mjs --full"
+    "combat:lab:full": "node scripts/combat-lab/runner.mjs --full",
+    "simulate:play": "node scripts/automated-playing-simulation/playgame.mjs"
   },
   "devDependencies": {
     "@electron-forge/cli": "^7.11.2",
