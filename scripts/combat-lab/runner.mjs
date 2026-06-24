@@ -142,6 +142,67 @@ function runScenario(scenario, inventory) {
 }
 
 // ───────────────────────────────────────────────────────────────────────────
+// Parallel Execution with Concurrency Control
+// ───────────────────────────────────────────────────────────────────────────
+
+const DEFAULT_CONCURRENCY = 4;
+
+async function runScenarioAsync(scenario, inventory, logsDir) {
+  validateScenario(scenario);
+
+  const perCombatMetrics = [];
+  const sampleLog = { winner: null, log: [] };
+
+  for (let i = 0; i < scenario.iterations; i++) {
+    const result = runSingleCombat(scenario, inventory);
+    const metrics = parseCombatLog(result.log, result.winner);
+    perCombatMetrics.push(metrics);
+
+    if (i === 0) {
+      sampleLog.winner = result.winner;
+      sampleLog.log = result.log;
+    }
+  }
+
+  const aggregated = aggregateMetrics(perCombatMetrics);
+  aggregated.scenarioId = scenario.id;
+
+  // Evaluate assertions
+  const result = evaluateScenario(aggregated, scenario);
+
+  // Write sample log
+  const logPath = join(logsDir, `${scenario.id}.jsonl`);
+  const logLines = sampleLog.log.map(e => JSON.stringify(e)).join('\n');
+  await writeFile(logPath, logLines, 'utf8');
+
+  return { aggregated, result };
+}
+
+async function runWithConcurrency(items, concurrencyLimit, fn) {
+  const results = new Array(items.length);
+  const executing = [];
+
+  for (let i = 0; i < items.length; i++) {
+    const promise = fn(items[i], i).then((result) => {
+      results[i] = result;
+      return result;
+    });
+    results[i] = promise;
+
+    const e = promise.then(() => {
+      executing.splice(executing.indexOf(e), 1);
+    });
+    executing.push(e);
+
+    if (executing.length >= concurrencyLimit) {
+      await Promise.race(executing);
+    }
+  }
+
+  return Promise.all(results);
+}
+
+// ───────────────────────────────────────────────────────────────────────────
 // CLI
 // ───────────────────────────────────────────────────────────────────────────
 
@@ -153,6 +214,7 @@ function parseArgs() {
     full: false,
     iterations: null,
     seed: null,
+    concurrency: DEFAULT_CONCURRENCY,
     help: false
   };
 
@@ -174,6 +236,9 @@ function parseArgs() {
       case '--seed':
         options.seed = parseInt(args[++i], 10);
         break;
+      case '--concurrency':
+        options.concurrency = parseInt(args[++i], 10);
+        break;
       case '--help':
       case '-h':
         options.help = true;
@@ -191,17 +256,18 @@ Combat Balance Lab Runner
 Usage: node scripts/combat-lab/runner.mjs [options]
 
 Options:
-  --scenario <id>    Run a single scenario by ID
-  --tag <tag>        Run all scenarios with the given tag
-  --full             Run all scenarios including generated matrices
-  --iterations <n>   Override iteration count for all scenarios
-  --seed <n>         Set RNG seed (deterministic mode)
-  --help, -h         Show this help
+  --scenario <id>      Run a single scenario by ID
+  --tag <tag>          Run all scenarios with the given tag
+  --full               Run all scenarios including generated matrices
+  --iterations <n>     Override iteration count for all scenarios
+  --seed <n>           Set RNG seed (deterministic mode)
+  --concurrency <n>    Max parallel scenarios (default: ${DEFAULT_CONCURRENCY})
+  --help, -h           Show this help
 
 Examples:
   node scripts/combat-lab/runner.mjs
   node scripts/combat-lab/runner.mjs --scenario mage_scaling
-  node scripts/combat-lab/runner.mjs --tag magic --iterations 100
+  node scripts/combat-lab/runner.mjs --tag magic --iterations 100 --concurrency 8
 `);
 }
 
@@ -245,34 +311,32 @@ async function main() {
     toRun = toRun.map(s => ({ ...s, iterations: options.iterations }));
   }
 
-  console.log(`Combat Balance Lab — ${toRun.length} scenario(s) to run\n`);
+  console.log(`Combat Balance Lab — ${toRun.length} scenario(s) to run (concurrency: ${options.concurrency})\n`);
 
   const inventory = new LabInventoryStub();
+
+  // Run scenarios in parallel with concurrency limit
+  const startTime = Date.now();
+  const runResults = await runWithConcurrency(
+    toRun,
+    options.concurrency,
+    (scenario) => runScenarioAsync(scenario, inventory, logsDir)
+  );
+  const elapsedMs = Date.now() - startTime;
+
   const results = [];
   const allMetrics = [];
 
-  for (const scenario of toRun) {
-    validateScenario(scenario);
-
-    process.stdout.write(`  ${scenario.id} ... `);
-    const { aggregated, sampleLog } = runScenario(scenario, inventory);
-
-    // Evaluate assertions
-    const result = evaluateScenario(aggregated, scenario);
+  for (const { aggregated, result } of runResults) {
     results.push(result);
     allMetrics.push(aggregated);
-
-    // Write sample log
-    const logPath = join(logsDir, `${scenario.id}.jsonl`);
-    const logLines = sampleLog.log.map(e => JSON.stringify(e)).join('\n');
-    await writeFile(logPath, logLines, 'utf8');
 
     const status = result.knownFailure
       ? '📝 known'
       : result.overallPass
         ? '✅ pass'
         : '❌ FAIL';
-    process.stdout.write(`${status}  (wr: ${(aggregated.winRate * 100).toFixed(0)}%, turns: ${aggregated.avgTurns.toFixed(1)})\n`);
+    console.log(`  ${aggregated.scenarioId} ... ${status}  (wr: ${(aggregated.winRate * 100).toFixed(0)}%, turns: ${aggregated.avgTurns.toFixed(1)})`);
   }
 
   // Generate report
@@ -284,6 +348,7 @@ async function main() {
 
   console.log(`\nReport written to: ${reportPath}`);
   console.log(`Logs written to:   ${logsDir}/`);
+  console.log(`Runtime:           ${(elapsedMs / 1000).toFixed(2)}s`);
   console.log(`\nSummary: ${summary.passed}/${summary.total} passed, ${summary.failed} unexpected failure(s), ${summary.knownFailed} known failure(s)`);
 
   // Exit with non-zero if unexpected failures
