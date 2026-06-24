@@ -32,7 +32,11 @@ const CONTEXTS_DIR = path.join(__dirname, 'contexts')
 // Sections are loaded explicitly so their execution order is obvious and stable.
 const SECTION_FILES = [
   '000_before_starting_game.mjs',
-  '001_first_days.mjs',
+  '001_tutorial_and_first_day.mjs',
+  '002_rescue_valen.mjs',
+  '003_hero_level_five.mjs',
+  '004_village_development.mjs',
+  '005_mid_game_features.mjs',
 ]
 
 async function loadContext(contextName) {
