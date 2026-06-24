@@ -2,6 +2,8 @@
   <ModalFrame
     v-if="open"
     :title="t('heroes_uxelm_skill_title', { name: hero.name })"
+    close-tutorial-target="hero_skills_modal_close"
+    :tutorialLocked="modalLocked"
     @close="$emit('close')"
   >
     <div class="skills-modal">
@@ -64,6 +66,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useI18n } from '@/core/composables/useI18n.js'
+import { useTutorial } from '@/core/composables/useTutorial.js'
 import { TECHNIQUE_FAMILIES } from '@/core/data/index.js'
 import ModalFrame from '@/components/ModalFrame.vue'
 import Button from '@/components/Button.vue'
@@ -76,6 +79,7 @@ const props = defineProps({
 defineEmits(['close', 'learn'])
 
 const { t } = useI18n()
+const { modalLocked } = useTutorial()
 
 const knownIds = computed(() => new Set(props.hero.knownFamilies || ['single_strike']))
 const allFamilies = Object.values(TECHNIQUE_FAMILIES)

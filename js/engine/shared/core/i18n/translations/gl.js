@@ -1573,6 +1573,7 @@ export const gl = {
     tutorial_hero_skills_msg_select_arthur: "Este é Arthur, o teu primeiro heroe. Bótemos un ollo.",
     tutorial_hero_skills_msg_open_skills: "Arthur pode aprender unha nova técnica de combate. Toca o botón de Habilidades para abrir as súas habilidades.",
     tutorial_hero_skills_msg_learn_skill: "Agora toca unha técnica bloqueada para aprendela.",
+    tutorial_hero_skills_msg_close_modal: "Agora que gastaches o teu punto de habilidade, pecha o modal para continuar.",
     tutorial_hero_skills_msg_done: "Ben! Arthur está listo para volverse máis forte.",
     tutorial_hero_stats_msg_assign_stats: "A medida que os heroes crecen, gañan puntos para mellorar a súa forza, velocidade e outras estatísticas.",
     tutorial_hero_stats_msg_done: "Gran traballo! Agora construímos a aldea.",
@@ -1583,7 +1584,6 @@ export const gl = {
     tutorial_expeditions_msg_select_region: "Os Campos Verdes son o lugar máis seguro para comezar as túas aventuras.",
     tutorial_expeditions_msg_select_expedition: "Esta cova é un bo primeiro desafío. Tócaa para enviar a Arthur dentro.",
     tutorial_expeditions_msg_advance_day: "Cando estea listo, avanza ao seguinte día para ver que pasa.",
-    shared_uxelm_continue: "Continuar",
     tutorial_uxelm_action_blocked: "Esta acción está bloqueada mentres o tutorial está activo.",
     tutorial_uxelm_nav_blocked: "A navegación está restrinxida durante o tutorial.",
 };

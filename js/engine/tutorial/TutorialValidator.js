@@ -21,6 +21,7 @@ export const KNOWN_EVENT_TYPES = new Set([
   'hero_selected',
   'skill_learned',
   'skill_modal_opened',
+  'skill_modal_closed',
   'stat_assigned',
   'building_constructed',
   'building_project_started',
@@ -58,6 +59,7 @@ export const KNOWN_TARGETS = new Set([
 
   // Skill modal
   'hero_first_locked_skill',
+  'hero_skills_modal_close',
 
   // Stats
   'hero_stats_grid',

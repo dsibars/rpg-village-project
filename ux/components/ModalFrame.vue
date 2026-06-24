@@ -3,7 +3,7 @@
     <div class="modal-body">
       <header class="modal-header">
         <h3 v-if="title">{{ title }}</h3>
-        <CloseButton :disabled="tutorialLocked" @close="$emit('close')" />
+        <CloseButton :disabled="tutorialLocked" :tutorial-target="closeTutorialTarget" @close="$emit('close')" />
       </header>
       <div class="modal-content">
         <slot />
@@ -21,7 +21,8 @@ import CloseButton from './CloseButton.vue'
 
 const props = defineProps({
   title: { type: String, default: '' },
-  tutorialLocked: { type: Boolean, default: false }
+  tutorialLocked: { type: Boolean, default: false },
+  closeTutorialTarget: { type: String, default: null }
 })
 
 const emit = defineEmits(['close'])

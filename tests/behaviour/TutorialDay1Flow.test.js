@@ -48,6 +48,12 @@ test('Day 1 tutorial starts after book_first_closed event and advances through h
     assert.strictEqual(skillResult, true, 'skill_learned event should advance tutorial');
     state = engine.update();
     assert.strictEqual(state.tutorial.tutorialId, 'tutorial_hero_skills');
+    assert.strictEqual(state.tutorial.stepId, 'close_skills');
+
+    // Report closing the skills modal
+    const closeSkillsResult = engine.reportTutorialEvent({ event: 'skill_modal_closed', heroId: 'arthur' });
+    assert.strictEqual(closeSkillsResult, true, 'skill_modal_closed event should advance tutorial');
+    state = engine.update();
     assert.strictEqual(state.tutorial.stepId, 'skills_done');
 
     // Acknowledge the closing message to move on
