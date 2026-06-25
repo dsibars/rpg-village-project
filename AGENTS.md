@@ -18,7 +18,7 @@ Welcome, Agent. This document defines the architectural principles, documentatio
 
 ## 3. 📖 Master Index of Specifications
 ### Shared (Core/Combat/Inventory)
-- **Combat**: [Battle System](./docs/shared/combat/battle_system.md) | [Combat Calculator](./docs/shared/combat/combat_calculator.md) | [Enemies](./docs/shared/combat/enemies.md) | [Enemies Data](./docs/shared/combat/enemies_data.md)
+- **Combat**: [Battle System](./docs/shared/combat/battle_system.md) | [Combat Calculator](./docs/shared/combat/combat_calculator.md) | [Combat Balance Lab](./docs/shared/combat/combat_balance_lab.md) | [Enemies](./docs/shared/combat/enemies.md) | [Enemies Data](./docs/shared/combat/enemies_data.md)
 - **Skills & Magic**: [Hero Skills Overview](./docs/shared/combat/hero_skills.md) | [Physical Skill System](./docs/shared/combat/physical_skill_system.md) | [Hero Skills Data](./docs/shared/combat/hero_skills_data.md) | [Magic Circle System](./docs/shared/combat/magic_circle_system.md) | [Magic Circle Naming](./docs/shared/combat/magic_circle_naming.md) | [Hybrid Body Inscription](./docs/shared/combat/hybrid_body_inscription.md)
 - **Gambits & Party**: [Gambit System](./docs/shared/combat/gambit_system.md) | [Party Traits](./docs/shared/combat/party_traits.md) | [Party Composition Matrix](./docs/shared/combat/party_composition_matrix.md)
 - **Bestiary & Balance**: [Bestiary](./docs/shared/combat/bestiary.md) | [Combat Balance Philosophy](./docs/shared/combat/combat_balance_philosophy.md)
