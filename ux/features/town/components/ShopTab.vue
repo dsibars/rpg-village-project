@@ -31,6 +31,13 @@
         </button>
       </div>
 
+      <!-- Market Refresh Timer -->
+      <div v-if="marketStock" class="market-timer">
+        <span class="market-week">📅 {{ t('shop_uxelm_week') }} {{ marketStock.week + 1 }}</span>
+        <span class="market-refresh">🔄 {{ t('shop_uxelm_refresh_in') }} {{ marketStock.refreshDay - (village.day || 0) }} {{ t('shop_uxelm_days') }}</span>
+        <span v-if="marketStock.specials?.length > 0" class="market-specials">🔥 {{ marketStock.specials.length }} {{ t('shop_uxelm_specials') }}</span>
+      </div>
+
       <!-- Storage Warning -->
       <div
         v-if="storageWarning"
@@ -47,7 +54,7 @@
           <!-- Empty state for sell/buy tabs -->
           <div v-if="catalogGroups.length === 0" class="empty-detail">
             <div class="detail-icon-bg">📭</div>
-            <p>{{ currentTab === 'sell' ? t('shop_uxelm_no_items_to_sell') : t('shop_uxelm_no_items') }}</p>
+            <p>{{ currentTab === 'sell' ? t('shop_uxelm_no_items_to_sell') : t('shop_uxelm_no_items_week') }}</p>
           </div>
 
           <!-- Flat list (resources tab) -->
@@ -179,6 +186,19 @@
                 </div>
               </div>
 
+              <!-- Resource Buy/Sell Cost Section -->
+              <div v-if="currentTab === 'resources'" class="shop-cost-section">
+                <h4>{{ t('shop_uxelm_cost') }}</h4>
+                <div v-if="selectedItem.buyPrice" class="shop-cost-item" :class="{ insufficient: !canAffordBuy(1) }">
+                  <span class="label">{{ t('shop_uxelm_buy') }}</span>
+                  <span class="value">💰 {{ selectedItem.buyPrice }}</span>
+                </div>
+                <div class="shop-cost-item">
+                  <span class="label">{{ t('shop_uxelm_sell') }}</span>
+                  <span class="value">💰 {{ selectedItem.price || 0 }}</span>
+                </div>
+              </div>
+
               <!-- Action Buttons -->
               <!-- Buy / Sell standard button -->
               <div v-if="currentTab !== 'resources'" class="shop-action-footer">
@@ -195,9 +215,22 @@
 
               <!-- Resource quantity buttons -->
               <div v-else class="shop-action-footer resource-buttons">
+                <!-- Buy buttons (only for items with buyPrice) -->
+                <template v-if="selectedItem.buyPrice">
+                  <Button
+                    v-for="qty in [1, 10, 100]"
+                    :key="'buy-' + qty"
+                    :variant="canAffordBuy(qty) ? 'primary' : 'secondary'"
+                    :disabled="!canAffordBuy(qty)"
+                    @click="buyResource(qty)"
+                  >
+                    {{ t('shop_uxelm_buy') }} {{ qty }} ({{ qty * selectedItem.buyPrice }}g)
+                  </Button>
+                </template>
+                <!-- Sell buttons -->
                 <Button
                   v-for="qty in [1, 10, 100]"
-                  :key="qty"
+                  :key="'sell-' + qty"
                   :variant="resourceOwnedCount >= qty ? 'primary' : 'secondary'"
                   :disabled="resourceOwnedCount < qty"
                   @click="sellResource(qty)"
@@ -251,6 +284,7 @@ const inventory = computed(() => gameState.value.inventory || {})
 const heroes = computed(() => gameState.value.heroes || [])
 const gold = computed(() => village.value.gold || 0)
 const blacksmithLevel = computed(() => village.value.infrastructure?.blacksmith || 0)
+const marketStock = computed(() => gameState.value.marketStock || null)
 const isUnlocked = computed(() => {
   const completed = gameState.value.completedExpeditions || []
   return completed.includes('exp_tutorial_cave')
@@ -279,7 +313,74 @@ const maxTier = computed(() => {
 })
 
 const buyGroups = computed(() => {
+  const stock = marketStock.value
+  if (!stock) {
+    // Fallback to full catalog if market stock not loaded yet
+    return _buildCatalogGroups(maxTier.value)
+  }
+
   const groups = [
+    {
+      id: 'consumables',
+      title: t('inventory_uxelm_category_consumables'),
+      icon: '💊',
+      items: stock.consumables?.map(item => ({ ...item, _source: 'market', maxQty: item.maxQuantity || 1 })) || []
+    },
+    {
+      id: 'weapons',
+      title: t('inventory_uxelm_category_equipment'),
+      icon: '⚔️',
+      items: stock.weapons?.map(item => ({ ...item, _source: 'market' })) || []
+    },
+    {
+      id: 'helmets',
+      title: t('inventory_info_slot_head'),
+      icon: '⛑️',
+      items: stock.headArmor?.map(item => ({ ...item, _source: 'market' })) || []
+    },
+    {
+      id: 'armors',
+      title: t('inventory_info_slot_body'),
+      icon: '👕',
+      items: stock.bodyArmor?.map(item => ({ ...item, _source: 'market' })) || []
+    },
+    {
+      id: 'legwear',
+      title: t('inventory_info_slot_legs'),
+      icon: '👖',
+      items: stock.legsArmor?.map(item => ({ ...item, _source: 'market' })) || []
+    },
+    {
+      id: 'shields',
+      title: t('inventory_info_slot_rightHand'),
+      icon: '🛡️',
+      items: stock.shieldArmor?.map(item => ({ ...item, _source: 'market' })) || []
+    }
+  ]
+
+  // Add special badge to discounted items
+  stock.specials?.forEach(special => {
+    const key = getItemKey(special)
+    groups.forEach(g => {
+      g.items.forEach(item => {
+        if (getItemKey(item) === key) {
+          item.isSpecial = true
+          item.discount = special.discount || 0.15
+          item.originalCost = item.cost
+          item.cost = Math.floor(item.cost * (1 - item.discount))
+        }
+      })
+    })
+  })
+
+  return groups.filter(g => g.items.length > 0)
+})
+
+const allBuyItems = computed(() => buyGroups.value.flatMap(g => g.items))
+
+// ─── Fallback Catalog Builder (when market stock not loaded) ─────────
+function _buildCatalogGroups(tier) {
+  return [
     {
       id: 'consumables',
       title: t('inventory_uxelm_category_consumables'),
@@ -290,37 +391,34 @@ const buyGroups = computed(() => {
       id: 'weapons',
       title: t('inventory_uxelm_category_equipment'),
       icon: '⚔️',
-      items: WEAPONS_CATALOG.filter(w => w.tier <= maxTier.value).map(item => ({ ...item, _source: 'catalog' }))
+      items: WEAPONS_CATALOG.filter(w => w.tier <= tier).map(item => ({ ...item, _source: 'catalog' }))
     },
     {
       id: 'helmets',
       title: t('inventory_info_slot_head'),
       icon: '⛑️',
-      items: ARMOR_CATALOG.filter(a => a.slot === 'head' && a.tier <= maxTier.value).map(item => ({ ...item, _source: 'catalog' }))
+      items: ARMOR_CATALOG.filter(a => a.slot === 'head' && a.tier <= tier).map(item => ({ ...item, _source: 'catalog' }))
     },
     {
       id: 'armors',
       title: t('inventory_info_slot_body'),
       icon: '👕',
-      items: ARMOR_CATALOG.filter(a => a.slot === 'body' && a.tier <= maxTier.value).map(item => ({ ...item, _source: 'catalog' }))
+      items: ARMOR_CATALOG.filter(a => a.slot === 'body' && a.tier <= tier).map(item => ({ ...item, _source: 'catalog' }))
     },
     {
       id: 'legwear',
       title: t('inventory_info_slot_legs'),
       icon: '👖',
-      items: ARMOR_CATALOG.filter(a => a.slot === 'legs' && a.tier <= maxTier.value).map(item => ({ ...item, _source: 'catalog' }))
+      items: ARMOR_CATALOG.filter(a => a.slot === 'legs' && a.tier <= tier).map(item => ({ ...item, _source: 'catalog' }))
     },
     {
       id: 'shields',
       title: t('inventory_info_slot_rightHand'),
       icon: '🛡️',
-      items: ARMOR_CATALOG.filter(a => a.slot === 'rightHand' && a.tier <= maxTier.value).map(item => ({ ...item, _source: 'catalog' }))
+      items: ARMOR_CATALOG.filter(a => a.slot === 'rightHand' && a.tier <= tier).map(item => ({ ...item, _source: 'catalog' }))
     }
-  ]
-  return groups.filter(g => g.items.length > 0)
-})
-
-const allBuyItems = computed(() => buyGroups.value.flatMap(g => g.items))
+  ].filter(g => g.items.length > 0)
+}
 
 // ─── Sell Tab ───────────────────────────────────────────────────────
 
@@ -398,8 +496,8 @@ const allSellItems = computed(() => sellGroups.value.flatMap(g => g.items))
 
 const resourceItems = [
   { id: 'food_raw_grain', price: 1, icon: '🌾' },
-  { id: 'material_wood', price: 2, icon: '🪵' },
-  { id: 'material_stone', price: 3, icon: '🪨' }
+  { id: 'material_wood', price: 2, buyPrice: 10, icon: '🪵' },
+  { id: 'material_stone', price: 3, buyPrice: 15, icon: '🪨' }
 ]
 
 // ─── Catalog Groups (active tab) ────────────────────────────────────
@@ -482,6 +580,11 @@ function getOwnedCount(item) {
 function canAffordItem(item) {
   const cost = item.cost || 0
   return gold.value >= cost
+}
+
+function canAffordBuy(qty) {
+  if (!selectedItem.value || !selectedItem.value.buyPrice) return false
+  return gold.value >= (qty * selectedItem.value.buyPrice)
 }
 
 const canAffordSelected = computed(() => {
@@ -655,6 +758,14 @@ function sellResource(qty) {
     resourceId: selectedItem.value.id,
     quantity: qty,
     pricePerUnit: selectedItem.value.price
+  })
+}
+
+function buyResource(qty) {
+  if (!selectedItem.value) return
+  dispatch('shop', 'buyResource', {
+    resourceId: selectedItem.value.id,
+    quantity: qty
   })
 }
 </script>
@@ -1117,5 +1228,33 @@ function sellResource(qty) {
     grid-template-columns: 1fr;
     grid-template-rows: 1fr 1fr;
   }
+}
+
+/* Market Timer */
+.market-timer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--bg-card);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--spacing-sm);
+  font-size: 0.85rem;
+}
+
+.market-week {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.market-refresh {
+  color: var(--text-secondary);
+}
+
+.market-specials {
+  color: #f59e0b;
+  font-weight: 600;
+  margin-left: auto;
 }
 </style>

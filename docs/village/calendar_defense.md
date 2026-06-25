@@ -96,10 +96,11 @@ If they proceed and the raid fires with 0 defenders, the severe penalty applies.
 - Lists available idle heroes as assignable buttons
 - Max 4 defenders; buttons disabled when full
 
-### Daily Report Integration
-- Raid results appear in the daily report
-- Victory: green section with defense/raid power and gold earned
-- Defeat: red section with losses and building damage
+### Book Integration
+- Raid results are recorded as `village_updates` Book sections on the day they resolve.
+- Victory: adds a `book_update_raid_defended` bullet to the day's village updates.
+- Defeat: adds a `book_update_raid_lost` bullet to the day's village updates.
+- The Book button glows after the day advances; the player can open the Book from the top bar to read the outcome.
 
 ## Files
 

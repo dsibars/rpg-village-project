@@ -8,9 +8,9 @@ import { injectHero, refreshUI } from '../utils/state-injector.mjs'
 import { selectors } from '../selectors/selectors.mjs'
 
 
-export async function run({ page, snap }) {
+export async function run({ page, snap, reset = true }) {
 
-  await startNewGame(page, selectors)
+  await startNewGame(page, selectors, reset)
 
   // Inject a hero and assign to tutorial cave expedition
   await injectHero(page, { name: 'Aria', origin: 'origin_arcane_initiate', level: 5 })
@@ -84,7 +84,7 @@ export async function run({ page, snap }) {
   const resultVisible = await page.$(selectors.expeditionResultModal)
   if (resultVisible) {
     await snap({ flow: 'post-day', state: 'expedition_result' })
-    // Use evaluate-based click to bypass presentation overlay that may appear on top
+    // Close expedition result modal
     await page.evaluate(() => {
       const modal = document.querySelector('.modal-overlay')
       if (modal) {
@@ -95,16 +95,9 @@ export async function run({ page, snap }) {
     await page.waitForTimeout(600)
   }
 
-  // Wait for any presentations triggered by closing expedition result
-  for (let attempt = 0; attempt < 10; attempt++) {
-    const hasPres = await page.evaluate(() => !!document.querySelector('.presentation-overlay'))
-    if (!hasPres) break
-    await page.evaluate(() => {
-      const btn = document.querySelector('.presentation-skip')
-      if (btn) btn.click()
-    })
-    await page.waitForTimeout(500)
-  }
+  // Presentations now live in the Book — no overlay to dismiss.
+  // Book auto-opens if there are new history_block/milestone entries,
+  // but the flow continues without blocking.
   await page.waitForTimeout(400)
 
   // --- narrative_unlock_toast ---
@@ -121,11 +114,9 @@ export async function run({ page, snap }) {
     await snap({ flow: 'post-day', state: 'narrative_unlock_toast' })
   }
 
-  // Then clean up any presentations/modals
+  // Clean up any remaining modals
   for (let attempt = 0; attempt < 15; attempt++) {
     const action = await page.evaluate(() => {
-      const presSkip = document.querySelector('.presentation-skip')
-      if (presSkip) { presSkip.click(); return 'presentation' }
       const modal = document.querySelector('.modal-overlay')
       if (modal) {
         const closeBtn = modal.querySelector('.btn-close, .modal-close')

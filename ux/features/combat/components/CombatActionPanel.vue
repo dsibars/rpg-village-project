@@ -287,6 +287,19 @@ function executeDefend() {
   min-height: 200px;
 }
 
+@media (max-width: 768px) {
+  .combat-action-panel {
+    min-height: auto;
+    padding: var(--spacing-sm);
+  }
+
+  .action-buttons > :deep(button) {
+    flex: 1 1 calc(50% - var(--spacing-sm) / 2);
+    min-height: 40px;
+    font-size: 0.85rem;
+  }
+}
+
 .turn-banner {
   text-align: center;
   font-weight: 600;

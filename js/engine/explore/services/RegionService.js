@@ -150,14 +150,14 @@ export class RegionService {
      * Evaluates unlock requirements for all regions.
      * @param {string[]} completedIds - List of completed expedition IDs
      */
-    checkRegionUnlocks(completedIds) {
+    checkRegionUnlocks(completedIds, heroCount = 0) {
         for (const [regionId, regionData] of Object.entries(REGION_REGISTRY)) {
             // Skip already-unlocked regions
             if (this.state.regions[regionId]?.unlocked) continue;
             // Skip regions with no unlock requirements
             if (!regionData.unlockRequirements) continue;
 
-            if (this._checkUnlockRequirements(regionData.unlockRequirements, completedIds)) {
+            if (this._checkUnlockRequirements(regionData.unlockRequirements, completedIds, heroCount)) {
                 this._seedRegion(regionId);
             }
         }
@@ -166,17 +166,18 @@ export class RegionService {
     /**
      * Generic unlock requirement evaluator.
      * Supports: any (OR), all (AND), completedMissions, minRegionClears,
-     * minTotalClears, minBuildingLevel.
+     * minTotalClears, minBuildingLevel, minHeroes.
+     * @param {number} heroCount - Current number of heroes in party
      */
-    _checkUnlockRequirements(reqs, completedIds) {
+    _checkUnlockRequirements(reqs, completedIds, heroCount = 0) {
         // OR wrapper
         if (reqs.any) {
-            return reqs.any.some(r => this._checkUnlockRequirements(r, completedIds));
+            return reqs.any.some(r => this._checkUnlockRequirements(r, completedIds, heroCount));
         }
 
         // AND wrapper
         if (reqs.all) {
-            return reqs.all.every(r => this._checkUnlockRequirements(r, completedIds));
+            return reqs.all.every(r => this._checkUnlockRequirements(r, completedIds, heroCount));
         }
 
         if (reqs.completedMissions) {
@@ -201,6 +202,10 @@ export class RegionService {
             const { building, level } = reqs.minBuildingLevel;
             const infra = this.villageService.getState().infrastructure || {};
             if ((infra[building] || 0) < level) return false;
+        }
+
+        if (reqs.minHeroes) {
+            if (heroCount < reqs.minHeroes) return false;
         }
 
         return true;
@@ -302,8 +307,22 @@ export class RegionService {
         if (childrenToSpawn === 0 && exp) {
             exp.status = 'closed';
             if (exp.reward) {
+                const regionData = this.getRegionData(regionId);
+                const lp = regionData.lootProfile;
+                const closureItems = {};
+                if (lp && lp.materials) {
+                    for (const mat of lp.materials) {
+                        if (mat.chance >= 0.5) {
+                            const qty = Math.floor(mat.max * 2);
+                            if (qty > 0) {
+                                closureItems[mat.id] = qty;
+                            }
+                        }
+                    }
+                }
                 exp.reward.closureBonus = {
                     gold: Math.floor((exp.reward.gold || 0) * 1.5),
+                    items: closureItems,
                     message: 'Path Sealed'
                 };
             }

@@ -15,6 +15,11 @@ import { AcademyService } from './academy/AcademyService.js';
 import { TitleService } from './hall_of_fame/TitleService.js';
 import { UnlockService } from './shared/services/UnlockService.js';
 import { PresentationService } from './shared/services/PresentationService.js';
+import { getPresentationById } from './shared/data/PresentationCatalog.js';
+import { MarketService } from './market/MarketService.js';
+import { ChronicleService } from './shared/chronicle/ChronicleService.js';
+import { DailyHeroActionsService } from './heroes/services/DailyHeroActionsService.js';
+import { VillageEventsService } from './village/VillageEventsService.js';
 import { SimulationRunner } from './gambit/SimulationRunner.js';
 import { GambitHealthService } from './gambit/GambitHealthService.js';
 import { persistence, globalPersistence } from './shared/core/Persistence.js';
@@ -31,6 +36,8 @@ import { WitchService } from './witch/WitchService.js';
 import { getEquipmentStats } from './shared/inventory/EquipmentService.js';
 import { getWeaponBaseCost, getArmorBaseCost } from './shared/data/ShopCatalog.js';
 
+import { BookService } from './book/BookService.js';
+import { TutorialService } from './tutorial/TutorialService.js';
 export class GameEngine {
     constructor() {
         this.STORAGE_KEY = 'village_state';
@@ -57,8 +64,21 @@ export class GameEngine {
         this.presentationService = new PresentationService(
             persistence.load('presentation_state')
         );
+        this.marketService = new MarketService({ deferLoad: true });
+        this.villageEventsService = new VillageEventsService();
+        this.dailyHeroActionsService = new DailyHeroActionsService(
+            this.heroService,
+            this.expeditionService,
+            this.villageService,
+            this.inventoryService,
+            this.regionService
+        );
+        this.chronicleService = new ChronicleService();
+        this.bookService = new BookService();
+        this.tutorialService = new TutorialService({ persistence, slotIndex: persistence.slotIndex });
         this.i18n = i18n;
         this.isNewGame = true;
+        this.lastEvent = null;
         this.stats = this._loadStats();
     }
 
@@ -76,6 +96,15 @@ export class GameEngine {
         this.calendarService.load();
         this.academyService.load();
         this.unlockService.load();
+        this.marketService.load();
+        this.villageEventsService.load();
+        this.dailyHeroActionsService.load();
+        this.chronicleService.load();
+        this.bookService.load();
+        this.tutorialService.load();
+
+        // Register Chronicle catalog entries from game data
+        this._registerChronicleCatalog();
 
         const presentationState = persistence.load('presentation_state');
         if (presentationState) {
@@ -106,12 +135,10 @@ export class GameEngine {
         const villageState = this.villageService.getState();
 
         if (completedIds.length > 0 && !this.presentationService.isSeen('pres_first_victory')) {
-            this.presentationService.checkTriggers({ type: 'first_event', eventId: 'first_expedition_victory' });
-            this._persistPresentationState();
+            this._processPresentationTriggers({ type: 'first_event', eventId: 'first_expedition_victory' });
         }
         if (villageState.infrastructure?.farm >= 1 && !this.presentationService.isSeen('pres_first_harvest')) {
-            this.presentationService.checkTriggers({ type: 'building_complete', buildingId: 'farm', level: 1 });
-            this._persistPresentationState();
+            this._processPresentationTriggers({ type: 'building_complete', buildingId: 'farm', level: 1 });
         }
 
         // ─── Retroactive story mission injection for old saves ───
@@ -134,6 +161,24 @@ export class GameEngine {
         const vState = this.villageService.getState();
         this.missionSeedService.checkUnlocks(vState.day, vState.infrastructure || {});
         this.missionSeedService.fillSlots(this.missionSeedService.getBoardSlots());
+
+        // ─── Tutorial backfill: mark Day 1 tutorials complete for existing saves ───
+        const tutorialBackfillDay = vState.day ?? 1;
+        const tutorialBackfillCompletedIds = this.expeditionService.getCompletedIds();
+        const tutorialBackfillFarmLevel = vState.infrastructure?.farm || 0;
+        const isPastDay1 = tutorialBackfillDay > 1;
+        const hasCompletedExpedition = tutorialBackfillCompletedIds.length > 0;
+        const hasBuiltFarm = tutorialBackfillFarmLevel >= 1;
+
+        if (isPastDay1 || hasCompletedExpedition || hasBuiltFarm) {
+            const day1TutorialIds = ['tutorial_hero_skills', 'tutorial_hero_stats', 'tutorial_build_farm', 'tutorial_expeditions'];
+            for (const tid of day1TutorialIds) {
+                this.tutorialService.markCompleted(tid);
+            }
+        }
+
+        // ─── Tutorial system: evaluate triggers after all services loaded ───
+        this.tutorialService.evaluateTriggers(this.update());
     }
 
 
@@ -144,6 +189,7 @@ export class GameEngine {
         const currentHeroes = this.heroService.list();
         if (currentHeroes.length === 0) {
             this.heroService.add({
+                id: 'arthur',
                 name: "Arthur",
                 origin: "origin_warrior",
                 avatar: "arthur.webp",
@@ -153,10 +199,47 @@ export class GameEngine {
             });
         }
 
-        // Queue the prologue presentation for new games
+        // ── Prologue: Book, not popup ──
+        // Mark the legacy presentation as seen so it never pops up
         this.presentationService = new PresentationService();
-        this.presentationService.checkTriggers({ type: 'new_game' });
+        this.presentationService.markAsSeen('pres_prologue', 1);
         this._persistPresentationState();
+
+        // Add prologue to the Book as Chapter 1 history event
+        const prologueResult = this.bookService.addSection({
+            id: 'prologue',
+            category: 'chapter_history_event',
+            day: 1,
+            blocks: [
+                { image: 'assets/story/prologue_valley_dawn.webp', textKey: 'pres_prologue_p1', weight: 1 },
+                { image: 'assets/story/prologue_arthur_trail.webp', textKey: 'pres_prologue_p2', weight: 1 },
+                { image: 'assets/story/prologue_first_stake.webp', textKey: 'pres_prologue_p3', weight: 1 }
+            ],
+            metadata: { titleKey: 'book_chapter_1_title', presentationId: 'pres_prologue' }
+        });
+
+        // Link prologue to chronicle
+        if (prologueResult) {
+            this.chronicleService.unlockEntry('pres_prologue', 1, {
+                pageSectionId: prologueResult.pageSectionId,
+                pageNumber: prologueResult.pages[0] ?? 1,
+                chapterNumber: prologueResult.chapterNumber
+            });
+        }
+
+        // Add Day 1 village update to the Book
+        const day1Result = this.bookService.addSection({
+            id: 'village_day_1',
+            category: 'village_updates',
+            day: 1,
+            entries: [
+                { key: 'book_update_village_founded', values: {}, weight: 1 }
+            ],
+            metadata: {}
+        });
+
+        this.bookService.save();
+        this.chronicleService.save();
     }
 
     activateDeveloperCheat() {
@@ -241,7 +324,16 @@ export class GameEngine {
             missionBoard: this.missionSeedService.getState(),
             calendar: this.calendarService.getState(currentDay),
             expeditionRegions: this.regionService.getRegions(),
-            unlockedNarratives: this.unlockService.getShownNarratives()
+            marketStock: this.marketService.getStock(
+                currentDay,
+                this.villageService.getState().infrastructure?.blacksmith || 0
+            ),
+            book: JSON.parse(JSON.stringify(this.bookService.getState())),
+            hasBookAutoOpen: this.bookService.hasAutoOpenContent(),
+            unlockedNarratives: this.unlockService.getShownNarratives(),
+            tutorial: this.tutorialService.getState(),
+            lastEvent: this.lastEvent,
+            isNewGame: this.isNewGame
         };
     }
 
@@ -269,8 +361,30 @@ export class GameEngine {
             this.missionSeedService.trackProgress('recruit', 'hero', 1);
             this.missionSeedService.trackProgress('spend', 'gold', cost);
 
+            const villageDay = this.villageService.getState().day || 1;
+
+            // Book: hero recruited
+            const bookResult = this.bookService.addSection({
+                id: `hero_recruited_${result.data.id}_${villageDay}`,
+                category: 'village_updates',
+                day: villageDay,
+                entries: [
+                    { key: 'book_update_hero_recruited', values: { hero: result.data.name }, weight: 1 }
+                ],
+                metadata: { heroId: result.data.id, origin: result.data.origin }
+            });
+
+            // Chronicle: link to Book
+            if (bookResult) {
+                this.chronicleService.unlockEntry('hero_recruited', villageDay, {
+                    pageSectionId: bookResult.pageSectionId,
+                    pageNumber: bookResult.pages[0] || 1,
+                    chapterNumber: bookResult.chapterNumber
+                });
+            }
+
             // Trigger Point 4: Hero Recruitment
-            this.presentationService.checkTriggers({
+            this._processPresentationTriggers({
                 type: 'hero_recruited',
                 origin: result.data.origin,
                 heroName: result.data.name
@@ -318,10 +432,12 @@ export class GameEngine {
 
         let amountRestored = 0;
         if (data.type === 'HEAL_HP') {
-            amountRestored = Math.min(data.amount, hero.maxHp - hero.hp);
+            const heal = data.percent ? Math.floor(hero.maxHp * data.amount) : data.amount;
+            amountRestored = Math.min(heal, hero.maxHp - hero.hp);
             hero.hp = Math.min(hero.maxHp, hero.hp + amountRestored);
         } else if (data.type === 'HEAL_MP') {
-            amountRestored = Math.min(data.amount, hero.maxMp - hero.mp);
+            const restore = data.percent ? Math.floor(hero.maxMp * data.amount) : data.amount;
+            amountRestored = Math.min(restore, hero.maxMp - hero.mp);
             hero.mp = Math.min(hero.maxMp, hero.mp + amountRestored);
         } else {
             return Result.fail('combat_error_consumable_invalid');
@@ -348,8 +464,7 @@ export class GameEngine {
 
         // Trigger Point 6: First Spell Inscribed
         if (result.success && !this.presentationService.isSeen('pres_name_flame')) {
-            this.presentationService.checkTriggers({ type: 'first_event', eventId: 'first_spell_inscribed' });
-            this._persistPresentationState();
+            this._processPresentationTriggers({ type: 'first_event', eventId: 'first_spell_inscribed' });
         }
 
         return result;
@@ -481,8 +596,7 @@ export class GameEngine {
             this._saveStats();
             this.missionSeedService.trackProgress('equip', 'equipment', 1);
             if (!this.presentationService.isSeen('pres_first_equip')) {
-                this.presentationService.checkTriggers({ type: 'first_event', eventId: 'first_item_equipped' });
-                this._persistPresentationState();
+                this._processPresentationTriggers({ type: 'first_event', eventId: 'first_item_equipped' });
             }
         }
         return result;
@@ -502,6 +616,12 @@ export class GameEngine {
         'food_raw_grain':  1,
         'material_wood':   2,
         'material_stone':  3
+    };
+
+    // Buy prices per unit (5x sell price — expensive emergency stock)
+    static BUY_PRICES = {
+        'material_wood':  10,
+        'material_stone': 15
     };
 
     buyItem(itemData, costGold) {
@@ -530,6 +650,64 @@ export class GameEngine {
         this._saveStats();
 
         return Result.ok();
+    }
+
+    /**
+     * Buy an item from the weekly rotating market stock.
+     * Decrements available quantity. If quantity reaches 0, item is sold out.
+     */
+    buyMarketItem(itemData, costGold) {
+        const result = this.buyItem(itemData, costGold);
+        if (!result.success) return result;
+
+        // Decrement stock quantity
+        const stock = this.marketService.state.stock;
+        if (!stock) return result;
+
+        const itemKey = itemData.id || `${itemData.type}_${itemData.material}_${itemData.family || itemData.archetype}_${itemData.slot || ''}`;
+        
+        // Find and decrement in stock categories
+        const categories = ['consumables', 'weapons', 'headArmor', 'bodyArmor', 'legsArmor', 'shieldArmor'];
+        for (const cat of categories) {
+            const items = stock[cat] || [];
+            for (const item of items) {
+                const key = item.id || `${item.type}_${item.material}_${item.family || itemData.archetype}_${itemData.slot || ''}`;
+                if (key === itemKey) {
+                    item.availableQty = Math.max(0, (item.availableQty || 1) - 1);
+                    this.marketService.save();
+                    return result;
+                }
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Buy a raw resource (wood, stone) for gold.
+     * @param {string} resourceId  - e.g. 'material_wood'
+     * @param {number} quantity    - number of units to buy (1 / 10 / 100)
+     */
+    buyResource(resourceId, quantity) {
+        const pricePerUnit = GameEngine.BUY_PRICES[resourceId];
+        if (!pricePerUnit) {
+            return Result.fail('inventory_error_item_not_found');
+        }
+
+        const totalCost = quantity * pricePerUnit;
+        if (this.villageService.state.gold < totalCost) {
+            return Result.fail('village_error_gold_not_enough');
+        }
+
+        // Deduct gold
+        this.villageService.state.gold -= totalCost;
+        this.villageService.save();
+        this.missionSeedService.trackProgress('spend', 'gold', totalCost);
+
+        // Add resources
+        this.villageService.addItemToInventory(resourceId, quantity);
+
+        return Result.ok({ bought: quantity, goldSpent: totalCost });
     }
 
     /**
@@ -797,8 +975,7 @@ export class GameEngine {
         if (result.success) {
             this.missionSeedService.trackProgress('cast', 'spell', 1);
             if (!this.presentationService.isSeen('pres_first_spell_cast')) {
-                this.presentationService.checkTriggers({ type: 'first_event', eventId: 'first_spell_cast_combat' });
-                this._persistPresentationState();
+                this._processPresentationTriggers({ type: 'first_event', eventId: 'first_spell_cast_combat' });
             }
         }
         return result;
@@ -844,12 +1021,32 @@ export class GameEngine {
         // Trigger Point 2: Building Completion
         if (villageReport.completed && villageReport.completed.length > 0) {
             for (const buildingId of villageReport.completed) {
+                // Report tutorial event for building construction
+                this.reportTutorialEvent({ event: 'building_constructed', buildingId });
                 const level = this.villageService.getState().infrastructure[buildingId] || 1;
-                this.presentationService.checkTriggers({
+                this._processPresentationTriggers({
                     type: 'building_complete',
                     buildingId,
                     level
                 });
+                // Book + Chronicle: building completed
+                const currentDay = this.villageService.getState().day;
+                const bookResult = this.bookService.addSection({
+                    id: `building_${buildingId}_${level}_${currentDay}`,
+                    category: 'village_updates',
+                    day: currentDay,
+                    entries: [
+                        { key: 'book_update_building_completed', values: { building: this.i18n.t('village_info_building_' + buildingId) }, weight: 1 }
+                    ],
+                    metadata: { buildingId, level }
+                });
+                if (bookResult) {
+                    this.chronicleService.unlockEntry(`building_${buildingId}_${level}`, villageState.day, {
+                        pageSectionId: bookResult.pageSectionId,
+                        pageNumber: bookResult.pages[0] || 1,
+                        chapterNumber: bookResult.chapterNumber
+                    });
+                }
             }
             this._persistPresentationState();
         }
@@ -921,8 +1118,48 @@ export class GameEngine {
             }
         });
 
-        // Persist recovery changes (HP and stamina)
+        // --- Fatigue Recovery ---
+        // Idle heroes recover 15 fatigue per day
+        // Heroes on expedition recover 5 fatigue per day (resting in camp)
+        const allHeroes = this.heroService.list();
+        allHeroes.forEach(hero => {
+            const activity = this.expeditionService.getHeroActivity(hero.id);
+            const recoveryRate = activity.type === 'idle' ? 15 : 5;
+            hero.recoverFatigue(recoveryRate);
+        });
+
+        // Persist recovery changes (HP, stamina, fatigue)
         this.heroService.saveAll();
+
+        // --- Village Random Events ---
+        const eventResult = this.villageEventsService.processDay(
+            villageState.day,
+            this.villageService.getState(),
+            this.heroService.list()
+        );
+        if (eventResult) {
+            // Book + Chronicle: village event
+            const bookResult = this.bookService.addSection({
+                id: `village_event_${eventResult.id}_${villageState.day}`,
+                category: 'village_updates',
+                day: villageState.day,
+                entries: [
+                    { key: eventResult.textKey, values: eventResult.values || {}, weight: 1 }
+                ],
+                metadata: { eventId: eventResult.id }
+            });
+            if (bookResult) {
+                this.chronicleService.unlockEntry(`event_${eventResult.id}`, villageState.day, {
+                    pageSectionId: bookResult.pageSectionId,
+                    pageNumber: bookResult.pages[0] || 1,
+                    chapterNumber: bookResult.chapterNumber
+                });
+            }
+        }
+
+        // --- Hero Daily Actions Resolution ---
+        const actionLog = this.dailyHeroActionsService.processActions(villageState.day);
+        // Note: actionLog entries are pushed to bookEntries below in the village_updates block
 
         // --- Training Grounds Passive XP ---
         const trainingGroundsLevel = this.villageService.getState().infrastructure.training_grounds || 0;
@@ -947,11 +1184,7 @@ export class GameEngine {
             }
         }
 
-        // Track expedition completions and enemy defeats for daily objectives
-        // NOTE: These are tracked in resolveBattle() when the battle is actually resolved.
-        // The expeditionResult from processDay only returns status='battle_started'.
-
-        // --- Tavern Auto-Recruit ---
+        // --- Tavern Auto-Recruit (must happen BEFORE village-updates block) ---
         let tavernRecruitHero = null;
         if (villageReport.tavernRecruit && villageReport.tavernRecruit.ready) {
             const heroResult = this.heroService.generateRandomHero();
@@ -960,38 +1193,6 @@ export class GameEngine {
                 this.missionSeedService.trackProgress('recruit', 'hero', 1);
             }
         }
-
-        // Trigger Point 5: First Hero Reaches Level 5
-        const hasLevel5EventFired = this.presentationService.isSeen('pres_discipline');
-        if (!hasLevel5EventFired) {
-            const anyHeroAtLevel5 = this.heroService.list().some(h => h.level >= 5);
-            if (anyHeroAtLevel5) {
-                this.presentationService.checkTriggers({ type: 'first_event', eventId: 'first_hero_level_5' });
-                this._persistPresentationState();
-            }
-        }
-
-        // Trigger Point 7: Chapter Milestones
-        const chapter1Milestones = this._evaluateChapterMilestones(1);
-        if (chapter1Milestones.met >= 3) {
-            this.presentationService.checkTriggers({
-                type: 'chapter_milestones',
-                chapter: 1,
-                met: chapter1Milestones.met
-            });
-        }
-        const chapter2Milestones = this._evaluateChapterMilestones(2);
-        if (chapter2Milestones.met >= 3) {
-            this.presentationService.checkTriggers({
-                type: 'chapter_milestones',
-                chapter: 2,
-                met: chapter2Milestones.met
-            });
-        }
-        this._persistPresentationState();
-
-         // Tick meal buffs after any combat
-        this.heroService.tickAllMealBuffs();
 
         // --- Calendar & Defense Events ---
         this.calendarService.generateEvents(villageState.day);
@@ -1002,27 +1203,115 @@ export class GameEngine {
             raidResult = this.calendarService.resolveRaid(villageState.day);
             // Trigger: first successful raid defense (at least 1 defender present)
             if (raidResult && raidResult.isVictory && raidResult.defenders && raidResult.defenders.length > 0 && !this.presentationService.isSeen('pres_first_raid_victory')) {
-                this.presentationService.checkTriggers({ type: 'first_event', eventId: 'first_raid_victory' });
-                this._persistPresentationState();
+                this._processPresentationTriggers({ type: 'first_event', eventId: 'first_raid_victory' });
             }
         }
 
-        const dailyReport = {
-            ...villageReport,
-            expedition: expeditionResult.success ? expeditionResult.data : null,
-            recovery: healedLog,
-            training: xpLog,
-            raid: raidResult,
-            tavernRecruit: tavernRecruitHero
-        };
+        // --- Book: Record Village Updates ---
+        const bookEntries = [];
+        if (villageReport.foodConsumed) {
+            bookEntries.push({ key: 'book_update_food_consumed', values: { amount: villageReport.foodConsumed }, weight: 1 });
+        }
+        if (villageReport.newVillagers && villageReport.newVillagers > 0) {
+            bookEntries.push({ key: 'book_update_villager_joined', values: { amount: villageReport.newVillagers }, weight: 1 });
+        }
+        if (villageReport.buildingCompleted) {
+            bookEntries.push({ key: 'book_update_building_completed', values: { building: this.i18n.t('village_info_building_' + villageReport.buildingCompleted) }, weight: 1 });
+        }
+        if (raidResult) {
+            if (raidResult.isVictory) {
+                bookEntries.push({ key: 'book_update_raid_defended', values: {}, weight: 1 });
+            } else {
+                bookEntries.push({ key: 'book_update_raid_lost', values: {}, weight: 1 });
+            }
+        }
+        if (eventResult) {
+            // Event-specific entries could be added here
+        }
+        if (actionLog && actionLog.length > 0) {
+            actionLog.forEach(log => {
+                if (log.success) {
+                    switch (log.action) {
+                        case 'rest':
+                            bookEntries.push({ key: 'book_update_hero_rested', values: { hero: log.heroName, hp: log.result?.hpRecovered || 0 }, weight: 1 });
+                            break;
+                        case 'train':
+                            bookEntries.push({ key: 'book_update_hero_trained', values: { hero: log.heroName, xp: log.result?.xpGained || 0 }, weight: 1 });
+                            break;
+                        case 'scout':
+                            bookEntries.push({ key: 'book_update_hero_scouted', values: { hero: log.heroName, region: log.result?.regionName || 'unknown' }, weight: 1 });
+                            break;
+                        case 'craft':
+                            bookEntries.push({ key: 'book_update_hero_crafted', values: { hero: log.heroName, item: log.result?.item || 'item' }, weight: 1 });
+                            break;
+                        case 'socialize':
+                            bookEntries.push({ key: 'book_update_hero_socialized', values: { hero: log.heroName }, weight: 1 });
+                            break;
+                    }
+                }
+            });
+        }
+        if (expeditionResult.success && expeditionResult.data) {
+            const expData = expeditionResult.data;
+            if (expData.status === 'completed') {
+                bookEntries.push({ key: 'book_update_expedition_completed', values: { region: expData.expName || 'unknown' }, weight: 1 });
+            } else if (expData.status === 'battle_started') {
+                bookEntries.push({ key: 'book_update_expedition_started', values: { region: expData.expName || 'unknown' }, weight: 1 });
+            }
+        }
+        if (tavernRecruitHero) {
+            bookEntries.push({ key: 'book_update_hero_recruited', values: { hero: tavernRecruitHero.name }, weight: 1 });
+        }
+        if (bookEntries.length === 0) {
+            bookEntries.push({ key: 'book_update_quiet_day', values: {}, weight: 1 });
+        }
+
+        const updatedDay = this.villageService.getState().day;
+        this.bookService.addSection({
+            id: `village_day_${updatedDay}`,
+            category: 'village_updates',
+            day: updatedDay,
+            entries: bookEntries
+        });
+
+        // --- Track expedition completions and enemy defeats for daily objectives
+        // NOTE: These are tracked in resolveBattle() when the battle is actually resolved.
+        // The expeditionResult from processDay only returns status='battle_started'.
+
+        // Trigger Point 5: First Hero Reaches Level 5
+        const hasLevel5EventFired = this.presentationService.isSeen('pres_discipline');
+        if (!hasLevel5EventFired) {
+            const anyHeroAtLevel5 = this.heroService.list().some(h => h.level >= 5);
+            if (anyHeroAtLevel5) {
+                this._processPresentationTriggers({ type: 'first_event', eventId: 'first_hero_level_5' });
+            }
+        }
+
+        // Trigger Point 7: Chapter Milestones
+        const chapter1Milestones = this._evaluateChapterMilestones(1);
+        if (chapter1Milestones.met >= 3) {
+            this._processPresentationTriggers({
+                type: 'chapter_milestones',
+                chapter: 1,
+                met: chapter1Milestones.met
+            });
+        }
+        const chapter2Milestones = this._evaluateChapterMilestones(2);
+        if (chapter2Milestones.met >= 3) {
+            this._processPresentationTriggers({
+                type: 'chapter_milestones',
+                chapter: 2,
+                met: chapter2Milestones.met
+            });
+        }
+        this._persistPresentationState();
+
+         // Tick meal buffs after any combat
+        this.heroService.tickAllMealBuffs();
 
         // ─── Expedition narrative queue ───
         const pendingNarratives = this.expeditionService.getPendingNarratives();
         for (const n of pendingNarratives) {
-            dailyReport.newNarratives = dailyReport.newNarratives || [];
-            dailyReport.newNarratives.push(n);
-        }
-        if (pendingNarratives.length > 0) {
             this.expeditionService.consumePendingNarratives();
         }
         
@@ -1035,15 +1324,69 @@ export class GameEngine {
             this.unlockService.markAllAsShown(newNarratives, villageState.day);
         }
 
-        dailyReport.newNarratives = newNarratives;
-        dailyReport.newCodexFeatures = newCodexFeatures;
-
-        this.villageService.setDailyReport(dailyReport);
-        return dailyReport;
+        return {
+            villageReport,
+            expedition: expeditionResult.success ? expeditionResult.data : null,
+            recovery: healedLog,
+            training: xpLog,
+            actions: actionLog,
+            raid: raidResult,
+            tavernRecruit: tavernRecruitHero,
+            villageEvent: eventResult,
+            newNarratives,
+            newCodexFeatures
+        };
     }
 
     setWorkerRole(role, delta) {
         return this.villageService.setWorkerRole(role, delta);
+    }
+
+    // --- Daily Hero Actions Facade ---
+    getHeroAction(heroId) {
+        return this.dailyHeroActionsService.getHeroAction(heroId);
+    }
+
+    assignHeroAction(heroId, action, target) {
+        return this.dailyHeroActionsService.assignAction(heroId, action, target);
+    }
+
+    clearHeroAction(heroId) {
+        return this.dailyHeroActionsService.clearAction(heroId);
+    }
+
+    getCurrentActionAssignments() {
+        return this.dailyHeroActionsService.getCurrentAssignments();
+    }
+
+    // --- Book Facade ---
+    getBookState() {
+        return this.bookService.getState();
+    }
+
+    getBookPage(pageNumber) {
+        return this.bookService.getPage(pageNumber);
+    }
+
+    getBookSpread(firstPageNumber) {
+        return this.bookService.getSpread(firstPageNumber);
+    }
+
+    markBookRead(spreadFirstPage) {
+        return this.bookService.markRead(spreadFirstPage);
+    }
+
+    // --- Chronicle Facade ---
+    unlockChronicleEntry(chronicleId, day, bookLink) {
+        return this.chronicleService.unlockEntry(chronicleId, day, bookLink);
+    }
+
+    getChronicleEntries(options) {
+        return this.chronicleService.getEntries(options);
+    }
+
+    getChronicleStats() {
+        return this.chronicleService.getStats();
     }
 
     // --- Calendar & Defense Facade ---
@@ -1065,6 +1408,9 @@ export class GameEngine {
         if (result.success) {
             this.missionSeedService.trackProgress('spend', 'gold', costGold);
             this.missionSeedService.trackProgress('upgrade', 'building', 1);
+            // Report tutorial event so the Day 1 "construct farm" step can advance
+            // immediately when the player starts the project.
+            this.reportTutorialEvent({ event: 'building_project_started', buildingId });
         }
         return result;
     }
@@ -1095,28 +1441,97 @@ export class GameEngine {
 
             // Trigger: first expedition victory
             if (combatLog && combatLog.isVictory && !this.presentationService.isSeen('pres_first_victory')) {
-                this.presentationService.checkTriggers({ type: 'first_event', eventId: 'first_expedition_victory' });
-                this._persistPresentationState();
+                this._processPresentationTriggers({ type: 'first_event', eventId: 'first_expedition_victory' });
             }
 
             // Trigger: first expedition defeat
             if (combatLog && !combatLog.isVictory && !this.presentationService.isSeen('pres_first_defeat')) {
-                this.presentationService.checkTriggers({ type: 'first_event', eventId: 'first_expedition_defeat' });
-                this._persistPresentationState();
+                this._processPresentationTriggers({ type: 'first_event', eventId: 'first_expedition_defeat' });
+            }
+
+            // Book + Chronicle: record battle outcome
+            if (combatLog) {
+                const villageDay = this.villageService.getState().day || 1;
+                const heroes = combatLog.heroes?.map(h => h.name).join(', ') || 'Heroes';
+                if (combatLog.isVictory) {
+                    const bookResult = this.bookService.addSection({
+                        id: `combat_victory_${villageDay}_${Date.now()}`,
+                        category: 'history_event',
+                        day: villageDay,
+                        blocks: [
+                            {
+                                textKey: 'book_history_combat_victory',
+                                values: {
+                                    heroes,
+                                    enemyCount: combatLog.enemies?.length || 0,
+                                    enemies: combatLog.enemies?.map(e => e.name).join(', ') || 'enemies'
+                                },
+                                weight: 6
+                            }
+                        ],
+                        metadata: { combatLog: true, victory: true }
+                    });
+                    if (bookResult) {
+                        this.chronicleService.unlockEntry('combat_victory', villageDay, {
+                            pageSectionId: bookResult.pageSectionId,
+                            pageNumber: bookResult.pages[0] || 1,
+                            chapterNumber: bookResult.chapterNumber
+                        });
+                        this._unlockWriterRevelationChronicle(bookResult);
+                    }
+                } else {
+                    const bookResult = this.bookService.addSection({
+                        id: `combat_defeat_${villageDay}_${Date.now()}`,
+                        category: 'history_event',
+                        day: villageDay,
+                        blocks: [
+                            {
+                                textKey: 'book_history_combat_defeat',
+                                values: { heroes },
+                                weight: 6
+                            }
+                        ],
+                        metadata: { combatLog: true, victory: false }
+                    });
+                    if (bookResult) {
+                        this.chronicleService.unlockEntry('combat_defeat', villageDay, {
+                            pageSectionId: bookResult.pageSectionId,
+                            pageNumber: bookResult.pages[0] || 1,
+                            chapterNumber: bookResult.chapterNumber
+                        });
+                        this._unlockWriterRevelationChronicle(bookResult);
+                    }
+                }
             }
 
             // Trigger: first boss defeated
             if (combatLog && combatLog.isVictory && combatLog.enemies) {
                 const hadBoss = combatLog.enemies.some(e => e.isBoss);
                 if (hadBoss && !this.presentationService.isSeen('pres_first_boss_defeated')) {
-                    this.presentationService.checkTriggers({ type: 'first_event', eventId: 'first_boss_defeated' });
-                    this._persistPresentationState();
+                    this._processPresentationTriggers({ type: 'first_event', eventId: 'first_boss_defeated' });
                 }
             }
 
-            // Trigger Point 3: Mission/Expedition Completion
+            // Book + Chronicle: record expedition completion
             if (result.data.status === 'completed') {
-                this.presentationService.checkTriggers({
+                const villageDay = this.villageService.getState().day || 1;
+                const bookResult = this.bookService.addSection({
+                    id: `expedition_${result.data.expId}_${villageDay}`,
+                    category: 'village_updates',
+                    day: villageDay,
+                    entries: [
+                        { key: 'book_update_expedition_completed', values: { region: result.data.expName || 'unknown' }, weight: 1 }
+                    ],
+                    metadata: { expeditionId: result.data.expId }
+                });
+                if (bookResult) {
+                    this.chronicleService.unlockEntry(`expedition_${result.data.expId}`, villageDay, {
+                        pageSectionId: bookResult.pageSectionId,
+                        pageNumber: bookResult.pages[0] || 1,
+                        chapterNumber: bookResult.chapterNumber
+                    });
+                }
+                this._processPresentationTriggers({
                     type: 'mission_complete',
                     missionId: result.data.expId
                 });
@@ -1384,6 +1799,106 @@ export class GameEngine {
         persistence.save('presentation_state', this.presentationService.getState());
     }
 
+    _registerChronicleCatalog() {
+        // Register built-in chronicle entries
+        const catalog = [
+            { id: 'hero_recruited', labelKey: 'chronicle_hero_recruited', requirementKey: 'chronicle_req_recruit', category: 'milestone' },
+            { id: 'combat_victory', labelKey: 'chronicle_combat_victory', requirementKey: 'chronicle_req_combat_victory', category: 'milestone' },
+            { id: 'combat_defeat', labelKey: 'chronicle_combat_defeat', requirementKey: 'chronicle_req_combat_defeat', category: 'milestone' },
+            // Presentations (now in Book)
+            { id: 'pres_prologue', labelKey: 'chronicle_prologue', requirementKey: 'chronicle_hint_event', category: 'milestone' },
+            { id: 'pres_first_harvest', labelKey: 'chronicle_first_harvest', requirementKey: 'chronicle_hint_event', category: 'milestone' },
+            { id: 'pres_shield_dark', labelKey: 'chronicle_shield_dark', requirementKey: 'chronicle_hint_event', category: 'milestone' },
+            { id: 'pres_warm_fire', labelKey: 'chronicle_warm_fire', requirementKey: 'chronicle_hint_event', category: 'milestone' },
+            { id: 'pres_mission_board', labelKey: 'chronicle_mission_board', requirementKey: 'chronicle_hint_event', category: 'milestone' },
+            { id: 'pres_discipline', labelKey: 'chronicle_discipline', requirementKey: 'chronicle_hint_event', category: 'milestone' },
+            { id: 'pres_first_spark', labelKey: 'chronicle_first_spark', requirementKey: 'chronicle_hint_event', category: 'milestone' },
+            { id: 'pres_first_victory', labelKey: 'chronicle_first_victory', requirementKey: 'chronicle_hint_event', category: 'milestone' },
+            { id: 'pres_first_equip', labelKey: 'chronicle_first_equip', requirementKey: 'chronicle_hint_event', category: 'milestone' },
+            { id: 'pres_first_defeat', labelKey: 'chronicle_first_defeat', requirementKey: 'chronicle_hint_event', category: 'milestone' },
+            { id: 'pres_chapter1_finale', labelKey: 'chronicle_chapter1_finale', requirementKey: 'chronicle_hint_event', category: 'milestone' },
+            { id: 'pres_language_world', labelKey: 'chronicle_language_world', requirementKey: 'chronicle_hint_event', category: 'milestone' },
+            { id: 'pres_name_flame', labelKey: 'chronicle_name_flame', requirementKey: 'chronicle_hint_event', category: 'milestone' },
+            { id: 'pres_veil_thins', labelKey: 'chronicle_veil_thins', requirementKey: 'chronicle_hint_event', category: 'milestone' },
+            { id: 'pres_world_opens', labelKey: 'chronicle_world_opens', requirementKey: 'chronicle_hint_event', category: 'milestone' },
+            { id: 'pres_first_spell_cast', labelKey: 'chronicle_first_spell_cast', requirementKey: 'chronicle_hint_event', category: 'milestone' },
+            { id: 'pres_first_boss_defeated', labelKey: 'chronicle_first_boss_defeated', requirementKey: 'chronicle_hint_event', category: 'milestone' },
+            { id: 'pres_first_raid_victory', labelKey: 'chronicle_first_raid_victory', requirementKey: 'chronicle_hint_event', category: 'milestone' },
+            { id: 'pres_chapter2_finale', labelKey: 'chronicle_chapter2_finale', requirementKey: 'chronicle_hint_event', category: 'milestone' },
+            // Writer revelation (unlocked automatically at 10+ history blocks)
+            { id: 'book_unlock_lore_writer_revelation', labelKey: 'book_unlock_lore_writer_revelation', requirementKey: 'chronicle_hint_event', category: 'unlock' },
+        ];
+        this.chronicleService.registerEntriesFromCatalog(catalog);
+    }
+
+    /**
+     * Process presentation triggers and migrate them to the Book.
+     * All presentations now live in the Book, not as popups.
+     * @param {Object} triggerEvent — The trigger event to evaluate.
+     * @returns {string[]} — IDs of presentations that were added to the Book.
+     */
+    _processPresentationTriggers(triggerEvent) {
+        const newlyTriggered = this.presentationService.checkTriggers(triggerEvent);
+        if (newlyTriggered.length === 0) return [];
+
+        const currentDay = this.villageService?.getState?.()?.day ?? null;
+
+        for (const presId of newlyTriggered) {
+            const pres = getPresentationById(presId);
+            if (!pres) continue;
+
+            // Mark as seen so it never pops up
+            this.presentationService.markAsSeen(presId, currentDay);
+
+            // Convert to Book chapter_history_event
+            const blocks = pres.pages.map((page, idx) => ({
+                image: page.image,
+                textKey: page.textKey,
+                weight: 1,
+            }));
+
+            const bookResult = this.bookService.addSection({
+                id: presId,
+                category: 'chapter_history_event',
+                day: currentDay || 1,
+                blocks,
+                metadata: { titleKey: `book_chapter_${pres.chapter}_title`, presentationId: presId }
+            });
+
+            // Link to chronicle
+            if (bookResult) {
+                this.chronicleService.unlockEntry(presId, currentDay || 1, {
+                    pageSectionId: bookResult.pageSectionId,
+                    pageNumber: bookResult.pages[0] ?? 1,
+                    chapterNumber: bookResult.chapterNumber
+                });
+                this._unlockWriterRevelationChronicle(bookResult);
+            }
+        }
+
+        this._persistPresentationState();
+        this.bookService.save();
+        this.chronicleService.save();
+        return newlyTriggered;
+    }
+
+    /**
+     * Unlock the writer-revelation chronicle entry when the Book injects
+     * a narrative milestone at 10/12/14 history blocks.
+     */
+    _unlockWriterRevelationChronicle(bookResult) {
+        const revelations = bookResult?.writerRevelations || [];
+        if (revelations.length === 0) return;
+
+        const currentDay = this.villageService?.getState?.()?.day || 1;
+        const firstRevelation = revelations[0];
+        this.chronicleService.unlockEntry('book_unlock_lore_writer_revelation', currentDay, {
+            pageSectionId: firstRevelation.id,
+            pageNumber: firstRevelation.pages[0] ?? 1,
+            chapterNumber: this.bookService.getPageSectionChapter?.(firstRevelation.id) ?? 1
+        });
+    }
+
     _loadStats() {
         return persistence.load('engine_stats', { itemsEquipped: 0, shopPurchases: 0 });
     }
@@ -1421,5 +1936,40 @@ export class GameEngine {
             milestones.push(totalBossDefeats >= 1);
         }
         return { met: milestones.filter(Boolean).length, total: milestones.length };
+    }
+
+    // ─── Tutorial Facade ─────────────────────────────────────────────────────
+
+    advanceTutorial(data = {}) {
+        return this.tutorialService.advance(data);
+    }
+
+    skipTutorial() {
+        return this.tutorialService.skip();
+    }
+
+    startTutorial(tutorialId, force = false) {
+        return this.tutorialService.start(tutorialId, force);
+    }
+
+    reportTutorialEvent(payload) {
+        return this.tutorialService.reportEvent(payload);
+    }
+
+    getTutorialState() {
+        return this.tutorialService.getState();
+    }
+
+    evaluateTutorialTriggers() {
+        return this.tutorialService.evaluateTriggers(this.update());
+    }
+
+    recordEvent(type, data = {}) {
+        this.lastEvent = { type, ...data, timestamp: Date.now() };
+        return this.tutorialService.evaluateTriggers(this.update());
+    }
+
+    isTutorialCompleted(tutorialId) {
+        return this.tutorialService.isCompleted(tutorialId);
     }
 }

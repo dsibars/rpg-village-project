@@ -18,12 +18,12 @@ export const reg_greenfields = {
     },
     lootProfile: {
         materials: [
-            { id: 'material_wood', min: 5, max: 10, chance: 1.0 },
-            { id: 'material_stone', min: 2, max: 4, chance: 0.75 },
-            { id: 'material_iron_ore', min: 1, max: 2, chance: 0.25 }
+            { id: 'material_wood', min: 8, max: 15, chance: 1.0 },
+            { id: 'material_stone', min: 4, max: 8, chance: 0.85 },
+            { id: 'material_iron_ore', min: 2, max: 4, chance: 0.4 }
         ],
-        goldBase: 40,
-        goldPerClear: 8
+        goldBase: 60,
+        goldPerClear: 12
     },
     narrative: {
         firstClear: {

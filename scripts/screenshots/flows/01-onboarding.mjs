@@ -16,7 +16,34 @@ async function resetSaveSlots(page) {
   await page.reload({ waitUntil: 'networkidle' })
 }
 
+async function dismissBookIfVisible(page) {
+  const visible = await page.$(selectors.bookView)
+  if (visible) {
+    // Close the book via its own control. App.vue lands on Heroes and starts the
+    // Day-1 tutorial; mark it completed so onboarding can proceed to Village.
+    await page.evaluate(() => {
+      const closeBtn = document.querySelector('.book-view .btn-close')
+      if (closeBtn) closeBtn.click()
+
+      const e = window.__ENGINE__
+      if (e?.tutorialService) {
+        const day1Ids = ['tutorial_hero_skills', 'tutorial_hero_stats', 'tutorial_build_farm', 'tutorial_expeditions']
+        day1Ids.forEach((tid) => e.tutorialService.markCompleted(tid))
+        e.tutorialService.state.activeTutorialId = null
+        e.tutorialService.state.currentStepIndex = 0
+        e.tutorialService.state.stepData = {}
+        if (e.tutorialService._save) e.tutorialService._save()
+      }
+      if (window.__REFRESH_UI__) window.__REFRESH_UI__()
+    })
+    await page.waitForTimeout(800)
+    await clickElement(page, selectors.navVillage)
+    await page.waitForTimeout(500)
+  }
+}
+
 async function dismissIntroIfVisible(page) {
+  // Legacy: handle old presentation overlay if present (e.g. old saves)
   const visible = await page.$(selectors.introOverlay)
   if (visible) {
     await clickElement(page, selectors.introSkip)
@@ -80,35 +107,35 @@ async function createOccupiedSlot(page, index) {
   }, index)
 }
 
-export async function run({ page, snap }) {
+export async function run({ page, snap, reset = true }) {
 
   // --- save_slot_empty ---
-  await resetSaveSlots(page)
+  await resetSaveSlots(page, reset)
   await waitForVisible(page, selectors.saveSlotScreen)
   await snap({ flow: 'onboarding', state: 'save_slot_empty' })
 
   // --- save_slot_occupied ---
   await createOccupiedSlot(page, 0)
-  await page.reload({ waitUntil: 'networkidle' })
+  if (reset) {
+    await page.reload({ waitUntil: 'networkidle' })
+  }
   await waitForVisible(page, selectors.saveSlotScreen)
   await snap({ flow: 'onboarding', state: 'save_slot_occupied' })
 
-  // --- intro_prologue (requires new empty slot) ---
+  // --- book_prologue (Book auto-opens on new game) ---
   await resetSaveSlots(page)
   await waitForVisible(page, selectors.saveSlotScreen)
   const emptySlot = await page.$(selectors.emptySlot)
   const slotBtn = emptySlot || (await page.$$(selectors.saveSlot))[0]
   if (slotBtn) await slotBtn.click()
-  await waitForVisible(page, selectors.introOverlay, 3000)
+  // Book auto-opens because prologue history_block is unread
+  await waitForVisible(page, selectors.bookView, 5000)
   await page.waitForTimeout(400)
-  await snap({ flow: 'onboarding', state: 'intro_prologue' })
-
-  // --- intro_skip_visible ---
-  await waitForVisible(page, selectors.introSkip, 2000)
-  await snap({ flow: 'onboarding', state: 'intro_skip_visible' })
+  await snap({ flow: 'onboarding', state: 'book_prologue' })
 
   // --- village_fresh ---
-  await dismissIntroIfVisible(page)
+  // The Book has no next spread on the prologue; close it and continue.
+  await dismissBookIfVisible(page)
   await page.waitForTimeout(500)
   await waitForVisible(page, selectors.mainView, 3000)
   await snap({ flow: 'onboarding', state: 'village_fresh' })

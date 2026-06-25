@@ -48,6 +48,15 @@ function getSuccessToast(i18n, domain, action, payload, data) {
       })
     }
 
+    case domain === 'shop' && action === 'buyResource': {
+      const resName = i18n.t(payload?.resourceId)
+      return i18n.t('shared_uxelm_toast_resource_bought', {
+        amount: data?.goldSpent,
+        count: data?.bought,
+        resource: resName
+      })
+    }
+
     case domain === 'inventory' && action === 'cookMeal': {
       return i18n.t('inventory_uxelm_cooked') + ' ' + i18n.t(payload?.recipeId)
     }
@@ -145,8 +154,9 @@ const ACTION_MAP = {
     retireExpedition: (engine, p) => engine.retireExpedition(p.expId)
   },
   shop: {
-    buyItem: (engine, p) => engine.buyItem(p.itemData, p.costGold),
+    buyItem: (engine, p) => engine.buyMarketItem(p.itemData, p.costGold),
     sellItem: (engine, p) => engine.sellItem(p.itemId, p.itemType, p.sellPrice),
+    buyResource: (engine, p) => engine.buyResource(p.resourceId, p.quantity),
     sellResource: (engine, p) => engine.sellResource(p.resourceId, p.quantity),
     getSellPrice: (engine, p) => engine.getSellPrice(p.item)
   },
@@ -181,9 +191,24 @@ const ACTION_MAP = {
     claimMission: (engine, p) => engine.claimMissionReward(p.missionId),
     rerollMission: (engine, p) => engine.rerollMission(p.missionId)
   },
+  chronicle: {
+    getEntries: (engine, p) => ({ success: true, data: engine.getChronicleEntries(p.options || {}) }),
+    getStats: (engine) => engine.getChronicleStats(),
+    unlockEntry: (engine, p) => ({ success: true, data: engine.unlockChronicleEntry(p.chronicleId, p.day, p.bookLink) })
+  },
+  book: {
+    getPage: (engine, p) => ({ success: true, data: engine.getBookPage(p.pageNumber) }),
+    getSpread: (engine, p) => ({ success: true, data: engine.getBookSpread(p.firstPageNumber) }),
+    markRead: (engine, p) => ({ success: true, data: engine.markBookRead(p.spreadFirstPage) })
+  },
   daily: {
     pickObjectives: (engine, p) => engine.dailyObjectivesService.pickObjectives(p.objectiveIds),
     claimReward: (engine, p) => engine.dailyObjectivesService.claimReward(p.objectiveId)
+  },
+  heroActions: {
+    assign: (engine, p) => engine.assignHeroAction(p.heroId, p.action, p.target),
+    clear: (engine, p) => engine.clearHeroAction(p.heroId),
+    getAssignments: (engine) => engine.getCurrentActionAssignments()
   },
   combat: {
     nextTurn: (engine) => engine.nextBattleTurn(),
@@ -193,6 +218,17 @@ const ACTION_MAP = {
     defend: (engine, p) => engine.heroDefend(p.heroId),
     skip: (engine) => engine.skipBattle(),
     toggleAuto: (engine) => engine.toggleAutoBattle()
+  },
+  tutorial: {
+    reportEvent: (engine, p) => {
+      const advanced = engine.reportTutorialEvent(p)
+      return { success: true, data: { state: engine.getTutorialState(), advanced } }
+    },
+    skip: (engine) => {
+      engine.tutorialService.skip()
+      return { success: true, data: engine.getTutorialState() }
+    },
+    getState: (engine) => ({ success: true, data: engine.getTutorialState() })
   },
   settings: {
     devCheatActivate: (engine) => engine.activateDeveloperCheat(),
@@ -239,6 +275,41 @@ export function createEngineAdapter(engine, gameStateRef) {
         return { success: false, error: 'action_unknown' }
       }
 
+      // Tutorial action guard — query/read actions are always allowed
+      const isQuery = (domain === 'trainer' && action === 'getDialogue') ||
+                      (domain === 'witch' && action === 'getDialogue') ||
+                      (domain === 'academy' && action === 'getSpellDesigns') ||
+                      (domain === 'magic' && action === 'getGlyphSymbol') ||
+                      (domain === 'magic' && action === 'getSlotCount') ||
+                      (domain === 'shop' && action === 'getSellPrice') ||
+                      (domain === 'settings' && action === 'getCurrentSlotIndex') ||
+                      (domain === 'chronicle' && action === 'getEntries') ||
+                      (domain === 'chronicle' && action === 'getStats') ||
+                      (domain === 'book' && action === 'getPage') ||
+                      (domain === 'book' && action === 'getSpread') ||
+                      (domain === 'book' && action === 'markRead') ||
+                      (domain === 'heroActions' && action === 'getAssignments') ||
+                      (domain === 'presentation' && action === 'getNext') ||
+                      (domain === 'presentation' && action === 'hasPending') ||
+                      (domain === 'presentation' && action === 'markAsSeen') ||
+                      (domain === 'presentation' && action === 'replay') ||
+                      (domain === 'tutorial' && action === 'getState') ||
+                      (domain === 'tutorial' && action === 'reportEvent') ||
+                      (domain === 'tutorial' && action === 'skip')
+
+      if (!isQuery && gameStateRef?.value?.tutorial) {
+        const allowed = gameStateRef.value.tutorial.allowActions || []
+        if (allowed.length > 0) {
+          const actionKey = `${domain}.${action}`
+          if (!allowed.includes(actionKey)) {
+            const i18n = engine.i18n
+            const message = i18n?.t('tutorial_uxelm_action_blocked') || 'Action blocked by tutorial'
+            showToast(message, 'warning')
+            return { success: false, error: 'tutorial_action_blocked' }
+          }
+        }
+      }
+
       let result
       try {
         result = handler(engine, payload)
@@ -264,17 +335,6 @@ export function createEngineAdapter(engine, gameStateRef) {
       }
 
       // Force a state snapshot after the action if it mutated the state.
-      // engine.update() is non-idempotent (see architecture doc §6.3), but this is correct here:
-      // the action just mutated engine state, and we need Vue to see the change
-      // immediately (not wait for the next 100ms loop tick).
-      const isQuery = (domain === 'trainer' && action === 'getDialogue') ||
-                      (domain === 'witch' && action === 'getDialogue') ||
-                      (domain === 'academy' && action === 'getSpellDesigns') ||
-                      (domain === 'magic' && action === 'getGlyphSymbol') ||
-                      (domain === 'magic' && action === 'getSlotCount') ||
-                      (domain === 'shop' && action === 'getSellPrice') ||
-                      (domain === 'settings' && action === 'getCurrentSlotIndex')
-
       if (gameStateRef && !isQuery) {
         gameStateRef.value = engine.update()
       }

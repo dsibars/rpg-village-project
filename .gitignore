@@ -170,4 +170,10 @@ test_*screenshots/
 /screenshots/
 scripts/screenshots/output/
 
+# Automated playing simulation outputs
+scripts/automated-playing-simulation/context_outputs/desktop/screenshots/
+scripts/automated-playing-simulation/context_outputs/desktop/walkthrough.txt
+scripts/automated-playing-simulation/context_outputs/mobile/screenshots/
+scripts/automated-playing-simulation/context_outputs/mobile/walkthrough.txt
+
 # Vite build cache

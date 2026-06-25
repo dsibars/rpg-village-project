@@ -49,6 +49,60 @@ export const CODEX_FEATURES = [
         isUnlocked: (state) => true
     },
 
+    {
+        id: 'feature_fatigue',
+        categoryId: 'combat',
+        icon: '😫',
+        nameKey: 'codex_feature_fatigue',
+        descKey: 'codex_feature_fatigue_desc',
+        unlockHintKey: 'codex_feature_fatigue_unlock',
+        isUnlocked: (state) => (state.heroes || []).some(h => (h.fatigue || 0) > 0)
+    },
+    {
+        id: 'feature_market_rotation',
+        categoryId: 'village',
+        icon: '🔄',
+        nameKey: 'codex_feature_market_rotation',
+        descKey: 'codex_feature_market_rotation_desc',
+        unlockHintKey: 'codex_feature_market_rotation_unlock',
+        isUnlocked: (state) => {
+            const completed = state.completedExpeditions || [];
+            return completed.includes('exp_tutorial_cave');
+        }
+    },
+    {
+        id: 'feature_village_events',
+        categoryId: 'village',
+        icon: '🎲',
+        nameKey: 'codex_feature_village_events',
+        descKey: 'codex_feature_village_events_desc',
+        unlockHintKey: 'codex_feature_village_events_unlock',
+        isUnlocked: (state) => (state.village?.day || 0) >= 5
+    },
+    {
+        id: 'feature_daily_actions',
+        categoryId: 'basics',
+        icon: '📋',
+        nameKey: 'codex_feature_daily_actions',
+        descKey: 'codex_feature_daily_actions_desc',
+        unlockHintKey: 'codex_feature_daily_actions_unlock',
+        isUnlocked: (state) => {
+            const tavern = state.village?.infrastructure?.tavern || 0;
+            return tavern >= 1;
+        }
+    },
+    {
+        id: 'feature_chronicle',
+        categoryId: 'basics',
+        icon: '📜',
+        nameKey: 'codex_feature_chronicle',
+        descKey: 'codex_feature_chronicle_desc',
+        unlockHintKey: 'codex_feature_chronicle_unlock',
+        isUnlocked: (state) => {
+            const completed = state.completedExpeditions || [];
+            return completed.length > 0;
+        }
+    },
     // ─── COMBAT ───
     {
         id: 'feature_gambits',

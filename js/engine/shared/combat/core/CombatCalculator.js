@@ -28,13 +28,14 @@ export class CombatCalculator {
         if (defenseValue <= 0) defenseValue = 1;
         const R = attackValue / defenseValue;
         
-        if (R >= 10) return R / 10;
-        if (R >= 5) return 1.0;
-        if (R >= 4) return 0.9 + (R - 4) * 0.1;
-        if (R >= 2) return 0.75 + (R - 2) * 0.075;
-        if (R >= 1) return 0.5 + (R - 1) * 0.25;
+        // Redesigned: higher attack rewards more, defense stays meaningful longer
+        if (R >= 10) return 3.0;       // 10x attack → 3.0x (was 1.0x)
+        if (R >= 5)  return 2.0 + (R - 5) * 0.2;   // 5x → 2.0x, scaling up
+        if (R >= 2)  return 1.0 + (R - 2) * 0.33;  // 2x → 1.0x, scaling up
+        if (R >= 1)  return 0.5 + (R - 1) * 0.5;   // 1x → 0.5x, linear to 1.0x
+        if (R >= 0.5) return R * 0.5;               // 0.5x → 0.25x
         
-        return R * 0.5;
+        return 0.2;  // Below 0.5x → barely scratches
     }
 
     /**

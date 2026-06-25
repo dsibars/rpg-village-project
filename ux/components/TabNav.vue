@@ -7,6 +7,7 @@
       :class="{ active: modelValue === tab.id }"
       role="tab"
       :aria-selected="modelValue === tab.id ? 'true' : 'false'"
+      :data-tutorial-target="'tab_' + tab.id"
       @click="$emit('update:modelValue', tab.id)"
     >
       <span v-if="tab.icon" class="tab-icon" aria-hidden="true">{{ tab.icon }}</span>

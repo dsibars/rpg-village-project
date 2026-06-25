@@ -135,7 +135,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onErrorCaptured } from 'vue'
+import { ref, computed, watch, onErrorCaptured } from 'vue'
 import { useI18n } from '@/core/composables/useI18n.js'
 import { useGameState, useBestiary } from '@/core/composables/useGameState.js'
 import { useAdapter } from '@/core/composables/useAdapter.js'
@@ -159,6 +159,8 @@ const { heroes, village, inventory } = useGameState()
 const { bestiary, enemyTemplates } = useBestiary()
 const { dispatch } = useAdapter()
 
+const emit = defineEmits(['tutorial:event'])
+
 const selectedHeroId = ref(null)
 const activeModal = ref(null)
 const pageError = ref(null)
@@ -172,6 +174,23 @@ onErrorCaptured((err, instance, info) => {
 const selectedHero = computed(() =>
   heroes.value.find((h) => h.id === selectedHeroId.value) || null
 )
+
+// Tutorial: report hero selection events
+watch(selectedHeroId, (newId, oldId) => {
+  if (newId && newId !== oldId) {
+    emit('tutorial:event', { event: 'hero_selected', heroId: newId })
+  }
+})
+
+// Tutorial: report when the skills modal opens or closes
+watch(activeModal, (newModal, oldModal) => {
+  if (newModal === 'skills' && oldModal !== 'skills' && selectedHeroId.value) {
+    emit('tutorial:event', { event: 'skill_modal_opened', heroId: selectedHeroId.value })
+  }
+  if (oldModal === 'skills' && newModal !== 'skills' && selectedHeroId.value) {
+    emit('tutorial:event', { event: 'skill_modal_closed', heroId: selectedHeroId.value })
+  }
+})
 
 const tavernLevel = computed(() => village.value.infrastructure?.tavern || 0)
 const canRecruit = computed(() => tavernLevel.value >= 1)
@@ -193,7 +212,11 @@ function recruitHero() {
 
 function allocateStat(statId) {
   if (!selectedHeroId.value) return
-  dispatch('hero', 'increaseStat', { heroId: selectedHeroId.value, statId })
+  const result = dispatch('hero', 'increaseStat', { heroId: selectedHeroId.value, statId })
+  if (result?.success) {
+    const remainingPoints = selectedHero.value?.statPoints ?? 0
+    emit('tutorial:event', { event: 'stat_assigned', heroId: selectedHeroId.value, statId, remainingPoints })
+  }
 }
 
 function openAction(actionId) {
@@ -223,7 +246,10 @@ function handleInscribeSpell({ glyphIds, glyphTiers, name }) {
 
 function learnFamily(familyId) {
   if (!selectedHeroId.value) return
-  dispatch('hero', 'learnFamily', { heroId: selectedHeroId.value, familyId })
+  const result = dispatch('hero', 'learnFamily', { heroId: selectedHeroId.value, familyId })
+  if (result?.success) {
+    emit('tutorial:event', { event: 'skill_learned', heroId: selectedHeroId.value, familyId })
+  }
 }
 
 function useConsumable(consumableId) {

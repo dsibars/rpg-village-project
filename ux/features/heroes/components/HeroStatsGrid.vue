@@ -1,5 +1,5 @@
 <template>
-  <div class="stats-grid">
+  <div class="stats-grid" data-tutorial-target="hero_stats_grid">
     <div
       v-for="stat in stats"
       :key="stat.id"
@@ -15,6 +15,7 @@
         <button
           v-if="canAllocate && stat.key"
           class="btn-assign-stat"
+          :data-tutorial-target="'hero_stat_assign_' + stat.key"
           :aria-label="`${t('heroes_uxelm_skill_learn')} ${stat.label}`"
           @click="$emit('allocate', stat.key)"
         >

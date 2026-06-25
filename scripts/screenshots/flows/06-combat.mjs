@@ -38,9 +38,9 @@ async function setupBattle(page) {
   await refreshUI(page)
 }
 
-export async function run({ page, snap }) {
+export async function run({ page, snap, reset = true }) {
 
-  await startNewGame(page, selectors)
+  await startNewGame(page, selectors, reset)
   await setupBattle(page)
 
   // --- combat_overlay_open ---
@@ -106,4 +106,30 @@ export async function run({ page, snap }) {
   await refreshUI(page)
   await page.waitForTimeout(600)
   await snap({ flow: 'combat', state: 'combat_defeat' })
+
+  // Teardown: ensure the combat overlay is closed so later flows are not blocked
+  async function closeCombatOverlay() {
+    // Mark the battle as over so App.vue allows the overlay to stay closed
+    await page.evaluate(() => {
+      const e = window.__ENGINE__
+      if (e?.battleService) {
+        e.battleService.isOver = true
+        e.battleService.winner = e.battleService.winner || 'heroes'
+      }
+    })
+    // Try Escape first (FullViewOverlay listens for it), then a direct JS click.
+    await page.keyboard.press('Escape')
+    await page.waitForTimeout(300)
+    await page.evaluate(() => {
+      const closeBtn = document.querySelector('.fullview-overlay .btn-close')
+      if (closeBtn && !closeBtn.disabled) closeBtn.click()
+    })
+    await page.waitForTimeout(400)
+  }
+
+  let attempts = 0
+  while (await page.evaluate(() => !!document.querySelector('.fullview-overlay')) && attempts < 3) {
+    await closeCombatOverlay()
+    attempts++
+  }
 }

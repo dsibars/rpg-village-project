@@ -1,13 +1,14 @@
 <template>
   <nav class="footer-nav" aria-label="Main navigation">
     <button
-      v-for="item in items"
+      v-for="item in navItems"
       :key="item.id"
       class="nav-item"
       :class="{ active: current === item.id, 'nav-locked': item.locked }"
       :disabled="item.locked"
       :aria-current="current === item.id ? 'page' : undefined"
       :aria-disabled="item.locked ? 'true' : undefined"
+      :data-tutorial-target="'footer_nav_' + item.id"
       @click="!item.locked && $emit('navigate', item.id)"
     >
       <span class="nav-icon" aria-hidden="true">{{ item.icon }}</span>
@@ -17,6 +18,8 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
+
 const props = defineProps({
   current: { type: String, required: true },
   items: {
@@ -27,10 +30,18 @@ const props = defineProps({
       { id: 'adventure', label: 'Adventure', icon: '🗺' },
       { id: 'town', label: 'Town', icon: '🏘' }
     ]
-  }
+  },
+  lockedTabs: { type: Array, default: () => [] }
 })
 
-defineEmits(['navigate'])
+const emit = defineEmits(['navigate'])
+
+const navItems = computed(() =>
+  props.items.map(item => ({
+    ...item,
+    locked: props.lockedTabs.includes(item.id)
+  }))
+)
 </script>
 
 <style scoped>

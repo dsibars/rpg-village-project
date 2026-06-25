@@ -9,9 +9,8 @@ export const screenshotRegistry = [
   // === Onboarding ===
   { flow: 'onboarding', state: 'save_slot_empty', description: 'Save slot screen with only empty slots' },
   { flow: 'onboarding', state: 'save_slot_occupied', description: 'Save slot screen with at least one occupied slot' },
-  { flow: 'onboarding', state: 'intro_prologue', description: 'New game intro presentation overlay' },
-  { flow: 'onboarding', state: 'intro_skip_visible', description: 'Intro overlay with skip button visible' },
-  { flow: 'onboarding', state: 'village_fresh', description: 'Village main screen right after dismissing intro' },
+  { flow: 'onboarding', state: 'book_prologue', description: 'Book auto-open showing prologue content on new game' },
+  { flow: 'onboarding', state: 'village_fresh', description: 'Village main screen right after dismissing Book' },
 
   // === Village ===
   { flow: 'village', state: 'village_main', description: 'Village dashboard main view' },
@@ -39,6 +38,7 @@ export const screenshotRegistry = [
   { flow: 'adventure', state: 'bestiary_mixed', description: 'Bestiary with discovered and undiscovered enemies' },
   { flow: 'adventure', state: 'codex_unlocked', description: 'Codex with mix of unlocked/locked features' },
   { flow: 'adventure', state: 'chronicle_milestones', description: 'Chronicle milestones view' },
+  { flow: 'adventure', state: 'chronicle_to_book', description: 'Chronicle entry click-through open in Book' },
 
   // === Town ===
   { flow: 'town', state: 'buildings_list', description: 'Buildings list view' },
@@ -80,6 +80,39 @@ export const screenshotRegistry = [
   { flow: 'missions', state: 'mission_active_progress', description: 'Mission with partial progress bar' },
   { flow: 'missions', state: 'mission_completed', description: 'Mission completed with claim button visible' },
   { flow: 'missions', state: 'mission_reroll', description: 'Mission with reroll button available' },
+
+  // === Book ===
+  { flow: 'book', state: 'book_fresh_prologue', description: 'Book showing prologue content on fresh game' },
+  { flow: 'book', state: 'book_spread_navigation', description: 'Book showing spread navigation buttons active' },
+  { flow: 'book', state: 'book_village_update', description: 'Book showing village update after first day' },
+  { flow: 'book', state: 'book_milestone', description: 'Book showing milestone entry (e.g., hero recruited)' },
+  { flow: 'book', state: 'book_chapter_title', description: 'Book showing chapter title page' },
+
+  // === Tutorial ===
+  { flow: 'tutorial', state: 'tutorial_arthur_card', description: 'Tutorial overlay highlighting Arthur card' },
+  { flow: 'tutorial', state: 'tutorial_learn_skill', description: 'Tutorial overlay highlighting Learn Skill button' },
+  { flow: 'tutorial', state: 'tutorial_stat_grid', description: 'Tutorial overlay highlighting stat grid' },
+  { flow: 'tutorial', state: 'tutorial_village_tab', description: 'Tutorial overlay highlighting Village tab' },
+  { flow: 'tutorial', state: 'tutorial_build_farm', description: 'Tutorial overlay highlighting Farm building' },
+  { flow: 'tutorial', state: 'tutorial_explore_tab', description: 'Tutorial overlay highlighting Adventure tab' },
+  { flow: 'tutorial', state: 'tutorial_region_greenfields', description: 'Tutorial overlay highlighting Greenfields region' },
+  { flow: 'tutorial', state: 'tutorial_expedition_cave', description: 'Tutorial overlay highlighting Tutorial Cave expedition' },
+  { flow: 'tutorial', state: 'tutorial_advance_day', description: 'Tutorial overlay highlighting day advance button' },
+
+  // === Tutorial Interactive (real playthrough) ===
+  { flow: 'tutorial-interactive', state: 'book_prologue', description: 'Book auto-open on fresh game before tutorial starts' },
+  { flow: 'tutorial-interactive', state: 'tutorial_arthur_card', description: 'Tutorial overlay highlighting Arthur card (interactive)' },
+  { flow: 'tutorial-interactive', state: 'tutorial_skills_modal', description: 'Locked skills modal during tutorial (interactive)' },
+  { flow: 'tutorial-interactive', state: 'tutorial_stat_grid', description: 'Tutorial overlay highlighting stat grid (interactive)' },
+  { flow: 'tutorial-interactive', state: 'tutorial_village_tab', description: 'Tutorial overlay highlighting Village tab before farm (interactive)' },
+  { flow: 'tutorial-interactive', state: 'tutorial_build_farm_tile', description: 'Tutorial overlay highlighting Farm tile in Village (interactive)' },
+  { flow: 'tutorial-interactive', state: 'tutorial_build_farm_detail', description: 'Farm building detail in Town/Buildings (interactive)' },
+  { flow: 'tutorial-interactive', state: 'tutorial_explore_tab', description: 'Tutorial overlay highlighting Adventure tab (interactive)' },
+  { flow: 'tutorial-interactive', state: 'tutorial_region_greenfields', description: 'Tutorial overlay highlighting Greenfields region (interactive)' },
+  { flow: 'tutorial-interactive', state: 'tutorial_expedition_cave', description: 'Tutorial overlay highlighting Tutorial Cave node (interactive)' },
+  { flow: 'tutorial-interactive', state: 'tutorial_expedition_detail', description: 'Tutorial Cave expedition detail with hero selector (interactive)' },
+  { flow: 'tutorial-interactive', state: 'tutorial_advance_day', description: 'Tutorial overlay highlighting day advance button (interactive)' },
+  { flow: 'tutorial-interactive', state: 'tutorial_completed', description: 'Game state after Day 1 tutorial chain completes (interactive)' },
 
   // === Settings ===
   { flow: 'settings', state: 'settings_main', description: 'Settings page main view' },
