@@ -20,6 +20,7 @@
     "screenshots:audit": "node scripts/screenshots/audit.mjs",
     "combat:lab": "node scripts/combat-lab/runner.mjs",
     "combat:lab:full": "node scripts/combat-lab/runner.mjs --full",
+    "combat:lab:calibrate": "node scripts/combat-lab/runner.mjs --calibrate --full",
     "simulate:play": "node scripts/automated-playing-simulation/playgame.mjs"
   },
   "devDependencies": {

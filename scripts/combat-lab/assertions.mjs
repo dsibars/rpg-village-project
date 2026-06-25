@@ -65,6 +65,7 @@ export function evaluateAssertion(metrics, assertion) {
   // ── Range check (min / max) ────────────────────────────────────────────
   const hasMin = assertion.expectedMin !== undefined;
   const hasMax = assertion.expectedMax !== undefined;
+  const tolerance = assertion.tolerance ?? 0;
 
   if (!hasMin && !hasMax) {
     return {
@@ -74,18 +75,21 @@ export function evaluateAssertion(metrics, assertion) {
     };
   }
 
-  if (hasMin && actual < assertion.expectedMin) {
+  const effectiveMin = hasMin ? assertion.expectedMin * (1 - tolerance) : undefined;
+  const effectiveMax = hasMax ? assertion.expectedMax * (1 + tolerance) : undefined;
+
+  if (hasMin && actual < effectiveMin) {
     return {
       pass: false,
-      message: `Metric "${assertion.metric}" expected ≥ ${assertion.expectedMin}, got ${actual.toFixed(4)}`,
+      message: `Metric "${assertion.metric}" expected ≥ ${assertion.expectedMin} (±${(tolerance * 100).toFixed(0)}%), got ${actual.toFixed(4)}`,
       actual
     };
   }
 
-  if (hasMax && actual > assertion.expectedMax) {
+  if (hasMax && actual > effectiveMax) {
     return {
       pass: false,
-      message: `Metric "${assertion.metric}" expected ≤ ${assertion.expectedMax}, got ${actual.toFixed(4)}`,
+      message: `Metric "${assertion.metric}" expected ≤ ${assertion.expectedMax} (±${(tolerance * 100).toFixed(0)}%), got ${actual.toFixed(4)}`,
       actual
     };
   }

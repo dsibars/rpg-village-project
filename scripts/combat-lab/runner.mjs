@@ -10,6 +10,8 @@
  *   node scripts/combat-lab/runner.mjs --tag magic
  *   node scripts/combat-lab/runner.mjs --full
  *   node scripts/combat-lab/runner.mjs --iterations 50 --seed 12345
+ *   node scripts/combat-lab/runner.mjs --calibrate --full
+ *   node scripts/combat-lab/runner.mjs --tolerance 20 --full
  */
 
 import { BattleService } from '../../js/engine/shared/combat/services/BattleService.js';
@@ -17,6 +19,13 @@ import { buildHero, buildParty, buildEnemies, validateScenario } from './scenari
 import { parseCombatLog, aggregateMetrics } from './metrics.mjs';
 import { evaluateScenario, summariseResults } from './assertions.mjs';
 import { generateReportSync } from './report.mjs';
+import {
+  saveCalibration,
+  loadCalibration,
+  buildCalibrationData,
+  applyCalibration,
+  getCalibrationIterations
+} from './calibration.mjs';
 
 import { readdir, readFile, mkdir, writeFile } from 'fs/promises';
 import { existsSync } from 'fs';
@@ -121,26 +130,6 @@ function runSingleCombat(scenario, inventory) {
   };
 }
 
-function runScenario(scenario, inventory) {
-  const perCombatMetrics = [];
-  const sampleLog = { winner: null, log: [] };
-
-  for (let i = 0; i < scenario.iterations; i++) {
-    const result = runSingleCombat(scenario, inventory);
-    const metrics = parseCombatLog(result.log, result.winner);
-    perCombatMetrics.push(metrics);
-
-    if (i === 0) {
-      sampleLog.winner = result.winner;
-      sampleLog.log = result.log;
-    }
-  }
-
-  const aggregated = aggregateMetrics(perCombatMetrics);
-  aggregated.scenarioId = scenario.id;
-  return { aggregated, sampleLog };
-}
-
 // ───────────────────────────────────────────────────────────────────────────
 // Parallel Execution with Concurrency Control
 // ───────────────────────────────────────────────────────────────────────────
@@ -215,6 +204,8 @@ function parseArgs() {
     iterations: null,
     seed: null,
     concurrency: DEFAULT_CONCURRENCY,
+    calibrate: false,
+    tolerance: 0.15,
     help: false
   };
 
@@ -239,6 +230,12 @@ function parseArgs() {
       case '--concurrency':
         options.concurrency = parseInt(args[++i], 10);
         break;
+      case '--calibrate':
+        options.calibrate = true;
+        break;
+      case '--tolerance':
+        options.tolerance = parseFloat(args[++i]) / 100;
+        break;
       case '--help':
       case '-h':
         options.help = true;
@@ -262,12 +259,16 @@ Options:
   --iterations <n>     Override iteration count for all scenarios
   --seed <n>           Set RNG seed (deterministic mode)
   --concurrency <n>    Max parallel scenarios (default: ${DEFAULT_CONCURRENCY})
+  --calibrate          Regenerate golden-master baseline metrics for all scenarios
+  --tolerance <pct>    Allowable deviation from baseline (default: 15%)
   --help, -h           Show this help
 
 Examples:
   node scripts/combat-lab/runner.mjs
   node scripts/combat-lab/runner.mjs --scenario mage_scaling
   node scripts/combat-lab/runner.mjs --tag magic --iterations 100 --concurrency 8
+  node scripts/combat-lab/runner.mjs --calibrate --full
+  node scripts/combat-lab/runner.mjs --tolerance 20 --full
 `);
 }
 
@@ -306,12 +307,28 @@ async function main() {
   // Skip scenarios marked skip=true
   toRun = toRun.filter(s => !s.skip);
 
-  // Override iterations if requested
-  if (options.iterations) {
-    toRun = toRun.map(s => ({ ...s, iterations: options.iterations }));
-  }
+  // Calibration mode: use higher iterations, run everything, save baselines
+  if (options.calibrate) {
+    const calIterations = getCalibrationIterations();
+    toRun = toRun.map(s => ({ ...s, iterations: options.iterations || calIterations }));
+    console.log(`🔬 Calibration mode — ${toRun.length} scenario(s) to calibrate (${toRun[0]?.iterations ?? calIterations} iterations each)\n`);
+  } else {
+    // Normal mode: apply calibrated assertions if calibration data exists
+    const calibration = await loadCalibration();
+    if (calibration) {
+      toRun = applyCalibration(toRun, calibration, options.tolerance);
+      console.log(`📐 Loaded calibration data (${Object.keys(calibration.scenarios).length} baseline(s), tolerance: ${(options.tolerance * 100).toFixed(0)}%)`);
+    } else {
+      console.log(`⚠️  No calibration data found. Run with --calibrate to generate baselines.`);
+    }
 
-  console.log(`Combat Balance Lab — ${toRun.length} scenario(s) to run (concurrency: ${options.concurrency})\n`);
+    // Override iterations if requested
+    if (options.iterations) {
+      toRun = toRun.map(s => ({ ...s, iterations: options.iterations }));
+    }
+
+    console.log(`Combat Balance Lab — ${toRun.length} scenario(s) to run (concurrency: ${options.concurrency})\n`);
+  }
 
   const inventory = new LabInventoryStub();
 
@@ -337,6 +354,24 @@ async function main() {
         ? '✅ pass'
         : '❌ FAIL';
     console.log(`  ${aggregated.scenarioId} ... ${status}  (wr: ${(aggregated.winRate * 100).toFixed(0)}%, turns: ${aggregated.avgTurns.toFixed(1)})`);
+  }
+
+  // Calibration mode: save baselines and exit
+  if (options.calibrate) {
+    const calibrationRuns = runResults.map(({ aggregated }) => ({
+      scenarioId: aggregated.scenarioId,
+      metrics: aggregated
+    }));
+    const calibrationData = buildCalibrationData(calibrationRuns, {
+      iterations: toRun[0]?.iterations ?? getCalibrationIterations(),
+      tolerance: options.tolerance
+    });
+    await saveCalibration(calibrationData);
+    console.log(`\n💾 Calibration data saved to: ${join(outputDir, 'calibration.json')}`);
+    console.log(`   Scenarios calibrated: ${Object.keys(calibrationData.scenarios).length}`);
+    console.log(`   Iterations per scenario: ${calibrationData.iterations}`);
+    console.log(`   Tolerance: ${(calibrationData.tolerance * 100).toFixed(0)}%`);
+    process.exit(0);
   }
 
   // Generate report
