@@ -369,3 +369,59 @@ test('BattleService: support AoE spell targets all allies', () => {
     const healEvents = battle.log.filter(e => e.type === 'HEAL');
     assert.strictEqual(healEvents.length, 3);
 });
+
+
+test('BattleService: MP regenerates each turn based on magicPower', () => {
+    const inventory = new InventoryService();
+    const battle = new BattleService(inventory);
+    const hero = {
+        ...mockHero,
+        mp: 5,
+        maxMp: 30,
+        magicPower: 30,
+        magicDefense: 15
+    };
+    const enemy = { ...mockEnemy };
+    battle.startBattle([hero], [enemy]);
+
+    const initialMp = hero.mp;
+    battle.nextTurn();
+
+    assert.ok(hero.mp > initialMp, 'Hero should regenerate MP on turn start');
+    const regenEvent = battle.log.find(e => e.type === 'MP_REGEN' && e.actorId === hero.id);
+    assert.ok(regenEvent, 'Should log MP_REGEN event');
+});
+
+test('BattleService: spell damage uses magicDefense, not physical defense', () => {
+    const inventory = new InventoryService();
+    const battle = new BattleService(inventory);
+    const hero = {
+        ...mockHero,
+        mp: 50,
+        maxMp: 50,
+        magicPower: 10,
+        magicDefense: 5,
+        magicTier: 3,
+        knownGlyphs: ['glyph_fire'],
+        spellCodex: [{
+            id: 'fb', name: 'Fire Spark', mpCost: 5, damage: 20,
+            element: 'fire', targetType: 'single_enemy', category: 'offensive',
+            effects: {}, glyphIds: ['glyph_fire'], glyphTiers: {}
+        }]
+    };
+    const lowMagicDefenseEnemy = {
+        ...mockEnemy,
+        defense: 50,
+        magicDefense: 2
+    };
+    battle.startBattle([hero], [lowMagicDefenseEnemy]);
+
+    const spell = hero.spellCodex[0];
+    const result = battle.castSpell(hero, spell, 0);
+    assert.strictEqual(result.success, true);
+
+    const spellDamageEvent = battle.log.find(e => e.type === 'SPELL_DAMAGE');
+    assert.ok(spellDamageEvent, 'Should record SPELL_DAMAGE');
+    // High physical defense should not matter; damage should be high because magicDefense is low
+    assert.ok(spellDamageEvent.amount > 5, 'Spell damage should ignore high physical defense');
+});

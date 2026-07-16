@@ -256,6 +256,12 @@ Some Glyphs are **conceptually boolean** — their effect does not improve with 
 
 Every Glyph adds **power**, but every Glyph adds **cost**. The mage asks: *"Can I afford this?"*
 
+**Spell damage and effects come entirely from the glyphs used.** A hero's `magicPower` stat does **not** multiply spell damage. Instead, `magicPower` determines how comfortably the hero can cast:
+
+- **Larger MP pool:** `maxMp` is slightly increased by `magicPower`.
+- **MP regeneration:** Each turn, the hero recovers a small amount of MP based on `magicPower`.
+- **Magic defense:** `magicPower` contributes to `magicDefense`, reducing incoming spell damage.
+
 ```
 Base MP = Core.baseCost
 

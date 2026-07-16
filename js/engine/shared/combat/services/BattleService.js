@@ -131,6 +131,23 @@ export class BattleService {
             }
         }
 
+        // 0.05 MP Regeneration (based on magicPower, affected by mpRecovery)
+        if (currentEntity.maxMp > 0 && currentEntity.mp < currentEntity.maxMp) {
+            const effectiveMagicPower = this._getEffectiveMagicPower(currentEntity);
+            const mpRecovery = currentEntity.mpRecovery || 1.0;
+            const regen = Math.max(1, Math.floor(effectiveMagicPower * 0.1 * mpRecovery));
+            const actualRegen = Math.min(regen, currentEntity.maxMp - currentEntity.mp);
+            currentEntity.mp += actualRegen;
+            if (actualRegen > 0) {
+                this.log.push({
+                    type: 'MP_REGEN',
+                    actorId: currentEntity.id,
+                    actorName: currentEntity.name,
+                    amount: actualRegen
+                });
+            }
+        }
+
         // 0.1 Stun / Sleep Check — skip turn if incapacitated
         const stunEffect = currentEntity.statusEffects && currentEntity.statusEffects.find(e => e.type === 'stun');
         if (stunEffect) {
@@ -687,12 +704,10 @@ export class BattleService {
             // Elemental multiplier
             const elementMult = CombatCalculator.getElementMultiplier(spell.element, target.element);
 
-            // Defense reduction
-            const targetDefense = CombatCalculator.getFinalStat(target, 'defense');
-            const magicPower = actor.magicPower || 0;
-            const magMult = 1 + (magicPower / 20);
-            const rawDamage = spell.damage * magMult * elementMult;
-            const defMult = CombatCalculator.calculateDamageMultiplier(rawDamage, targetDefense);
+            // Magic defense reduction
+            const targetMagicDefense = this._getEffectiveMagicDefense(target);
+            const rawDamage = spell.damage * elementMult;
+            const defMult = CombatCalculator.calculateDamageMultiplier(rawDamage, targetMagicDefense);
 
             let finalDamage = Math.max(1, Math.floor(rawDamage * defMult));
 
@@ -951,6 +966,20 @@ export class BattleService {
             phase = 'mid';
         }
         return { turnCount, phase };
+    }
+
+    _getEffectiveMagicPower(entity) {
+        const base = CombatCalculator.getFinalStat(entity, 'magicPower');
+        if (!this.heroes.includes(entity)) return base;
+        const boost = this.partyTraits?.magicPowerBoost || 0;
+        return Math.floor(base * (1 + boost));
+    }
+
+    _getEffectiveMagicDefense(entity) {
+        const base = CombatCalculator.getFinalStat(entity, 'magicDefense');
+        if (!this.heroes.includes(entity)) return base;
+        const boost = this.partyTraits?.magicPowerBoost || 0;
+        return Math.floor(base * (1 + boost));
     }
 
     /**

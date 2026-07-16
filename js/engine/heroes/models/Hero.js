@@ -399,6 +399,11 @@ export class Hero {
         this.defense = Math.floor((this.baseDefense + defBoost + equipBonus.defense) * traitMults.defense);
         this.magicPower = Math.floor((this.baseMagicPower + equipBonus.magicPower) * traitMults.magicPower);
 
+        // magicPower increases the MP pool, provides MP regeneration, and improves magical resilience
+        const mpFromMagicPower = Math.floor(this.magicPower * 0.5);
+        this.maxMp += mpFromMagicPower;
+        this.magicDefense = Math.floor(this.magicPower * 0.5);
+
         // maxStamina depends on strength, defense, and level
         this.maxStamina = Math.floor((this.strength * 3) + (this.defense * 2) + (this.level * 2));
 
@@ -782,6 +787,7 @@ export class Hero {
             speed: this.speed,
             defense: this.defense,
             magicPower: this.magicPower,
+            magicDefense: this.magicDefense,
             hp: this.hp,
             mp: this.mp,
             stamina: this.stamina,

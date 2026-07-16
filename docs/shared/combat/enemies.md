@@ -15,6 +15,7 @@ Enemies are the primary combat obstacles for Heroes during adventures. They shar
 ### Base Attributes
 Matches the Hero attribute system for combat compatibility:
 - `hp`, `mp`, `strength`, `defense`, `magicPower`, `speed`.
+- `magicDefense`: Derived from `magicPower`; reduces incoming spell damage.
 
 ## AI Logic
 Enemies use the `CombatAI` decision tree (Smart AI):

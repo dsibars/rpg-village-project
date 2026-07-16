@@ -18,7 +18,7 @@ Heroes are the defenders of the village and the primary means of progressing the
 ### Attributes
 - `maxHp` / `maxMp`: Resource pools.
 - `strength` / `defense`: Physical combat stats.
-- `magicPower`: Magic damage and healing power.
+- `magicPower`: Caster sustain and magical resilience. It increases the hero's maximum MP, provides a small amount of MP regeneration each turn, and contributes to `magicDefense` against incoming spells. Spell damage itself is determined by the Magic Circle glyph composition, not by this stat.
 - `speed`: Turn order and evasion frequency.
 
 ### Meal Buffs

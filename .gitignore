@@ -177,3 +177,4 @@ scripts/automated-playing-simulation/context_outputs/mobile/screenshots/
 scripts/automated-playing-simulation/context_outputs/mobile/walkthrough.txt
 
 # Vite build cache
+.dev_workflow/initiative_new_combat/
