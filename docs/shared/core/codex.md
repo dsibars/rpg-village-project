@@ -96,7 +96,7 @@ The Codex follows **gameplay-driven progression**. There are no day-based gates.
 - **Era III**: Advanced features unlock through deep investment (Arcane Sanctum L2, hero stat thresholds).
 - **Era IV**: Endgame systems are already covered by existing entries.
 
-The [Roadmap](../roadmap.md) defines approximate era timing, but these are **soft pacing guidelines, not hard gates**.
+Era timing follows the region/building progression (see [Regions Data](../../explore/regions_data.md) and [Buildings Data](../../village/buildings_data.md)), but these are **soft pacing guidelines, not hard gates**.
 
 ---
 

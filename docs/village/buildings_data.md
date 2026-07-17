@@ -32,3 +32,8 @@ This registry defines the costs, construction times, and bonuses for all village
 | `infirmary` | 3 | 800 | 300 Wood, 200 Stone | 7 | Daily Heal: +2 base + 50% max HP, +2 Heroes |
 | **Social & Recruitment** | | | | | |
 | `tavern` | 1 | 200 | 100 Wood, 50 Stone | 3 | Unlock Hero Recruitment (gold-based)
+| **Missions** | | | | | |
+| `mission_board` | 1 | 50 | 30 Wood, 10 Stone | 1 | 1 mission slot (requires Tavern L1) |
+| `mission_board` | 2 | 120 | 60 Wood, 25 Stone | 1 | 2 mission slots |
+| `mission_board` | 3 | 250 | 100 Wood, 50 Stone | 2 | 3 mission slots |
+| `mission_board` | 4 | 400 | 150 Wood, 80 Stone | 2 | 4 mission slots |

@@ -16,9 +16,10 @@ const SEASON_EFFECTS = {
 };
 
 export class CalendarService {
-    constructor(villageService, heroService, options = {}) {
+    constructor(villageService, heroService, regionService = null, options = {}) {
         this.villageService = villageService;
         this.heroService = heroService;
+        this.regionService = regionService;
         this.STORAGE_KEY = 'calendar_state';
         this.state = this._getDefaultState();
         if (!options.deferLoad) {
@@ -128,7 +129,7 @@ export class CalendarService {
     }
 
     _generateRaid(day) {
-        const totalClears = 0;
+        const totalClears = this.regionService?.getTotalClears?.() || 0;
         
         const raidLevel = Math.max(1, Math.floor(day / 10) + Math.floor(totalClears / 5));
         const enemyCount = Math.min(6, 2 + Math.floor(day / 20));

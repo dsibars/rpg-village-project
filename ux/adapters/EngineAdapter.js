@@ -147,7 +147,7 @@ const ACTION_MAP = {
     unassignDefense: (engine, p) => engine.unassignDefense(p.heroId)
   },
   buildings: {
-    startProject: (engine, p) => engine.startProject(p.buildingId, p.targetLevel, p.costGold, p.costMaterials, p.duration)
+    startProject: (engine, p) => engine.startProject(p.buildingId, p.targetLevel)
   },
   explore: {
     assignExpedition: (engine, p) => engine.assignExpedition(p.expId, p.heroIds),

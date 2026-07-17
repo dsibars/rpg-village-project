@@ -4,7 +4,7 @@
 
 The **Body Inscription** system is a late-game hybrid unlock that rewards heroes who have invested deeply in **both** the Physical Skill System and the Magic Circle System. When a hero meets strict thresholds, they gain the ability to **draw a permanent magic circle upon their own body** — infusing their physical techniques with arcane power.
 
-> **Status:** Brainstorming / Design Phase — Not yet implemented.  
+> **Status:** Implemented (core loop). The unlock thresholds (Magic Tier 7, 12 Skill Tier Points) and the multi-day inscription process are live (`Hero.js`, `HeroInscriptionModal.vue`). Some advanced interactions described below may still be partial — verify against code before extending.  
 > **Prerequisite Systems:** [Physical Skill System](physical_skill_system.md), [Magic Circle System](magic_circle_system.md)  
 > **Unlock Feel:** Trophy / achievement. Not easy. Not common. Legendary.  
 > **Archetype:** The "Paladin" — a warrior whose body IS a spell.

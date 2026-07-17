@@ -67,6 +67,25 @@ Every hero accumulates **lifetime stats** across all battles and expeditions. Th
 
 Titles are earned automatically when a hero meets criteria. Displayed next to their name everywhere.
 
+### Implemented Titles
+
+These are live in `TitleService.TITLES` (early-game calibrated for immediate dopamine):
+
+| Requirement | Title ID |
+|-------------|----------|
+| 1 enemy defeated | `title_first_blood` |
+| 50 enemies defeated | `title_veteran` |
+| 200 enemies defeated | `title_slayer` |
+| 500 enemies defeated | `title_legend` |
+| 5 expeditions completed | `title_explorer` |
+| 10 battles won | `title_survivor` |
+| 1,000 total damage dealt | `title_titan` |
+| 100 damage in a single hit | `title_unstoppable` |
+
+### Planned Titles (Design Targets)
+
+The following tables are the long-term title roadmap. They are **not yet implemented**; they target a deeper endgame and require additional lifetime-stat counters.
+
 ### Level Titles
 
 | Requirement | Title |

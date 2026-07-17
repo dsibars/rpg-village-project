@@ -1,6 +1,6 @@
 /**
  * Region: Iron Peaks
- * Orc-infested mountains. Story mission unlocks via explorer_guild level 2.
+ * Orc-infested mountains. Unlocks with 18 total clears + explorer_guild L2 + 4 heroes.
  */
 export const reg_iron_peaks = {
     id: 'reg_iron_peaks',
@@ -26,6 +26,14 @@ export const reg_iron_peaks = {
     },
     narrative: null,
     glyphDropTable: null,
+
+    unlockRequirements: {
+        all: [
+            { minTotalClears: 18 },
+            { minBuildingLevel: { building: 'explorer_guild', level: 2 } },
+            { minHeroes: 4 }
+        ]
+    },
 
     storyMissions: [
         {

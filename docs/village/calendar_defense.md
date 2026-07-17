@@ -6,10 +6,10 @@ The Calendar & Defense system adds a seasonal cycle and periodic raid events tha
 ## Season System
 
 ### Seasons
-- **Spring** (Days 1-30): +5% growth bonus
-- **Summer** (Days 31-60): +10% farm production bonus
-- **Autumn** (Days 61-90): +10% miner production bonus
-- **Winter** (Days 91-120): -10% farm production penalty
+- **Spring** (Days 1-30): +5% farm production (growth)
+- **Summer** (Days 31-60): +10% farm production
+- **Autumn** (Days 61-90): +10% miner gather chance
+- **Winter** (Days 91-120): −10% farm production
 
 ### Cycle
 - Each season lasts 30 days
@@ -106,9 +106,9 @@ If they proceed and the raid fires with 0 defenders, the severe penalty applies.
 
 - `js/engine/calendar/services/CalendarService.js` — Core calendar & raid logic
 - `js/engine/GameEngine.js` — Facade methods: `assignDefense`, `unassignDefense`, `getCalendarState`
-- `js/presentation/ui/village/VillageView.js` — Calendar & defense UI rendering
-- `js/presentation/adapters/EngineAdapter.js` — Event wiring for `assignDefense`/`unassignDefense`
-- `pages/village.html` — Calendar & defense widget markup
+- `ux/features/village/components/VillageCalendar.vue` — Calendar widget UI
+- `ux/features/village/components/VillageDefense.vue` — Defense widget UI
+- `ux/adapters/EngineAdapter.js` — Dispatch wiring for `assignDefense`/`unassignDefense`
 
 ## i18n Keys
 

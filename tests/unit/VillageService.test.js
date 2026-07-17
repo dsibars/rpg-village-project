@@ -148,3 +148,19 @@ test('VillageService: daysSinceLastRecruit migration from old save', () => {
     const fresh = new VillageService(villageService.inventoryService);
     assert.strictEqual(fresh.state.daysSinceLastRecruit, 0);
 });
+
+test('VillageService: summer farm bonus increases food production', () => {
+    const { villageService } = createVillage();
+    villageService.state.infrastructure.farm = 5;
+    const base = villageService.nextDay();
+    assert.strictEqual(base.produced, 20); // 5 levels × 4 grain
+    const summer = villageService.nextDay({ farmBonus: 0.10 });
+    assert.strictEqual(summer.produced, 22); // floor(20 × 1.1)
+});
+
+test('VillageService: winter farm penalty decreases food production', () => {
+    const { villageService } = createVillage();
+    villageService.state.infrastructure.farm = 5;
+    const winter = villageService.nextDay({ farmPenalty: 0.10 });
+    assert.strictEqual(winter.produced, 18); // floor(20 × 0.9)
+});

@@ -6,6 +6,7 @@ import { HeroService } from './heroes/services/HeroService.js';
 import { BattleService } from './shared/combat/services/BattleService.js';
 import { InventoryService } from './shared/inventory/services/InventoryService.js';
 import { VillageService } from './village/services/VillageService.js';
+import { getBuildingCost } from './village/data/BuildingsData.js';
 import { ExpeditionService } from './explore/services/ExpeditionService.js';
 import { RegionService } from './explore/services/RegionService.js';
 import { DailyObjectivesService } from './daily/services/DailyObjectivesService.js';
@@ -58,7 +59,7 @@ export class GameEngine {
         );
         this.dailyObjectivesService = new DailyObjectivesService(this.inventoryService, this.villageService, { deferLoad: true });
         this.missionSeedService = new MissionSeedService(this.inventoryService, this.villageService, { deferLoad: true });
-        this.calendarService = new CalendarService(this.villageService, this.heroService, { deferLoad: true });
+        this.calendarService = new CalendarService(this.villageService, this.heroService, this.regionService, { deferLoad: true });
         this.academyService = new AcademyService(this.heroService, this.villageService, { deferLoad: true });
         this.unlockService = new UnlockService({ deferLoad: true });
         this.presentationService = new PresentationService(
@@ -1016,7 +1017,8 @@ export class GameEngine {
         // Legacy daily objectives (still available for fallback UI)
         this.dailyObjectivesService.generateForDay(villageState.day);
 
-        const villageReport = this.villageService.nextDay();
+        const seasonEffects = this.calendarService.getSeasonEffects(villageState.day);
+        const villageReport = this.villageService.nextDay(seasonEffects);
 
         // Trigger Point 2: Building Completion
         if (villageReport.completed && villageReport.completed.length > 0) {
@@ -1403,10 +1405,13 @@ export class GameEngine {
         return this.calendarService.unassignDefense(heroId);
     }
 
-    startProject(buildingId, targetLevel, costGold, costMaterials, duration) {
-        const result = this.villageService.startProject(buildingId, targetLevel, costGold, costMaterials, duration);
+    startProject(buildingId, targetLevel) {
+        // Costs are authoritative from BuildingsData (mirrors docs/village/buildings_data.md);
+        // callers must NOT pass their own balance values.
+        const cost = getBuildingCost(buildingId, targetLevel);
+        const result = this.villageService.startProject(buildingId, targetLevel, cost.gold, cost.materials, cost.duration);
         if (result.success) {
-            this.missionSeedService.trackProgress('spend', 'gold', costGold);
+            this.missionSeedService.trackProgress('spend', 'gold', cost.gold);
             this.missionSeedService.trackProgress('upgrade', 'building', 1);
             // Report tutorial event so the Day 1 "construct farm" step can advance
             // immediately when the player starts the project.

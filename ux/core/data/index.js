@@ -22,3 +22,4 @@ export {
 export { CODEX_FEATURES, CODEX_CATEGORIES } from '../../../js/engine/shared/data/CodexFeatures.js'
 export { PRESENTATION_CATALOG } from '../../../js/engine/shared/data/PresentationCatalog.js'
 export { UNLOCK_NARRATIVES } from '../../../js/engine/shared/data/UnlockNarratives.js'
+export { getBuildingCost } from '../../../js/engine/village/data/BuildingsData.js'
