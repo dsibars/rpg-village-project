@@ -1,6 +1,6 @@
 /**
- * Stub region: Iron Peaks
- * Not yet unlockable in-game. Reserved for future expansion.
+ * Region: Iron Peaks
+ * Orc-infested mountains. Story mission unlocks via explorer_guild level 2.
  */
 export const reg_iron_peaks = {
     id: 'reg_iron_peaks',

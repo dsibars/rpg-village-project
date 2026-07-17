@@ -198,9 +198,9 @@ Mark a scenario as `knownFailure: true` when it documents a bug that hasn't been
 
 ```javascript
 {
-  id: 'mage_scaling',
+  id: 'healing_potions_hp',
   knownFailure: true,
-  knownFailureReason: 'Spell damage does not apply magicPower multiplier (see BattleService._castOffensiveSpell).',
+  knownFailureReason: 'tiny_hp_potion uses flat heal amount (20) instead of 30% of max HP.',
   // ... assertions that would pass if the bug were fixed
 }
 ```
@@ -343,7 +343,7 @@ npm test
 ```
 
 This test:
-- Loads all 12 priority scenarios
+- Loads all 13 priority scenarios
 - Runs 5 iterations each
 - Asserts zero unexpected failures
 - Known failures are expected and do not fail the build
@@ -356,7 +356,7 @@ import priorityScenarios from '../../../scripts/combat-lab/scenarios/priority/';
 
 // Runs priority scenarios with low iterations in CI
 describe('Combat Balance Lab — Priority Regression', () => {
-  // 6 pass, 6 known failures (expected)
+  // 8 pass, 5 known failures (expected)
 });
 ```
 
@@ -385,7 +385,6 @@ The test matrix ensures every combat subsystem is covered. Each cell becomes one
 
 | Scenario | Issue | Location |
 |----------|-------|----------|
-| `mage_scaling` | Spell damage ignores `magicPower` | `BattleService._castOffensiveSpell` |
 | `healing_potions_hp` | Flat heal (20) instead of 30% max HP | `CONSUMABLES_DATA` |
 | `healing_potions_mp` | Flat restore (10) instead of 30% max MP | `CONSUMABLES_DATA` |
 | `gambit_enemy_element` | Condition declared but not implemented | `GambitService._checkCondition` |

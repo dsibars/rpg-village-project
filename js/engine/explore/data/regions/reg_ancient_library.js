@@ -1,6 +1,6 @@
 /**
- * Stub region: Ancient Library
- * Not yet unlockable in-game. Reserved for future expansion.
+ * Region: Ancient Library
+ * Undead-haunted archives. Story mission unlocks via explorer_guild level 3.
  */
 export const reg_ancient_library = {
     id: 'reg_ancient_library',

@@ -5,9 +5,9 @@
  * arcane initiate (magic) against the same enemy type over multiple
  * combat iterations.
  *
- * This is a measurement scenario. The warrior should significantly
- * out-damage the arcane initiate in the current build because spell
- * damage does not scale with magicPower (see mage_scaling scenario).
+ * This is a measurement scenario. Mage spell damage is glyph-driven by
+ * design (magicPower provides sustain, not damage — see mage_scaling
+ * scenario), so the physical/magic gap reflects Magic Circle investment.
  * The report will surface the exact gap.
  */
 
@@ -107,8 +107,8 @@ const mageScenario = {
   },
 
   assertions: [
-    // Arcane Initiate should deal meaningful spell damage per hit
-    // Currently low because spell damage ignores magicPower (see mage_scaling)
+    // Single-glyph spell: baseline damage. Higher spell damage comes from
+    // richer glyph composition, not from magicPower (see mage_scaling)
     { metric: 'damage.spell."Lesser Fire Spark".avgPerHit', expectedMin: 3 },
     // Should win reliably
     { metric: 'winRate', expectedMin: 0.95 }

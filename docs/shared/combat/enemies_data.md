@@ -23,15 +23,20 @@ This registry defines the base enemy types that can be encountered. For the MVP,
 | `goblin_shaman` | Goblin Shaman | `storm` | `humanoid` | 40 | 5 | 3 | 5 |
 | `goblin_slinger` | Goblin Slinger | `neutral` | `humanoid` | 28 | 5 | 2 | 5 |
 | `skeleton_warrior` | Skeleton Warrior | `neutral` | `undead` | 35 | 5 | 3 | 3 |
+| `skeleton_archer` | Skeleton Archer | `neutral` | `undead` | 30 | 7 | 2 | 5 |
 | `ghost_wisp` | Ghost Wisp | `wind` | `undead` | 20 | 3 | 1 | 8 |
 | `wolf_alpha` | Alpha Wolf | `neutral` | `beast` | 50 | 7 | 4 | 5 |
 | `zombie_rotter` | Rotting Zombie | `neutral` | `undead` | 45 | 5 | 3 | 1 |
-| **Tier 4 (Ruins & Peaks)** | | | | | | | |
+| **Tier 4 (Ruins, Peaks & Library)** | | | | | | | |
 | `ice_elemental` | Ice Elemental | `water` | `elemental` | 45 | 6 | 5 | 2 |
 | `young_drake` | Young Drake | `fire` | `dragon` | 70 | 8 | 6 | 4 |
 | `frost_wolf` | Frost Wolf | `water` | `beast` | 55 | 8 | 5 | 6 |
 | `cultist_acolyte` | Cultist Acolyte | `fire` | `humanoid` | 35 | 4 | 3 | 4 |
 | `stone_golem` | Stone Golem | `earth` | `elemental` | 90 | 9 | 10 | 1 |
+| `orc_grunt` | Orc Grunt | `neutral` | `humanoid` | 65 | 8 | 6 | 2 |
+| `orc_shaman` | Orc Shaman | `fire` | `humanoid` | 45 | 6 | 3 | 4 |
+| `rock_golem` | Rock Golem | `earth` | `elemental` | 75 | 8 | 8 | 1 |
+| `harpy_scout` | Harpy Scout | `wind` | `beast` | 35 | 6 | 2 | 8 |
 | **Bosses** | | | | | | | |
 | `goblin_king` | Goblin King | `neutral` | `humanoid` | 120 | 10 | 6 | 4 |
 | `lich_apprentice` | Lich Apprentice | `storm` | `undead` | 180 | 25 | 8 | 5 |
