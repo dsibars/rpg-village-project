@@ -49,42 +49,8 @@
   src: url('../public/assets/fonts/outfit-700.ttf') format('truetype');
 }
 
-:root {
-    /* Color Palette - Mossy Forest & Campfire Wood Theme */
-    --bg-primary: #0f1811; /* Vibrant Deep Forest Green */
-    --bg-secondary: #182a1e; /* Dark Mossy Spruce (lighter, greener) */
-    --bg-accent: #223c2a; /* Lighter Moss Slate (lighter) */
-    
-    --text-primary: #ffffff; /* Bright White */
-    --text-secondary: #e2ede5; /* Crisp Sage Gray */
-    --text-muted: #8ba292; /* Lighter Muted Leaf Gray */
-    
-    --accent-color: #4ade80; /* Moss Green Accent */
-    --accent-hover: #22c55e; /* Vibrant Leaf Green */
-    --accent-secondary: #fbbf24; /* Campfire Golden Amber Accent */
-    --accent-glow: rgba(74, 222, 128, 0.35);
-    
-    --success: #10b981;
-    --warning: #fbbf24;
-    --danger: #f87171;
-    
-    /* Spacing & Borders */
-    --radius-sm: 6px;
-    --radius-md: 12px;
-    --radius-lg: 20px;
-    --spacing-xs: 6px;
-    --spacing-sm: 10px;
-    --spacing-md: 20px;
-    --spacing-lg: 30px;
-    --spacing-xl: 40px;
-    
-    /* Shadows & Effects */
-    --shadow-sm: 0 2px 4px rgba(0,0,0,0.2);
-    --shadow-md: 0 8px 24px rgba(0,0,0,0.4);
-    --shadow-lg: 0 16px 40px rgba(0,0,0,0.6);
-    --glass-bg: rgba(32, 54, 38, 0.75); /* Lighter Translucent Moss */
-    --glass-border: rgba(74, 222, 128, 0.28); /* Brighter leaf green border */
-}
+/* NOTE: design tokens live exclusively in ux/core/theme.css (single source).
+   This file only owns @font-face, the global reset, and the app background. */
 
 * {
     margin: 0;

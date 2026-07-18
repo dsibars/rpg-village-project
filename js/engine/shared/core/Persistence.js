@@ -1,5 +1,12 @@
 const DEBUG = false;
 
+/**
+ * Global mutation version. Bumped on every persisted write and on battle
+ * events so the UI can skip redundant full-state serialization — it syncs
+ * only when something actually changed.
+ */
+export const stateVersion = { value: 0 };
+
 export class Persistence {
     constructor(basePrefix = 'rpg_village_v1_') {
         this.basePrefix = basePrefix;
@@ -30,6 +37,7 @@ export class Persistence {
         try {
             const serialized = JSON.stringify(data);
             localStorage.setItem(this._key(key), serialized);
+            stateVersion.value++;
             return true;
         } catch (e) {
             if (DEBUG) console.error(`Engine Persistence: Failed to save ${key}`, e);

@@ -101,4 +101,26 @@ All validated live in-browser (fresh slot + continued save).
 
 ---
 
+## Round 2026-07 — Step 3: structural de-risking
+
+| Item | Change |
+|------|--------|
+| `t()` replaced only the first occurrence of each `{param}` | All occurrences replaced (`I18nService.js`) + first-ever test for the service |
+| `BattleService.reset()` monkey-patched `log.push` per battle | Explicit `logEvent()` method with the same enrichment; 18 call sites converted |
+| Two conflicting `:root` token systems (style.css green/12px/20px vs theme.css amber/6px/16px), winner decided by load order | `theme.css` is now the single token root; the 3 still-referenced legacy tokens moved there; `:root` deleted from `css/style.css` (keeps fonts/reset/background) |
+| 334-line `GameEngine.nextDay()` god-method | Extracted verbatim to `js/engine/shared/services/DayResolutionService.js`; facade delegates via a hooks object. GameEngine drops 1981 → 1677 lines |
+| Book narration "Heroes stood against 3 , ," | `combatLog.enemies` is a string array — joined directly instead of mapping `.name` on strings (`GameEngine.js`) |
+| UI re-serialized the entire engine state 10×/sec into one `shallowRef` | Version-gated sync: `stateVersion` bumped in `Persistence.save()` and `BattleService.logEvent()`; the loop serializes only on change, with a 2s forced sync as safety net (`ux/main.js`) |
+
+**Found during validation, not yet fixed:** several Book village-update entries silently never fire — the code checks `villageReport.foodConsumed` / `.newVillagers` / `.buildingCompleted`, but `VillageService.nextDay()`'s report object has `consumed`/`completed[]` (different field names). Product call needed on which entries the Book should show.
+
+**Deferred:** dead legacy CSS classes in `style.css` (harmless; needs a dedicated cleanup pass).
+
+### Validation
+
+- Engine + Vue suites green (554 + 140); production build clean.
+- Live replay: full day cycle via `DayResolutionService`, battle auto-combat animating under version-gated sync, Book narration fix confirmed for new battles.
+
+---
+
 *Earlier rounds: see `docs/feature_completeness_report.md` (June 2026 self-audit).*

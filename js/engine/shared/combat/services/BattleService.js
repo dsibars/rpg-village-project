@@ -2,6 +2,7 @@ import { CombatCalculator } from '../core/CombatCalculator.js';
 import { CombatAI } from '../core/CombatAI.js';
 import { GambitService } from '../../../gambit/GambitService.js';
 import { Result } from '../../core/Result.js';
+import { stateVersion } from '../../core/Persistence.js';
 import { SKILLS_DATA } from '../../data/CombatData.js';
 import { CONSUMABLES_DATA } from '../../data/InventoryData.js';
 import { CORE_ALLY_EFFECTS } from '../../data/MagicCircleData.js';
@@ -29,31 +30,35 @@ export class BattleService {
         this.log = [];
         this.autoBattle = false;
         this.itemUsedThisTurn = false;
+    }
 
-        const originalPush = this.log.push;
-        this.log.push = (...args) => {
-            args.forEach(event => {
-                if (event && typeof event === 'object') {
-                    if (event.actorId) {
-                        const actor = [...this.heroes, ...this.enemies].find(e => e.id === event.actorId);
-                        if (actor && actor.type !== 'Hero' && actor.origin === undefined) {
-                            event.actorTemplateId = actor.templateId;
-                            event.actorIsElite = actor.isElite;
-                            event.actorEliteTier = actor.eliteTier;
-                        }
-                    }
-                    if (event.targetId) {
-                        const target = [...this.heroes, ...this.enemies].find(e => e.id === event.targetId);
-                        if (target && target.type !== 'Hero' && target.origin === undefined) {
-                            event.targetTemplateId = target.templateId;
-                            event.targetIsElite = target.isElite;
-                            event.targetEliteTier = target.eliteTier;
-                        }
-                    }
+    /**
+     * Record a combat event. Enriches it with template/elite metadata for
+     * non-hero participants so the presentation layer can localize names and
+     * render elite variants without re-deriving them.
+     */
+    logEvent(event) {
+        if (event && typeof event === 'object') {
+            if (event.actorId) {
+                const actor = [...this.heroes, ...this.enemies].find(e => e.id === event.actorId);
+                if (actor && actor.type !== 'Hero' && actor.origin === undefined) {
+                    event.actorTemplateId = actor.templateId;
+                    event.actorIsElite = actor.isElite;
+                    event.actorEliteTier = actor.eliteTier;
                 }
-            });
-            return originalPush.apply(this.log, args);
-        };
+            }
+            if (event.targetId) {
+                const target = [...this.heroes, ...this.enemies].find(e => e.id === event.targetId);
+                if (target && target.type !== 'Hero' && target.origin === undefined) {
+                    event.targetTemplateId = target.templateId;
+                    event.targetIsElite = target.isElite;
+                    event.targetEliteTier = target.eliteTier;
+                }
+            }
+        }
+        // Battle activity mutates in-memory state the UI must see
+        stateVersion.value++;
+        return this.log.push(event);
     }
 
     startBattle(heroes, enemies, autoBattle = false) {
@@ -122,7 +127,7 @@ export class BattleService {
             const actualRegen = Math.min(regen, currentEntity.maxStamina - currentEntity.stamina);
             currentEntity.stamina += actualRegen;
             if (actualRegen > 0) {
-                this.log.push({
+                this.logEvent({
                     type: 'STAMINA_REGEN',
                     actorId: currentEntity.id,
                     actorName: currentEntity.name,
@@ -139,7 +144,7 @@ export class BattleService {
             const actualRegen = Math.min(regen, currentEntity.maxMp - currentEntity.mp);
             currentEntity.mp += actualRegen;
             if (actualRegen > 0) {
-                this.log.push({
+                this.logEvent({
                     type: 'MP_REGEN',
                     actorId: currentEntity.id,
                     actorName: currentEntity.name,
@@ -161,7 +166,7 @@ export class BattleService {
                 actorName: currentEntity.name,
                 actorIsHero: this.heroes.includes(currentEntity)
             };
-            this.log.push(event);
+            this.logEvent(event);
             return this._advanceTurn({ stunSkipped: true });
         }
         const sleepEffect = currentEntity.statusEffects && currentEntity.statusEffects.find(e => e.type === 'sleep');
@@ -176,7 +181,7 @@ export class BattleService {
                 actorName: currentEntity.name,
                 actorIsHero: this.heroes.includes(currentEntity)
             };
-            this.log.push(event);
+            this.logEvent(event);
             // Sleepers still regenerate stamina
             return this._advanceTurn({ sleepSkipped: true });
         }
@@ -199,7 +204,7 @@ export class BattleService {
                     targetMaxHp: currentEntity.maxHp
                 };
                 statusResults.push(event);
-                this.log.push(event);
+                this.logEvent(event);
             }
         }
 
@@ -246,7 +251,7 @@ export class BattleService {
                     targetMaxHp: entity.maxHp
                 };
                 events.push(event);
-                this.log.push(event);
+                this.logEvent(event);
             }
 
             eff.duration--;
@@ -260,7 +265,7 @@ export class BattleService {
                     targetIsHero: isHero
                 };
                 events.push(event);
-                this.log.push(event);
+                this.logEvent(event);
                 if (entity.recalculateStats) entity.recalculateStats({});
             }
         }
@@ -334,7 +339,7 @@ export class BattleService {
             actorName: entity.name,
             targetIsHero: this.heroes.includes(entity)
         };
-        this.log.push(event);
+        this.logEvent(event);
         // v1.0: Defend simply ends the turn. In future, could add a temporary defense buff.
         return Result.ok({ actionEvents: [event], battleOver: false });
     }
@@ -349,7 +354,7 @@ export class BattleService {
                 success: true,
                 targetIsHero: this.heroes.includes(entity)
             };
-            this.log.push(event);
+            this.logEvent(event);
             this.isOver = true;
             this.winner = 'escape';
             return Result.ok({ actionEvents: [event], battleOver: true, winner: 'escape' });
@@ -361,7 +366,7 @@ export class BattleService {
                 success: false,
                 targetIsHero: this.heroes.includes(entity)
             };
-            this.log.push(event);
+            this.logEvent(event);
             return Result.ok({ actionEvents: [event], battleOver: false });
         }
     }
@@ -413,7 +418,7 @@ export class BattleService {
         if (skillData.family && actor.recordTechniqueUse) {
             evolutionResult = actor.recordTechniqueUse(skillData.family);
             if (evolutionResult && this.log) {
-                this.log.push({
+                this.logEvent({
                     type: 'TECHNIQUE_EVOLVED',
                     actorId: actor.id,
                     actorName: actor.name,
@@ -582,7 +587,7 @@ export class BattleService {
                                     targetHp: actor.hp,
                                     targetMaxHp: actor.maxHp
                                 };
-                                this.log.push(vampEvent);
+                                this.logEvent(vampEvent);
                             }
                         }
                     }
@@ -591,7 +596,7 @@ export class BattleService {
             event.targetHp = target.hp;
             event.targetMaxHp = target.maxHp;
             actionEvents.push(event);
-            this.log.push(event);
+            this.logEvent(event);
         });
 
         this._checkBattleEnd();
@@ -643,7 +648,7 @@ export class BattleService {
                 const oldTier = actor.magicTier || 1;
                 actor.magicTier = MagicCircleService.getMagicTier(actor.magicXp);
                 if (actor.magicTier > oldTier && this.log) {
-                    this.log.push({
+                    this.logEvent({
                         type: 'MAGIC_TIER_UP',
                         actorId: actor.id,
                         actorName: actor.name,
@@ -753,7 +758,7 @@ export class BattleService {
             if (effects.lifesteal > 0 && finalDamage > 0) {
                 const heal = Math.floor(finalDamage * effects.lifesteal);
                 actor.hp = Math.min(actor.maxHp, actor.hp + heal);
-                this.log.push({
+                this.logEvent({
                     type: 'HEAL',
                     actorId: actor.id,
                     actorName: actor.name,
@@ -765,7 +770,7 @@ export class BattleService {
             }
 
             actionEvents.push(event);
-            this.log.push(event);
+            this.logEvent(event);
         }
 
         this._checkBattleEnd();
@@ -850,7 +855,7 @@ export class BattleService {
             event.targetHp = target.hp;
             event.targetMaxHp = target.maxHp;
             actionEvents.push(event);
-            this.log.push(event);
+            this.logEvent(event);
         }
 
         this._checkBattleEnd();
@@ -903,7 +908,7 @@ export class BattleService {
             targetMaxHp: target.maxHp
         };
 
-        this.log.push(event);
+        this.logEvent(event);
         this.itemUsedThisTurn = true;
 
         return Result.ok({ event });

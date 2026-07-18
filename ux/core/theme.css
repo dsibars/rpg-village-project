@@ -63,9 +63,12 @@ html, body {
   --bg-base: #0f1811; /* Deep Forest Charcoal -> Vibrant Deep Forest Green */
   --bg-card: rgba(32, 54, 38, 0.72); /* Translucent Moss Plank - Lighter and shinier glass */
   --bg-overlay: rgba(13, 19, 14, 0.75);
+  --bg-secondary: #182a1e; /* Dark Mossy Spruce (from legacy style.css, still referenced) */
+  --bg-accent: #223c2a; /* Lighter Moss Slate (from legacy style.css, still referenced) */
 
   /* Borders */
   --glass-border: rgba(74, 222, 128, 0.28);
+  --accent-glow: rgba(74, 222, 128, 0.35); /* from legacy style.css, used by combat cards */
 
   /* Typography */
   --font-heading: 'Outfit', sans-serif;
