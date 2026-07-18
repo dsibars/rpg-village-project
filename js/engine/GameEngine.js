@@ -1469,7 +1469,8 @@ export class GameEngine {
                                 values: {
                                     heroes,
                                     enemyCount: combatLog.enemies?.length || 0,
-                                    enemies: combatLog.enemies?.map(e => e.name).join(', ') || 'enemies'
+                                    enemies: combatLog.enemies?.map(e => e.name).join(', ')
+                                        || ((combatLog.enemies?.length || 0) === 1 ? 'enemy' : 'enemies')
                                 },
                                 weight: 6
                             }

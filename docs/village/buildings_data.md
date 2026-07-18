@@ -12,7 +12,7 @@ This registry defines the costs, construction times, and bonuses for all village
 | `warehouse` | 1 | 0 | - | 0 | Max Storage: 200 |
 | `warehouse` | 2 | 120 | 50 Wood, 30 Stone | 4 | Max Storage: 500 |
 | **Production** | | | | | |
-| `farm` | 1 | 30 | 10 Wood | 1 | Daily Food: +4 `food_raw_grain` |
+| `farm` | 1 | 30 | 10 Wood | 2 | Daily Food: +4 `food_raw_grain` |
 | `farm` | 2 | 80 | 30 Wood, 10 Stone | 3 | Daily Food: +8 `food_raw_grain` |
 | **Exploration** | | | | | |
 | `explorer_guild`| 1 | 300 | 200 Wood, 100 Stone | 4 | Unlock Advanced Expeditions |

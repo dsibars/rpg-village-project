@@ -11,7 +11,7 @@
       <!-- Spotlight hole — pointer-events: none so clicks pass through to the target -->
       <TutorialSpotlight
         :config="spotlightConfig"
-        :visible="!!spotlightConfig && !darkeningDismissed"
+        :visible="!!spotlightConfig"
       />
 
       <!-- Message bubble -->
@@ -19,18 +19,22 @@
         :messages="resolvedMessages"
         :current-index="messageIndex"
         :position="messagePosition"
-        :visible="active"
+        :visible="active && !messageHidden"
         :current-text="currentMessageText"
         :interactive="!darkeningDismissed"
         :placement="messagePosition.placement"
         :show-continue="isAckStep"
         :continue-label="t('shared_uxelm_continue')"
+        :closable="!isAckStep"
         @advance="advanceMessage"
+        @close="messageHidden = true"
       />
 
-      <!-- Click capture layer: outside the spotlight -->
+      <!-- Click capture layer: only for acknowledgement steps, which require an
+           explicit Continue click. Target steps rely on the adapter's action
+           gating instead — the first click on the highlighted target just works. -->
       <div
-        v-if="!darkeningDismissed"
+        v-if="!darkeningDismissed && isAckStep"
         class="click-capture"
         @click="handleOverlayClick"
       />
@@ -55,6 +59,7 @@ const active = computed(() => !!tutorial.value)
 
 const darkeningDismissed = ref(false)
 const messageIndex = ref(0)
+const messageHidden = ref(false)
 const messageSize = ref({ width: 320, height: 100 })
 
 function measureMessage() {
@@ -74,6 +79,7 @@ watch(
     if (stepId) {
       messageIndex.value = 0
       darkeningDismissed.value = false
+      messageHidden.value = false
       // Reset to a safe estimate while the new message renders
       messageSize.value = { width: 320, height: 100 }
       await nextTick()
@@ -92,6 +98,7 @@ watch(active, (isActive) => {
   if (isActive) {
     messageIndex.value = 0
     darkeningDismissed.value = false
+    messageHidden.value = false
   }
 })
 
@@ -104,7 +111,20 @@ const resolvedMessages = computed(() => {
 const currentMessageText = computed(() => {
   const msgs = resolvedMessages.value
   if (msgs.length === 0) return ''
-  return msgs[messageIndex.value] || ''
+  const base = msgs[messageIndex.value] || ''
+  // Steps that gate on remaining points (e.g. "spend all stat points") show
+  // live progress so the player knows exactly what the step requires.
+  const adv = tutorial.value?.advanceOn
+  if (adv?.remainingPoints !== undefined) {
+    const heroes = gameState.value?.heroes || []
+    const needle = (adv.heroId || '').toLowerCase()
+    const hero = heroes.find(h =>
+      (h.id || '').toLowerCase() === needle || (h.name || '').toLowerCase() === needle)
+    if (hero && typeof hero.statPoints === 'number') {
+      return `${base} (${t('shared_uxelm_remaining', { count: hero.statPoints })})`
+    }
+  }
+  return base
 })
 
 // Compute spotlight configuration from DOM
@@ -196,9 +216,10 @@ function advanceMessage() {
     return
   }
 
-  // On the last message, clicking the bubble dismisses the darkening so
-  // the user can interact with the highlighted target underneath.
+  // On the last message, clicking the bubble dismisses the darkening and hides
+  // the bubble; the spotlight keeps pointing at the now-clickable target.
   darkeningDismissed.value = true
+  messageHidden.value = true
 }
 
 function handleOverlayClick() {

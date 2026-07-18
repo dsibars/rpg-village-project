@@ -58,4 +58,31 @@ decided, and what changed. Referenced from `AGENTS.md` §3.
 
 ---
 
+## Round 2026-07 — Playtest-driven UX polish
+
+Findings from interactive browser playtests (Playwright) and fixes applied:
+
+| Finding | Fix |
+|---------|-----|
+| Manual combat targeting dead — `.target-overlay` rendered under stat bars (`z-index: 2`) | `z-index: 3` on the overlay; whole enemy/ally card clickable (`CombatActorCard.vue`) |
+| Tutorial required click-to-dismiss + click-on-target for every step | Click-capture now exists only for acknowledgement steps; target steps rely on adapter action-gating (`TutorialOverlay.vue`) |
+| Tutorial step requirements invisible (e.g. "spend ALL stat points") | Messages show live progress ("(4 remaining)"); `assign_stats` text now says to spend all points |
+| No escape from tutorial bubbles | Bubbles are dismissible (×) (`TutorialMessage.vue`) |
+| Stale texts vs magic rework: `magicPower` desc sold spell damage; miner said 20% (code: 35%) | All 5 locales updated to the sustain design and 35% |
+| Book: "1 enemies" grammar | Plural-aware fallback in victory narration |
+| Book: dangling empty "Day N — Notes" headings | `BookService` skips empty village-update sections |
+| Expedition-complete modal contradicted rewards screen | `en` wording aligned to "no additional rewards" (other locales already correct) |
+| Defense hub printed "No defenders assigned" twice | Duplicate render removed (`VillageDefense.vue`) |
+| Book page arrows tiny, top-left, undiscoverable | Large circular side arrows, vertically centered, pulsing only when enabled (`BookView.vue`) |
+| Book font too small to read | Narrative/UI font sizes raised ~20% (`BookPcs.vue`) |
+| Book opened at last page, skipping unseen ones | Mark-read moved from on-arrive to on-leave/on-close — opens at first *unseen* spread |
+| Farm completion + first victory chapters collapsed into one day | Farm L1 duration 1 → 2 days (staggers milestone chapters) |
+
+### Validation
+
+- Engine + Vue suites green (551 + 140) after every change; production build clean.
+- Full interactive replay on a fresh slot: tutorial fully single-click, combat targeting works, Book navigation/font/read-state verified visually.
+
+---
+
 *Earlier rounds: see `docs/feature_completeness_report.md` (June 2026 self-audit).*

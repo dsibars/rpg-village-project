@@ -10,7 +10,7 @@
  */
 export const BUILDING_COSTS = {
     farm: {
-        1: { gold: 30, materials: { material_wood: 10 }, duration: 1 },
+        1: { gold: 30, materials: { material_wood: 10 }, duration: 2 },
         2: { gold: 80, materials: { material_wood: 30, material_stone: 10 }, duration: 3 }
     },
     housing: {

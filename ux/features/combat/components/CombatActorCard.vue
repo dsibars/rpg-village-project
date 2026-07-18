@@ -435,6 +435,9 @@ function statusIcon(type) {
 .target-overlay {
   position: absolute;
   inset: 0;
+  /* Must sit above the stat bars (.bar has z-index: 2) so clicks reach the
+     overlay instead of the bars — otherwise manual targeting is dead. */
+  z-index: 3;
   border-radius: var(--radius-md);
   background: rgba(74, 222, 128, 0.15);
   border: 2px dashed var(--color-primary);

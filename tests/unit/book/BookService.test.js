@@ -283,7 +283,8 @@ describe('BookService', () => {
             assert.strictEqual(page2.remainingBudget, 9);
         });
 
-        test('village updates with no entries produce only title', () => {
+        test('village updates with no entries produce no content', () => {
+            const pagesBefore = book.getPageCount();
             const result = book.addSection({
                 id: 'empty_village',
                 category: BOOK_SECTION_CATEGORIES.VILLAGE_UPDATES,
@@ -291,12 +292,10 @@ describe('BookService', () => {
                 entries: [],
             });
 
-            assert.notStrictEqual(result, null);
-            assert.strictEqual(book.getPageCount(), 1);
-            const page = book.getPage(1);
-            assert.strictEqual(page.pageContentSections.length, 1);
-            assert.strictEqual(page.pageContentSections[0].type, PCS_TYPES.VILLAGE_UPDATE_TITLE);
-            assert.strictEqual(page.remainingBudget, 8);
+            // Empty day sections are skipped entirely — no dangling
+            // "Notes from the Village" title heading in the Book.
+            assert.strictEqual(result, null);
+            assert.strictEqual(book.getPageCount(), pagesBefore);
         });
     });
 

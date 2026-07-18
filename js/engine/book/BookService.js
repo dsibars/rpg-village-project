@@ -381,6 +381,9 @@ export class BookService {
                 break;
             }
             case BOOK_SECTION_CATEGORIES.VILLAGE_UPDATES: {
+                // Skip empty sections — a day title with no entries renders
+                // as a dangling "Notes from the Village" heading.
+                if (!section.entries || section.entries.length === 0) break;
                 // Title
                 pcsList.push({
                     id: this._generatePcsId(),
@@ -392,21 +395,19 @@ export class BookService {
                     weight: getPcsDefaultWeight(PCS_TYPES.VILLAGE_UPDATE_TITLE),
                 });
                 // Bullets
-                if (section.entries) {
-                    for (const entry of section.entries) {
-                        pcsList.push({
-                            id: this._generatePcsId(),
-                            category: section.category,
-                            type: PCS_TYPES.VILLAGE_UPDATE_BULLET,
-                            image: null,
-                            textKey: entry.key,
-                            values: entry.values || {},
-                            weight: clampWeight(
-                                getPcsDefaultWeight(PCS_TYPES.VILLAGE_UPDATE_BULLET),
-                                entry.weight
-                            ),
-                        });
-                    }
+                for (const entry of section.entries) {
+                    pcsList.push({
+                        id: this._generatePcsId(),
+                        category: section.category,
+                        type: PCS_TYPES.VILLAGE_UPDATE_BULLET,
+                        image: null,
+                        textKey: entry.key,
+                        values: entry.values || {},
+                        weight: clampWeight(
+                            getPcsDefaultWeight(PCS_TYPES.VILLAGE_UPDATE_BULLET),
+                            entry.weight
+                        ),
+                    });
                 }
                 break;
             }

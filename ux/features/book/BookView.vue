@@ -2,29 +2,13 @@
   <div class="book-view" role="region" aria-label="Village Chronicle">
     <!-- Book Header — minimal, ink-styled -->
     <div class="book-header">
-      <button
-        class="btn-nav"
-        :disabled="currentSpread <= 1"
-        @click="prevSpread"
-        aria-label="Previous spread"
-      >
-        <span class="nav-arrow">&#8592;</span>
-      </button>
-      <button
-        class="btn-nav"
-        :disabled="currentSpread >= maxSpread"
-        @click="nextSpread"
-        aria-label="Next spread"
-      >
-        <span class="nav-arrow">&#8594;</span>
-      </button>
       <div class="book-title">
         <span class="spine-title">{{ t('book_uxelm_title') }}</span>
       </div>
       <div class="book-header-actions">
         <button
           class="btn-nav btn-close"
-          @click="emit('close')"
+          @click="closeBook"
           :aria-label="t('shared_uxelm_close')"
         >
           <span class="nav-arrow">&#10005;</span>
@@ -32,60 +16,81 @@
       </div>
     </div>
 
-    <!-- Spread Display (two pages) -->
-    <div class="book-spread" v-if="spread">
-      <!-- Left Page -->
-      <div
-        class="book-page page-left"
-        :class="{ 'page-empty': !spread.left, 'page-turning': isTurning }"
+    <!-- Spread + side navigation -->
+    <div class="book-spread-wrap">
+      <button
+        class="side-nav side-nav-left"
+        :disabled="currentSpread <= 1"
+        @click="prevSpread"
+        aria-label="Previous spread"
       >
-        <div v-if="spread.left" class="page-content">
-          <div class="page-number">{{ spread.left.pageNumber }}</div>
-          <div
-            v-for="pcs in spread.left.pageContentSections"
-            :key="pcs.id"
-            class="pcs-item"
-            :class="`pcs-${pcs.type}`"
-          >
-            <BookPcs :pcs="pcs" />
+        <span class="side-nav-glyph">&#8249;</span>
+      </button>
+
+      <!-- Spread Display (two pages) -->
+      <div class="book-spread" v-if="spread">
+        <!-- Left Page -->
+        <div
+          class="book-page page-left"
+          :class="{ 'page-empty': !spread.left, 'page-turning': isTurning }"
+        >
+          <div v-if="spread.left" class="page-content">
+            <div class="page-number">{{ spread.left.pageNumber }}</div>
+            <div
+              v-for="pcs in spread.left.pageContentSections"
+              :key="pcs.id"
+              class="pcs-item"
+              :class="`pcs-${pcs.type}`"
+            >
+              <BookPcs :pcs="pcs" />
+            </div>
+          </div>
+          <div v-else class="page-placeholder">
+            <span class="page-gutter-mark"></span>
           </div>
         </div>
-        <div v-else class="page-placeholder">
-          <span class="page-gutter-mark"></span>
+
+        <!-- Spine / Gutter -->
+        <div class="book-spine" aria-hidden="true">
+          <div class="spine-leather">
+            <div class="spine-threads">
+              <div class="thread"></div>
+              <div class="thread"></div>
+              <div class="thread"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Page -->
+        <div
+          class="book-page page-right"
+          :class="{ 'page-empty': !spread.right, 'page-turning': isTurning }"
+        >
+          <div v-if="spread.right" class="page-content">
+            <div class="page-number">{{ spread.right.pageNumber }}</div>
+            <div
+              v-for="pcs in spread.right.pageContentSections"
+              :key="pcs.id"
+              class="pcs-item"
+              :class="`pcs-${pcs.type}`"
+            >
+              <BookPcs :pcs="pcs" />
+            </div>
+          </div>
+          <div v-else class="page-placeholder">
+            <span class="page-gutter-mark"></span>
+          </div>
         </div>
       </div>
 
-      <!-- Spine / Gutter -->
-      <div class="book-spine" aria-hidden="true">
-        <div class="spine-leather">
-          <div class="spine-threads">
-            <div class="thread"></div>
-            <div class="thread"></div>
-            <div class="thread"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Right Page -->
-      <div
-        class="book-page page-right"
-        :class="{ 'page-empty': !spread.right, 'page-turning': isTurning }"
+      <button
+        class="side-nav side-nav-right"
+        :disabled="currentSpread >= maxSpread"
+        @click="nextSpread"
+        aria-label="Next spread"
       >
-        <div v-if="spread.right" class="page-content">
-          <div class="page-number">{{ spread.right.pageNumber }}</div>
-          <div
-            v-for="pcs in spread.right.pageContentSections"
-            :key="pcs.id"
-            class="pcs-item"
-            :class="`pcs-${pcs.type}`"
-          >
-            <BookPcs :pcs="pcs" />
-          </div>
-        </div>
-        <div v-else class="page-placeholder">
-          <span class="page-gutter-mark"></span>
-        </div>
-      </div>
+        <span class="side-nav-glyph">&#8250;</span>
+      </button>
     </div>
 
     <!-- Progress — minimal page indicator -->
@@ -154,19 +159,25 @@ function animateTurn() {
 function prevSpread() {
   if (currentSpread.value > 1) {
     animateTurn()
+    // Mark the spread we are leaving as read — it was on display
+    emit('markRead', (currentSpread.value - 1) * 2 + 1)
     currentSpread.value--
-    const firstPage = (currentSpread.value - 1) * 2 + 1
-    emit('markRead', firstPage)
   }
 }
 
 function nextSpread() {
   if (currentSpread.value < maxSpread.value) {
     animateTurn()
+    // Mark the spread we are leaving as read — it was on display
+    emit('markRead', (currentSpread.value - 1) * 2 + 1)
     currentSpread.value++
-    const firstPage = (currentSpread.value - 1) * 2 + 1
-    emit('markRead', firstPage)
   }
+}
+
+function closeBook() {
+  // Closing counts as having seen the current spread
+  emit('markRead', (currentSpread.value - 1) * 2 + 1)
+  emit('close')
 }
 
 // Keyboard navigation
@@ -184,7 +195,11 @@ onUnmounted(() => {
   window.removeEventListener('keydown', onKeyDown)
 })
 
-// Auto-navigate to first unread spread on mount
+// Auto-navigate to first unread spread on mount.
+// NOTE: we deliberately do NOT mark it read here — a spread is only marked
+// read when the player actually sees it (navigates away from it or closes
+// the book). Marking on arrival would skip unseen pages whenever the book
+// auto-opens while something else (e.g. a battle) is on top.
 function goToFirstUnread() {
   if (!props.bookState?.pages) return
 
@@ -196,8 +211,6 @@ function goToFirstUnread() {
     if (hasUnread) {
       const spreadNum = Math.floor(i / 2) + 1
       currentSpread.value = spreadNum
-      const firstPage = (spreadNum - 1) * 2 + 1
-      emit('markRead', firstPage)
       return
     }
   }
@@ -303,6 +316,63 @@ function goToPage(pageNumber) {
 .nav-arrow {
   font-family: 'Cinzel', serif;
   line-height: 1;
+}
+
+/* ── Spread wrapper + side navigation ── */
+.book-spread-wrap {
+  position: relative;
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+.side-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(44, 24, 16, 0.8);
+  border: 2px solid rgba(212, 180, 140, 0.55);
+  border-radius: 50%;
+  color: rgba(245, 222, 179, 0.95);
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+}
+
+.side-nav-left { left: 12px; }
+.side-nav-right { right: 12px; }
+
+.side-nav-glyph {
+  font-family: 'Cinzel', serif;
+  font-size: 1.9rem;
+  line-height: 1;
+  margin-top: -2px;
+}
+
+/* Gentle pulsing ring tells the player "you can turn the page here".
+   Disabled (no page that way) = no animation, nearly invisible. */
+.side-nav:not(:disabled) {
+  animation: sideNavPulse 2.2s ease-in-out infinite;
+}
+
+.side-nav:not(:disabled):hover {
+  background: rgba(44, 24, 16, 0.95);
+  border-color: rgba(245, 222, 179, 0.95);
+}
+
+.side-nav:disabled {
+  opacity: 0.15;
+  cursor: not-allowed;
+}
+
+@keyframes sideNavPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(245, 197, 66, 0.35); }
+  50% { box-shadow: 0 0 0 11px rgba(245, 197, 66, 0); }
 }
 
 /* ── Spread Layout ── */
@@ -569,6 +639,18 @@ function goToPage(pageNumber) {
 @media (max-width: 768px) {
   .book-view {
     padding: var(--spacing-sm);
+  }
+
+  .side-nav {
+    width: 40px;
+    height: 40px;
+  }
+
+  .side-nav-left { left: 6px; }
+  .side-nav-right { right: 6px; }
+
+  .side-nav-glyph {
+    font-size: 1.4rem;
   }
 
   .book-spread {

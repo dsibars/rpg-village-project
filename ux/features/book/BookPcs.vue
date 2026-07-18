@@ -117,7 +117,7 @@ const text = computed(() => {
 .chapter-title {
   margin: 0;
   font-family: 'Cinzel', serif;
-  font-size: 1.6rem;
+  font-size: 1.8rem;
   font-weight: 700;
   color: #2c1810;
   text-align: center;
@@ -233,7 +233,7 @@ const text = computed(() => {
 .block-text p {
   margin: 0;
   font-family: 'Crimson Text', serif;
-  font-size: 0.95rem;
+  font-size: 1.15rem;
   line-height: 1.7;
   color: #2c1810;
   font-style: italic;
@@ -303,7 +303,7 @@ const text = computed(() => {
 }
 
 .milestone-text {
-  font-size: 1rem;
+  font-size: 1.15rem;
   font-weight: 600;
   color: #2c1810;
   font-family: 'Crimson Text', serif;
@@ -330,7 +330,7 @@ const text = computed(() => {
 .update-title h4 {
   margin: 0;
   font-family: 'Caveat', cursive;
-  font-size: 1.1rem;
+  font-size: 1.4rem;
   font-weight: 700;
   color: #3d2418;
   letter-spacing: 0.3px;
@@ -355,7 +355,7 @@ const text = computed(() => {
 }
 
 .bullet-text {
-  font-size: 0.9rem;
+  font-size: 1.1rem;
   color: #2c1810;
   line-height: 1.45;
   font-family: 'Caveat', cursive;
@@ -375,24 +375,24 @@ const text = computed(() => {
 /* ── Mobile adjustments ── */
 @media (max-width: 768px) {
   .chapter-title {
-    font-size: 1.3rem;
+    font-size: 1.4rem;
   }
 
   .block-text p {
-    font-size: 0.9rem;
+    font-size: 1.05rem;
     line-height: 1.6;
   }
 
   .milestone-text {
-    font-size: 0.9rem;
-  }
-
-  .update-title h4 {
     font-size: 1rem;
   }
 
+  .update-title h4 {
+    font-size: 1.2rem;
+  }
+
   .bullet-text {
-    font-size: 0.85rem;
+    font-size: 1rem;
   }
 
   .history-block {

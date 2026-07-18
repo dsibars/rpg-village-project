@@ -8,6 +8,13 @@
   >
     <div v-if="placement === 'bottom'" class="tutorial-message-arrow up" />
     <div class="tutorial-message-bubble">
+      <button
+        v-if="closable"
+        type="button"
+        class="tutorial-message-close"
+        aria-label="Close"
+        @click.stop="emit('close')"
+      >✕</button>
       <p class="tutorial-message-text">{{ currentText }}</p>
       <div class="tutorial-message-indicator">
         <span
@@ -33,6 +40,9 @@
 
 <script setup>
 import { computed } from 'vue'
+import { useI18n } from '../composables/useI18n.js'
+
+const { t } = useI18n()
 
 const props = defineProps({
   /** Array of i18n message keys */
@@ -80,10 +90,15 @@ const props = defineProps({
   continueLabel: {
     type: String,
     default: 'Continue'
+  },
+  /** Show an × button so the player can dismiss the bubble at any time */
+  closable: {
+    type: Boolean,
+    default: false
   }
 })
 
-const emit = defineEmits(['advance'])
+const emit = defineEmits(['advance', 'close'])
 
 const positionStyle = computed(() => {
   const { x = 20, y = 20 } = props.position || {}
@@ -98,9 +113,9 @@ const positionStyle = computed(() => {
 const hintText = computed(() => {
   if (props.messages.length <= 1) return ''
   if (props.currentIndex < props.messages.length - 1) {
-    return 'Click to continue'
+    return t('shared_uxelm_click_continue')
   }
-  return 'Click to dismiss'
+  return t('shared_uxelm_click_dismiss')
 })
 
 function handleClick() {
@@ -128,6 +143,23 @@ function handleClick() {
   padding: 16px 20px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
   position: relative;
+}
+
+.tutorial-message-close {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  background: none;
+  border: none;
+  color: var(--color-text-muted, #888);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+}
+
+.tutorial-message-close:hover {
+  color: var(--color-text-primary, #ececec);
 }
 
 .tutorial-message-text {
