@@ -280,7 +280,7 @@ const navItems = computed(() => [
   { id: 'heroes', label: t('shared_uxelm_nav_heroes'), icon: '⚔' },
   { id: 'adventure', label: t('shared_uxelm_nav_adventure'), icon: '🗺' },
   { id: 'town', label: t('shared_uxelm_nav_town'), icon: '🏘' },
-  { id: 'book', label: t('book_uxelm_title'), icon: '📖' }
+  { id: 'book', label: t('book_uxelm_title'), icon: '📖', badge: hasBookUnread.value }
 ])
 
 function refreshSaveSlots() {

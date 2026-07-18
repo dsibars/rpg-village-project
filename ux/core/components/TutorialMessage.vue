@@ -147,14 +147,14 @@ function handleClick() {
 
 .tutorial-message-close {
   position: absolute;
-  top: 4px;
-  right: 6px;
+  top: 2px;
+  right: 4px;
   background: none;
   border: none;
   color: var(--color-text-muted, #888);
-  font-size: 14px;
+  font-size: 15px;
   cursor: pointer;
-  padding: 4px;
+  padding: 8px;
   line-height: 1;
 }
 

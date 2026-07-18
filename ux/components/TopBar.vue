@@ -26,23 +26,38 @@
     <div class="top-bar-right">
       <div class="stat-group" :title="t('village_uxelm_tooltip_gold')">
         <span class="stat-icon stat-gold">💰</span>
-        <span class="stat-value">{{ gold }}</span>
+        <span class="stat-stack">
+          <span class="stat-value">{{ gold }}</span>
+          <span class="stat-caption">{{ t('topbar_label_gold') }}</span>
+        </span>
       </div>
       <div class="stat-group" :title="t('village_uxelm_tooltip_population')">
         <span class="stat-icon stat-pop">👥</span>
-        <span class="stat-value">{{ populationDisplay }} / {{ maxPopulationDisplay }}</span>
+        <span class="stat-stack">
+          <span class="stat-value">{{ populationDisplay }} / {{ maxPopulationDisplay }}</span>
+          <span class="stat-caption">{{ t('topbar_label_population') }}</span>
+        </span>
       </div>
       <div class="stat-group" :title="t('village_uxelm_tooltip_wood')">
         <span class="stat-icon stat-wood">🪵</span>
-        <span class="stat-value">{{ wood }}</span>
+        <span class="stat-stack">
+          <span class="stat-value">{{ wood }}</span>
+          <span class="stat-caption">{{ t('topbar_label_wood') }}</span>
+        </span>
       </div>
       <div class="stat-group" :title="t('village_uxelm_tooltip_stone')">
         <span class="stat-icon stat-stone">🪨</span>
-        <span class="stat-value">{{ stone }}</span>
+        <span class="stat-stack">
+          <span class="stat-value">{{ stone }}</span>
+          <span class="stat-caption">{{ t('topbar_label_stone') }}</span>
+        </span>
       </div>
       <div v-if="iron > 0" class="stat-group" :title="t('village_uxelm_tooltip_iron')">
         <span class="stat-icon stat-iron">⚙️</span>
-        <span class="stat-value">{{ iron }}</span>
+        <span class="stat-stack">
+          <span class="stat-value">{{ iron }}</span>
+          <span class="stat-caption">{{ t('topbar_label_iron') }}</span>
+        </span>
       </div>
       <div
         v-if="storageMax > 0"
@@ -204,6 +219,23 @@ const storagePercent = computed(() => {
   color: var(--text-primary);
   font-weight: 500;
   font-size: 0.95rem;
+}
+
+/* Icon + value with a tiny caption underneath so each resource is
+   self-explanatory without needing the tooltip */
+.stat-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  line-height: 1.05;
+}
+
+.stat-caption {
+  font-size: 0.52rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-muted);
 }
 
 /* Storage mini indicator */

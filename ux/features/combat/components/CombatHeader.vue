@@ -50,15 +50,16 @@ const riskData = computed(() => {
   if (!b || !b.heroes || !b.enemies || b.heroes.length === 0 || b.enemies.length === 0) {
     return { level: 0, label: '', class: '' }
   }
-  const heroLevels = b.heroes.map(h => h.level || 1)
-  const enemyLevels = b.enemies.map(e => e.level || 1)
-  const avgHero = heroLevels.reduce((a, b) => a + b, 0) / heroLevels.length
-  const avgEnemy = enemyLevels.reduce((a, b) => a + b, 0) / enemyLevels.length
-  const gap = avgHero - avgEnemy
+  // Power estimate mirrors the defense-power formula (calendar_defense.md):
+  // strength + defense + maxHp/10 per combatant.
+  const powerOf = (e) => (e.strength || 0) + (e.defense || 0) + (e.maxHp || 0) / 10
+  const heroPower = b.heroes.reduce((sum, h) => sum + powerOf(h), 0) / b.heroes.length
+  const enemyPower = b.enemies.reduce((sum, e) => sum + powerOf(e), 0) / b.enemies.length
+  const ratio = enemyPower > 0 ? heroPower / enemyPower : 2
 
-  if (gap >= 4) return { level: 1, label: t('combat_uxelm_skip_safe'), class: 'safe' }
-  if (gap >= 1) return { level: 2, label: t('combat_uxelm_skip_risky'), class: 'risky' }
-  if (gap >= -1) return { level: 3, label: t('combat_uxelm_skip_dangerous'), class: 'dangerous' }
+  if (ratio >= 1.5) return { level: 1, label: t('combat_uxelm_skip_safe'), class: 'safe' }
+  if (ratio >= 1.0) return { level: 2, label: t('combat_uxelm_skip_risky'), class: 'risky' }
+  if (ratio >= 0.6) return { level: 3, label: t('combat_uxelm_skip_dangerous'), class: 'dangerous' }
   return { level: 4, label: t('combat_uxelm_skip_suicide'), class: 'suicide' }
 })
 

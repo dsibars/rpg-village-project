@@ -615,8 +615,8 @@ onUnmounted(() => {
   color: var(--text-muted);
   border-radius: var(--radius-sm);
   cursor: pointer;
-  padding: 2px 6px;
-  font-size: 0.75rem;
+  padding: 6px 12px;
+  font-size: 0.9rem;
 }
 
 .log-badge {

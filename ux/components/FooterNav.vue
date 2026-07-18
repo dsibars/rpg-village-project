@@ -11,7 +11,10 @@
       :data-tutorial-target="'footer_nav_' + item.id"
       @click="!item.locked && $emit('navigate', item.id)"
     >
-      <span class="nav-icon" aria-hidden="true">{{ item.icon }}</span>
+      <span class="nav-icon" aria-hidden="true">
+        {{ item.icon }}
+        <span v-if="item.badge" class="nav-badge" aria-hidden="true"></span>
+      </span>
       <span class="nav-label">{{ item.label }}</span>
     </button>
   </nav>
@@ -104,6 +107,25 @@ const navItems = computed(() =>
 .nav-icon {
   font-size: 1.45rem;
   transition: transform 0.3s ease;
+  position: relative;
+}
+
+/* Small amber dot for unread content (e.g. the Book) */
+.nav-badge {
+  position: absolute;
+  top: -3px;
+  right: -9px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--color-primary, #f5c542);
+  box-shadow: 0 0 6px rgba(245, 197, 66, 0.8);
+  animation: badgePulse 1.6s ease-in-out infinite;
+}
+
+@keyframes badgePulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.35); opacity: 0.65; }
 }
 
 .nav-label {

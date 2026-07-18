@@ -85,4 +85,20 @@ Findings from interactive browser playtests (Playwright) and fixes applied:
 
 ---
 
+## Round 2026-07 — Visual polish (from second playtest sweep)
+
+| Finding | Fix |
+|---------|-----|
+| Footer Book lacked the unread indicator the top bar has | Amber pulsing badge dot on the footer item when the Book has unread content (`FooterNav.vue`) |
+| Top-bar resources cryptic without hover | Micro-labels under each resource (GOLD/POP/WOOD/STONE/IRON, 5 locales) (`TopBar.vue`) |
+| Bestiary "???" cards read as random emoji | Uniform dark-silhouette treatment via grayscale+brightness (`BestiaryTab.vue`) |
+| Modal scrims flat and weak | `ModalFrame` overlay deepened + `backdrop-filter: blur(6px)` |
+| Seasons invisible despite wired effects | Subtle per-season ambient tint on the village dashboard (`VillagePage.vue`) |
+| Touch targets too small (stat +, log expander, tutorial ×) | Enlarged (28→38px stat +, padded toggle, bigger ×) |
+| First-ever fight showed red DANGEROUS (level-gap-only formula) | Skip-risk now uses the defense-power formula (str+def+hp/10); tutorial fights read SAFE/RISKY (`CombatHeader.vue`) |
+
+All validated live in-browser (fresh slot + continued save).
+
+---
+
 *Earlier rounds: see `docs/feature_completeness_report.md` (June 2026 self-audit).*

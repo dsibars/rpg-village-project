@@ -116,14 +116,14 @@ const stats = computed(() => {
 }
 
 .btn-assign-stat {
-  width: 28px;
-  height: 28px;
+  width: 38px;
+  height: 38px;
   border-radius: var(--radius-sm);
   border: none;
   background: var(--color-primary);
   color: white;
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 1.15rem;
   cursor: pointer;
   transition: background 0.15s ease;
   display: flex;
