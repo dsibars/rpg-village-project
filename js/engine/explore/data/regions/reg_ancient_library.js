@@ -4,6 +4,7 @@
  */
 export const reg_ancient_library = {
     id: 'reg_ancient_library',
+    area: 'cave',
     name: 'Ancient Library',
     branching: 'low',
     minStages: 4,

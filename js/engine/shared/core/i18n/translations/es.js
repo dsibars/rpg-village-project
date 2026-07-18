@@ -1180,6 +1180,15 @@ export const es = {
     book_update_raid_defended: "Vinieron los asaltantes. Nos mantuvimos. Ellos no. Conté las flechas en el muro — diecisiete.",
     book_update_raid_lost: "Los asaltantes rompieron el cerco. Se llevaron lo que quisieron. Escondí el diario bajo el suelo. Escribiré más cuando pueda.",
     book_update_quiet_day: "Nada se movió. Hasta el viento contuvo la respiración.",
+    book_event_traveling_merchant: "Un comerciante viajero compra parte de tus excedentes. +{amount} de oro.",
+    book_event_wandering_healer: "Una sanadora errante cura a {count} héroes heridos.",
+    book_event_training_inspiration: "Tus héroes encuentran inspiración en una sesión de entrenamiento. +{amount} de XP en total.",
+    book_event_bumper_crop: "Una cosecha abundante rinde grano extra. +{amount} de grano.",
+    book_event_drought_warning: "La sequía reduce las cosechas. −{amount} de grano.",
+    book_event_drunken_brawl: "Una pelea en la taberna deja a {hero} levemente herido.",
+    book_event_rumor_heard: "Un viajero comparte rumores sobre recursos ocultos cercanos. +{amount} de oro.",
+    book_event_monster_attack: "Un ataque de monstruos daña parte de la infraestructura. −{amount} de oro.",
+    book_event_ancient_discovery: "Se descubren artefactos antiguos, atrayendo el interés de los eruditos. +{amount} de oro.",
 
     // Eventos históricos — Relatos presenciados, literarios
     book_history_combat_victory: "{heroes} se enfrentaron a {enemyCount} {enemies} y prevalecieron. Observé desde la cresta, el corazón desbocado, mientras el último enemigo caía. El valle volvió a quedar en silencio, salvo por su respiración.",

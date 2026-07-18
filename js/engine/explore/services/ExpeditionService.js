@@ -369,8 +369,9 @@ export class ExpeditionService {
             // Track encountered enemies for bestiary
             normalizedEnemies.forEach(e => this._trackBestiary(e.id));
 
-            // Start battle (manual by default)
-            this.battleService.startBattle(heroes, enemies, false);
+            // Start battle (manual by default), with the region's area for the backdrop
+            const area = this.regionService.getRegionData(exp.regionId)?.area || null;
+            this.battleService.startBattle(heroes, enemies, false, area);
 
             activeExp.status = 'combat';
             activeExp.battleContext = {
@@ -380,7 +381,8 @@ export class ExpeditionService {
                 totalEnemyHp,
                 stageNum,
                 stageTotal,
-                expName: exp.name
+                expName: exp.name,
+                area
             };
             this.state.activeCombatExpeditionId = activeExp.id;
             
@@ -408,7 +410,7 @@ export class ExpeditionService {
         const heroes = this.heroService.list().filter(h => activeExp.heroIds.includes(h.id));
         const enemies = ctx.enemies.map(eData => new Enemy(eData));
         
-        this.battleService.startBattle(heroes, enemies, false);
+        this.battleService.startBattle(heroes, enemies, false, ctx.area || null);
         return {
             expId: activeExp.id,
             expName: ctx.expName,

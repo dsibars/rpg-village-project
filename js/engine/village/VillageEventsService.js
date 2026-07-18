@@ -48,12 +48,13 @@ export class VillageEventsService {
         const result = this._applyEvent(event, villageState, heroes);
 
         // Record it
+        const { description, ...effects } = result;
         this.state.eventHistory.push({
             day: villageDay,
             eventId: event.id,
             title: event.title,
             description: result.description,
-            effects: result.effects
+            effects
         });
         this.state.lastEventDay = villageDay;
         this.save();
@@ -187,7 +188,8 @@ export class VillageEventsService {
                     }
                     return {
                         description: `A brawl in the tavern leaves ${injuredHero?.name || 'a hero'} slightly injured.`,
-                        heroInjured: injuredHero?.id
+                        heroInjured: injuredHero?.id,
+                        heroName: injuredHero?.name
                     };
                 }
             });

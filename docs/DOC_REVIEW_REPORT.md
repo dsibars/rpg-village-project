@@ -112,14 +112,38 @@ All validated live in-browser (fresh slot + continued save).
 | Book narration "Heroes stood against 3 , ," | `combatLog.enemies` is a string array — joined directly instead of mapping `.name` on strings (`GameEngine.js`) |
 | UI re-serialized the entire engine state 10×/sec into one `shallowRef` | Version-gated sync: `stateVersion` bumped in `Persistence.save()` and `BattleService.logEvent()`; the loop serializes only on change, with a 2s forced sync as safety net (`ux/main.js`) |
 
-**Found during validation, not yet fixed:** several Book village-update entries silently never fire — the code checks `villageReport.foodConsumed` / `.newVillagers` / `.buildingCompleted`, but `VillageService.nextDay()`'s report object has `consumed`/`completed[]` (different field names). Product call needed on which entries the Book should show.
+**Found during validation — FIXED in the Book-entries round below:** several Book village-update entries silently never fired (field-name mismatches vs the village report).
 
 **Deferred:** dead legacy CSS classes in `style.css` (harmless; needs a dedicated cleanup pass).
 
 ### Validation
 
-- Engine + Vue suites green (554 + 140); production build clean.
+- Engine + Vue suites green; production build clean.
 - Live replay: full day cycle via `DayResolutionService`, battle auto-combat animating under version-gated sync, Book narration fix confirmed for new battles.
+
+---
+
+## Round 2026-07 — Book village entries + Village Events fix
+
+| Finding | Fix |
+|---------|-----|
+| Day-note entries never fired: code read `foodConsumed`/`newVillagers`/`buildingCompleted`, report exposes `consumed`/`growth`/`completed[]` | Field mapping corrected in `DayResolutionService`; quiet-day fallback kept; tests added |
+| Village random events wrote empty Book bullets (`textKey` never existed) | 9 `book_event_*` i18n keys × 5 locales with value params; sections render localized outcome text |
+| Event resource deltas (`goldChange`, `grainBonus`, `grainPenalty`) computed but never applied | `DayResolutionService` now applies them to gold/inventory; event history records the actual deltas |
+
+## Round 2026-07 — Battle Arena Rework (Phase 1)
+
+Shipped per `.dev_workflow/initiative_battle_arena_rework.md`:
+
+| Feature | Implementation |
+|---------|----------------|
+| Area-based backdrops | `area` field on all 12 regions; propagated region → `ExpeditionService` → `BattleService.startBattle(..., area)` → battle DTO; `BattleBackdrop.vue` with 5 gradient themes + default |
+| Square portrait cards | `CombatActorCard.vue` reworked: fixed-size cards, hero avatar art, enemy type-emoji tiles, facing flips, KO grayscale + skull |
+| Implicit 3×3 grids | `CombatArena.vue` (replaces `CombatActorGrid.vue`, deleted) |
+| Turn-focus animation | Active card translates to arena center (FLIP-style), FF-style vertical action list beside it, enemies animate without menu |
+| Target shine | Dashed pulse overlay on valid targets |
+
+**Validation:** 557 engine + 140 Vue tests green; live battles in two areas (greenfields green backdrop, cave dark backdrop) — focus animation, target overlay, KO states, victory pane all confirmed visually.
 
 ---
 

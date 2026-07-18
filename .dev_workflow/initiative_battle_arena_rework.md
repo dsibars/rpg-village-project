@@ -1,7 +1,36 @@
 # Initiative: Battle UX Rework (Arena Combat)
 
-> Status: SPEC — parked for a future iteration (post Step 3). Captured from
-> the product owner on 2026-07-18. Do not start without reviewing together.
+> Status: **PHASE 1 SHIPPED** (2026-07-18) — area backgrounds, square portrait
+> cards on implicit 3×3 grids, turn-focus center animation, FF-style action
+> list, target shine. Grid tactics rules (§4) and party placement UI remain
+> open for the next iteration.
+
+## Shipped in Phase 1
+
+- **Area plumbing**: optional `area` on every region (`reg_*.js`), validated
+  by `RegionValidator`; propagated `ExpeditionService → BattleService →
+  battleContext → GameEngine DTO → CombatOverlay`. `startBattle(heroes,
+  enemies, autoBattle, area)` is backward compatible (optional 4th param).
+- **Backdrop themes**: `BattleBackdrop.vue` — 5 placeholder gradient scenes
+  (greenfields / cave / coast / forest / peaks) + default, ready to be
+  replaced by real art later.
+- **Square actor cards**: `CombatActorCard.vue` — fixed-size portrait cards,
+  hero art (`assets/heroes/{avatar}`), enemy type-emoji tiles (art later),
+  heroes face right / enemies face left (scaleX flip), KO = grayscale + skull.
+- **Implicit 3×3 grids** per side (`CombatArena.vue`, replaces
+  `CombatActorGrid.vue`). 4-hero party cap unchanged.
+- **Turn focus**: active card animates to the arena center (FLIP-style
+  translation, grid slot preserved); FF-style vertical action list beside it
+  (restyled `CombatActionPanel.vue`); enemies animate without a menu.
+- **Target shine**: dashed pulse overlay on valid targets (works for enemies
+  and ally-target actions).
+
+## Still open (next iterations)
+
+- Grid tactics rules (owner designs them first — see §4 below).
+- Party configuration UI + per-hero preferred positions.
+- Real enemy/area art; possibly sprites.
+- Enemy focus animation polish (timing, easing per action type).
 
 ## Problem
 

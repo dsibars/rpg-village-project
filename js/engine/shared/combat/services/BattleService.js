@@ -25,6 +25,7 @@ export class BattleService {
         this.turnOrder = [];
         this.currentTurnIndex = 0;
         this.turnCount = 1;
+        this.area = null;
         this.isOver = false;
         this.winner = null;
         this.log = [];
@@ -61,11 +62,12 @@ export class BattleService {
         return this.log.push(event);
     }
 
-    startBattle(heroes, enemies, autoBattle = false) {
+    startBattle(heroes, enemies, autoBattle = false, area = null) {
         this.reset();
         this.heroes = heroes;
         this.enemies = enemies;
         this.autoBattle = autoBattle;
+        this.area = area;
 
         this._determineTurnOrder();
         this.partyTraits = this._calculatePartyTraits();

@@ -10,7 +10,7 @@ import { ENEMY_TEMPLATES } from '../../shared/data/EnemiesData.js';
 export class RegionValidator {
     static REQUIRED_FIELDS = ['id', 'name', 'branching', 'minStages', 'maxStages', 'enemies', 'baseLevel', 'bossPool', 'scaling', 'lootProfile'];
     static KNOWN_FIELDS = new Set([
-        'id', 'name', 'branching', 'minStages', 'maxStages', 'enemies', 'baseLevel',
+        'id', 'name', 'area', 'branching', 'minStages', 'maxStages', 'enemies', 'baseLevel',
         'bossPool', 'unlockRequirements', 'storyMissions',
         'scaling', 'lootProfile', 'narrative', 'glyphDropTable', 'glyphDropChance'
     ]);

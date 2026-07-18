@@ -1175,6 +1175,15 @@ export const en = {
     book_update_raid_defended: "Raiders came. We stood. They didn't. I counted the arrows in the wall — seventeen.",
     book_update_raid_lost: "Raiders broke through. Took what they wanted. I hid the journal under the floorboards. Will write more when I can.",
     book_update_quiet_day: "Nothing stirred. Even the wind held its breath.",
+    book_event_traveling_merchant: "A traveling merchant buys some of your surplus goods. +{amount} gold.",
+    book_event_wandering_healer: "A wandering healer treats {count} wounded heroes.",
+    book_event_training_inspiration: "Your heroes gain inspiration from a training session. +{amount} XP total.",
+    book_event_bumper_crop: "A bumper crop yields extra grain. +{amount} grain.",
+    book_event_drought_warning: "Dry weather reduces crop yields. −{amount} grain.",
+    book_event_drunken_brawl: "A brawl in the tavern leaves {hero} slightly injured.",
+    book_event_rumor_heard: "A traveler shares rumors about hidden resources. +{amount} gold.",
+    book_event_monster_attack: "A monster attack damages some infrastructure. −{amount} gold.",
+    book_event_ancient_discovery: "Ancient artifacts are discovered, drawing scholarly interest. +{amount} gold.",
 
     // History Events — Witnessed accounts, literary
     book_history_combat_victory: "{heroes} stood against {enemyCount} {enemies} and prevailed. I watched from the ridge, heart pounding, as the last of the enemy fell. The valley grew quiet again, save for their breathing.",

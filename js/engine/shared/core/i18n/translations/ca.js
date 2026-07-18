@@ -1180,6 +1180,15 @@ export const ca = {
     book_update_raid_defended: "Van venir els assaltants. Ens vam mantenir. Ells no. Vaig comptar les fletxes al mur — disset.",
     book_update_raid_lost: "Els assaltants van trencar el seter. Es van endur el que van voler. Vaig amagar el diari sota el terra. Escriuré més quan pugui.",
     book_update_quiet_day: "No es va moure res. Fins el vent va contenir l'alè.",
+    book_event_traveling_merchant: "Un comerciant viatger compra part dels teus excedents. +{amount} d'or.",
+    book_event_wandering_healer: "Una guéridora errant cura {count} herois ferits.",
+    book_event_training_inspiration: "Els teus herois troben inspiració en una sessió d'entrenament. +{amount} d'XP en total.",
+    book_event_bumper_crop: "Una collita abundant produeix gra extra. +{amount} de gra.",
+    book_event_drought_warning: "La secada redueix les collites. −{amount} de gra.",
+    book_event_drunken_brawl: "Una baralla a la taverna deixa {hero} lleument ferit.",
+    book_event_rumor_heard: "Un viatger comparteix rumors sobre recursos amagats propers. +{amount} d'or.",
+    book_event_monster_attack: "Un atac de monstres danya part de la infraestructura. −{amount} d'or.",
+    book_event_ancient_discovery: "Es descobreixen artefactes antics, atrehent l'interès dels erudits. +{amount} d'or.",
 
     // Esdeveniments històrics — Relats presenciats, literaris
     book_history_combat_victory: "{heroes} es van enfrontar a {enemyCount} {enemies} i van prevaler. Vaig observar des de la cresta, el cor desbocat, mentre l'últim enemic caia. La vall va tornar a quedar en silenci, llevat de la seva respiració.",

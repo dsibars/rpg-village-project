@@ -11,7 +11,7 @@
         @skip="skipBattle"
       />
 
-      <CombatActorGrid
+      <CombatArena
         :heroes="battle?.heroes || []"
         :enemies="battle?.enemies || []"
         :current-actor-id="currentActorId"
@@ -23,6 +23,7 @@
         :latest-action-text="latestActionText"
         :is-over="battle?.isOver || false"
         :is-victory="battle?.winner === 'heroes'"
+        :area="battle?.area"
         @target="handleTarget"
       >
         <template #action-panel>
@@ -40,7 +41,7 @@
             @close="onClose"
           />
         </template>
-      </CombatActorGrid>
+      </CombatArena>
 
       <!-- Combat Log -->
       <div class="combat-log-section" :class="{ expanded: isLogExpanded }" @click="!isLogExpanded && (isLogExpanded = true)">
@@ -76,7 +77,7 @@ import { useAdapter } from '@/core/composables/useAdapter.js'
 import { useActiveBattle, useExpeditions, useInventory } from '@/core/composables/useGameState.js'
 import FullViewOverlay from '@/components/FullViewOverlay.vue'
 import CombatHeader from './components/CombatHeader.vue'
-import CombatActorGrid from './components/CombatActorGrid.vue'
+import CombatArena from './components/CombatArena.vue'
 import CombatActionPanel from './components/CombatActionPanel.vue'
 
 const emit = defineEmits(['close'])

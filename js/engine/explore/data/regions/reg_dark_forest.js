@@ -1,5 +1,6 @@
 export const reg_dark_forest = {
     id: 'reg_dark_forest',
+    area: 'forest',
     name: 'Dark Forest',
     branching: 'medium',
     minStages: 2,

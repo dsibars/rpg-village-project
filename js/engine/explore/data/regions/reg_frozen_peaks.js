@@ -1,5 +1,6 @@
 export const reg_frozen_peaks = {
     id: 'reg_frozen_peaks',
+    area: 'peaks',
     name: 'Frozen Peaks',
     branching: 'medium',
     minStages: 3,

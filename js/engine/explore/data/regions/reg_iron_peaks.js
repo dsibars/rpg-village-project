@@ -4,6 +4,7 @@
  */
 export const reg_iron_peaks = {
     id: 'reg_iron_peaks',
+    area: 'peaks',
     name: 'Iron Peaks',
     branching: 'medium',
     minStages: 3,

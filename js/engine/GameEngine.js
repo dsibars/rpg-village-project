@@ -333,7 +333,8 @@ export class GameEngine {
             isOver: this.battleService.isOver,
             winner: this.battleService.winner,
             autoBattle: this.battleService.autoBattle,
-            itemUsedThisTurn: this.battleService.itemUsedThisTurn
+            itemUsedThisTurn: this.battleService.itemUsedThisTurn,
+            area: this.battleService.area
         } : null;
 
         const currentDay = this.villageService.getState().day || 1;

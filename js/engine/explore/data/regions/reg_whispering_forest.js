@@ -1,5 +1,6 @@
 export const reg_whispering_forest = {
     id: 'reg_whispering_forest',
+    area: 'forest',
     name: 'Whispering Forest',
     branching: 'medium',
     minStages: 2,

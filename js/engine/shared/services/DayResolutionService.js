@@ -180,13 +180,34 @@ export class DayResolutionService {
             this.heroService.list()
         );
         if (eventResult) {
+            // Apply resource effects (events that mutate heroes directly
+            // already do so inside their apply()).
+            if (eventResult.goldChange) {
+                this.villageService.state.gold = Math.max(0, this.villageService.state.gold + eventResult.goldChange);
+                this.villageService.save();
+            }
+            if (eventResult.grainBonus) {
+                this.villageService.addItemToInventory('food_raw_grain', eventResult.grainBonus);
+            }
+            if (eventResult.grainPenalty) {
+                this.villageService.inventoryService.useConsumable('food_raw_grain', Math.abs(eventResult.grainPenalty));
+            }
+
             // Book + Chronicle: village event
+            const bookValues = {};
+            if (eventResult.goldChange !== undefined) bookValues.amount = Math.abs(eventResult.goldChange);
+            if (eventResult.grainBonus !== undefined) bookValues.amount = eventResult.grainBonus;
+            if (eventResult.grainPenalty !== undefined) bookValues.amount = Math.abs(eventResult.grainPenalty);
+            if (eventResult.xpGiven !== undefined) bookValues.amount = eventResult.xpGiven;
+            if (eventResult.heroesHealed !== undefined) bookValues.count = eventResult.heroesHealed;
+            if (eventResult.heroName !== undefined) bookValues.hero = eventResult.heroName;
+
             const bookResult = this.bookService.addSection({
                 id: `village_event_${eventResult.id}_${villageState.day}`,
                 category: 'village_updates',
                 day: villageState.day,
                 entries: [
-                    { key: eventResult.textKey, values: eventResult.values || {}, weight: 1 }
+                    { key: `book_event_${eventResult.id}`, values: bookValues, weight: 1 }
                 ],
                 metadata: { eventId: eventResult.id }
             });
@@ -251,14 +272,16 @@ export class DayResolutionService {
 
         // --- Book: Record Village Updates ---
         const bookEntries = [];
-        if (villageReport.foodConsumed) {
-            bookEntries.push({ key: 'book_update_food_consumed', values: { amount: villageReport.foodConsumed }, weight: 1 });
+        if (villageReport.consumed > 0) {
+            bookEntries.push({ key: 'book_update_food_consumed', values: { amount: villageReport.consumed }, weight: 1 });
         }
-        if (villageReport.newVillagers && villageReport.newVillagers > 0) {
-            bookEntries.push({ key: 'book_update_villager_joined', values: { amount: villageReport.newVillagers }, weight: 1 });
+        if (villageReport.growth > 0) {
+            bookEntries.push({ key: 'book_update_villager_joined', values: { amount: villageReport.growth }, weight: 1 });
         }
-        if (villageReport.buildingCompleted) {
-            bookEntries.push({ key: 'book_update_building_completed', values: { building: this.i18n.t('village_info_building_' + villageReport.buildingCompleted) }, weight: 1 });
+        if (villageReport.completed && villageReport.completed.length > 0) {
+            for (const buildingId of villageReport.completed) {
+                bookEntries.push({ key: 'book_update_building_completed', values: { building: this.i18n.t('village_info_building_' + buildingId) }, weight: 1 });
+            }
         }
         if (raidResult) {
             if (raidResult.isVictory) {

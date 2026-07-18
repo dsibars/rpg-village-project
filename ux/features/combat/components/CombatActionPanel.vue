@@ -280,21 +280,66 @@ function executeDefend() {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
-  padding: var(--spacing-md);
-  background: var(--bg-card);
+  padding: var(--spacing-sm);
+  background: rgba(13, 19, 14, 0.75);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-md);
   min-height: 200px;
+  min-width: 260px;
+  max-width: 340px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* FF-style action list: vertical rows instead of a button grid */
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.action-buttons > :deep(button) {
+  width: 100%;
+  justify-content: flex-start;
+  text-align: left;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(74, 222, 128, 0.12);
+  border-radius: 0;
+  padding: 8px 10px;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.action-buttons > :deep(button:last-child) {
+  border-bottom: none;
+}
+
+.action-buttons > :deep(button:hover:not(:disabled)) {
+  background: rgba(74, 222, 128, 0.1);
+  border-color: transparent;
+}
+
+.action-buttons > :deep(button:disabled) {
+  opacity: 0.45;
+}
+
+.action-buttons > :deep(button .cost) {
+  margin-left: auto;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
 }
 
 @media (max-width: 768px) {
   .combat-action-panel {
     min-height: auto;
+    min-width: 0;
+    max-width: 100%;
+    width: 100%;
     padding: var(--spacing-sm);
   }
 
   .action-buttons > :deep(button) {
-    flex: 1 1 calc(50% - var(--spacing-sm) / 2);
     min-height: 40px;
     font-size: 0.85rem;
   }
@@ -307,16 +352,6 @@ function executeDefend() {
   color: var(--text-secondary);
   padding-bottom: var(--spacing-sm);
   border-bottom: 1px solid var(--glass-border);
-}
-
-.action-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-sm);
-}
-
-.action-buttons > :deep(button) {
-  flex: 1 1 120px;
 }
 
 .auto-message {

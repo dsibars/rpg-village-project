@@ -1,5 +1,6 @@
 export const reg_calmed_beach = {
     id: 'reg_calmed_beach',
+    area: 'coast',
     name: 'Calmed Beach',
     branching: 'low',
     minStages: 2,

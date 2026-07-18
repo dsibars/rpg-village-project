@@ -1,5 +1,6 @@
 export const reg_murky_swamp = {
     id: 'reg_murky_swamp',
+    area: 'coast',
     name: 'Murky Swamp',
     branching: 'high',
     minStages: 3,

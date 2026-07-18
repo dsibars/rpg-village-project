@@ -1,5 +1,6 @@
 export const reg_goblin_camp = {
     id: 'reg_goblin_camp',
+    area: 'forest',
     name: 'Goblin Camp',
     branching: 'high',
     minStages: 3,

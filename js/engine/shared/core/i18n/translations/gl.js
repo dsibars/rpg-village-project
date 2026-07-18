@@ -1177,6 +1177,15 @@ export const gl = {
     book_update_raid_defended: "Atacaron. Aguantamos. Eles non. Contei as frechas na parede — dezasete.",
     book_update_raid_lost: "Os asaltantes romperon. Levaron o que quixeron. Escondín o diario debaixo do chan. Escribiré máis cando poida.",
     book_update_quiet_day: "Nada se moveu. Nin o vento respirou.",
+    book_event_traveling_merchant: "Un comerciante viaxeiro compra parte dos teus excedentes. +{amount} de ouro.",
+    book_event_wandering_healer: "Unha sanadora errante cura a {count} heroes feridos.",
+    book_event_training_inspiration: "Os teus heroes atopan inspiración nunha sesión de adestramento. +{amount} de XP en total.",
+    book_event_bumper_crop: "Unha colleita abundante rinde gran extra. +{amount} de gran.",
+    book_event_drought_warning: "A seca reduce as colleitas. −{amount} de gran.",
+    book_event_drunken_brawl: "Unha pelexa na taberna deixa a {hero} levemente ferido.",
+    book_event_rumor_heard: "Un viaxeiro comparte rumores sobre recursos agochados próximos. +{amount} de ouro.",
+    book_event_monster_attack: "Un ataque de monstros dana parte da infraestrutura. −{amount} de ouro.",
+    book_event_ancient_discovery: "Descóbrense artefactos antigos, atraendo o interese dos eruditos. +{amount} de ouro.",
 
     // Eventos históricos — testemuñas presenciais, literarios
     book_history_combat_victory: "{heroes} enfrontáronse a {enemyCount} {enemies} e prevaleceron. Vin dende a crista, co corazón axitado, como o último inimigo caía. O val volveu quedar en silencio, agás pola súa respiración.",

@@ -1,5 +1,6 @@
 export const reg_forgotten_ruins = {
     id: 'reg_forgotten_ruins',
+    area: 'cave',
     name: 'Forgotten Ruins',
     branching: 'low',
     minStages: 3,

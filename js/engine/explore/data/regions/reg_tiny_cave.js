@@ -1,5 +1,6 @@
 export const reg_tiny_cave = {
     id: 'reg_tiny_cave',
+    area: 'cave',
     name: 'Tiny Cave',
     branching: 'medium',
     minStages: 2,

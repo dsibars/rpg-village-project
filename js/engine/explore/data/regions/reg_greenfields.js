@@ -4,6 +4,7 @@
  */
 export const reg_greenfields = {
     id: 'reg_greenfields',
+    area: 'greenfields',
     name: 'Greenfields',
     branching: 'low',
     minStages: 1,

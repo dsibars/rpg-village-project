@@ -1179,6 +1179,15 @@ export const eu = {
     book_update_raid_defended: "Erasotzaileak etorri ziren. Eutsi egin genuen. Haiek ez. Hormako geziak zenbatu nituen — hamazazpi.",
     book_update_raid_lost: "Erasotzaileek harresia hautsi zuten. Nahi zutena eraman zuten. Egunerokoa lurpean ezkutatu nuen. Gehiago idatziko dut gero.",
     book_update_quiet_day: "Ezer ere ez zen mugitu. Haizeak ere arnasa hartu zuen.",
+    book_event_traveling_merchant: "Bidaiari merkatari batek zure soberakinaren zati bat erosten du. +{amount} urre.",
+    book_event_wandering_healer: "Sendagile ibiltari batek {count} heroi zauritu sendatzen ditu.",
+    book_event_training_inspiration: "Zure heroiek inspirazioa aurkitzen dute entrenamendu-saio batean. +{amount} XP guztira.",
+    book_event_bumper_crop: "Uzta oparo batek ale extra ematen du. +{amount} ale.",
+    book_event_drought_warning: "Lehorteak uzta murrizten du. −{amount} ale.",
+    book_event_drunken_brawl: "Tabernako liskar batek {hero} zaur arin uzten du.",
+    book_event_rumor_heard: "Bidaiari batek hurbileko baliabide ezkutuei buruzko zurrumuruak kontatzen ditu. +{amount} urre.",
+    book_event_monster_attack: "Munstroen eraso batek azpiegitura kaltetzen du. −{amount} urre.",
+    book_event_ancient_discovery: "Antzinako artefaktuak aurkitzen dira, jakintsuen interesa piztuz. +{amount} urre.",
 
     // Gertaera historikoak — Lekukotza literarioak
     book_history_combat_victory: "{heroes} {enemyCount} {enemies} aurka borrokatu ziren eta nagusitu. Tontorretik begiztatu nuen, bihotza lasterran, etsai azkena erortzen zen bitartean. Harana isil geratu zen berriro, haien arnasa besterik ez.",
