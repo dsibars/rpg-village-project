@@ -37,6 +37,7 @@ import { getEquipmentStats } from './shared/inventory/EquipmentService.js';
 import { getWeaponBaseCost, getArmorBaseCost } from './shared/data/ShopCatalog.js';
 
 import { BookService } from './book/BookService.js';
+import { BookContentGenerator } from './book/BookContentGenerator.js';
 import { TutorialService } from './tutorial/TutorialService.js';
 export class GameEngine {
     constructor() {
@@ -1452,55 +1453,38 @@ export class GameEngine {
             // Book + Chronicle: record battle outcome
             if (combatLog) {
                 const villageDay = this.villageService.getState().day || 1;
-                const heroes = combatLog.heroes?.map(h => h.name).join(', ') || 'Heroes';
-                if (combatLog.isVictory) {
-                    const bookResult = this.bookService.addSection({
-                        id: `combat_victory_${villageDay}_${Date.now()}`,
-                        category: 'history_event',
-                        day: villageDay,
-                        blocks: [
-                            {
-                                textKey: 'book_history_combat_victory',
-                                values: {
-                                    heroes,
-                                    enemyCount: combatLog.enemies?.length || 0,
-                                    enemies: combatLog.enemies?.map(e => e.name).join(', ') || 'enemies'
-                                },
-                                weight: 6
-                            }
-                        ],
-                        metadata: { combatLog: true, victory: true }
-                    });
-                    if (bookResult) {
-                        this.chronicleService.unlockEntry('combat_victory', villageDay, {
+                const activeHeroIds = result.data.heroIds || [];
+                const heroes = activeHeroIds.length > 0
+                    ? this.heroService.list().filter(h => activeHeroIds.includes(h.id))
+                    : this.heroService.list();
+
+                const generator = new BookContentGenerator();
+                const { textKey, values } = generator.generateCombatEntry(combatLog, heroes, this.presentationService);
+
+                const bookResult = this.bookService.addSection({
+                    id: `${combatLog.isVictory ? 'combat_victory' : 'combat_defeat'}_${villageDay}_${Date.now()}`,
+                    category: 'history_event',
+                    day: villageDay,
+                    blocks: [
+                        {
+                            textKey,
+                            values,
+                            weight: 6
+                        }
+                    ],
+                    metadata: { combatLog: true, victory: combatLog.isVictory }
+                });
+                if (bookResult) {
+                    this.chronicleService.unlockEntry(
+                        combatLog.isVictory ? 'combat_victory' : 'combat_defeat',
+                        villageDay,
+                        {
                             pageSectionId: bookResult.pageSectionId,
                             pageNumber: bookResult.pages[0] || 1,
                             chapterNumber: bookResult.chapterNumber
-                        });
-                        this._unlockWriterRevelationChronicle(bookResult);
-                    }
-                } else {
-                    const bookResult = this.bookService.addSection({
-                        id: `combat_defeat_${villageDay}_${Date.now()}`,
-                        category: 'history_event',
-                        day: villageDay,
-                        blocks: [
-                            {
-                                textKey: 'book_history_combat_defeat',
-                                values: { heroes },
-                                weight: 6
-                            }
-                        ],
-                        metadata: { combatLog: true, victory: false }
-                    });
-                    if (bookResult) {
-                        this.chronicleService.unlockEntry('combat_defeat', villageDay, {
-                            pageSectionId: bookResult.pageSectionId,
-                            pageNumber: bookResult.pages[0] || 1,
-                            chapterNumber: bookResult.chapterNumber
-                        });
-                        this._unlockWriterRevelationChronicle(bookResult);
-                    }
+                        }
+                    );
+                    this._unlockWriterRevelationChronicle(bookResult);
                 }
             }
 

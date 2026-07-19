@@ -1171,6 +1171,19 @@ export const gl = {
     book_history_combat_victory: "{heroes} enfrontáronse a {enemyCount} {enemies} e prevaleceron. Vin dende a crista, co corazón axitado, como o último inimigo caía. O val volveu quedar en silencio, agás pola súa respiración.",
     book_history_combat_defeat: "{heroes} loitaron con valentía, pero o inimigo era forte. Vin retirarse, arrastrando aos feridos. O val pareceu máis escuro despois.",
 
+    // Observacións de combate dinámicas — Voz do cronista, contextuais
+    book_history_combat_victory_close: "{heroes} prevaleceron, pero polo marxe máis estreito. Vin un deles trontolar, sangue nas súas botas, e aínda así negáronse a caer. As miñas mans aínda tremen mentres escribo isto.",
+    book_history_combat_victory_flawless: "{heroes} moveronse como un. Nin un risco, nin unha pinga derramada. Quedeime a observar, preguntándome se o inimigo simplemente escollera o val equivocado.",
+    book_history_combat_victory_overwhelming: "{heroes} enfrontáronse a {enemyCount} {enemies} — o dobre do seu número ou máis — e rompéronos como xuncos secos. Nunca vira tal exhibición.",
+    book_history_combat_victory_first: "A primeira vitoria. Recordarei esta — {heroes}, de pé onde ninguén estivera antes, o val en silencio ao seu paso.",
+    book_history_combat_victory_boss: "{heroes} enfrontáronse a {enemyCount} {enemies} e derribaron á besta. Escoitei o seu último alento dende a crista. O val sintese diferente agora — máis lixeiro, ou quizais máis perigoso.",
+    book_history_combat_victory_elite: "Os corrompidos caeron hoxe. {heroes} atravesaron a {enemyCount} {enemies} cunha furia que non vira antes. Marco esta páxina con tinta que corría.",
+    book_history_combat_victory_comeback: "{heroes} estaban perdendo — estaba seguro disto. Entón algo cambiou. Levántaronse da terra e reclamaron a vitoria. Non entendo o que vin.",
+    book_history_combat_defeat_close: "{heroes} retiráronse, pero todos seguen respirando. Conteinos dúas veces para estar seguro. Volverán.",
+    book_history_combat_defeat_wipe: "Todos caeron. O cronista escribe isto á luz da lúa, con medo de acender un fósforo. {heroes} — desaparecidos. O val tragounos enteiros.",
+    book_history_combat_defeat_first: "A primeira derrota. Agardara escribir unha primeira clase diferente. {heroes} loitaron, pero a esperanza por si soa non afía unha folla.",
+    book_history_combat_defeat_escape: "Un quedou de pé — a penas. {heroes} coxearon do campo, e non sei se o que sobreviviu tivo sorte ou está maldito.",
+
     // Fitos — Celebratorios, persoais, emocionados
     book_milestone_first_victory: "Primeira Vitoria!!!",
     book_milestone_first_boss: "Primeiro Xefe Derrotado!",

@@ -1173,6 +1173,19 @@ export const eu = {
     book_history_combat_victory: "{heroes} {enemyCount} {enemies} aurka borrokatu ziren eta nagusitu. Tontorretik begiztatu nuen, bihotza lasterran, etsai azkena erortzen zen bitartean. Harana isil geratu zen berriro, haien arnasa besterik ez.",
     book_history_combat_defeat: "{heroes} ausardiaz borrokatu ziren, baina etsaia indartsuegia izan zen. Ihesi ikusi nituen, zaurituak arrastatzen. Harana ilunagoa sentitu zen ondoren.",
 
+    // Borroka behaketa dinamikoak — Kronistaren ahotsa, testuingurukoak
+    book_history_combat_victory_close: "{heroes} nagusitu ziren, baina oso estutasunean. Haietako bat ikusi nuen erortzeko zorian, oinetakoetan odola, eta hala ere uko egin zion erortzeari. Nire eskuak oraindik dardar egiten dute idazten dudan bitartean.",
+    book_history_combat_victory_flawless: "{heroes} bakardura mugitu ziren. Ez zizkietan, ez tanta bota. Begizta dezan geratu nintzen, galdetzen ea etsaia haran okerra aukeratu ote zuen.",
+    book_history_combat_victory_overwhelming: "{heroes} {enemyCount} {enemies} aurrean jarri ziren — haien kopuruaren bikoitza edo gehiago — eta lehortutako sakon bezala hautsi zituzten. Inoiz ez nuen ikusi halakorik.",
+    book_history_combat_victory_first: "Lehen garaipena. Hau gogoratuko dut — {heroes}, inork ez zegoen lekuan zutik, harana isil oinez.",
+    book_history_combat_victory_boss: "{heroes} {enemyCount} {enemies} aurrean jarri ziren eta piztia erori zuten. Bere azken arnasa entzun nuen tontorretik. Harana ezberdin sentitzen da orain — arinagoa, edo agian arriskutsuagoa.",
+    book_history_combat_victory_elite: "Hutsatuak gaur erori ziren. {heroes}-ek {enemyCount} {enemies} zeharkatu zuten ikusi ez nuen haserrearekin. Orrialde hau korritzen ari den tintarekin markatzen dut.",
+    book_history_combat_victory_comeback: "{heroes} galtzen ari ziren — ziur nintzen horretaz. Orduan zerbait aldatu zen. Lurretik altxatu ziren eta garaipena eskuratu zuten. Ez dut ulertzen ikusi nuena.",
+    book_history_combat_defeat_close: "{heroes} ihesi egin zuten, baina denek arnasa hartzen dute oraindik. Bi aldiz zenbatu nituen ziurtatzeko. Itzuliko dira.",
+    book_history_combat_defeat_wipe: "Denak erori ziren. Kronistak hau ilargi argiz idazten du, piztia pizteko beldurrik. {heroes} — desagertuta. Haranak irentsi ditu.",
+    book_history_combat_defeat_first: "Lehen porrota. Beste lehen mota bat idazteko espero nuen. {heroes} borrokatu ziren, baina itxaropena bakarrik ez du ertz bat zorrozten.",
+    book_history_combat_defeat_escape: "Bat geratu zen zutik — zail-zail. {heroes} zango zutik irten ziren zelaitik, eta ez dakit bizirik iraun zuenak zoriontsu edo madarikatua izan zen.",
+
     // Mugarriak — Ospakizunak, pertsonalak, pozik
     book_milestone_first_victory: "Lehen garaipena!!!",
     book_milestone_first_boss: "Lehen Buruzagi Garaitua!",

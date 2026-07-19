@@ -1174,6 +1174,19 @@ export const es = {
     book_history_combat_victory: "{heroes} se enfrentaron a {enemyCount} {enemies} y prevalecieron. Observé desde la cresta, el corazón desbocado, mientras el último enemigo caía. El valle volvió a quedar en silencio, salvo por su respiración.",
     book_history_combat_defeat: "{heroes} lucharon con valentía, pero el enemigo fue demasiado fuerte. Los vi retirarse, arrastrando a los heridos. El valle se sintió más oscuro después.",
 
+    // Observaciones de combate dinámicas — Voz del cronista, contextuales
+    book_history_combat_victory_close: "{heroes} prevalecieron, pero por el margen más estrecho. Vi a uno de ellos tambalearse, sangre en sus botas, y sin embargo se negaron a caer. Mis manos aún tiemblan mientras escribo esto.",
+    book_history_combat_victory_flawless: "{heroes} se movieron como uno solo. Ni un rasguño, ni una gota derramada. Me quedé observando, preguntándome si el enemigo simplemente había elegido el valle equivocado.",
+    book_history_combat_victory_overwhelming: "{heroes} se enfrentaron a {enemyCount} {enemies} — el doble de su número o más — y los rompieron como juncos secos. Nunca había visto tal exhibición.",
+    book_history_combat_victory_first: "La primera victoria. Recordaré esta — {heroes}, de pie donde nadie había estado antes, el valle en silencio a su paso.",
+    book_history_combat_victory_boss: "{heroes} se enfrentaron a {enemyCount} {enemies} y derribaron a la bestia. Escuché su último aliento desde la cresta. El valle se siente diferente ahora — más ligero, o quizás más peligroso.",
+    book_history_combat_victory_elite: "Los corrompidos cayeron hoy. {heroes} atravesaron a {enemyCount} {enemies} con una furia que no había visto antes. Marco esta página con tinta que corría.",
+    book_history_combat_victory_comeback: "{heroes} estaban perdiendo — estaba seguro de ello. Entonces algo cambió. Se levantaron de la tierra y reclamaron la victoria. No entiendo lo que vi.",
+    book_history_combat_defeat_close: "{heroes} se retiraron, pero todos siguen respirando. Los conté dos veces para estar seguro. Volverán.",
+    book_history_combat_defeat_wipe: "Todos cayeron. El cronista escribe esto a la luz de la luna, temeroso de encender un fósforo. {heroes} — desaparecidos. El valle los ha tragado enteros.",
+    book_history_combat_defeat_first: "La primera derrota. Había esperado escribir una primera clase diferente. {heroes} lucharon, pero la esperanza por sí sola no afila una hoja.",
+    book_history_combat_defeat_escape: "Uno quedó en pie — apenas. {heroes} cojearon del campo, y no sé si el que sobrevivió tuvo suerte o está maldito.",
+
     // Hitos — Celebratorios, personales, emocionados
     book_milestone_first_victory: "¡¡¡Primera victoria!!!",
     book_milestone_first_boss: "¡Primer Jefe Derrotado!",

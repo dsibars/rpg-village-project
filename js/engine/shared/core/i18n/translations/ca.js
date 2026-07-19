@@ -1174,6 +1174,19 @@ export const ca = {
     book_history_combat_victory: "{heroes} es van enfrontar a {enemyCount} {enemies} i van prevaler. Vaig observar des de la cresta, el cor desbocat, mentre l'últim enemic caia. La vall va tornar a quedar en silenci, llevat de la seva respiració.",
     book_history_combat_defeat: "{heroes} van lluitar amb valentia, però l'enemic va ser massa fort. Els vaig veure retirar-se, arrossegant els ferits. La vall es va sentir més fosca després.",
 
+    // Observacions de combat dinàmiques — Veu del cronista, contextuals
+    book_history_combat_victory_close: "{heroes} van prevaler, però pel marge més estret. Vaig veure un d'ells trontollar, sang a les seves botes, i tot i així es van negar a caure. Les meves mans encara tremolen mentre escric això.",
+    book_history_combat_victory_flawless: "{heroes} es van moure com un sol. Ni un esgarrapada, ni una gota vessada. Em vaig quedar observant, preguntant-me si l'enemic simplement havia triat la vall equivocada.",
+    book_history_combat_victory_overwhelming: "{heroes} es van enfrontar a {enemyCount} {enemies} — el doble del seu nombre o més — i els van trencar com canyes seques. Mai havia vist tal exhibició.",
+    book_history_combat_victory_first: "La primera victòria. Recordaré aquesta — {heroes}, dempeus on ningú havia estat abans, la vall en silenci al seu pas.",
+    book_history_combat_victory_boss: "{heroes} es van enfrontar a {enemyCount} {enemies} i van abatre la bèstia. Vaig sentir el seu darrer alè des de la cresta. La vall es sent diferent ara — més lleugera, o potser més perillosa.",
+    book_history_combat_victory_elite: "Els corromputs van caure avui. {heroes} van travessar {enemyCount} {enemies} amb una fúria que no havia vist abans. Marco aquesta pàgina amb tinta que corria.",
+    book_history_combat_victory_comeback: "{heroes} estaven perdent — n'estava segur. Llavors alguna cosa va girar. Es van aixecar de la terra i van reclamar la victòria. No entenc el que vaig veure.",
+    book_history_combat_defeat_close: "{heroes} es van retirar, però tots encara respiren. Els vaig comptar dues vegades per estar segur. Tornaran.",
+    book_history_combat_defeat_wipe: "Tots van caure. El cronista escriu això a la llum de la lluna, porós d'encendre un llumí. {heroes} — desapareguts. La vall els ha empassat sencers.",
+    book_history_combat_defeat_first: "La primera derrota. Havia esperat escriure una primera classe diferent. {heroes} van lluitar, però l'esperança per si sola no esmola una fulla.",
+    book_history_combat_defeat_escape: "Un va quedar dempeus — a penes. {heroes} van coixejar del camp, i no sé si el que va sobreviure va tenir sort o està maleït.",
+
     // Fites — Celebratòries, personals, emocionades
     book_milestone_first_victory: "¡¡¡Primera victòria!!!",
     book_milestone_first_boss: "¡Primer Cap Derrotat!",

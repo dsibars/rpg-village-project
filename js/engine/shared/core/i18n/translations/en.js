@@ -1175,6 +1175,19 @@ export const en = {
     book_history_combat_victory: "{heroes} stood against {enemyCount} {enemies} and prevailed. I watched from the ridge, heart pounding, as the last of the enemy fell. The valley grew quiet again, save for their breathing.",
     book_history_combat_defeat: "{heroes} fought bravely, but the enemy was too strong. I saw them retreat, dragging the wounded. The valley felt darker after.",
 
+    // Dynamic Combat Observations — Contextual, chronicler voice
+    book_history_combat_victory_close: "{heroes} prevailed, but by the narrowest margin. I saw one of them falter, blood on their boots, yet they refused to fall. My hands still shake as I write this.",
+    book_history_combat_victory_flawless: "{heroes} moved as one. Not a scratch, not a drop spilled. I stood watching, wondering if the enemy had simply chosen the wrong valley.",
+    book_history_combat_victory_overwhelming: "{heroes} faced {enemyCount} {enemies} — twice their number or more — and broke them like dry reeds. I have never seen such a display.",
+    book_history_combat_victory_first: "The first victory. I will remember this one — {heroes}, standing where none had stood before, the valley quiet in their wake.",
+    book_history_combat_victory_boss: "{heroes} stood against {enemyCount} {enemies} and felled the beast. I heard its last breath from the ridge. The valley feels different now — lighter, or perhaps more dangerous.",
+    book_history_combat_victory_elite: "The corrupted ones fell today. {heroes} cut through {enemyCount} {enemies} with a fury I had not seen before. I mark this page with ink that ran.",
+    book_history_combat_victory_comeback: "{heroes} were losing — I was certain of it. Then something turned. They rose from the dirt and claimed victory. I do not understand what I saw.",
+    book_history_combat_defeat_close: "{heroes} retreated, but every one of them still draws breath. I counted them twice to be sure. They will return.",
+    book_history_combat_defeat_wipe: "All fell. The chronicler writes this by moonlight, afraid to strike a match. {heroes} — gone. The valley has swallowed them whole.",
+    book_history_combat_defeat_first: "The first defeat. I had hoped to write a different kind of first. {heroes} fought, but hope alone does not blunt a blade.",
+    book_history_combat_defeat_escape: "One remained standing — barely. {heroes} limped from the field, and I do not know if the one who survived was lucky or cursed.",
+
     // Milestones — Celebratory, personal, excited
     book_milestone_first_victory: "First Victory!!!",
     book_milestone_first_boss: "We Defeated the Boss!",
