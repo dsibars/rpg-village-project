@@ -87,6 +87,10 @@ export const eu = {
     combat_uxelm_battle_title: "Borroka",
     combat_uxelm_battle_over: "Borroka Amaituta",
     combat_uxelm_enemies: "Etsaiak",
+    combat_uxelm_skip_safe: "Segurua",
+    combat_uxelm_skip_risky: "Arriskutsua",
+    combat_uxelm_skip_dangerous: "Arrisku Handia",
+    combat_uxelm_skip_suicide: "Suizidioa",
     combat_uxelm_awaiting: "Txanda zain...",
     combat_uxelm_heroes: "Heroiak",
     combat_uxelm_items: "Objektuak",
@@ -474,6 +478,7 @@ export const eu = {
     heroes_info_effect_power: "boterea",
     heroes_info_effect_steal: "Lapurtu",
     heroes_info_effect_stun: "Zorabiatu",
+    heroes_info_fatigue: "Nekea",
     heroes_info_family_cleave: "Zauri",
     heroes_info_family_multiple_attack: "Eraso Anitza",
     heroes_info_family_plunder: "Saqueatu",
@@ -507,7 +512,7 @@ export const eu = {
     heroes_info_stat_hp: "BP",
     heroes_info_stat_hp_desc: "Bizi Puntuak — heroiak zenbat kalte jasan dezakeen zehazten du.",
     heroes_info_stat_magic_power: "Botere Magikoa",
-    heroes_info_stat_magic_power_desc: "Sorginkeria kaltea, sendatze potentzia eta gehieneko MP zehazten ditu.",
+    heroes_info_stat_magic_power_desc: "MP maximoa, MP berreskurapena eta magiaren kontrako defentsa handitzen ditu.",
     heroes_info_stat_mp: "MP",
     heroes_info_stat_mp_desc: "Mana Puntuak — sorginkeria magikoen eta teknika hibridoen erregaia.",
     heroes_info_stat_mpCostReduction: "MP Kostu Murrizketa",
@@ -784,6 +789,11 @@ export const eu = {
     shop_uxelm_locked: "Denda Blokeatuta",
     shop_uxelm_locked_desc: "Osatu Cueva Tutorial espedizioa denda desblokeatzeko.",
     shop_uxelm_no_items_to_sell: "Ez dago saldu beharreko objekturik.",
+    shop_uxelm_days: "egun",
+    shop_uxelm_no_items_week: "Ez dago objekturik eskuragarri aste honetan. Itzuli merkatua berritu ondoren!",
+    shop_uxelm_refresh_in: "Berritzea",
+    shop_uxelm_specials: "Bereziak",
+    shop_uxelm_week: "Astea",
     shop_uxelm_sell: "Saldu",
     shop_uxelm_select_item: "Hautatu objektu bat xehetasunak ikusteko.",
     shop_uxelm_storage_nearly_full: "Biltegia Ia Beteta",
@@ -791,6 +801,7 @@ export const eu = {
     shop_uxelm_title: "Herrixkako Denda",
 
     // ═══ VILLAGE INFO ════════════════════════════════════════════════════
+    village_info_building_level: 'Maila',
     village_info_building_arcane_sanctum: "Santuario Arkanoa",
     village_info_building_arcane_sanctum_desc: "Glifo magikoen azterketara eta irakaskuntzara bideratutako dorre mistikoa. Glifoen Akademia desblokeatzen du.",
     village_info_building_arcane_sanctum_effect_academy: "Glifoen Akademia",
@@ -837,7 +848,7 @@ export const eu = {
     village_info_role_farmer: "Baserritarra",
     village_info_role_farmer_effect: "+%10 janari bakoitzak",
     village_info_role_miner: "Meatzaria",
-    village_info_role_miner_effect: "%20ko aukera materialak lortzeko",
+    village_info_role_miner_effect: "%35eko aukera materialak lortzeko",
     village_info_role_scout: "Esploratzailea",
     village_info_role_scout_effect: "-1 etapa 2 esploratzaileko",
 
@@ -883,7 +894,14 @@ export const eu = {
     village_uxelm_wood: "Egurra",
     village_uxelm_population: "Biztanleria",
     village_uxelm_tooltip_gold: "Gastatzeko urri eskuragarria",
+    topbar_label_gold: "URREA",
+    topbar_label_population: "BIZI",
+    topbar_label_wood: "EGURRA",
+    topbar_label_stone: "HARRIA",
+    topbar_label_iron: "BURDINA",
     village_uxelm_tooltip_wood: "Inbentarioko egur materialak",
+    village_uxelm_tooltip_stone: "Inbentarioko harri materialak",
+    village_uxelm_tooltip_iron: "Inbentarioko burdina materialak",
     village_uxelm_tooltip_population: "Oraingo herritarrak / Etxebizitza kapazitatea",
     village_uxelm_tooltip_storage: "Biltegia erabilia: {used} / {max}",
     village_uxelm_storage_warning: "Biltegia ia beteta!",
@@ -1024,7 +1042,7 @@ export const eu = {
     codex_feature_day_cycle_desc: "RPG Village txandakako eguneroko zikloan oinarritzen da. Denborak aurrera egiten du \"Hurrengo Eguna\" klikatzen duzunean bakarrik. Egunero, zure herrixkak herritar bakoitzeko janari unitate 1 kontsumitzen du. Baserriek ale gordina ekoizten dute pasiboki beren mailaren arabera (+4 ale mailako), esleitutako baserritar kopuruarekin biderkatuta. Eraikuntza proiektuek geratzen zaizkien egunak murrizten dituzte, atseden hartzen ari diren heroien berreskuratzea prozesatzen da eta eguneroko helburuak eguneratzen dira.\\n\\nMekanika nagusiak:\\n- Eguneroko helburuak: 4 helburu ausazko agertzen dira egunero (etsaiak garaitu, urrea gastatu, espedizioak osatu, etab.). 2 hautatzen dituzu betetzeko. Bakoitzak urrea eta materialak ematen ditu. Hautatutako bi helburuak osatzeak hobari bat ematen du (20 zura + 10 harria).\\n- Gehieneko gaitasuna: biltegiak bere gehienekoa gainditzen badu, ezin izango duzu baliabide berririk bildu ezta dendan objekturik erosi ere.\\n- Eraikuntza: proiektuek urrea eta materialak eskatzen dituzte aurretik. Proiektu bakoitzak egun kopuru zehatz bat behar du osatzeko.\\n- Urtaroak: Udaberria (+%5 hazkundea), Uda (+%10 baserri ekoizpena), Udazkena (+%10 meatzari ekoizpena), Negua (-%10 baserri ekoizpena). Urtaro bakoitzak 30 egun irauten du.",
     codex_feature_day_cycle_unlock: "Beti eskuragarri.",
     codex_feature_villagers: "Herritarrak eta Lan-indarra",
-    codex_feature_villagers_desc: "Zure biztanleria osoa etxebizitzetan bizi da. Herritar inaktiboak lan espezializatuetan esleitu ditzakezu (Eraikitzaileak, Baserritarrak, Meatzariak, Esploratzaileak). Eraikitzaile kopuruak aldi berean izan ditzakezun eraikuntza proiektuen kopurua zehazten du, proiektu bat hastean eraikitzaile 1 esleitzen baita bertan lan egiteko amaitu arte. Herritarrek egunero janari 1 kontsumitzen dute; janari gabeziak biztanleriaren hazkundea gelditzen du eta eraginkortasuna murrizten du.\\n\\nLangileen rolak eta efektuak:\\n- Eraikitzailea (🔨): Eraikuntza proiektuak hasteko beharrezkoa da. Proiektu bakoitzak eraikitzaile 1 kontsumitzen du amaitu arte.\\n- Baserritarra (🌾): +%10 janari ekoizpena baserritar bakoitzeko (baserriaren ekoizpenari aplikatuta).\\n- Meatzaria (⛏️): %20ko aukera meatzari bakoitzeko egunero unitate 1 zura edo harri biltzeko.\\n- Esploratzailea (👁️): 2 esploratzaile bakoitzeko espedizio etapa kopurua 1 murrizten da (gutxienez etapa 1).\\n\\nOhar garrantzitsuak:\\n- Rolak edozein unetan alda daitezke inolako kosturik gabe.\\n- Esleitutako rol kopurua ezin da zure biztanleria osoa baino handiagoa izan.\\n- Biztanleria hazteko janari soberakina eta etxebizitza gaitasuna behar dira.\\n- Biltegiaren gaitasuna zure Biltegiaren mailak zehazten du.",
+    codex_feature_villagers_desc: "Zure biztanleria osoa etxebizitzetan bizi da. Herritar inaktiboak lan espezializatuetan esleitu ditzakezu (Eraikitzaileak, Baserritarrak, Meatzariak, Esploratzaileak). Eraikitzaile kopuruak aldi berean izan ditzakezun eraikuntza proiektuen kopurua zehazten du, proiektu bat hastean eraikitzaile 1 esleitzen baita bertan lan egiteko amaitu arte. Herritarrek egunero janari 1 kontsumitzen dute; janari gabeziak biztanleriaren hazkundea gelditzen du eta eraginkortasuna murrizten du.\\n\\nLangileen rolak eta efektuak:\\n- Eraikitzailea (🔨): Eraikuntza proiektuak hasteko beharrezkoa da. Proiektu bakoitzak eraikitzaile 1 kontsumitzen du amaitu arte.\\n- Baserritarra (🌾): +%10 janari ekoizpena baserritar bakoitzeko (baserriaren ekoizpenari aplikatuta).\\n- Meatzaria (⛏️): %35eko aukera meatzari bakoitzeko egunero unitate 1 zura edo harri biltzeko.\\n- Esploratzailea (👁️): 2 esploratzaile bakoitzeko espedizio etapa kopurua 1 murrizten da (gutxienez etapa 1).\\n\\nOhar garrantzitsuak:\\n- Rolak edozein unetan alda daitezke inolako kosturik gabe.\\n- Esleitutako rol kopurua ezin da zure biztanleria osoa baino handiagoa izan.\\n- Biztanleria hazteko janari soberakina eta etxebizitza gaitasuna behar dira.\\n- Biltegiaren gaitasuna zure Biltegiaren mailak zehazten du.",
     codex_feature_villagers_unlock: "Beti eskuragarri.",
     codex_feature_hero_attributes: "Heroiaren Atributuak eta Estatistikak",
     codex_feature_hero_attributes_desc: "Heroiek herrixka babesten dute eta espedizioak osatzen dituzte. Beren boterea sei atributu nagusik arautzen dute:\\n- BP: Bizi Puntuak — heroiak zenbat kalte jasan dezakeen zehazten du.\\n- MP: Mana Puntuak — sorginkeria magikoen eta teknika hibridoen erregaia.\\n- IND (Indarra): Egindako kalte fisikoa eta gehieneko estamina arautzen ditu.\\n- DEF (Defensa): Jasotako kalte fisikoa murrizten du.\\n- BOT (Botere Magikoa): Sorginkeria kaltea, sendatze potentzia eta gehieneko MP zehazten ditu.\\n- ABI (Abiadura): Borrokako txanda-ordenean eta saihesteko aukeran eragiten du.\\n\\nAurrerapena:\\n- Mailaz igotzean 2-3 puntu lortzen dira atributuetan libreki esleitzeko.\\n- Oinarrizko BP-ak +5 eta MP-ak +2 igotzen dira mailako automatikoki.\\n- Kontratatutako heroi berri guztiak 1. Mailan hasten dira esleitu gabeko 5 atributu punturekin.\\n- L mailara iristeko behar den EXP L × 20 da.\\n\\nEkipamendua eta Hobariak:\\n- Heroiek 6 ekipamendu zirrikitu dituzte: burua, gorputza, hankak, ezkerreko eskua, eskuineko eskua, osagarria.\\n- Material multzo bereko hainbat pieza janzteak hobari metagarriak ematen ditu 2, 4 eta 6 piezatara.\\n- Sukaldatutako janariak borrokan aldi baterako hobekuntzak ematen ditu borroka kopuru zehatz batean.\\n\\nEspedizio Blokeoa: espedizioan dauden bitartean, heroiek ezin dituzte beren atributuak, teknikak edo ekipamendua aldatu. Planifikatu zure konfigurazioak bidali aurretik!",
@@ -1076,6 +1094,23 @@ export const eu = {
     codex_feature_glyph_academy_desc: "Santuario Arkanoaren barruan kokatutako Glifoen akademial heroiak elkarri glifoak irakastea ahalbidetzen du. Heroi maisu batek ezagutzen duen glifo bat partekatzen du ikasleekin hainbat egunez.\\n\\nAkademiaren mekanika:\\n- Santuario Arkanoa 2. Maila+ behar du.\\n- Irakasle 1 + gehienez 2 ikasle saio bakoitzeko.\\n- Irakaskuntzak 3-5 egun irauten du Santuario mailaren arabera.\\n- Irakasten ari den bitartean, parte-hartzaile guztiak lanpetuta daude eta ezin dira espedizioetara bidali.\\n- Diseinu liburutegiak sorginkeria diseinuak heroien artean kopiatzea ahalbidetzen du urre eta denbora truke (ez da irakaslerik behar).\\n\\nSantuario maila altuagoek ikasle gaitasuna eta ikasteko abiadura handitzen dituzte.\\n\\nConsejo: irakatsi erabilgarritasun glifoak gudariei sorginkeria oinarrizkoak jaurti ditzaten, edo irakatsi teknika fisikoak magoei egitura hibridoetarako.",
     codex_feature_glyph_academy_unlock: "Hobetu Santuario Arkanoa 2. Mailara.",
 
+    // ═══ 2. FASEKO EZAUGARRI BERRIAK ═════════════════════════════════════
+    codex_feature_fatigue: "Heroiaren Nekea",
+    codex_feature_fatigue_desc: "Heroiek nekea metatzen dute borroka eta espedizioetatik. Nekea altuak borrokako eraginkortasuna murrizten du eta atsedenarekin bakarrik berreskuratzen da.\n\nNola metatzen den nekea:\n- Garaipena: 5 + (2 × etsai kopurua) + 5 buruzagi badago\n- Porrota: 15 + (3 × etsai kopurua)\n- Espedizio etapak: +2 nekea etapako\n\nNekea atalaseak:\n- > 50: -5% estatistika guztietara\n- > 75: -10% estatistika guztietara\n- > 90: -20% estatistika guztietara, -10 zehaztasun\n\nBerreskuratzea:\n- Heroi inaktiboek egunero 15 nekea berreskuratzen dute\n- Espedizioan dauden heroiek egunero 5 nekea berreskuratzen dute\n- Herrixkan atseden hartzea (eguneroko ekintza): +20 berreskuratze\n- Ospitalearen bonusa: +5 berreskuratze gehigarri eguneko\n\nAdierazle bisuala:\n- Berdea (0-30): Ondo atseden hartuta\n- Horia (31-60): Nekea\n- Laranja (61-85): Agortuta\n- Gorria (86-100): Nekea kritikoa",
+    codex_feature_fatigue_unlock: "Osatu zure lehen borroka.",
+    codex_feature_market_rotation: "Asteko Merkatuaren Rotazioa",
+    codex_feature_market_rotation_desc: "Herrixkako dendako stocka 7 egunero biratzen da, arma, armadura eta kontsumigarri aukera freskoa eskainiz. Maila altuko burdindegiek ekipamendu maila hobeak desblokeatzen dituzte.\n\nRotazio mekanika:\n- 7 egunero, dendako stock guztia objektu berriekin berritzen da\n- Objektu bakoitzak kantitate mugatua du (1-5 unitate, raritatearen arabera)\n- Agortutakoan, objektu bat ez da itzultzen hurrengo rotaziora arte\n\nStocka burdindegi mailaren arabera:\n- 0 Maila: 1. Mailako ekipamendua (Zura), oinarrizko kontsumigarriak\n- 1 Maila: 2. Mailako ekipamendua (Burdina) desblokeatuta\n- 2 Maila: 3. Mailako ekipamendua (Altzairua) desblokeatuta\n- 3 Maila: 4. Mailako ekipamendua (Urrea) desblokeatuta\n\nAholkua: Planifikatu zure erosketak rotazio eguna baino lehen. Objektu arraroak asteetan ez agertzea gerta daiteke!",
+    codex_feature_market_rotation_unlock: "Osatu Tutorial Cueva espedizioa.",
+    codex_feature_village_events: "Herrixkako Gertaera Aleatorioak",
+    codex_feature_village_events_desc: "Gertaera aleatorioak gertatzen dira herrixkan denbora pasa ahala, aukera eta erronkak ekarriz. Gertaerek %30eko eguneroko aukera dute (2 eguneko etenaldia gertaeren artean).\n\nGertaera motak:\n- Merkataria ibiltaria: Objektu arraroak deskontupean saltzen ditu\n- Sendatzaile ibiltaria: Heroi zaurituak doan sendatzen ditu\n- Entrenamendu inspirazioa: EXP bonus heroi inaktibo guztientzat\n- Uzta oparoa: Elikagai ekoizpen bonusa\n- Lehorte abisua: Nekazaritza ekoizpen murriztua\n- Tabernako liskarra: Urre galera txikia, baina heroiek borroka EXP irabazten dute\n- Zurrumurrua entzun: Espedizio edo altxor ezkutuei buruzko pista\n- Munstro erasoa: Joko aurreratuko gertaera defentsa eskatzen du\n- Aurkikuntza zaharra: Material arraroak edo objektu bakarrak aurkitu\n\nEragina:\n- Gertaerek bonus edo zigorrak eman ditzakete\n- Gertaera guztiak Kronikan erregistratzen dira\n- Gertaera batzuk eraikin espezifikoak behar dituzte (Taberna, Baserria, etc.)",
+    codex_feature_village_events_unlock: "Iritsi herrixkako 5. egunera.",
+    codex_feature_daily_actions: "Heroiaren Eguneko Ekintzak",
+    codex_feature_daily_actions_desc: "Heroi inaktibo bakoitzak eguneko ekintza bat egin dezake herrixkari laguntzeko edo bere burua hobetzeko. Ekintzak eguna amaitu aurretik esleitzen dira eta eguna aurreratzean ebatzen dira.\n\nEskuragarri dauden ekintzak:\n- Atseden hartu: +20 nekea berreskuratzea, +20% BP sendatzea\n- Entrenatu: EXP irabazi entrenamendu eremuaren mailaren arabera\n- Esploratu: Erakutsi espedizio nodo ezkutuak desblokeatutako eskualdeetan\n- Fabrikatu: Saiatu kontsumigarri aleatorio bat fabrikatzen (janaria, pozoia, pergaminoa)\n- Sozializatu: Bisitatu taberna gertaera sozial aleatorioetarako\n\nEsleipena:\n- Hautatu heroi bat eta aukeratu ekintza bat bere profiletik\n- Ekintzak automatikoki ebatzen dira eguna aurreratzean\n- Espedizioan dauden heroiek ezin dute eguneroko ekintzarik egin\n- Emaitzak eguneroko txostenean agertzen dira",
+    codex_feature_daily_actions_unlock: "Eraiki Taberna bat.",
+    codex_feature_chronicle: "Kronika",
+    codex_feature_chronicle_desc: "Kronika eta Liburua zure herrixkaren azalera narratiboak dira.\n\n- Liburua irakurgarri den egunkaria da. Borrokak, espedizioak, heroiak kontratatzea, eraikuntza, herrixkako gertaerak eta eguneroko ekintzak orri egituratuetan erregistratzen ditu, edozein unetan irakur ditzakezunak.\n- Kronika lorpenen aurkibidea da. Ipuinaren gertaera garrantzitsuak eta mugarriak jarraitzen ditu, blokeatuta edo desblokeatuta daudenak erakusten ditu, eta desblokeatutako sarrera bakoitza kontatzen den Liburuaren orri zehatzera lotzen du.\n\nErabilera:\n- Ireki Liburua goiko barrako botoitik gertaerak ostean.\n- Ireki Kronika Esploratu orritik.\n- Egin klik Kronikako edozein sarrera desblokeatutan, bere Liburuaren orrira jauzi egiteko.",
+    codex_feature_chronicle_unlock: "Osatu zure lehen espedizioa.",
+
     // ═══ SAVE SLOT ════════════════════════════════════════════════════════
     shared_uxelm_save_slot_empty: "Hutsik",
     shared_uxelm_save_slot_new_game: "Hasi Joko Berria",
@@ -1101,6 +1136,78 @@ export const eu = {
 
     // ═══ NAVIGATION ═══════════════════════════════════════════════════════
     nav_codex: "Kodexa",
+
+    // ═══ THE BOOK — KRONISTAREN AHOZKO ═══════════════════════════════
+    // Liburua herrikoide batek idazten duen egunerokoa da. Gertaera
+    // historikoak zainki eta artistikoki idazten dira. Herriaren
+    // egunerokoak azkar eta praktikoki. Idazlea ikusezko pertsonaia
+    // bat da, geroxago agertuko dena.
+
+    book_uxelm_title: "Liburua",
+    book_uxelm_prev: "Aurrekoa",
+    book_uxelm_next: "Hurrengoa",
+    book_uxelm_spread: "{current} / {total}",
+    book_uxelm_milestone: "Oroitzeko marka bat",
+
+    // Kapituluen izenburuak — Dramatikoak, harroak, literarioak
+    book_chapter_default_title: "{chapter}. Kapitulua",
+    book_chapter_1_title: "I. Kapitulua: Iraganaren Hondarrak",
+    book_chapter_2_title: "II. Kapitulua: Aro Arkanoa",
+    book_chapter_3_title: "III. Kapitulua: Ipar Izoztua",
+    book_chapter_4_title: "IV. Kapitulua: Atari Astrala",
+    book_chapter_5_title: "V. Kapitulua: Azken Aurkakoa",
+    book_chapter_2_event_block: "Kokaleku berriaren lehen harrien azpian, inork gogoratzen ez zituen runak aurkitu genituen. Eskuaren atzealdeaz garbitu nituen, eta han zeuden, ilunetan tente distiratzen — gure baino zaharragoak ziren ikurrak.",
+
+    // Herriaren egunerokoak — Azkarrak, praktikoak, eskribauaren esku azkarra
+    book_village_updates_title: "{day}. eguna — Herriaren oharrak",
+    book_update_village_founded: "Egunsentian lehen egurra jarri zuten. Eguerdian, horma hiru zutik zeuden. Haranaren marrazkia egin nuen tontorretik — ibaia zilarrez doa han.",
+    book_update_food_consumed: "Biltegia {amount} unitate jaitsi da. Neguko biltegia hutsik doa.",
+    book_update_villager_joined: "{amount} arima berri etorri dira gaur. Plazako sua gero eta altuago erre da.",
+    book_update_hero_rested: "{hero} lo egin du. Ospitalea haizearekin crack egiten zuen. Ondo.",
+    book_update_hero_trained: "{hero} entrenatu du eskuak odol artean artean. Leihatilarik ikusi nuen.",
+    book_update_hero_scouted: "{hero} basatik itzuli da {region} berriekin. Begiak harriduraz distiratzen ziren.",
+    book_update_hero_crafted: "{hero}k {item} egin du tailerrean. Mailuaren kolpea ilunabar artean entzun zen.",
+    book_update_hero_socialized: "{hero} suaren ondoan besteekin eseri zen. Barreak. Horixe entzun nuen.",
+    book_update_building_completed: "{building} prest dago! Kanpaiak hiru aldiz jo zituen. Guztiak korrika irten ziren.",
+    book_update_region_unlocked: "{region} aurkitu dugu. Eskutitik markatu nuen mapan — tinta pozoiaz korritu zen.",
+    book_update_expedition_started: "Talde bat bidali dut {region}-era. Puntu artean jarraitu nituen begiekin, eta gero ezer.",
+    book_update_expedition_completed: "{region}-etik bueltatu dira. Nekatuta, hauts artean, baina bizirik. Eskerrik izarrei.",
+    book_update_combat_victory: "Garaipena! Tontorretik ikusi nuen — zutik egon ziren etsaia erori zenean. Ozen hainbeste oihu egin nuen eztarria minikaratzen zaidala.",
+    book_update_combat_defeat: "Zaurituta bueltatu ziren. Gutxiago joan zirenak baino. Atzo ez nuen idatzi. Ezin nuen.",
+    book_update_hero_recruited: "{hero} batu zaigu! Aurpegi berria, istorio berriak. Herria handiagoa sentitzen da.",
+    book_update_market_rotation: "Merkatua hornitu da. Merkatariek argitu aurretik prezioez eztabaidatzen entzun nuen.",
+    book_update_raid_defended: "Erasotzaileak etorri ziren. Eutsi egin genuen. Haiek ez. Hormako geziak zenbatu nituen — hamazazpi.",
+    book_update_raid_lost: "Erasotzaileek harresia hautsi zuten. Nahi zutena eraman zuten. Egunerokoa lurpean ezkutatu nuen. Gehiago idatziko dut gero.",
+    book_update_quiet_day: "Ezer ere ez zen mugitu. Haizeak ere arnasa hartu zuen.",
+    book_event_traveling_merchant: "Bidaiari merkatari batek zure soberakinaren zati bat erosten du. +{amount} urre.",
+    book_event_wandering_healer: "Sendagile ibiltari batek {count} heroi zauritu sendatzen ditu.",
+    book_event_training_inspiration: "Zure heroiek inspirazioa aurkitzen dute entrenamendu-saio batean. +{amount} XP guztira.",
+    book_event_bumper_crop: "Uzta oparo batek ale extra ematen du. +{amount} ale.",
+    book_event_drought_warning: "Lehorteak uzta murrizten du. −{amount} ale.",
+    book_event_drunken_brawl: "Tabernako liskar batek {hero} zaur arin uzten du.",
+    book_event_rumor_heard: "Bidaiari batek hurbileko baliabide ezkutuei buruzko zurrumuruak kontatzen ditu. +{amount} urre.",
+    book_event_monster_attack: "Munstroen eraso batek azpiegitura kaltetzen du. −{amount} urre.",
+    book_event_ancient_discovery: "Antzinako artefaktuak aurkitzen dira, jakintsuen interesa piztuz. +{amount} urre.",
+
+    // Gertaera historikoak — Lekukotza literarioak
+    book_history_combat_victory: "{heroes} {enemyCount} {enemies} aurka borrokatu ziren eta nagusitu. Tontorretik begiztatu nuen, bihotza lasterran, etsai azkena erortzen zen bitartean. Harana isil geratu zen berriro, haien arnasa besterik ez.",
+    book_history_combat_defeat: "{heroes} ausardiaz borrokatu ziren, baina etsaia indartsuegia izan zen. Ihesi ikusi nituen, zaurituak arrastatzen. Harana ilunagoa sentitu zen ondoren.",
+
+    // Mugarriak — Ospakizunak, pertsonalak, pozik
+    book_milestone_first_victory: "Lehen garaipena!!!",
+    book_milestone_first_boss: "Lehen Buruzagi Garaitua!",
+    book_milestone_first_region: "Lehen eskualde esploratua!",
+    book_milestone_first_building: "Lehen eraikuntza bukatua!",
+    book_milestone_first_spell: "Lehen aztia osatua!",
+    book_milestone_first_academy: "Lehen akademiako saioa!",
+    book_milestone_first_body_inscription: "Lehen gorputz-inskripzioa!",
+
+    // Idazlearen agerraldia — Kronistaren aitorpena
+    book_milestone_writer_revelation: "Kronistaren aitorpena",
+    book_milestone_writer_revelation_text: "Ohartu naiz arrisku hauen aurrean beti egon ezin izan daitekezkeenez, ohar utzi nahi dizkiot eguneroko txiki honen hurrengo jabeari, Arthur-ek hutsetik sortzen ari den irudi ederra dokumentatzeko erabiltzen ari naizena... agian etorkizunean, herria hiri handi bihurtzen denean, norbait oharrak hartuko ditu eta gure herrixka nola handitu zen kontatzen duen historia-liburu egokia idatziko du.",
+    book_milestone_writer_note_12: "Erasoek hurbiltzen ari dira. Kandelaren argiz idazten dut orain, eta argizaria orrialdeetara tantaka doa. Zerbait gertatzen baza, bil ezazue egunerokoa tabernan — barrilak hormarekin bat egiten duten lekuan, kontuaren azpian gordetzen dut.",
+    book_milestone_writer_note_14: "Hamabi orrialde historiaz. Herria hainbeste hazi da. Inoiz ez nuen uste artzain-sutegia ikusiko nuenik, edo haurrak plazan barreka entzungo nituzkenik. Arthur-ek ez daki begiztatzen dudanik, baina uste dut susmatzen duela. Batzuetan begiak jasotzen ditu nire leihoaren aurka.",
+    book_unlock_lore_writer_revelation: "Liburua idatzi zuenarekin elkar ezagutu zenuen.",
 
     // ═══ NARRATIVE / PROLOGUE ═════════════════════════════════════════════
     intro_btn: "Hasi Bidaia",
@@ -1312,6 +1419,45 @@ export const eu = {
     chronicle_day_prefix: "Eguna",
     chronicle_day_unknown: "—",
 
+    // New catalog (post-refactor)
+    chronicle_catalog_title: 'Kronika',
+    chronicle_catalog_empty: 'Oraindik ez da kronika sarrerarik desblokeatu.',
+    chronicle_unlocked: 'Desblokeatuta',
+    chronicle_open_in_book: 'Ireki Liburuan',
+    chronicle_chapter: 'Kapitulua',
+    chronicle_page: 'Orrialdea',
+
+    // Chronicle entry labels
+    chronicle_hero_recruited: 'Heroia Kontratatuta',
+    chronicle_combat_victory: 'Garaipena Borrokan',
+    chronicle_combat_defeat: 'Porrota Borrokan',
+
+    // Chronicle requirement labels
+    chronicle_req_recruit: 'Kontratau heroi bat',
+    chronicle_req_combat_victory: 'Irabazi borroka bat',
+    chronicle_req_combat_defeat: 'Jasan porrota bat',
+
+    // Presentation chronicle entries
+    chronicle_prologue: 'Aurkezpena',
+    chronicle_first_harvest: 'Lehen Uzta',
+    chronicle_shield_dark: 'Ezkutu Bat Ilunpetan',
+    chronicle_warm_fire: 'Su Berotu Bat',
+    chronicle_mission_board: 'Misioen Taula',
+    chronicle_discipline: 'Diziplina',
+    chronicle_first_spark: 'Lehen Txinparta',
+    chronicle_first_victory: 'Lehen Garaipena',
+    chronicle_first_equip: 'Lehen Ekipamendua',
+    chronicle_first_defeat: 'Lehen Porrota',
+    chronicle_chapter1_finale: '1. Kapituluaren Amaiera',
+    chronicle_language_world: 'Mundaren Hizkuntza',
+    chronicle_name_flame: 'Izena eta Garra',
+    chronicle_veil_thins: 'Belauna Mehetzen Da',
+    chronicle_world_opens: 'Mundua Zabaltzen Da',
+    chronicle_first_spell_cast: 'Lehen Aztia Bota',
+    chronicle_first_boss_defeated: 'Lehen Burua Garaitua',
+    chronicle_first_raid_victory: 'Lehen Eraso Garaipena',
+    chronicle_chapter2_finale: '2. Kapituluaren Amaiera',
+
     // Discovery Log
     chronicle_discovery_title: "Aurkikuntzen Erregistroa",
     chronicle_discovery_empty: "Oraindik ez dago aurkikuntzarik. Bidali heroia espedizioetara eta eraiki zure herrixka haranaren sekretuak argitzeko.",
@@ -1435,10 +1581,32 @@ export const eu = {
     shared_uxelm_gold: "Gold",
     shared_uxelm_toast_gold_earned: "+{amount}g",
     shared_uxelm_toast_resource_sold: "+{amount}g ({count} {resource})",
+    shared_uxelm_toast_resource_bought: "-{amount}g (+{count} {resource})",
     shared_uxelm_toast_preset_applied: "Applied {preset} (+{count} gambits)",
     shared_uxelm_toast_glyph_learned: "{hero} learned {glyph}!",
     shared_uxelm_toast_consumable_used: "{hero} +{amount} {stat}",
     combat_log_stamina_regen: "{actor}-k {amount} estamina berreskuratu du.",
     combat_log_victory: "Garaipena! Etsaiak garaitu dira!",
     combat_log_defeat: "Porrota... Taldea erori da...",
+
+    // ═══ TUTORIAL ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    tutorial_hero_skills_msg_select_arthur: "Hau Arthur da, zure lehen heroia. Begirada bat bota diezaiogun.",
+    tutorial_hero_skills_msg_open_skills: "Arthurrek borroka-teknika berri bat ikas dezake. Sakatu Gaitasunak botoia bere gaitasunak irekitzeko.",
+    tutorial_hero_skills_msg_learn_skill: "Orain sakatu blokeatutako teknik bat ikasteko.",
+    tutorial_hero_skills_msg_close_modal: "Orain zure trebetasun puntuak gastatu dituzunez, itxi modala jarraitzeko.",
+    tutorial_hero_skills_msg_done: "Ondo! Arthur prest dago indartsuago egiteko.",
+    tutorial_hero_stats_msg_assign_stats: "Heroiek hazten diren heinean, indarra, abiadura eta beste estatistika batzuk hobetzeko puntuak lortzen dituzte. Jarraitzeko, gastatu Arthurren puntu guztiak.",
+    shared_uxelm_remaining: "{count} geratzen dira",
+    shared_uxelm_click_continue: "Klik jarraitzeko",
+    shared_uxelm_click_dismiss: "Klik ixteko",
+    tutorial_hero_stats_msg_done: "Lan bikaina! Orain herria eraiki dezagun.",
+    tutorial_build_farm_msg_navigate_village: "Baserri bat eraiki dezagun herriarentzako janaria ekoizteko.",
+    tutorial_build_farm_msg_construct_farm: "Sakatu hemen eraikuntza hasteko. Denbora bat beharko du.",
+    tutorial_build_farm_msg_done: "Baserria eraikitzen ari da. Orain mundua arakatzeko garaia da.",
+    tutorial_expeditions_msg_navigate_explore: "Herriaz haraindiko munduak arriskuak eta altxorrak ezkutatzen ditu. Goazen arakatzera!",
+    tutorial_expeditions_msg_select_region: "Greenfields zure abenturetan hasteko lekurik seguruena da.",
+    tutorial_expeditions_msg_select_expedition: "Leize hau erronka ona da hasteko. Sakatu Arthur bertara bidaltzeko.",
+    tutorial_expeditions_msg_advance_day: "Prest zaudenean, joan hurrengo egunera ikusteko zer gertatzen den.",
+    tutorial_uxelm_action_blocked: "Ekintza hau blokeatuta dago tutoriala aktibo dagoen bitartean.",
+    tutorial_uxelm_nav_blocked: "Nabigazioa mugatuta dago tutorialaren bitartean.",
 };

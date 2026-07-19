@@ -1,0 +1,41 @@
+# Stage 3 Status — Book UI Integration
+
+## Completion Summary
+
+| Stage | Description | Status | Commit |
+|-------|-------------|--------|--------|
+| 1 | Book Engine + Translations | ✅ Complete | `8cfc73d` |
+| 2 | BookView Vue Component | ✅ Complete | `aa54efc` |
+| 3 | Book UI Integration | ✅ Complete | `4a9cbbf` |
+| 4 | Auto-open + Combat History | ✅ Complete | `801f67b` |
+| 5 | Chronicle Engine Refactor | ✅ Complete | `6358983` |
+| 6 | ChronicleTab Visual Refactor | ✅ Complete | `4c3a0ad` |
+| 7 | Cleanup (remove DailyReportModal) | ✅ Complete | `d7c1974` |
+
+## Current State
+
+- **BookService**: Full layout engine with chapters, pages, PageContentSections
+- **Book UI**: Two-page spread rendering, keyboard navigation, auto-open on dramatic days
+- **Chronicle**: Refactored to catalog + Book links, no plain text storage
+- **ChronicleTab**: Flat catalog view with chapter/page references, click-to-jump
+- **GameEngine**: All event hooks push Book sections, no DailyReportModal
+- **Translations**: All book and chronicle keys added to English, Spanish, Catalan, Basque, and Galician
+
+## Tests
+- Unit tests: 400/402 passing (2 pre-existing RegionService loot failures)
+- Vue tests: 133/134 passing (1 pre-existing HeroProfile i18n test failure)
+- Build: 2,870 kB │ gzip: 1,082 kB
+
+## Next Steps (Post-Plan)
+
+- [x] Add translations for Spanish, Catalan, Galician, Basque
+- [x] Write game design doc (`docs/shared/book/book_system.md`)
+- [x] Write Chronicle spec (`docs/shared/chronicle/chronicle_system.md`)
+- [x] Update Codex, Save Slots, App Description, Calendar/Defense, Unlock Narratives, and AGENTS.md index
+- [ ] Add integration tests for full post-day flow
+- [ ] Verify full playthrough with Book auto-open
+- [ ] Remove orphaned `DailyReportModal.vue` component file
+- [ ] Consider deeper Vue tests for Book/Chronicle components
+
+---
+*Updated: 2026-06-22*

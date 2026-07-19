@@ -2,6 +2,7 @@ import { CombatCalculator } from '../core/CombatCalculator.js';
 import { CombatAI } from '../core/CombatAI.js';
 import { GambitService } from '../../../gambit/GambitService.js';
 import { Result } from '../../core/Result.js';
+import { stateVersion } from '../../core/Persistence.js';
 import { SKILLS_DATA } from '../../data/CombatData.js';
 import { CONSUMABLES_DATA } from '../../data/InventoryData.js';
 import { CORE_ALLY_EFFECTS } from '../../data/MagicCircleData.js';
@@ -23,43 +24,50 @@ export class BattleService {
         this.enemies = [];
         this.turnOrder = [];
         this.currentTurnIndex = 0;
+        this.turnCount = 1;
+        this.area = null;
         this.isOver = false;
         this.winner = null;
         this.log = [];
         this.autoBattle = false;
         this.itemUsedThisTurn = false;
-
-        const originalPush = this.log.push;
-        this.log.push = (...args) => {
-            args.forEach(event => {
-                if (event && typeof event === 'object') {
-                    if (event.actorId) {
-                        const actor = [...this.heroes, ...this.enemies].find(e => e.id === event.actorId);
-                        if (actor && actor.type !== 'Hero' && actor.origin === undefined) {
-                            event.actorTemplateId = actor.templateId;
-                            event.actorIsElite = actor.isElite;
-                            event.actorEliteTier = actor.eliteTier;
-                        }
-                    }
-                    if (event.targetId) {
-                        const target = [...this.heroes, ...this.enemies].find(e => e.id === event.targetId);
-                        if (target && target.type !== 'Hero' && target.origin === undefined) {
-                            event.targetTemplateId = target.templateId;
-                            event.targetIsElite = target.isElite;
-                            event.targetEliteTier = target.eliteTier;
-                        }
-                    }
-                }
-            });
-            return originalPush.apply(this.log, args);
-        };
     }
 
-    startBattle(heroes, enemies, autoBattle = false) {
+    /**
+     * Record a combat event. Enriches it with template/elite metadata for
+     * non-hero participants so the presentation layer can localize names and
+     * render elite variants without re-deriving them.
+     */
+    logEvent(event) {
+        if (event && typeof event === 'object') {
+            if (event.actorId) {
+                const actor = [...this.heroes, ...this.enemies].find(e => e.id === event.actorId);
+                if (actor && actor.type !== 'Hero' && actor.origin === undefined) {
+                    event.actorTemplateId = actor.templateId;
+                    event.actorIsElite = actor.isElite;
+                    event.actorEliteTier = actor.eliteTier;
+                }
+            }
+            if (event.targetId) {
+                const target = [...this.heroes, ...this.enemies].find(e => e.id === event.targetId);
+                if (target && target.type !== 'Hero' && target.origin === undefined) {
+                    event.targetTemplateId = target.templateId;
+                    event.targetIsElite = target.isElite;
+                    event.targetEliteTier = target.eliteTier;
+                }
+            }
+        }
+        // Battle activity mutates in-memory state the UI must see
+        stateVersion.value++;
+        return this.log.push(event);
+    }
+
+    startBattle(heroes, enemies, autoBattle = false, area = null) {
         this.reset();
         this.heroes = heroes;
         this.enemies = enemies;
         this.autoBattle = autoBattle;
+        this.area = area;
 
         this._determineTurnOrder();
         this.partyTraits = this._calculatePartyTraits();
@@ -121,8 +129,25 @@ export class BattleService {
             const actualRegen = Math.min(regen, currentEntity.maxStamina - currentEntity.stamina);
             currentEntity.stamina += actualRegen;
             if (actualRegen > 0) {
-                this.log.push({
+                this.logEvent({
                     type: 'STAMINA_REGEN',
+                    actorId: currentEntity.id,
+                    actorName: currentEntity.name,
+                    amount: actualRegen
+                });
+            }
+        }
+
+        // 0.05 MP Regeneration (based on magicPower, affected by mpRecovery)
+        if (currentEntity.maxMp > 0 && currentEntity.mp < currentEntity.maxMp) {
+            const effectiveMagicPower = this._getEffectiveMagicPower(currentEntity);
+            const mpRecovery = currentEntity.mpRecovery || 1.0;
+            const regen = Math.max(1, Math.floor(effectiveMagicPower * 0.1 * mpRecovery));
+            const actualRegen = Math.min(regen, currentEntity.maxMp - currentEntity.mp);
+            currentEntity.mp += actualRegen;
+            if (actualRegen > 0) {
+                this.logEvent({
+                    type: 'MP_REGEN',
                     actorId: currentEntity.id,
                     actorName: currentEntity.name,
                     amount: actualRegen
@@ -143,7 +168,7 @@ export class BattleService {
                 actorName: currentEntity.name,
                 actorIsHero: this.heroes.includes(currentEntity)
             };
-            this.log.push(event);
+            this.logEvent(event);
             return this._advanceTurn({ stunSkipped: true });
         }
         const sleepEffect = currentEntity.statusEffects && currentEntity.statusEffects.find(e => e.type === 'sleep');
@@ -158,7 +183,7 @@ export class BattleService {
                 actorName: currentEntity.name,
                 actorIsHero: this.heroes.includes(currentEntity)
             };
-            this.log.push(event);
+            this.logEvent(event);
             // Sleepers still regenerate stamina
             return this._advanceTurn({ sleepSkipped: true });
         }
@@ -181,7 +206,7 @@ export class BattleService {
                     targetMaxHp: currentEntity.maxHp
                 };
                 statusResults.push(event);
-                this.log.push(event);
+                this.logEvent(event);
             }
         }
 
@@ -228,7 +253,7 @@ export class BattleService {
                     targetMaxHp: entity.maxHp
                 };
                 events.push(event);
-                this.log.push(event);
+                this.logEvent(event);
             }
 
             eff.duration--;
@@ -242,7 +267,7 @@ export class BattleService {
                     targetIsHero: isHero
                 };
                 events.push(event);
-                this.log.push(event);
+                this.logEvent(event);
                 if (entity.recalculateStats) entity.recalculateStats({});
             }
         }
@@ -255,7 +280,8 @@ export class BattleService {
 
         // Spec 4.0: Gambits override CombatAI entirely when enabled
         if (entity.gambits && entity.gambits.length > 0) {
-            const gambitDecision = GambitService.evaluate(entity, allies, enemies);
+            const battleState = this._buildBattleState();
+            const gambitDecision = GambitService.evaluate(entity, allies, enemies, battleState);
             if (gambitDecision) {
                 if (gambitDecision.skillId) {
                     return this.executeAction(entity, gambitDecision.skillId, gambitDecision.targetIndex, statusResults, gambitDecision.tier);
@@ -268,7 +294,15 @@ export class BattleService {
                 }
                 if (gambitDecision.itemId) {
                     const targetId = gambitDecision.targetIndex !== null ? allies[gambitDecision.targetIndex]?.id : entity.id;
-                    return this.useConsumable(entity, gambitDecision.itemId, targetId);
+                    const itemResult = this.useConsumable(entity, gambitDecision.itemId, targetId);
+                    if (itemResult.success) {
+                        const event = itemResult.data?.event;
+                        if (this.isOver) {
+                            return Result.ok({ actionEvents: event ? [event] : [], battleOver: true, winner: this.winner });
+                        }
+                        return this._advanceTurn({ actionEvents: event ? [event] : [] });
+                    }
+                    // Item could not be used (e.g. already used this turn) → fall through to fallback
                 }
                 if (gambitDecision.defend) {
                     return this._handleDefend(entity);
@@ -278,7 +312,7 @@ export class BattleService {
                 }
             }
             // No gambit matched OR action failed → Slot 0 Fallback
-            const fallback = GambitService.getFallbackAction(entity, allies);
+            const fallback = GambitService.getFallbackAction(entity, allies, enemies);
             if (fallback.skillId) {
                 return this.executeAction(entity, fallback.skillId, fallback.targetIndex, statusResults);
             }
@@ -307,7 +341,7 @@ export class BattleService {
             actorName: entity.name,
             targetIsHero: this.heroes.includes(entity)
         };
-        this.log.push(event);
+        this.logEvent(event);
         // v1.0: Defend simply ends the turn. In future, could add a temporary defense buff.
         return Result.ok({ actionEvents: [event], battleOver: false });
     }
@@ -322,7 +356,7 @@ export class BattleService {
                 success: true,
                 targetIsHero: this.heroes.includes(entity)
             };
-            this.log.push(event);
+            this.logEvent(event);
             this.isOver = true;
             this.winner = 'escape';
             return Result.ok({ actionEvents: [event], battleOver: true, winner: 'escape' });
@@ -334,7 +368,7 @@ export class BattleService {
                 success: false,
                 targetIsHero: this.heroes.includes(entity)
             };
-            this.log.push(event);
+            this.logEvent(event);
             return Result.ok({ actionEvents: [event], battleOver: false });
         }
     }
@@ -386,7 +420,7 @@ export class BattleService {
         if (skillData.family && actor.recordTechniqueUse) {
             evolutionResult = actor.recordTechniqueUse(skillData.family);
             if (evolutionResult && this.log) {
-                this.log.push({
+                this.logEvent({
                     type: 'TECHNIQUE_EVOLVED',
                     actorId: actor.id,
                     actorName: actor.name,
@@ -555,7 +589,7 @@ export class BattleService {
                                     targetHp: actor.hp,
                                     targetMaxHp: actor.maxHp
                                 };
-                                this.log.push(vampEvent);
+                                this.logEvent(vampEvent);
                             }
                         }
                     }
@@ -564,7 +598,7 @@ export class BattleService {
             event.targetHp = target.hp;
             event.targetMaxHp = target.maxHp;
             actionEvents.push(event);
-            this.log.push(event);
+            this.logEvent(event);
         });
 
         this._checkBattleEnd();
@@ -616,7 +650,7 @@ export class BattleService {
                 const oldTier = actor.magicTier || 1;
                 actor.magicTier = MagicCircleService.getMagicTier(actor.magicXp);
                 if (actor.magicTier > oldTier && this.log) {
-                    this.log.push({
+                    this.logEvent({
                         type: 'MAGIC_TIER_UP',
                         actorId: actor.id,
                         actorName: actor.name,
@@ -677,10 +711,10 @@ export class BattleService {
             // Elemental multiplier
             const elementMult = CombatCalculator.getElementMultiplier(spell.element, target.element);
 
-            // Defense reduction
-            const targetDefense = CombatCalculator.getFinalStat(target, 'defense');
+            // Magic defense reduction
+            const targetMagicDefense = this._getEffectiveMagicDefense(target);
             const rawDamage = spell.damage * elementMult;
-            const defMult = CombatCalculator.calculateDamageMultiplier(rawDamage, targetDefense);
+            const defMult = CombatCalculator.calculateDamageMultiplier(rawDamage, targetMagicDefense);
 
             let finalDamage = Math.max(1, Math.floor(rawDamage * defMult));
 
@@ -726,7 +760,7 @@ export class BattleService {
             if (effects.lifesteal > 0 && finalDamage > 0) {
                 const heal = Math.floor(finalDamage * effects.lifesteal);
                 actor.hp = Math.min(actor.maxHp, actor.hp + heal);
-                this.log.push({
+                this.logEvent({
                     type: 'HEAL',
                     actorId: actor.id,
                     actorName: actor.name,
@@ -738,7 +772,7 @@ export class BattleService {
             }
 
             actionEvents.push(event);
-            this.log.push(event);
+            this.logEvent(event);
         }
 
         this._checkBattleEnd();
@@ -823,7 +857,7 @@ export class BattleService {
             event.targetHp = target.hp;
             event.targetMaxHp = target.maxHp;
             actionEvents.push(event);
-            this.log.push(event);
+            this.logEvent(event);
         }
 
         this._checkBattleEnd();
@@ -849,10 +883,12 @@ export class BattleService {
         let type = data.type;
 
         if (type === 'HEAL_HP') {
-            amount = Math.min(data.amount, target.maxHp - target.hp);
+            const heal = data.percent ? Math.floor(target.maxHp * data.amount) : data.amount;
+            amount = Math.min(heal, target.maxHp - target.hp);
             target.hp = Math.min(target.maxHp, target.hp + amount);
         } else if (type === 'HEAL_MP') {
-            amount = Math.min(data.amount, target.maxMp - target.mp);
+            const restore = data.percent ? Math.floor(target.maxMp * data.amount) : data.amount;
+            amount = Math.min(restore, target.maxMp - target.mp);
             target.mp = Math.min(target.maxMp, target.mp + amount);
         } else if (type === 'ESCAPE') {
             this.isOver = true;
@@ -874,7 +910,7 @@ export class BattleService {
             targetMaxHp: target.maxHp
         };
 
-        this.log.push(event);
+        this.logEvent(event);
         this.itemUsedThisTurn = true;
 
         return Result.ok({ event });
@@ -919,12 +955,38 @@ export class BattleService {
     _advanceTurn(data = {}) {
         this.currentTurnIndex++;
         this.itemUsedThisTurn = false;
+        this.turnCount++;
         if (this.currentTurnIndex >= this.turnOrder.length) {
             this._determineTurnOrder();
             this.currentTurnIndex = 0;
         }
         const nextEntity = this.turnOrder[this.currentTurnIndex];
         return Result.ok({ ...data, nextEntityId: nextEntity?.id });
+    }
+
+    _buildBattleState() {
+        const turnCount = this.turnCount || 1;
+        let phase = 'early';
+        if (turnCount > 6) {
+            phase = 'late';
+        } else if (turnCount > 3) {
+            phase = 'mid';
+        }
+        return { turnCount, phase };
+    }
+
+    _getEffectiveMagicPower(entity) {
+        const base = CombatCalculator.getFinalStat(entity, 'magicPower');
+        if (!this.heroes.includes(entity)) return base;
+        const boost = this.partyTraits?.magicPowerBoost || 0;
+        return Math.floor(base * (1 + boost));
+    }
+
+    _getEffectiveMagicDefense(entity) {
+        const base = CombatCalculator.getFinalStat(entity, 'magicDefense');
+        if (!this.heroes.includes(entity)) return base;
+        const boost = this.partyTraits?.magicPowerBoost || 0;
+        return Math.floor(base * (1 + boost));
     }
 
     /**

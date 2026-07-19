@@ -9,6 +9,7 @@
           v-for="building in visibleBuildings"
           :key="building.id"
           class="building-card"
+          :data-tutorial-target="'building_' + building.id"
           :class="{ active: selectedId === building.id, locked: !building.active }"
           @click="selectBuilding(building.id)"
         >
@@ -58,13 +59,14 @@
                   <span class="cost-label">{{ t('village_info_gold') }}</span>
                   <span class="cost-value">💰 {{ upgradeCost.gold }}</span>
                 </div>
-                <div v-if="upgradeCost.wood > 0" class="cost-item" :class="{ insufficient: !hasWood }">
-                  <span class="cost-label">{{ t('inventory_info_mat_wood') }}</span>
-                  <span class="cost-value">🪵 {{ upgradeCost.wood }}</span>
-                </div>
-                <div v-if="upgradeCost.stone > 0" class="cost-item" :class="{ insufficient: !hasStone }">
-                  <span class="cost-label">{{ t('inventory_info_mat_stone') }}</span>
-                  <span class="cost-value">🪨 {{ upgradeCost.stone }}</span>
+                <div
+                  v-for="[matId, amount] in costMaterials"
+                  :key="matId"
+                  class="cost-item"
+                  :class="{ insufficient: !hasMaterial(matId, amount) }"
+                >
+                  <span class="cost-label">{{ t(matId) }}</span>
+                  <span class="cost-value">{{ materialIcon(matId) }} {{ amount }}</span>
                 </div>
                 <div class="cost-item">
                   <span class="cost-label">{{ t('shared_uxelm_time') }}</span>
@@ -103,8 +105,13 @@ import { ref, computed, watch } from 'vue'
 import { useI18n } from '@/core/composables/useI18n.js'
 import { useGameState } from '@/core/composables/useGameState.js'
 import { useAdapter } from '@/core/composables/useAdapter.js'
+import { getBuildingCost } from '@/core/data'
 import Button from '@/components/Button.vue'
 import EmptyState from '@/components/EmptyState.vue'
+
+const props = defineProps({
+  initialBuildingId: { type: String, default: null }
+})
 
 const { t } = useI18n()
 const { gameState } = useGameState()
@@ -157,28 +164,29 @@ const visibleBuildings = computed(() => {
   })
 })
 
+// Select a building requested by an external navigation (e.g. locked village tile)
+watch(() => props.initialBuildingId, (id) => {
+  if (id && visibleBuildings.value.some(b => b.id === id)) {
+    selectedId.value = id
+  }
+}, { immediate: true })
+
 const selectedBuilding = computed(() =>
   buildings.value.find((b) => b.id === selectedId.value)
 )
 
+// Costs come from engine data (js/engine/village/data/BuildingsData.js, the
+// authoritative source the engine itself charges) via the ux/core/data facade.
 function getUpgradeCost(buildingId, nextLevel) {
-  const costs = {
-    farm: { 1: { gold: 30, wood: 10, stone: 0, duration: 1 }, 2: { gold: 80, wood: 30, stone: 10, duration: 3 } },
-    housing: { 2: { gold: 150, wood: 40, stone: 10, duration: 4 }, 3: { gold: 300, wood: 90, stone: 45, duration: 6 } },
-    warehouse: { 2: { gold: 120, wood: 50, stone: 30, duration: 4 } },
-    blacksmith: { 1: { gold: 150, wood: 50, stone: 30, duration: 3 } },
-    infirmary: { 1: { gold: 150, wood: 100, stone: 0, duration: 3 }, 2: { gold: 400, wood: 200, stone: 100, duration: 5 }, 3: { gold: 800, wood: 300, stone: 200, duration: 7 } },
-    tavern: { 1: { gold: 200, wood: 100, stone: 50, duration: 3 } },
-    mission_board: { 1: { gold: 50, wood: 30, stone: 10, duration: 1 }, 2: { gold: 120, wood: 60, stone: 25, duration: 1 }, 3: { gold: 250, wood: 100, stone: 50, duration: 2 }, 4: { gold: 400, wood: 150, stone: 80, duration: 2 } },
-    witchs_hut: { 1: { gold: 200, wood: 80, stone: 30, duration: 2 } },
-    arcane_sanctum: { 1: { gold: 500, wood: 100, stone: 50, duration: 3 }, 2: { gold: 1500, wood: 200, stone: 100, duration: 5 }, 3: { gold: 3000, wood: 400, stone: 200, duration: 7 }, 4: { gold: 6000, wood: 800, stone: 400, duration: 10 } },
-    explorer_guild: { 1: { gold: 300, wood: 200, stone: 100, duration: 4 }, 2: { gold: 800, wood: 400, stone: 200, duration: 7 } },
-    // NOTE: Costs sourced from docs/village/buildings_data.md. Keep in sync.
-    // Iron costs are not yet modeled in the UI cost structure.
-    training_grounds: { 1: { gold: 300, wood: 0, stone: 150, duration: 5 } }
-  }
-  return costs[buildingId]?.[nextLevel] || { gold: nextLevel * 100, wood: nextLevel * 50, stone: nextLevel * 25, duration: nextLevel * 2 }
+  return getBuildingCost(buildingId, nextLevel)
 }
+
+const MATERIAL_ICONS = { material_wood: '🪵', material_stone: '🪨' }
+function materialIcon(matId) {
+  return MATERIAL_ICONS[matId] || '⛓️'
+}
+
+const costMaterials = computed(() => Object.entries(upgradeCost.value?.materials || {}))
 
 const buildingDescription = computed(() => {
   return t('village_info_building_' + selectedId.value + '_desc')
@@ -265,19 +273,15 @@ const hasGold = computed(() => {
   return gold.value >= (upgradeCost.value.gold || 0)
 })
 
-const hasWood = computed(() => {
-  if (!upgradeCost.value || !(upgradeCost.value.wood > 0)) return true
+function materialCount(matId) {
   const materials = inventory.value.materials || {}
-  const woodCount = typeof materials.material_wood === 'number' ? materials.material_wood : 0
-  return woodCount >= upgradeCost.value.wood
-})
+  const count = materials[matId]
+  return typeof count === 'number' ? count : 0
+}
 
-const hasStone = computed(() => {
-  if (!upgradeCost.value || !(upgradeCost.value.stone > 0)) return true
-  const materials = inventory.value.materials || {}
-  const stoneCount = typeof materials.material_stone === 'number' ? materials.material_stone : 0
-  return stoneCount >= upgradeCost.value.stone
-})
+function hasMaterial(matId, amount) {
+  return materialCount(matId) >= amount
+}
 
 const activeProject = computed(() => {
   if (!selectedBuilding.value || !constructionQueue.value.length) return null
@@ -295,11 +299,9 @@ const canUpgrade = computed(() => {
   if (gold.value < (upgradeCost.value.gold || 0)) return false
   if (constructionQueue.value.length > 0) return false
   // Check materials — v1 stores materials as object { material_wood: count }
-  const materials = inventory.value.materials || {}
-  const woodCount = typeof materials.material_wood === 'number' ? materials.material_wood : 0
-  const stoneCount = typeof materials.material_stone === 'number' ? materials.material_stone : 0
-  if ((upgradeCost.value.wood || 0) > 0 && woodCount < upgradeCost.value.wood) return false
-  if ((upgradeCost.value.stone || 0) > 0 && stoneCount < upgradeCost.value.stone) return false
+  for (const [matId, amount] of Object.entries(upgradeCost.value.materials || {})) {
+    if (!hasMaterial(matId, amount)) return false
+  }
   return true
 })
 
@@ -309,16 +311,10 @@ function selectBuilding(id) {
 
 function startUpgrade() {
   if (!selectedBuilding.value || !upgradeCost.value) return
-  const cost = upgradeCost.value
+  // Engine derives costs authoritatively from BuildingsData
   dispatch('buildings', 'startProject', {
     buildingId: selectedId.value,
-    targetLevel: (selectedBuilding.value.lvl || 0) + 1,
-    costGold: cost.gold || 0,
-    costMaterials: {
-      ...(cost.wood ? { material_wood: cost.wood } : {}),
-      ...(cost.stone ? { material_stone: cost.stone } : {})
-    },
-    duration: cost.duration || 1
+    targetLevel: (selectedBuilding.value.lvl || 0) + 1
   })
 }
 </script>

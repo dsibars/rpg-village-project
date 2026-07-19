@@ -52,10 +52,10 @@ run: docs-hash
 
 test: docs-hash
 	@echo "Running RPG Village tests..."
-	@echo "Step 1: Running Unit Tests..."
-	@node --test tests/unit/*.test.js
-	@echo "Step 2: Running Behaviour / Functional Tests..."
-	@node --test tests/behaviour/*.test.js
+	@echo "Step 1: Running Unit + Behaviour Tests (node --test)..."
+	@npm test
+	@echo "Step 2: Running Vue Tests (vitest)..."
+	@npm run test:vue
 	@echo "All RPG Village tests passed!"
 
 # --- Utility ---

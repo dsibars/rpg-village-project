@@ -288,3 +288,17 @@ test('CalendarService: getState returns correct shape', () => {
     assert.ok(Array.isArray(state.upcomingEvents));
     assert.ok(Array.isArray(state.defenseAssigned));
 });
+
+test('CalendarService: raid level scales with total region clears', () => {
+    const regionService = { getTotalClears: () => 25 };
+    const cal = new CalendarService(mockVillageService(), mockHeroService(), regionService);
+    const raid = cal._generateRaid(20);
+    // floor(20/10) + floor(25/5) = 2 + 5
+    assert.strictEqual(raid.level, 7);
+});
+
+test('CalendarService: raid level falls back to day-based scaling without regionService', () => {
+    const cal = new CalendarService(mockVillageService(), mockHeroService());
+    const raid = cal._generateRaid(20);
+    assert.strictEqual(raid.level, 2);
+});

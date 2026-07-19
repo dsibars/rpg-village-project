@@ -30,18 +30,20 @@ The difficulty of newly generated expeditions is governed by the Region's `Clear
 
 ## 3. Implemented Region Registry
 
-| ID | Name | Tier | Branching | Min Stages | Max Stages | Base Level | Enemies | Unlock Condition |
+| ID | Name | Tier | Branching | Min Stages | Max Stages | Base Level | Enemies | Unlock Condition (all required) |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | `reg_greenfields` | Greenfields | 1 | Low | 1 | 2 | 1 | `slime_green`, `wild_boar` | Start |
 | `reg_tiny_cave` | Tiny Cave | 1 | Medium | 2 | 3 | 2 | `bat_small`, `spider_minor` | Complete `exp_tutorial_cave` |
-| `reg_calmed_beach` | Calmed Beach | 1 | Low | 2 | 3 | 2 | `crab_shell`, `water_spirit_minor` | 3 Greenfields clears OR Explorer Guild L1 |
-| `reg_dark_forest` | Dark Forest | 2 | Medium | 2 | 4 | 3 | `goblin_scout`, `goblin_grunt`, `wild_boar` | 2 Tiny Cave clears |
-| `reg_goblin_camp` | Goblin Camp | 3 | High | 3 | 5 | 4 | `goblin_scout`, `goblin_grunt`, `goblin_brute` | 3 Dark Forest clears OR Explorer Guild L2 |
-| `reg_mystic_ruins` | Mystic Ruins | 3 | Low | 2 | 4 | 4 | `skeleton_warrior`, `ghost_wisp`, `water_spirit_minor` | Explorer Guild L2 OR 5 total clears |
-| `reg_frozen_peaks` | Frozen Peaks | 4 | Medium | 3 | 6 | 5 | `ice_elemental`, `young_drake`, `goblin_brute`, `frost_wolf`, `stone_golem` | Explorer Guild L3 OR 8 total clears |
-| `reg_whispering_forest` | Whispering Forest | 2 | Medium | 2 | 4 | 2 | `rabbit_horned`, `wolf_alpha`, `slime_earth`, `goblin_scout` | 5 Greenfields clears OR Explorer Guild L1 |
-| `reg_murky_swamp` | Murky Swamp | 3 | High | 3 | 5 | 3 | `zombie_rotter`, `slime_earth`, `murloc_shore`, `goblin_shaman` | 4 Dark Forest clears |
-| `reg_forgotten_ruins` | Forgotten Ruins | 4 | Low | 3 | 6 | 5 | `skeleton_warrior`, `ghost_wisp`, `cultist_acolyte`, `stone_golem`, `lich_apprentice` | 6 Mystic Ruins clears OR Explorer Guild L3 |
+| `reg_calmed_beach` | Calmed Beach | 1 | Low | 2 | 3 | 2 | `crab_shell`, `water_spirit_minor` | 6 Greenfields clears + 2 heroes |
+| `reg_whispering_forest` | Whispering Forest | 2 | Medium | 2 | 4 | 2 | `rabbit_horned`, `wolf_alpha`, `slime_earth`, `goblin_scout` | 10 Greenfields clears + 2 heroes |
+| `reg_dark_forest` | Dark Forest | 2 | Medium | 2 | 4 | 3 | `goblin_scout`, `goblin_grunt`, `wild_boar` | 4 Tiny Cave clears + 2 heroes |
+| `reg_murky_swamp` | Murky Swamp | 3 | High | 3 | 5 | 3 | `zombie_rotter`, `slime_earth`, `murloc_shore`, `goblin_shaman` | 8 Dark Forest clears + 3 heroes |
+| `reg_goblin_camp` | Goblin Camp | 3 | High | 3 | 5 | 4 | `goblin_scout`, `goblin_grunt`, `goblin_brute` | 6 Dark Forest clears + Explorer Guild L2 + 3 heroes |
+| `reg_mystic_ruins` | Mystic Ruins | 3 | Low | 2 | 4 | 4 | `skeleton_warrior`, `ghost_wisp`, `water_spirit_minor` | 12 total clears + Explorer Guild L2 + 4 heroes |
+| `reg_frozen_peaks` | Frozen Peaks | 4 | Medium | 3 | 6 | 5 | `ice_elemental`, `young_drake`, `goblin_brute`, `frost_wolf`, `stone_golem` | 15 total clears + Explorer Guild L3 + 4 heroes |
+| `reg_forgotten_ruins` | Forgotten Ruins | 4 | Low | 3 | 6 | 5 | `skeleton_warrior`, `ghost_wisp`, `cultist_acolyte`, `stone_golem`, `lich_apprentice` | 12 Mystic Ruins clears + Explorer Guild L3 + 5 heroes |
+| `reg_iron_peaks` | Iron Peaks | 3 | Medium | 3 | 6 | 5 | `orc_grunt`, `orc_shaman`, `rock_golem`, `harpy_scout` | 18 total clears + Explorer Guild L2 + 4 heroes |
+| `reg_ancient_library` | Ancient Library | 4 | Low | 4 | 7 | 6 | `cultist_acolyte`, `ghost_wisp`, `lich_apprentice`, `skeleton_archer` | 22 total clears + Explorer Guild L3 + 5 heroes |
 
 ## 4. Region Generation Patterns
 
@@ -85,6 +87,14 @@ The difficulty of newly generated expeditions is governed by the Region's `Clear
 - **Pattern**: Low branching, deep dungeon with boss finales.
 - **Enemies**: `skeleton_warrior`, `ghost_wisp`, `cultist_acolyte`, `stone_golem`, `lich_apprentice`.
 
+### `reg_iron_peaks` (The Orc Stronghold)
+- **Pattern**: Medium branching, orc war-party encounters with heavy tanks.
+- **Enemies**: `orc_grunt`, `orc_shaman`, `rock_golem`, `harpy_scout`, `mountain_troll`.
+
+### `reg_ancient_library` (The Golem Chambers)
+- **Pattern**: Low branching, undead guardians and arcane constructs.
+- **Enemies**: `cultist_acolyte`, `ghost_wisp`, `lich_apprentice`, `skeleton_archer`, `stone_golem`.
+
 ---
 
 ## 5. Planned Region Registry (Future)
@@ -94,11 +104,9 @@ The following regions are planned for future expansion but not yet implemented:
 | ID | Name | Tier | Theme |
 | :--- | :--- | :--- | :--- |
 | `reg_stony_foothills` | Stony Foothills | 2 | Stone, Iron |
-| `reg_iron_peaks` | Iron Peaks | 3 | Iron, Steel |
 | `reg_crystal_hollow` | Crystal Hollow | 3 | Magic Shards |
 | `reg_great_desert` | Great Desert | 4 | Gold, Rare Gems |
 | `reg_obsidian_crater` | Obsidian Crater | 4 | Steel, Obsidian |
-| `reg_ancient_library` | Ancient Library | 4 | Blueprints |
 | `reg_frostbite_tundra` | Frostbite Tundra | 5 | Fur, Mythril |
 | `reg_sky_fortress` | Sky Fortress | 5 | Unique Gear |
 | `reg_dragon_maw` | The Dragon's Maw | 5 | Dragon Scales |

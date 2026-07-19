@@ -6,9 +6,9 @@ import { waitForVisible, clickNav } from '../utils/nav.mjs'
 import { startNewGame } from '../utils/setup.mjs'
 import { selectors } from '../selectors/selectors.mjs'
 
-export async function run({ page, snap }) {
+export async function run({ page, snap, reset = true }) {
 
-  await startNewGame(page, selectors)
+  await startNewGame(page, selectors, reset)
 
   // Build arcane_sanctum so simulator button is visible
   await page.evaluate(() => {

@@ -97,11 +97,13 @@ export class AcademyService {
         }
 
         // Calculate duration
+        // speedMult is learning SPEED (arcane_sanctum bonus: +20/40/60%), so it
+        // divides the duration — higher sanctum level means faster teaching.
         const glyphTier = teacher.glyphMastery?.[glyphId]?.tier || 1;
         const baseDays = glyphTier * 2;
         const teacherBonus = Math.floor((teacher.magicPower || 0) / 10) * 0.3;
         const studentPenalty = Math.max(0, studentIds.length - 1) * 0.2;
-        const totalDays = Math.max(1, Math.round((baseDays + studentPenalty) / (1 + teacherBonus) * config.speedMult));
+        const totalDays = Math.max(1, Math.round((baseDays + studentPenalty) / (1 + teacherBonus) / config.speedMult));
 
         const session = {
             id: `session_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,

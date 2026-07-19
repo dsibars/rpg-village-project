@@ -191,8 +191,19 @@ function translateElement(element) {
 }
 
 .enemy-card.undiscovered {
-  opacity: 0.45;
-  filter: grayscale(0.8);
+  opacity: 0.55;
+}
+
+/* Unknown enemies read as dark silhouettes, not random emoji */
+.enemy-card.undiscovered .enemy-type-badge {
+  filter: grayscale(1) brightness(0.5) contrast(1.15);
+  opacity: 0.7;
+}
+
+.enemy-card.undiscovered .enemy-name,
+.enemy-card.undiscovered .enemy-stats {
+  filter: grayscale(1);
+  opacity: 0.75;
 }
 
 .enemy-card.discovered:hover {

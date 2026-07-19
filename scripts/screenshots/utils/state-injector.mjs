@@ -138,13 +138,17 @@ export async function setStorageFull(page, ratio = 0.95) {
 
 export async function refreshUI(page) {
   await page.evaluate(() => {
-    const e = window.__ENGINE__
-    if (e?.update) {
-      e.update()
+    if (typeof window.__REFRESH_UI__ === 'function') {
+      window.__REFRESH_UI__()
+    } else {
+      const e = window.__ENGINE__
+      if (e?.update) {
+        e.update()
+      }
     }
     return true
   })
 
-  // The game loop runs every 100 ms; give it time to pick up mutations.
-  await page.waitForTimeout(400)
+  // Allow Vue to process the reactive update.
+  await page.waitForTimeout(300)
 }

@@ -30,9 +30,9 @@ async function dismissAnyModal(page) {
   } catch { /* ignore */ }
 }
 
-export async function run({ page, snap }) {
+export async function run({ page, snap, reset = true }) {
 
-  await startNewGame(page, selectors)
+  await startNewGame(page, selectors, reset)
 
   // Pre-seed bestiary with some discovered enemies for "mixed" state
   await page.evaluate(() => {
@@ -98,4 +98,34 @@ export async function run({ page, snap }) {
   await clickSubNav(page, selectors.adventureChronicleTab)
   await waitForVisible(page, selectors.chronicleList, 2000)
   await snap({ flow: 'adventure', state: 'chronicle_milestones' })
+
+  // --- chronicle_to_book ---
+  // Unlock a Chronicle entry linked to the prologue Book section and click through
+  await page.evaluate(() => {
+    const e = window.__ENGINE__
+    if (e?.chronicleService && e?.bookService) {
+      const bookState = e.bookService.getState()
+      const pageSection = bookState.pageSections[0]
+      if (pageSection) {
+        const firstPage = pageSection.pages[0] || 1
+        const chapterNumber = e.bookService.getPage(firstPage)?.chapterNumber || 1
+        e.chronicleService.unlockEntry('chronicle_screenshot_test', e.villageService?.getState?.()?.day || 1, {
+          pageSectionId: pageSection.id,
+          pageNumber: firstPage,
+          chapterNumber
+        })
+        e.chronicleService.save()
+      }
+    }
+    if (typeof window.__REFRESH_UI__ === 'function') window.__REFRESH_UI__()
+  })
+  await page.waitForTimeout(500)
+  const chronicleRow = await page.$('.chronicle-tab .catalog-row:not(.catalog-locked)')
+  if (chronicleRow) {
+    await chronicleRow.click()
+    await page.waitForTimeout(800)
+    await waitForVisible(page, selectors.bookView, 3000)
+    await page.waitForTimeout(400)
+    await snap({ flow: 'adventure', state: 'chronicle_to_book' })
+  }
 }

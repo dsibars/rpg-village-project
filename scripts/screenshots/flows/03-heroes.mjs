@@ -25,9 +25,9 @@ async function dismissAnyModal(page) {
   } catch { /* ignore */ }
 }
 
-export async function run({ page, snap }) {
+export async function run({ page, snap, reset = true }) {
 
-  await startNewGame(page, selectors)
+  await startNewGame(page, selectors, reset)
   await clickNav(page, selectors.navHeroes)
   await waitForVisible(page, selectors.heroList, 3000)
 

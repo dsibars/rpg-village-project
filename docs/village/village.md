@@ -34,7 +34,7 @@ Villagers can be assigned specialized roles via the Village UI. Each role provid
 | :--- | :--- | :--- |
 | **Builder** | 🔨 | Standard construction labor. Synced with `population.builders`. |
 | **Farmer** | 🌾 | +10% food production per farmer (applied to farm output). |
-| **Miner** | ⛏️ | 20% chance per miner to gather 1 Wood or Stone per day. |
+| **Miner** | ⛏️ | 35% chance per miner to gather 1 Wood or Stone per day. |
 | **Scout** | 👁️ | Every 2 scouts reduces expedition stage count by 1 (min 1 stage). |
 
 ### Role Assignment Rules
@@ -48,7 +48,7 @@ Villagers can be assigned specialized roles via the Village UI. Each role provid
 - Advance day: 
   - Consumes food.
   - **Production Phase**: Farms generate food based on their level (+4 `food_raw_grain` per level), scaled by Farmer count.
-  - **Miner Phase**: Miners have a 20% chance each to produce 1 Wood or Stone.
+  - **Miner Phase**: Miners have a 35% chance each to produce 1 Wood or Stone.
   - Progresses construction.
   - **Recovery Phase**: All idle heroes recover a base **2 HP** per day. The `infirmary` building adds percentage-based healing on top of this base for a limited number of heroes, and increases the number of heroes that receive the bonus simultaneously.
 - **Over-capacity**: If `storage.current > storage.max`, you cannot gather new resources or buy items.

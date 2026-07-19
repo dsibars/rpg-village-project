@@ -1,6 +1,7 @@
 import { createApp, shallowRef, ref } from 'vue'
 import App from './App.vue'
 import { createEngineAdapter } from './adapters/EngineAdapter.js'
+import { stateVersion } from '../js/engine/shared/core/Persistence.js'
 import './core/theme.css'
 
 /**
@@ -36,28 +37,40 @@ export function createVueApp({ engine, persistence, saveSlotManager, container }
 
   app.mount(container)
 
-  // Expose engine for screenshot automation and debugging.
+  // Expose engine and a manual UI refresh helper for screenshot automation and debugging.
   // This is safe: it's only used by test/audit tooling and does not affect gameplay.
   if (typeof window !== 'undefined') {
     window.__ENGINE__ = engine
+    window.__REFRESH_UI__ = () => {
+      gameState.value = engine?.update() || {}
+    }
+    // Restore screenshot-automation flags that survive page reloads.
+    if (sessionStorage.getItem('__TUTORIAL_DISABLE_ENFORCE__') === '1') {
+      window.__TUTORIAL_DISABLE_ENFORCE__ = true
+    }
   }
 
-  // Throttled game loop: update reactive gameState at 10 FPS.
+  // Throttled game loop: sync reactive gameState at 10 FPS — but only when
+  // the engine actually mutated (stateVersion), avoiding 10 full-state
+  // serializations per second while idle. A 2s forced sync bounds the cost
+  // of any mutation path that might bypass the version bump.
   // Also handles combat auto-advance (enemy turns + auto-battle).
   let lastUpdate = 0
   let lastCombatAdvanceTime = null
+  let lastSyncedVersion = -1
+  let lastForceSync = 0
   const GAME_LOOP_INTERVAL = 100
   const COMBAT_ADVANCE_INTERVAL = 500
+  const FORCE_SYNC_INTERVAL = 2000
   let frameId = null
 
   function gameLoop(timestamp) {
     if (timestamp - lastUpdate >= GAME_LOOP_INTERVAL) {
-      const newState = engine?.update() || {}
-
       // Combat Auto-Advance: when it's an enemy turn or auto-battle is on,
-      // advance the battle every 500ms.
-      if (newState.activeBattle && !newState.activeBattle.isOver) {
-        const battle = newState.activeBattle
+      // advance the battle every 500ms. Each advanced turn logs events, which
+      // bumps stateVersion and triggers a resync below.
+      const battle = gameState.value?.activeBattle
+      if (battle && !battle.isOver) {
         const activeActor = battle.turnOrder?.[battle.currentTurnIndex]
         const isHeroTurn = activeActor && activeActor.type === 'Hero'
 
@@ -77,7 +90,14 @@ export function createVueApp({ engine, persistence, saveSlotManager, container }
         lastCombatAdvanceTime = null
       }
 
-      gameState.value = newState
+      // Resync only on mutation (or the safety-net interval)
+      const forceDue = timestamp - lastForceSync >= FORCE_SYNC_INTERVAL
+      if (stateVersion.value !== lastSyncedVersion || forceDue) {
+        gameState.value = engine?.update() || {}
+        lastSyncedVersion = stateVersion.value
+        lastForceSync = timestamp
+      }
+
       lastUpdate = timestamp
     }
     frameId = requestAnimationFrame(gameLoop)

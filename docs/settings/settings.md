@@ -25,7 +25,7 @@ The Settings section allows the user to configure global application preferences
 - **References**: See [Persistence.js](../../js/engine/shared/core/Persistence.js) and [Save Slots](../shared/core/save_slots.md).
 
 ## UI Requirements
-- **Page**: `pages/settings.html`
+- **Page**: `ux/features/settings/SettingsPage.vue`
 - **Navigation**: Accessible via the main navigation bar (persistent UI shell).
 - **Layout**:
   - **Preferences Group**: Language dropdown and any other visual settings.

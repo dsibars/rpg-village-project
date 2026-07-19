@@ -1,9 +1,10 @@
 /**
- * Stub region: Ancient Library
- * Not yet unlockable in-game. Reserved for future expansion.
+ * Region: Ancient Library
+ * Undead-haunted archives. Unlocks with 22 total clears + explorer_guild L3 + 5 heroes.
  */
 export const reg_ancient_library = {
     id: 'reg_ancient_library',
+    area: 'cave',
     name: 'Ancient Library',
     branching: 'low',
     minStages: 4,
@@ -26,6 +27,14 @@ export const reg_ancient_library = {
     },
     narrative: null,
     glyphDropTable: null,
+
+    unlockRequirements: {
+        all: [
+            { minTotalClears: 22 },
+            { minBuildingLevel: { building: 'explorer_guild', level: 3 } },
+            { minHeroes: 5 }
+        ]
+    },
 
     storyMissions: [
         {

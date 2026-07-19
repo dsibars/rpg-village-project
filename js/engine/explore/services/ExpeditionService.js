@@ -1,6 +1,7 @@
 import { persistence } from '../../shared/core/Persistence.js';
 import { Result } from '../../shared/core/Result.js';
 import { Enemy } from '../../shared/combat/models/Enemy.js';
+import { ENEMY_TEMPLATES } from '../../shared/data/EnemiesData.js';
 import { LootService } from './LootService.js';
 
 /**
@@ -135,7 +136,8 @@ export class ExpeditionService {
      * Public method for GameEngine to call to check region unlocks.
      */
     checkRegionUnlocks() {
-        this.regionService.checkRegionUnlocks(this.state.completedIds);
+        const heroCount = this.heroService.getHeroes ? this.heroService.getHeroes().length : 0;
+        this.regionService.checkRegionUnlocks(this.state.completedIds, heroCount);
     }
 
     /**
@@ -342,7 +344,8 @@ export class ExpeditionService {
             const enemies = normalizedEnemies.map(e => {
                 const enemyLevel = stage.enemyLevel || 1;
                 const statMultiplier = stage.statMultiplier || 1.1;
-                const enemy = this._createEnemy(e.id, stage.isBoss, enemyLevel, e.isElite || false, e.eliteTier || 0, statMultiplier);
+                const rData = this.regionService.getRegionData(exp.regionId);
+                const enemy = this._createEnemy(e.id, stage.isBoss, enemyLevel, e.isElite || false, e.eliteTier || 0, statMultiplier, rData.baseLevel || 1);
                 if (enemyCounts[e.id] > 1) {
                     enemyIndices[e.id] = (enemyIndices[e.id] || 0) + 1;
                     const suffix = String.fromCharCode(64 + enemyIndices[e.id]); // A, B, C...
@@ -366,8 +369,9 @@ export class ExpeditionService {
             // Track encountered enemies for bestiary
             normalizedEnemies.forEach(e => this._trackBestiary(e.id));
 
-            // Start battle (manual by default)
-            this.battleService.startBattle(heroes, enemies, false);
+            // Start battle (manual by default), with the region's area for the backdrop
+            const area = this.regionService.getRegionData(exp.regionId)?.area || null;
+            this.battleService.startBattle(heroes, enemies, false, area);
 
             activeExp.status = 'combat';
             activeExp.battleContext = {
@@ -377,7 +381,8 @@ export class ExpeditionService {
                 totalEnemyHp,
                 stageNum,
                 stageTotal,
-                expName: exp.name
+                expName: exp.name,
+                area
             };
             this.state.activeCombatExpeditionId = activeExp.id;
             
@@ -405,7 +410,7 @@ export class ExpeditionService {
         const heroes = this.heroService.list().filter(h => activeExp.heroIds.includes(h.id));
         const enemies = ctx.enemies.map(eData => new Enemy(eData));
         
-        this.battleService.startBattle(heroes, enemies, false);
+        this.battleService.startBattle(heroes, enemies, false, ctx.area || null);
         return {
             expId: activeExp.id,
             expName: ctx.expName,
@@ -560,6 +565,15 @@ export class ExpeditionService {
 
             const hpLost = (ctx.initialHp[h.id] !== undefined ? ctx.initialHp[h.id] : h.maxHp) - h.hp;
 
+            // --- Fatigue gain from battle ---
+            // Base 5 fatigue per battle, +2 per enemy, +10 for defeat
+            const enemyCount = enemies.length;
+            const isBossBattle = enemies.some(e => e.isBoss);
+            const fatigueGain = isVictory
+                ? 5 + (enemyCount * 2) + (isBossBattle ? 5 : 0)
+                : 15 + (enemyCount * 3);
+            h.addFatigue(fatigueGain);
+
             combatLog.summary.push({
                 heroId: h.id,
                 heroName: h.name,
@@ -675,7 +689,8 @@ export class ExpeditionService {
         this._resolveEffects(exp, heroes);
 
         // Check if any new regions should unlock
-        this.regionService.checkRegionUnlocks(this.state.completedIds);
+        const heroCount = this.heroService.getHeroes ? this.heroService.getHeroes().length : 0;
+        this.regionService.checkRegionUnlocks(this.state.completedIds, heroCount);
         
         // Save each involved service exactly once
         this.heroService.saveAll();
@@ -698,6 +713,20 @@ export class ExpeditionService {
                 this.villageService.addItemToInventory(id, qty);
                 drops.items[id] = qty;
             });
+        }
+
+        // Closure bonus (path sealed)
+        if (exp.reward.closureBonus) {
+            if (exp.reward.closureBonus.gold) {
+                this.villageService.addGold(exp.reward.closureBonus.gold);
+                drops.closureGold = exp.reward.closureBonus.gold;
+            }
+            if (exp.reward.closureBonus.items) {
+                Object.entries(exp.reward.closureBonus.items).forEach(([id, qty]) => {
+                    this.villageService.addItemToInventory(id, qty);
+                    drops.items[id] = (drops.items[id] || 0) + qty;
+                });
+            }
         }
 
         // Loot drop (equipment)
@@ -816,56 +845,31 @@ export class ExpeditionService {
     }
 
     getEnemyTemplates() {
-        return {
-            // Tier 1 (Forest & Meadows)
-            slime_green: { name: 'Green Slime', type: 'beast', maxHp: 20, strength: 3, defense: 2, speed: 2, element: 'neutral' },
-            slime_fire: { name: 'Fire Slime', type: 'beast', maxHp: 30, strength: 5, defense: 3, speed: 3, element: 'fire' },
-            slime_earth: { name: 'Earth Slime', type: 'beast', maxHp: 25, strength: 4, defense: 4, speed: 1, element: 'earth' },
-            wild_boar: { name: 'Wild Boar', type: 'beast', maxHp: 40, strength: 6, defense: 4, speed: 4, element: 'neutral' },
-            rabbit_horned: { name: 'Horned Rabbit', type: 'beast', maxHp: 15, strength: 3, defense: 1, speed: 5, element: 'neutral' },
-            goblin_scout: { name: 'Goblin Scout', type: 'humanoid', maxHp: 25, strength: 4, defense: 2, speed: 6, element: 'neutral' },
-            goblin_grunt: { name: 'Goblin Grunt', type: 'humanoid', maxHp: 35, strength: 5, defense: 4, speed: 2, element: 'neutral' },
-            // Tier 2 (Caves & Coast)
-            bat_small: { name: 'Small Bat', type: 'beast', maxHp: 22, strength: 4, defense: 2, speed: 7, element: 'neutral' },
-            spider_minor: { name: 'Minor Spider', type: 'beast', maxHp: 28, strength: 5, defense: 3, speed: 4, element: 'neutral' },
-            crab_shell: { name: 'Shell Crab', type: 'beast', maxHp: 35, strength: 5, defense: 5, speed: 2, element: 'neutral' },
-            water_spirit_minor: { name: 'Minor Water Spirit', type: 'elemental', maxHp: 25, strength: 4, defense: 2, speed: 5, element: 'water' },
-            murloc_shore: { name: 'Shore Murloc', type: 'humanoid', maxHp: 30, strength: 5, defense: 3, speed: 4, element: 'water' },
-            // Tier 3 (Forest & Camps)
-            goblin_brute: { name: 'Goblin Brute', type: 'humanoid', maxHp: 55, strength: 7, defense: 5, speed: 1, element: 'neutral' },
-            goblin_shaman: { name: 'Goblin Shaman', type: 'humanoid', maxHp: 40, strength: 5, defense: 3, speed: 5, element: 'storm' },
-            goblin_slinger: { name: 'Goblin Slinger', type: 'humanoid', maxHp: 28, strength: 5, defense: 2, speed: 5, element: 'neutral' },
-            skeleton_warrior: { name: 'Skeleton Warrior', type: 'undead', maxHp: 35, strength: 5, defense: 3, speed: 3, element: 'neutral' },
-            ghost_wisp: { name: 'Ghost Wisp', type: 'undead', maxHp: 20, strength: 3, defense: 1, speed: 8, element: 'wind' },
-            wolf_alpha: { name: 'Alpha Wolf', type: 'beast', maxHp: 50, strength: 7, defense: 4, speed: 5, element: 'neutral' },
-            zombie_rotter: { name: 'Rotting Zombie', type: 'undead', maxHp: 45, strength: 5, defense: 3, speed: 1, element: 'neutral' },
-            // Tier 4 (Ruins & Peaks)
-            ice_elemental: { name: 'Ice Elemental', type: 'elemental', maxHp: 45, strength: 6, defense: 5, speed: 2, element: 'water' },
-            young_drake: { name: 'Young Drake', type: 'dragon', maxHp: 70, strength: 8, defense: 6, speed: 4, element: 'fire' },
-            frost_wolf: { name: 'Frost Wolf', type: 'beast', maxHp: 55, strength: 8, defense: 5, speed: 6, element: 'water' },
-            cultist_acolyte: { name: 'Cultist Acolyte', type: 'humanoid', maxHp: 35, strength: 4, defense: 3, speed: 4, element: 'fire' },
-            stone_golem: { name: 'Stone Golem', type: 'elemental', maxHp: 90, strength: 9, defense: 10, speed: 1, element: 'earth' },
-            // Bosses
-            goblin_king: { name: 'Goblin King', type: 'humanoid', maxHp: 120, strength: 10, defense: 6, speed: 4, element: 'neutral', isBoss: true },
-            lich_apprentice: { name: 'Lich Apprentice', type: 'undead', maxHp: 180, strength: 25, defense: 8, speed: 5, element: 'storm', isBoss: true },
-            mountain_troll: { name: 'Mountain Troll', type: 'beast', maxHp: 400, strength: 30, defense: 15, speed: 2, element: 'neutral', isBoss: true }
-        };
+        // Shallow copy: preserves the previous fresh-object-per-call semantics
+        return { ...ENEMY_TEMPLATES };
     }
 
 
 
-    _createEnemy(templateId, isBoss, level = 1, isElite = false, eliteTier = 0, statMultiplier = 1.1) {
+    _createEnemy(templateId, isBoss, level = 1, isElite = false, eliteTier = 0, statMultiplier = 1.1, regionBaseLevel = 1) {
         const templates = this.getEnemyTemplates();
         const t = templates[templateId] || templates['slime_green'];
         
         // Apply level scaling: Base * statMultiplier^(level - 1)
         const levelMult = Math.pow(statMultiplier, level - 1);
+        
+        // Region-tier inherent bonuses (higher tier = stronger base stats)
+        const tierBonus = (regionBaseLevel - 1) * 2;
+        const tierHpBonus = tierBonus * 5;
+        const tierStrBonus = tierBonus;
+        const tierDefBonus = Math.floor(tierBonus / 2);
+        
         const scaled = {
             ...t,
             templateId: templateId || 'slime_green',
-            maxHp: Math.floor(t.maxHp * levelMult),
-            strength: Math.floor(t.strength * levelMult),
-            defense: Math.floor((t.defense || 1) * levelMult),
+            maxHp: Math.floor((t.maxHp * levelMult + tierHpBonus) * 1.5),
+            strength: Math.floor(t.strength * levelMult + tierStrBonus),
+            defense: Math.floor((t.defense || 1) * levelMult + tierDefBonus),
             speed: t.speed, // Speed stays flat to preserve turn-order feel
             level: level
         };

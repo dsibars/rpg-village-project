@@ -9,11 +9,23 @@ import test from 'node:test';
 import assert from 'node:assert';
 import { CombatCalculator } from '../../js/engine/shared/combat/core/CombatCalculator.js';
 
-// --- Damage Multiplier Tests ---
+// --- Damage Multiplier Tests (redesigned formula) ---
 
-test('CombatCalculator: damage multiplier R < 1', () => {
+// R < 0.5: 0.2
+// R >= 0.5 & R < 1: R * 0.5
+// R >= 1 & R < 2: 0.5 + (R-1)*0.5
+// R >= 2 & R < 5: 1.0 + (R-2)*0.33
+// R >= 5 & R < 10: 2.0 + (R-5)*0.2
+// R >= 10: 3.0
+
+test('CombatCalculator: damage multiplier R < 0.5', () => {
+    assert.strictEqual(CombatCalculator.calculateDamageMultiplier(1, 10), 0.2);  // R=0.1 → 0.2 (floor)
+    assert.strictEqual(CombatCalculator.calculateDamageMultiplier(2, 10), 0.2);  // R=0.2 → 0.2 (floor)
+});
+
+test('CombatCalculator: damage multiplier 0.5 <= R < 1', () => {
     assert.strictEqual(CombatCalculator.calculateDamageMultiplier(5, 10), 0.25); // R=0.5 → 0.5*0.5
-    assert.strictEqual(CombatCalculator.calculateDamageMultiplier(1, 10), 0.05); // R=0.1
+    assert.strictEqual(CombatCalculator.calculateDamageMultiplier(8, 10), 0.4); // R=0.8 → 0.8*0.5
 });
 
 test('CombatCalculator: damage multiplier R = 1', () => {
@@ -21,49 +33,50 @@ test('CombatCalculator: damage multiplier R = 1', () => {
 });
 
 test('CombatCalculator: damage multiplier 1 < R < 2', () => {
-    assert.strictEqual(CombatCalculator.calculateDamageMultiplier(15, 10), 0.625); // R=1.5 → 0.5+0.5*0.25
+    // R=1.5 → 0.5 + 0.5*0.5 = 0.75
+    assert.strictEqual(CombatCalculator.calculateDamageMultiplier(15, 10), 0.75);
+    // R=1.8 → 0.5 + 0.8*0.5 = 0.9
+    assert.strictEqual(CombatCalculator.calculateDamageMultiplier(18, 10), 0.9);
 });
 
 test('CombatCalculator: damage multiplier R = 2', () => {
-    assert.strictEqual(CombatCalculator.calculateDamageMultiplier(20, 10), 0.75);
+    assert.strictEqual(CombatCalculator.calculateDamageMultiplier(20, 10), 1.0);
 });
 
-test('CombatCalculator: damage multiplier 2 < R < 4', () => {
-    // R=3 → 0.75 + (3-2)*0.075 = 0.825
-    assert.ok(CombatCalculator.calculateDamageMultiplier(30, 10) > 0.82);
-    assert.ok(CombatCalculator.calculateDamageMultiplier(30, 10) < 0.83);
-});
-
-test('CombatCalculator: damage multiplier R = 4', () => {
-    assert.strictEqual(CombatCalculator.calculateDamageMultiplier(40, 10), 0.9);
-});
-
-test('CombatCalculator: damage multiplier 4 < R < 5', () => {
-    // R=4.5 → 0.9 + 0.5*0.1 = 0.95
-    const result = CombatCalculator.calculateDamageMultiplier(45, 10);
-    assert.ok(Math.abs(result - 0.95) < 0.0001);
+test('CombatCalculator: damage multiplier 2 < R < 5', () => {
+    // R=3 → 1.0 + (3-2)*0.33 = 1.33
+    const result = CombatCalculator.calculateDamageMultiplier(30, 10);
+    assert.ok(Math.abs(result - 1.33) < 0.001);
+    // R=4 → 1.0 + (4-2)*0.33 = 1.66
+    const result2 = CombatCalculator.calculateDamageMultiplier(40, 10);
+    assert.ok(Math.abs(result2 - 1.66) < 0.001);
 });
 
 test('CombatCalculator: damage multiplier R = 5', () => {
-    assert.strictEqual(CombatCalculator.calculateDamageMultiplier(50, 10), 1.0);
+    assert.strictEqual(CombatCalculator.calculateDamageMultiplier(50, 10), 2.0);
 });
 
 test('CombatCalculator: damage multiplier 5 < R < 10', () => {
-    assert.strictEqual(CombatCalculator.calculateDamageMultiplier(80, 10), 1.0); // R=8 still 1.0
+    // R=8 → 2.0 + (8-5)*0.2 = 2.6
+    const result = CombatCalculator.calculateDamageMultiplier(80, 10);
+    assert.ok(Math.abs(result - 2.6) < 0.001);
+    // R=6 → 2.0 + (6-5)*0.2 = 2.2
+    const result2 = CombatCalculator.calculateDamageMultiplier(60, 10);
+    assert.ok(Math.abs(result2 - 2.2) < 0.001);
 });
 
 test('CombatCalculator: damage multiplier R = 10', () => {
-    assert.strictEqual(CombatCalculator.calculateDamageMultiplier(100, 10), 1.0);
+    assert.strictEqual(CombatCalculator.calculateDamageMultiplier(100, 10), 3.0);
 });
 
 test('CombatCalculator: damage multiplier R > 10', () => {
-    assert.strictEqual(CombatCalculator.calculateDamageMultiplier(200, 10), 2.0); // R=20 → 20/10
+    assert.strictEqual(CombatCalculator.calculateDamageMultiplier(200, 10), 3.0); // capped at 3.0
 });
 
 test('CombatCalculator: damage multiplier with zero defense', () => {
     // Should treat defense as 1 to avoid division by zero
-    // 10/1 = 10, R=10 → 10/10 = 1.0
-    assert.strictEqual(CombatCalculator.calculateDamageMultiplier(10, 0), 1.0);
+    // 10/1 = 10, R=10 → 3.0
+    assert.strictEqual(CombatCalculator.calculateDamageMultiplier(10, 0), 3.0);
 });
 
 // --- Elemental Multiplier Tests ---

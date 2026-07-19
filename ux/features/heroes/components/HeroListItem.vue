@@ -1,6 +1,7 @@
 <template>
   <button
     class="hero-list-item"
+    :data-tutorial-target="'hero_card_' + hero.id"
     :class="{ active: selected }"
     :aria-selected="selected"
     role="option"
@@ -22,6 +23,14 @@
       </span>
       <span class="badge stamina-badge" :title="t('heroes_info_stamina') + ': ' + hero.stamina + '/' + hero.maxStamina">
         ⚡ {{ hero.stamina }}/{{ hero.maxStamina }}
+      </span>
+      <span
+        v-if="hero.fatigue > 0"
+        class="badge fatigue-badge"
+        :class="fatigueClass"
+        :title="t('heroes_info_fatigue') + ': ' + hero.fatigue + '/100'"
+      >
+        😴 {{ hero.fatigue }}
       </span>
       <span
         v-if="hasMealBuff"
@@ -57,6 +66,14 @@ const activityTitle = computed(() =>
 )
 const hasMealBuff = computed(() => (props.hero.mealBuffs || []).length > 0)
 const hasPoints = computed(() => (props.hero.statPoints || 0) > 0 || (props.hero.skillPoints || 0) > 0)
+
+const fatigueClass = computed(() => {
+  const f = props.hero.fatigue || 0
+  if (f > 90) return 'fatigue-spent'
+  if (f > 75) return 'fatigue-exhausted'
+  if (f > 50) return 'fatigue-tired'
+  return 'fatigue-fine'
+})
 
 const originKey = computed(() => {
   const origin = props.hero.origin || ''
@@ -185,5 +202,30 @@ const originDesc = computed(() => {
   background: rgba(245, 158, 11, 0.12);
   color: #f59e0b;
   font-weight: 500;
+}
+
+.fatigue-badge {
+  font-weight: 500;
+}
+
+.fatigue-fine {
+  background: rgba(34, 197, 94, 0.12);
+  color: #22c55e;
+}
+
+.fatigue-tired {
+  background: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
+}
+
+.fatigue-exhausted {
+  background: rgba(249, 115, 22, 0.12);
+  color: #f97316;
+}
+
+.fatigue-spent {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+  font-weight: 600;
 }
 </style>

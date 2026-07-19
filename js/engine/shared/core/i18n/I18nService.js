@@ -31,9 +31,9 @@ export class I18nService {
             text = key;
         }
 
-        // Simple param replacement: {name} -> params.name
+        // Simple param replacement: {name} -> params.name (all occurrences)
         Object.keys(params).forEach(p => {
-            text = text.replace(`{${p}}`, params[p]);
+            text = text.split(`{${p}}`).join(params[p]);
         });
 
         if (typeof text === 'string') {

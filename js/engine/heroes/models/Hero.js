@@ -90,6 +90,10 @@ export class Hero {
         this.phoenixUsed = data.phoenixUsed || false;
         this.mealBuffs = data.mealBuffs || [];
 
+        // --- Fatigue System ---
+        this.fatigue = data.fatigue || 0;
+        this.maxFatigue = 100;
+
         this.equipment = data.equipment || {
             head: null,
             body: null,
@@ -395,6 +399,11 @@ export class Hero {
         this.defense = Math.floor((this.baseDefense + defBoost + equipBonus.defense) * traitMults.defense);
         this.magicPower = Math.floor((this.baseMagicPower + equipBonus.magicPower) * traitMults.magicPower);
 
+        // magicPower increases the MP pool, provides MP regeneration, and improves magical resilience
+        const mpFromMagicPower = Math.floor(this.magicPower * 0.5);
+        this.maxMp += mpFromMagicPower;
+        this.magicDefense = Math.floor(this.magicPower * 0.5);
+
         // maxStamina depends on strength, defense, and level
         this.maxStamina = Math.floor((this.strength * 3) + (this.defense * 2) + (this.level * 2));
 
@@ -409,6 +418,25 @@ export class Hero {
         this.mp = Math.min(this.mp, this.maxMp);
         if (this.stamina !== undefined) {
             this.stamina = Math.min(this.stamina, this.maxStamina);
+        }
+
+        // --- Fatigue Penalty ---
+        // Fatigue 0-50: no penalty
+        // Fatigue 51-75: -5% strength, speed
+        // Fatigue 76-90: -10% strength, speed, defense
+        // Fatigue 91-100: -20% strength, speed, defense, -10% accuracy
+        if (this.fatigue > 90) {
+            this.strength = Math.floor(this.strength * 0.80);
+            this.speed = Math.floor(this.speed * 0.80);
+            this.defense = Math.floor(this.defense * 0.80);
+            this.accuracyBonus = (this.accuracyBonus || 0) - 10;
+        } else if (this.fatigue > 75) {
+            this.strength = Math.floor(this.strength * 0.90);
+            this.speed = Math.floor(this.speed * 0.90);
+            this.defense = Math.floor(this.defense * 0.90);
+        } else if (this.fatigue > 50) {
+            this.strength = Math.floor(this.strength * 0.95);
+            this.speed = Math.floor(this.speed * 0.95);
         }
     }
 
@@ -494,6 +522,38 @@ export class Hero {
             this.recalculateStats();
         }
         return changed;
+    }
+
+    /**
+     * Add fatigue after battle or expedition.
+     * @param {number} amount - fatigue points to add
+     */
+    addFatigue(amount) {
+        this.fatigue = Math.min(this.maxFatigue, Math.max(0, this.fatigue + amount));
+        this.recalculateStats();
+    }
+
+    /**
+     * Recover fatigue (resting at inn or village).
+     * @param {number} amount - fatigue points to recover
+     */
+    recoverFatigue(amount) {
+        const oldFatigue = this.fatigue;
+        this.fatigue = Math.max(0, this.fatigue - amount);
+        if (this.fatigue !== oldFatigue) {
+            this.recalculateStats();
+        }
+    }
+
+    /**
+     * Get fatigue level string for UI display.
+     */
+    getFatigueLevel() {
+        if (this.fatigue <= 20) return 'fresh';
+        if (this.fatigue <= 50) return 'fine';
+        if (this.fatigue <= 75) return 'tired';
+        if (this.fatigue <= 90) return 'exhausted';
+        return 'spent';
     }
 
     // --- Physical Skill System (Family-based) ---
@@ -727,6 +787,7 @@ export class Hero {
             speed: this.speed,
             defense: this.defense,
             magicPower: this.magicPower,
+            magicDefense: this.magicDefense,
             hp: this.hp,
             mp: this.mp,
             stamina: this.stamina,
@@ -756,6 +817,9 @@ export class Hero {
             equipment: JSON.parse(JSON.stringify(this.equipment)),
             activeSetBonuses: this.activeSetBonuses || [],
             mealBuffs: this.mealBuffs || [],
+            fatigue: this.fatigue,
+            maxFatigue: this.maxFatigue,
+            fatigueLevel: this.getFatigueLevel(),
             avatar: this.avatar,
             skillTierPoints: this.getSkillTierPoints(),
             isInscriptionEligible: this.getSkillTierPoints() >= 12 && (this.magicTier || 0) >= 7,

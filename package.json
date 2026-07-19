@@ -11,12 +11,17 @@
     "electron:run": "ELECTRON_RUN_AS_NODE= electron infrastructure/electron/main.js",
     "electron:package": "ELECTRON_RUN_AS_NODE= electron-forge package",
     "electron:make": "ELECTRON_RUN_AS_NODE= electron-forge make",
-    "test": "node --test tests/unit/*.test.js tests/behaviour/*.test.js",
+    "test": "node --test $(find tests/unit tests/behaviour -name '*.test.js')",
     "test:vue": "vitest run tests/vue/",
     "test:vue:watch": "vitest tests/vue/",
     "screenshots": "node scripts/screenshots/orchestrator.mjs",
+    "screenshots:playthrough": "node scripts/screenshots/orchestrator.mjs --playthrough",
     "screenshots:dry": "node scripts/screenshots/orchestrator.mjs --dry-run",
-    "screenshots:audit": "node scripts/screenshots/audit.mjs"
+    "screenshots:audit": "node scripts/screenshots/audit.mjs",
+    "combat:lab": "node scripts/combat-lab/runner.mjs",
+    "combat:lab:full": "node scripts/combat-lab/runner.mjs --full",
+    "combat:lab:calibrate": "node scripts/combat-lab/runner.mjs --calibrate --full",
+    "simulate:play": "node scripts/automated-playing-simulation/playgame.mjs"
   },
   "devDependencies": {
     "@electron-forge/cli": "^7.11.2",

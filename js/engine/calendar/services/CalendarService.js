@@ -1,5 +1,6 @@
 import { persistence } from '../../shared/core/Persistence.js';
 import { Result } from '../../shared/core/Result.js';
+import { ENEMY_TEMPLATES } from '../../shared/data/EnemiesData.js';
 
 const SEASONS = ['spring', 'summer', 'autumn', 'winter'];
 const SEASON_LENGTH = 30;
@@ -15,9 +16,10 @@ const SEASON_EFFECTS = {
 };
 
 export class CalendarService {
-    constructor(villageService, heroService, options = {}) {
+    constructor(villageService, heroService, regionService = null, options = {}) {
         this.villageService = villageService;
         this.heroService = heroService;
+        this.regionService = regionService;
         this.STORAGE_KEY = 'calendar_state';
         this.state = this._getDefaultState();
         if (!options.deferLoad) {
@@ -127,7 +129,7 @@ export class CalendarService {
     }
 
     _generateRaid(day) {
-        const totalClears = 0;
+        const totalClears = this.regionService?.getTotalClears?.() || 0;
         
         const raidLevel = Math.max(1, Math.floor(day / 10) + Math.floor(totalClears / 5));
         const enemyCount = Math.min(6, 2 + Math.floor(day / 20));
@@ -212,40 +214,7 @@ export class CalendarService {
         
         // Calculate raid power
         const levelMult = Math.pow(1.1, raid.level - 1);
-        const enemyTemplates = {
-            // Tier 1
-            slime_green: { maxHp: 20, strength: 3, defense: 2 },
-            slime_fire: { maxHp: 30, strength: 5, defense: 3 },
-            slime_earth: { maxHp: 25, strength: 4, defense: 4 },
-            wild_boar: { maxHp: 40, strength: 6, defense: 4 },
-            rabbit_horned: { maxHp: 15, strength: 3, defense: 1 },
-            goblin_scout: { maxHp: 25, strength: 4, defense: 2 },
-            goblin_grunt: { maxHp: 35, strength: 5, defense: 4 },
-            // Tier 2
-            bat_small: { maxHp: 22, strength: 4, defense: 2 },
-            spider_minor: { maxHp: 28, strength: 5, defense: 3 },
-            crab_shell: { maxHp: 35, strength: 5, defense: 5 },
-            water_spirit_minor: { maxHp: 25, strength: 4, defense: 2 },
-            murloc_shore: { maxHp: 30, strength: 5, defense: 3 },
-            // Tier 3
-            goblin_brute: { maxHp: 55, strength: 7, defense: 5 },
-            goblin_shaman: { maxHp: 40, strength: 5, defense: 3 },
-            goblin_slinger: { maxHp: 28, strength: 5, defense: 2 },
-            skeleton_warrior: { maxHp: 35, strength: 5, defense: 3 },
-            ghost_wisp: { maxHp: 20, strength: 3, defense: 1 },
-            wolf_alpha: { maxHp: 50, strength: 7, defense: 4 },
-            zombie_rotter: { maxHp: 45, strength: 5, defense: 3 },
-            // Tier 4
-            ice_elemental: { maxHp: 45, strength: 6, defense: 5 },
-            young_drake: { maxHp: 70, strength: 8, defense: 6 },
-            frost_wolf: { maxHp: 55, strength: 8, defense: 5 },
-            cultist_acolyte: { maxHp: 35, strength: 4, defense: 3 },
-            stone_golem: { maxHp: 90, strength: 9, defense: 10 },
-            // Bosses
-            goblin_king: { maxHp: 120, strength: 10, defense: 6 },
-            lich_apprentice: { maxHp: 180, strength: 25, defense: 8 },
-            mountain_troll: { maxHp: 400, strength: 30, defense: 15 }
-        };
+        const enemyTemplates = ENEMY_TEMPLATES;
         
         let raidPower = 0;
         raid.enemies.forEach(eId => {

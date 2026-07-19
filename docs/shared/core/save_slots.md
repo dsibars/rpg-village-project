@@ -127,6 +127,8 @@ The summary prioritizes **progression depth** (day, hero count, highest level) o
 - Daily objectives state
 - Academy designs and sessions
 - Unlock state (narratives shown, codex features)
+- Book state (chapters, pages, page sections, last read spread)
+- Chronicle state (catalog of entries, milestones)
 
 ### Global Data (shared across all slots)
 - Language preference

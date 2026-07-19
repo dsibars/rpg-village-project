@@ -89,7 +89,7 @@ state.unlockedNarratives = [
 - Reset on new game (empty array).
 - Never mutated directly by the UI layer.
 
-### Daily Report Shape
+### Post-Day Result Shape
 
 The engine's `nextDay()` return object includes:
 
@@ -101,7 +101,7 @@ The engine's `nextDay()` return object includes:
 }
 ```
 
-The UI reads these arrays and renders accordingly. The UI does NOT compute what is new.
+The UI reads these arrays and renders accordingly. The UI does NOT compute what is new. Narrative toasts are shown by the post-day sequencer; afterwards, if dramatic Book content was added, the Book auto-opens.
 
 ---
 
@@ -150,7 +150,7 @@ markAsShown(state, id)
 
 Narrative checks run at the following engine lifecycle points:
 
-1. **`GameEngine.nextDay()`** — after all day-resolution logic completes (expeditions, village, calendar, etc.), call `UnlockService.checkAllUnlocks()` and append results to the daily report.
+1. **`GameEngine.nextDay()`** — after all day-resolution logic completes (expeditions, village, calendar, etc.), call `UnlockService.checkAllUnlocks()` and append results to the post-day result.
 2. **Expedition completion** — inside `ExpeditionService._resolveCompletedExpedition()`, after state is updated and saved, call `UnlockService.checkAllUnlocks()`.
 
 ### Integration Order in `nextDay()`
@@ -166,8 +166,8 @@ Narrative checks run at the following engine lifecycle points:
 8. Tavern auto-recruit
 9. Calendar & defense events
 10. >>> UnlockService.checkAllUnlocks() <<<
-11. Build daily report (include newNarratives, newCodexFeatures)
-12. Return daily report
+11. Build post-day result (include newNarratives, newCodexFeatures)
+12. Return post-day result
 ```
 
 ---

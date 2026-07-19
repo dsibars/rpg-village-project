@@ -50,7 +50,7 @@ test('RegionService: greenfields loot drops configured materials', () => {
     const node = regionService.generateExpedition('reg_greenfields', 0);
     const items = node.reward.items;
     assert.ok(items.material_wood, 'Should drop wood');
-    assert.ok(items.material_wood >= 5 && items.material_wood <= 10, 'Wood qty in configured range');
+    assert.ok(items.material_wood >= 8 && items.material_wood <= 15, 'Wood qty in configured range');
 });
 
 test('RegionService: tiny_cave loot drops stone and ore', () => {
@@ -63,12 +63,12 @@ test('RegionService: tiny_cave loot drops stone and ore', () => {
 test('RegionService: loot respects goldBase and goldPerClear', () => {
     const { regionService } = createServices();
     const node1 = regionService.generateExpedition('reg_greenfields', 0);
-    // greenfields: goldBase=40, goldPerClear=8, baseLevel=1 -> baseGold=40, ±20% -> 32-48
-    assert.ok(node1.reward.gold >= 32 && node1.reward.gold <= 48, `Gold ${node1.reward.gold} in expected range`);
+    // greenfields: goldBase=60, goldPerClear=12, baseLevel=1 -> baseGold=60, ±20% -> 48-72
+    assert.ok(node1.reward.gold >= 48 && node1.reward.gold <= 72, `Gold ${node1.reward.gold} in expected range`);
 
     const node10 = regionService.generateExpedition('reg_greenfields', 10);
-    // baseGold = 40 + 10*8 = 120, ±20% -> 96-144
-    assert.ok(node10.reward.gold >= 96 && node10.reward.gold <= 144, `Gold ${node10.reward.gold} in expected range for clears=10`);
+    // baseGold = 60 + 10*12 = 180, ±20% -> 144-216
+    assert.ok(node10.reward.gold >= 144 && node10.reward.gold <= 216, `Gold ${node10.reward.gold} in expected range for clears=10`);
 });
 
 // --- Scaling Tests ---
@@ -151,7 +151,7 @@ test('RegionValidator: passes valid region', async () => {
     const { RegionValidator } = await import('../../js/engine/explore/services/RegionValidator.js');
     const result = RegionValidator.validate({
         id: 'reg_test', name: 'Test', branching: 'low',
-        minStages: 1, maxStages: 2, enemies: ['a'], baseLevel: 1,
+        minStages: 1, maxStages: 2, enemies: ['slime_green'], baseLevel: 1,
         bossPool: [], scaling: { levelPerClears: 3, statMultiplier: 1.1, maxLevelCap: null },
         lootProfile: { materials: [], goldBase: 40, goldPerClear: 8 }
     });
@@ -162,7 +162,7 @@ test('RegionValidator: fails missing scaling', async () => {
     const { RegionValidator } = await import('../../js/engine/explore/services/RegionValidator.js');
     const result = RegionValidator.validate({
         id: 'reg_test', name: 'Test', branching: 'low',
-        minStages: 1, maxStages: 2, enemies: ['a'], baseLevel: 1,
+        minStages: 1, maxStages: 2, enemies: ['slime_green'], baseLevel: 1,
         bossPool: [], lootProfile: { materials: [], goldBase: 40, goldPerClear: 8 }
     });
     assert.strictEqual(result.valid, false);
@@ -173,7 +173,7 @@ test('RegionValidator: fails missing lootProfile', async () => {
     const { RegionValidator } = await import('../../js/engine/explore/services/RegionValidator.js');
     const result = RegionValidator.validate({
         id: 'reg_test', name: 'Test', branching: 'low',
-        minStages: 1, maxStages: 2, enemies: ['a'], baseLevel: 1,
+        minStages: 1, maxStages: 2, enemies: ['slime_green'], baseLevel: 1,
         bossPool: [], scaling: { levelPerClears: 3, statMultiplier: 1.1, maxLevelCap: null }
     });
     assert.strictEqual(result.valid, false);
@@ -184,11 +184,60 @@ test('RegionValidator: warns on unknown field', async () => {
     const { RegionValidator } = await import('../../js/engine/explore/services/RegionValidator.js');
     const result = RegionValidator.validate({
         id: 'reg_test', name: 'Test', branching: 'low',
-        minStages: 1, maxStages: 2, enemies: ['a'], baseLevel: 1,
+        minStages: 1, maxStages: 2, enemies: ['slime_green'], baseLevel: 1,
         bossPool: [], scaling: { levelPerClears: 3, statMultiplier: 1.1, maxLevelCap: null },
         lootProfile: { materials: [], goldBase: 40, goldPerClear: 8 },
         unknownFutureField: true
     });
     assert.strictEqual(result.valid, true);
     assert.ok(result.warnings.some(w => w.includes('unknownFutureField')));
+});
+
+test('RegionValidator: fails on unknown enemy template in enemies', async () => {
+    const { RegionValidator } = await import('../../js/engine/explore/services/RegionValidator.js');
+    const result = RegionValidator.validate({
+        id: 'reg_test', name: 'Test', branching: 'low',
+        minStages: 1, maxStages: 2, enemies: ['slime_green', 'orc_nonexistent'], baseLevel: 1,
+        bossPool: [], scaling: { levelPerClears: 3, statMultiplier: 1.1, maxLevelCap: null },
+        lootProfile: { materials: [], goldBase: 40, goldPerClear: 8 }
+    });
+    assert.strictEqual(result.valid, false);
+    assert.ok(result.errors.some(e => e.includes("orc_nonexistent") && e.includes('enemies')));
+});
+
+test('RegionValidator: fails on unknown enemy template in bossPool', async () => {
+    const { RegionValidator } = await import('../../js/engine/explore/services/RegionValidator.js');
+    const result = RegionValidator.validate({
+        id: 'reg_test', name: 'Test', branching: 'low',
+        minStages: 1, maxStages: 2, enemies: ['slime_green'], baseLevel: 1,
+        bossPool: ['dragon_nonexistent'], scaling: { levelPerClears: 3, statMultiplier: 1.1, maxLevelCap: null },
+        lootProfile: { materials: [], goldBase: 40, goldPerClear: 8 }
+    });
+    assert.strictEqual(result.valid, false);
+    assert.ok(result.errors.some(e => e.includes('dragon_nonexistent') && e.includes('bossPool')));
+});
+
+test('RegionValidator: fails on unknown enemy template in story mission stage', async () => {
+    const { RegionValidator } = await import('../../js/engine/explore/services/RegionValidator.js');
+    const result = RegionValidator.validate({
+        id: 'reg_test', name: 'Test', branching: 'low',
+        minStages: 1, maxStages: 2, enemies: ['slime_green'], baseLevel: 1,
+        bossPool: [], scaling: { levelPerClears: 3, statMultiplier: 1.1, maxLevelCap: null },
+        lootProfile: { materials: [], goldBase: 40, goldPerClear: 8 },
+        storyMissions: [{
+            id: 'exp_test', name: 'Test Mission', regionId: 'reg_test',
+            stages: [{ type: 'battle', enemies: ['slime_green', 'ghost_nonexistent'] }]
+        }]
+    });
+    assert.strictEqual(result.valid, false);
+    assert.ok(result.errors.some(e => e.includes('ghost_nonexistent') && e.includes('exp_test')));
+});
+
+test('Region registry: all registered regions reference known enemy templates', async () => {
+    const { REGION_REGISTRY } = await import('../../js/engine/explore/data/regions/index.js');
+    const { RegionValidator } = await import('../../js/engine/explore/services/RegionValidator.js');
+    for (const [id, region] of Object.entries(REGION_REGISTRY)) {
+        const result = RegionValidator.validate(region);
+        assert.strictEqual(result.valid, true, `${id} has validation errors: ${result.errors.join('; ')}`);
+    }
 });

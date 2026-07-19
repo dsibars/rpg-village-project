@@ -78,3 +78,21 @@ test('AcademyService: copy design to hero starts a 2-day session', () => {
     assert.ok(hero.glyphMastery['glyph_potentiate']);
     assert.strictEqual(hero.activity, 'idle');
 });
+
+test('AcademyService: higher sanctum level speeds up teaching (speedMult divides days)', () => {
+    const service = createService();
+    const teacher = service.heroService.add({ name: 'Teacher', origin: 'origin_arcane_initiate', level: 1, statPoints: 5, knownGlyphs: ['glyph_fire'] }).data;
+    const student = service.heroService.add({ name: 'Student', origin: 'origin_warrior', level: 1, statPoints: 5, knownGlyphs: [] }).data;
+
+    // Level 1 sanctum (speedMult 1.0): baseDays = tier 1 × 2 = 2 days
+    const r1 = service.enrollSession(teacher.id, 'glyph_fire', [student.id]);
+    assert.strictEqual(r1.success, true);
+    assert.strictEqual(service.sessions[0].totalDays, 2);
+
+    // Level 4 sanctum (speedMult 1.6): round(2 / 1.6) = 1 day
+    service.sessions = [];
+    service.villageService.state.infrastructure.arcane_sanctum = 4;
+    const r2 = service.enrollSession(teacher.id, 'glyph_fire', [student.id]);
+    assert.strictEqual(r2.success, true);
+    assert.strictEqual(service.sessions[0].totalDays, 1);
+});

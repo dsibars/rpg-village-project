@@ -1,11 +1,16 @@
 /**
  * RegionValidator — Validates region data objects on module load.
  * Unknown fields warn (catches typos). Missing required fields error.
+ * Enemy references (enemies, bossPool, story mission stages) are checked
+ * against ENEMY_TEMPLATES so unknown IDs fail loudly instead of silently
+ * falling back to slime stats at battle time.
  */
+import { ENEMY_TEMPLATES } from '../../shared/data/EnemiesData.js';
+
 export class RegionValidator {
     static REQUIRED_FIELDS = ['id', 'name', 'branching', 'minStages', 'maxStages', 'enemies', 'baseLevel', 'bossPool', 'scaling', 'lootProfile'];
     static KNOWN_FIELDS = new Set([
-        'id', 'name', 'branching', 'minStages', 'maxStages', 'enemies', 'baseLevel',
+        'id', 'name', 'area', 'branching', 'minStages', 'maxStages', 'enemies', 'baseLevel',
         'bossPool', 'unlockRequirements', 'storyMissions',
         'scaling', 'lootProfile', 'narrative', 'glyphDropTable', 'glyphDropChance'
     ]);
@@ -61,6 +66,25 @@ export class RegionValidator {
             }
         }
 
+        this._validateEnemyRefs(region, errors);
+
         return { valid: errors.length === 0, errors, warnings };
+    }
+
+    static _validateEnemyRefs(region, errors) {
+        const check = (id, context) => {
+            if (!ENEMY_TEMPLATES[id]) {
+                errors.push(`Unknown enemy template '${id}' in ${context}`);
+            }
+        };
+
+        (region.enemies || []).forEach(id => check(id, 'enemies'));
+        (region.bossPool || []).forEach(id => check(id, 'bossPool'));
+
+        (region.storyMissions || []).forEach(mission => {
+            (mission.stages || []).forEach((stage, i) => {
+                (stage.enemies || []).forEach(id => check(id, `storyMissions.${mission.id}.stages[${i}]`));
+            });
+        });
     }
 }

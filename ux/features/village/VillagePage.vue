@@ -1,5 +1,5 @@
 <template>
-  <div class="village-page">
+  <div class="village-page" :class="'season-' + currentSeason">
     <!-- Error Boundary Banner -->
     <div v-if="pageError" class="page-error-banner" role="alert">
       <p>{{ pageError }}</p>
@@ -125,6 +125,9 @@ const dailyObjectives = computed(() => gameState.value.dailyObjectives || null)
 const dailyReport = computed(() => gameState.value.village?.lastDailyReport || null)
 const hasDailyReport = computed(() => !!dailyReport.value && !!dailyReport.value.day)
 const calendar = computed(() => gameState.value.calendar || null)
+
+// Season from the calendar DTO drives a subtle ambient tint on the dashboard
+const currentSeason = computed(() => calendar.value?.season || 'spring')
 const inventory = computed(() => gameState.value.inventory || {})
 
 const townhallLevel = computed(() => infrastructure.value.townhall || 1)
@@ -171,7 +174,7 @@ function unassignDefense(heroId) {
 }
 
 function navigateToBuildings(buildingId) {
-  emit('navigate', { page: 'town', tab: 'buildings' })
+  emit('navigate', { page: 'town', tab: 'buildings', buildingId })
 }
 </script>
 
@@ -184,6 +187,22 @@ function navigateToBuildings(buildingId) {
   padding: var(--spacing-md);
   gap: var(--spacing-md);
   color: var(--text-primary);
+  transition: background 1s ease;
+}
+
+/* Seasonal ambience — a soft hue wash so the current season is felt
+   at a glance, not just read in the calendar widget */
+.village-page.season-spring {
+  background: linear-gradient(160deg, rgba(74, 222, 128, 0.10), rgba(74, 222, 128, 0.02) 45%, transparent 75%);
+}
+.village-page.season-summer {
+  background: linear-gradient(160deg, rgba(251, 191, 36, 0.12), rgba(251, 191, 36, 0.03) 45%, transparent 75%);
+}
+.village-page.season-autumn {
+  background: linear-gradient(160deg, rgba(217, 119, 6, 0.13), rgba(217, 119, 6, 0.03) 45%, transparent 75%);
+}
+.village-page.season-winter {
+  background: linear-gradient(160deg, rgba(147, 197, 253, 0.13), rgba(147, 197, 253, 0.03) 45%, transparent 75%);
 }
 
 .page-error-banner {

@@ -36,6 +36,7 @@
             v-for="[regionId, regionData] in regionEntries"
             :key="regionId"
             class="region-list-item"
+            :data-tutorial-target="'region_card_' + regionId"
             :class="{ selected: selectedRegion === regionId }"
             @click="selectRegion(regionId)"
           >
@@ -87,6 +88,7 @@
                   v-for="node in levelNodes"
                   :key="node.id"
                   :data-id="node.id"
+                  :data-tutorial-target="'expedition_node_' + node.id"
                   class="tree-node"
                   :class="[nodeStateClass(node), { selected: selectedExp?.id === node.id }]"
                   :title="nodeTooltip(node)"
@@ -232,6 +234,8 @@ const { gameState, heroes } = useGameState()
 const { dispatch } = useAdapter()
 const engine = inject('engine')
 
+const emit = defineEmits(['tutorial:event'])
+
 const viewMode = ref(localStorage.getItem('explore_view_mode') || 'tree')
 const selectedRegion = ref(null)
 const selectedExp = ref(null)
@@ -251,16 +255,9 @@ watch(viewMode, (mode) => {
   localStorage.setItem('explore_view_mode', mode)
 })
 
-// Auto-select first region
-watch(() => gameState.value.expeditionRegions, (regs) => {
-  console.log('watch expeditionRegions fired, regions:', Object.keys(regs || {}))
-  if (!selectedRegion.value && regs) {
-    const entries = getRegions(regs)
-    if (entries.length > 0) {
-      selectedRegion.value = entries[0][0]
-    }
-  }
-}, { immediate: true })
+// Note: we no longer auto-select the first region on load. The player must
+// explicitly click a region, which lets the Day 1 tutorial's "select region"
+// step receive the region_selected event reliably.
 
 
 
@@ -275,6 +272,7 @@ function getRegions(regs) {
 }
 
 const regionEntries = computed(() => {
+  const day = gameState.value.village?.day || 0
   return getRegions(gameState.value.expeditionRegions)
 })
 
@@ -284,11 +282,16 @@ const selectedRegionData = computed(() => {
   return entry ? entry[1] : null
 })
 
-const activeExpeditions = computed(() => gameState.value.activeExpeditions || [])
+const activeExpeditions = computed(() => {
+  const day = gameState.value.village?.day || 0
+  return gameState.value.activeExpeditions || []
+})
 const maxConcurrent = computed(() => gameState.value.maxConcurrentExpeditions || 1)
 const isAtMaxExpeditions = computed(() => activeExpeditions.value.length >= maxConcurrent.value)
 
 const allNodes = computed(() => {
+  // Force re-evaluation when day changes (shallowRef doesn't detect deep mutations)
+  const day = gameState.value.village?.day || 0
   const regions = gameState.value.expeditionRegions
   if (!regions || !selectedRegion.value) return []
   const regionData = regions[selectedRegion.value]
@@ -318,6 +321,7 @@ function selectRegion(regionId) {
   selectedRegion.value = regionId
   selectedExp.value = null
   selectedHeroIds.value = []
+  emit('tutorial:event', { event: 'region_selected', regionId })
 }
 
 // Tree computation
@@ -437,7 +441,10 @@ function selectExpedition(exp) {
 
 function startExpedition({ expId, heroIds }) {
   showDetailModal.value = false
-  dispatch('explore', 'assignExpedition', { expId, heroIds })
+  const result = dispatch('explore', 'assignExpedition', { expId, heroIds })
+  if (result?.success) {
+    emit('tutorial:event', { event: 'expedition_started', nodeId: expId })
+  }
   selectedHeroIds.value = []
 }
 

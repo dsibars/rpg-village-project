@@ -1,5 +1,5 @@
 <template>
-  <div class="stats-grid">
+  <div class="stats-grid" data-tutorial-target="hero_stats_grid">
     <div
       v-for="stat in stats"
       :key="stat.id"
@@ -15,6 +15,7 @@
         <button
           v-if="canAllocate && stat.key"
           class="btn-assign-stat"
+          :data-tutorial-target="'hero_stat_assign_' + stat.key"
           :aria-label="`${t('heroes_uxelm_skill_learn')} ${stat.label}`"
           @click="$emit('allocate', stat.key)"
         >
@@ -115,14 +116,14 @@ const stats = computed(() => {
 }
 
 .btn-assign-stat {
-  width: 28px;
-  height: 28px;
+  width: 38px;
+  height: 38px;
   border-radius: var(--radius-sm);
   border: none;
   background: var(--color-primary);
   color: white;
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 1.15rem;
   cursor: pointer;
   transition: background 0.15s ease;
   display: flex;

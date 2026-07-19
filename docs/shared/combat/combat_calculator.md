@@ -7,7 +7,7 @@
 `js/engine/shared/combat/core/CombatCalculator.js`
 
 ## Damage Multiplier Formula
-Damage uses the ratio `R = Attack / Defense` (defense is clamped to minimum 1):
+Physical damage uses the ratio `R = Attack / Defense` (defense is clamped to minimum 1). Spell damage uses `magicDefense` instead of `defense`:
 
 | R Range | Multiplier |
 |---------|-----------|
@@ -19,7 +19,7 @@ Damage uses the ratio `R = Attack / Defense` (defense is clamped to minimum 1):
 | R < 1 | R × 0.5 |
 
 ## Elemental Efficiency
-Magic attacks have elements. The rock-paper-scissors chain is:
+Spells and magic attacks have elements. The rock-paper-scissors chain is:
 **Fire → Wind → Storm → Water → Fire**
 
 | Relationship | Multiplier |
@@ -62,5 +62,6 @@ Returns an object: `{ amount, evasionChance, isMiss, elementMult, isCrit }`
 - `evasionChance = 0`, `isMiss = false`.
 
 ## Party Trait Integration
-- `magicPowerBoost`: Scales `baseStatValue` for magicPower skills.
+- `magicPowerBoost`: Scales `baseStatValue` for magicPower skills (currently used by physical/magic hybrid skills, not by Magic Circle spells).
+- `magicDefense`: Derived from `magicPower`; reduces incoming spell damage.
 - `physicalDamageReduction`: Reduces final damage for physical skills.

@@ -18,6 +18,7 @@ export class Enemy {
         this.speed = data.speed || 1;
         this.defense = data.defense || 1;
         this.magicPower = data.magicPower || 1;
+        this.magicDefense = Math.floor((data.magicDefense || data.magicPower || 1) * 1.0);
         this.element = data.element || 'neutral';
 
         this.skills = data.skills || { basic_attack: 0 };
@@ -43,6 +44,7 @@ export class Enemy {
             speed: this.speed,
             defense: this.defense,
             magicPower: this.magicPower,
+            magicDefense: this.magicDefense,
             element: this.element,
             skills: this.skills,
             isBoss: this.isBoss,

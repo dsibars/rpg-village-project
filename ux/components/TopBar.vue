@@ -6,7 +6,7 @@
     </div>
 
     <div class="top-bar-center">
-      <button class="btn-next-day" @click="$emit('nextDay')">
+      <button class="btn-next-day" data-tutorial-target="day_advance_button" @click="$emit('nextDay')">
         ☀️ {{ t('shared_uxelm_next_day') }}
       </button>
       <button
@@ -26,15 +26,38 @@
     <div class="top-bar-right">
       <div class="stat-group" :title="t('village_uxelm_tooltip_gold')">
         <span class="stat-icon stat-gold">💰</span>
-        <span class="stat-value">{{ gold }}</span>
+        <span class="stat-stack">
+          <span class="stat-value">{{ gold }}</span>
+          <span class="stat-caption">{{ t('topbar_label_gold') }}</span>
+        </span>
       </div>
       <div class="stat-group" :title="t('village_uxelm_tooltip_population')">
         <span class="stat-icon stat-pop">👥</span>
-        <span class="stat-value">{{ populationDisplay }} / {{ maxPopulationDisplay }}</span>
+        <span class="stat-stack">
+          <span class="stat-value">{{ populationDisplay }} / {{ maxPopulationDisplay }}</span>
+          <span class="stat-caption">{{ t('topbar_label_population') }}</span>
+        </span>
       </div>
       <div class="stat-group" :title="t('village_uxelm_tooltip_wood')">
         <span class="stat-icon stat-wood">🪵</span>
-        <span class="stat-value">{{ wood }}</span>
+        <span class="stat-stack">
+          <span class="stat-value">{{ wood }}</span>
+          <span class="stat-caption">{{ t('topbar_label_wood') }}</span>
+        </span>
+      </div>
+      <div class="stat-group" :title="t('village_uxelm_tooltip_stone')">
+        <span class="stat-icon stat-stone">🪨</span>
+        <span class="stat-stack">
+          <span class="stat-value">{{ stone }}</span>
+          <span class="stat-caption">{{ t('topbar_label_stone') }}</span>
+        </span>
+      </div>
+      <div v-if="iron > 0" class="stat-group" :title="t('village_uxelm_tooltip_iron')">
+        <span class="stat-icon stat-iron">⚙️</span>
+        <span class="stat-stack">
+          <span class="stat-value">{{ iron }}</span>
+          <span class="stat-caption">{{ t('topbar_label_iron') }}</span>
+        </span>
       </div>
       <div
         v-if="storageMax > 0"
@@ -53,6 +76,13 @@
           <span class="storage-mini-text">{{ storageUsed }} / {{ storageMax }}</span>
         </div>
       </div>
+      <button
+        class="btn-quick btn-text"
+        :class="{ 'btn-glow': hasBookGlow }"
+        @click="$emit('navigate', { page: 'book' })"
+      >
+        📖 {{ t('book_uxelm_title') }}
+      </button>
       <button class="btn-quick" :title="t('shared_uxelm_nav_settings')" @click="$emit('openSettings')">
         ⚙️
       </button>
@@ -70,8 +100,11 @@ const props = defineProps({
   population: { type: [Number, Object], default: 0 },
   maxPopulation: { type: Number, default: 0 },
   wood: { type: Number, default: 0 },
+  stone: { type: Number, default: 0 },
+  iron: { type: Number, default: 0 },
   storageUsed: { type: Number, default: 0 },
-  storageMax: { type: Number, default: 0 }
+  storageMax: { type: Number, default: 0 },
+  hasBookGlow: { type: Boolean, default: false }
 })
 
 defineEmits(['nextDay', 'openSettings', 'navigate'])
@@ -170,6 +203,14 @@ const storagePercent = computed(() => {
   filter: drop-shadow(0 0 2px rgba(120, 53, 15, 0.4));
 }
 
+.stat-stone {
+  filter: drop-shadow(0 0 2px rgba(100, 100, 100, 0.4));
+}
+
+.stat-iron {
+  filter: drop-shadow(0 0 2px rgba(160, 160, 180, 0.4));
+}
+
 .stat-pop {
   filter: drop-shadow(0 0 2px rgba(34, 197, 94, 0.3));
 }
@@ -180,23 +221,40 @@ const storagePercent = computed(() => {
   font-size: 0.95rem;
 }
 
+/* Icon + value with a tiny caption underneath so each resource is
+   self-explanatory without needing the tooltip */
+.stat-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  line-height: 1.05;
+}
+
+.stat-caption {
+  font-size: 0.52rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-muted);
+}
+
 /* Storage mini indicator */
 .storage-group {
   gap: var(--spacing-xs);
-  min-width: 80px;
+  min-width: 140px;
 }
 
 .storage-mini {
   display: flex;
   flex-direction: column;
-  gap: 1px;
-  min-width: 60px;
+  gap: 2px;
+  min-width: 100px;
 }
 
 .storage-mini-track {
-  height: 4px;
+  height: 6px;
   background: rgba(255, 255, 255, 0.1);
-  border-radius: 2px;
+  border-radius: 3px;
   overflow: hidden;
 }
 
@@ -290,6 +348,17 @@ const storagePercent = computed(() => {
 .btn-next-day:focus-visible {
   outline: 2px solid var(--accent-color);
   outline-offset: 2px;
+}
+
+.btn-glow {
+  animation: glow-pulse 1.5s ease-in-out infinite alternate;
+  border-color: var(--color-primary-light);
+  color: var(--color-primary-light);
+}
+
+@keyframes glow-pulse {
+  0% { box-shadow: 0 0 4px rgba(245, 158, 11, 0.3); }
+  100% { box-shadow: 0 0 12px rgba(245, 158, 11, 0.6); }
 }
 
 @media (max-width: 768px) {

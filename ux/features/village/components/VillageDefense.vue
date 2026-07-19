@@ -5,8 +5,9 @@
       <span class="defense-count">{{ assigned.length }} / {{ maxDefenders }}</span>
     </div>
 
-    <!-- Compact status line always visible when not showing header -->
-    <div v-else-if="assigned.length > 0 || canAssign" class="defense-status-compact">
+    <!-- Compact status line always visible when not showing header
+         (hidden while the empty state below is showing the same message) -->
+    <div v-else-if="assigned.length > 0 || (canAssign && idleHeroes.length > 0)" class="defense-status-compact">
       <span class="status-icon">🛡️</span>
       <span class="status-count">{{ assigned.length }} / {{ maxDefenders }}</span>
       <span v-if="assigned.length === 0" class="status-warn">{{ t('village_uxelm_defender_none') }}</span>

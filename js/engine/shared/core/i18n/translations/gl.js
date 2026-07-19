@@ -87,6 +87,10 @@ export const gl = {
     combat_uxelm_battle_title: "Batalla",
     combat_uxelm_battle_over: "Batalla Terminada",
     combat_uxelm_enemies: "Inimigos",
+    combat_uxelm_skip_safe: "Seguro",
+    combat_uxelm_skip_risky: "Arriscado",
+    combat_uxelm_skip_dangerous: "Perigoso",
+    combat_uxelm_skip_suicide: "Suicidio",
     combat_uxelm_awaiting: "Agardando quenda...",
     combat_uxelm_heroes: "Heroes",
     combat_uxelm_items: "Obxectos",
@@ -474,6 +478,7 @@ export const gl = {
     heroes_info_effect_power: "poder",
     heroes_info_effect_steal: "Roubar",
     heroes_info_effect_stun: "Atordar",
+    heroes_info_fatigue: "Fatiga",
     heroes_info_family_cleave: "Fender",
     heroes_info_family_multiple_attack: "Ataque Múltiple",
     heroes_info_family_plunder: "Saquear",
@@ -507,7 +512,7 @@ export const gl = {
     heroes_info_stat_hp: "PV",
     heroes_info_stat_hp_desc: "Puntos de Vida — determina canto dano pode sobrevivir o heroe.",
     heroes_info_stat_magic_power: "Poder Máxico",
-    heroes_info_stat_magic_power_desc: "Determina o dano de conxuros, potencia de curación e PM máximo.",
+    heroes_info_stat_magic_power_desc: "Aumenta os PM máximos, a rexeneración de PM e a defensa contra a maxia.",
     heroes_info_stat_mp: "PM",
     heroes_info_stat_mp_desc: "Puntos de Maná — enerxía para conxuros máxicos e técnicas híbridas.",
     heroes_info_stat_mpCostReduction: "Redución de Costo de PM",
@@ -784,6 +789,11 @@ export const gl = {
     shop_uxelm_locked: "Tenda Bloqueada",
     shop_uxelm_locked_desc: "Completa a expedición da Cova Tutorial para desbloquear a Tenda.",
     shop_uxelm_no_items_to_sell: "Non hai obxectos para vender.",
+    shop_uxelm_days: "días",
+    shop_uxelm_no_items_week: "Non hai obxectos dispoñibles esta semana. Volve despois da renovación do mercado!",
+    shop_uxelm_refresh_in: "Renovación en",
+    shop_uxelm_specials: "Especiais",
+    shop_uxelm_week: "Semana",
     shop_uxelm_sell: "Vender",
     shop_uxelm_select_item: "Selecciona un obxecto para ver os seus detalles.",
     shop_uxelm_storage_nearly_full: "Depósito Case Cheo",
@@ -791,6 +801,7 @@ export const gl = {
     shop_uxelm_title: "Tenda da Vila",
 
     // ═══ VILLAGE INFO ════════════════════════════════════════════════════
+    village_info_building_level: 'Nivel',
     village_info_building_arcane_sanctum: "Sagrario Arcano",
     village_info_building_arcane_sanctum_desc: "Unha torre mística dedicada ao estudo e ao ensino de glifos máxicos. Desbloquea a Academia de Glifos.",
     village_info_building_arcane_sanctum_effect_academy: "Academia de Glifos",
@@ -837,7 +848,7 @@ export const gl = {
     village_info_role_farmer: "Granxeiro",
     village_info_role_farmer_effect: "+10% de comida cada un",
     village_info_role_miner: "Mineiro",
-    village_info_role_miner_effect: "20% probabilidade de materiais",
+    village_info_role_miner_effect: "35% probabilidade de materiais",
     village_info_role_scout: "Explorador",
     village_info_role_scout_effect: "-1 etapa por cada 2 exploradores",
 
@@ -883,7 +894,14 @@ export const gl = {
     village_uxelm_wood: "Madeira",
     village_uxelm_population: "Poboación",
     village_uxelm_tooltip_gold: "Ouro dispoñible para gastar",
+    topbar_label_gold: "OURO",
+    topbar_label_population: "HAB",
+    topbar_label_wood: "MADEIRA",
+    topbar_label_stone: "PEDRA",
+    topbar_label_iron: "FERRO",
     village_uxelm_tooltip_wood: "Materiais de madeira no inventario",
+    village_uxelm_tooltip_stone: "Materiais de pedra no inventario",
+    village_uxelm_tooltip_iron: "Materiais de ferro no inventario",
     village_uxelm_tooltip_population: "Aldeáns actuais / Capacidade de vivenda",
     village_uxelm_tooltip_storage: "Almacenamento usado: {used} / {max}",
     village_uxelm_storage_warning: "¡Almacenamento case cheo!",
@@ -1024,7 +1042,7 @@ export const gl = {
     codex_feature_day_cycle_desc: "RPG Village funciona nun ciclo diario por quendas. O tempo só progresa cando fas clic manualmente en \"Seguinte Día\". Cada día, a túa vila consume 1 unidade de comida por vilán. As granxas xeran de xeito pasivo gran cru segundo o seu nivel (+4 de gran por nivel), multiplicado polo número de granxeiros asignados. Os proxectos de construción reducen os seus días restantes, procésase a recuperación dos heroes que descansan e actualízanse os obxectivos diarios.\\n\\nMecánicas clave:\\n- Obxectivos diarios: aparecen 4 obxectivos aleatorios cada día (derrotar inimigos, gastar ouro, completar expedicións, etc.). Elixes 2 para cumprir. Cada un outorga ouro e materiais. Completar ambos obxectivos seleccionados outorga unha bonificación (20 de madeira + 10 de pedra).\\n- Exceso de capacidade: se o depósito supera o seu máximo, non poderás recoller novos recursos nin mercar obxectos.\\n- Construción: os proxectos custan ouro e materiais por adiantado. Cada proxecto tarda unha cantidade fixa de días en completarse.\\n- Estacións: Primavera (+5% de crecemento), Verán (+10% de produción agrícola), Outono (+10% de produción mineira), Inverno (-10% de produción agrícola). Cada estación dura 30 días.",
     codex_feature_day_cycle_unlock: "Sempre dispoñible.",
     codex_feature_villagers: "Viláns e Man de Obra",
-    codex_feature_villagers_desc: "A túa poboación total reside nas vivendas. Podes asignar viláns inactivos a traballos especializados (Construtores, Granxeiros, Mineiros, Exploradores). A cantidade de construtores dita cantos proxectos de construción simultáneos podes ter, xa que ao iniciar un proxecto asígnase 1 construtor para traballar nel ata que finalice. Os viláns consomen 1 de comida ao día; a falta de alimentos detén o crecemento da poboación e diminúe a súa eficiencia.\\n\\nRoles de traballadores e efectos:\\n- Construtor (🔨): Requirido para iniciar proxectos de construción. Cada proxecto consome 1 construtor ata que remate.\\n- Granxeiro (🌾): +10% de produción de alimentos por granxeiro (aplicado á produción agrícola).\\n- Mineiro (⛏️): 20% de probabilidade por mineiro de recoller 1 unidade de madeira ou pedra ao día.\\n- Explorador (👁️): Cada 2 exploradores reduce a cantidade de etapas de expedición en 1 (mínimo 1 etapa).\\n\\nNotas importantes:\\n- Os roles pódense reasignar en calquera momento sen ningún custo.\\n- A cantidade total de roles asignados non pode superar a túa poboación total.\\n- O crecemento da poboación require un excedente de alimentos e capacidade de vivenda.\\n- A capacidade do depósito está determinada polo nivel do teu Depósito.",
+    codex_feature_villagers_desc: "A túa poboación total reside nas vivendas. Podes asignar viláns inactivos a traballos especializados (Construtores, Granxeiros, Mineiros, Exploradores). A cantidade de construtores dita cantos proxectos de construción simultáneos podes ter, xa que ao iniciar un proxecto asígnase 1 construtor para traballar nel ata que finalice. Os viláns consomen 1 de comida ao día; a falta de alimentos detén o crecemento da poboación e diminúe a súa eficiencia.\\n\\nRoles de traballadores e efectos:\\n- Construtor (🔨): Requirido para iniciar proxectos de construción. Cada proxecto consome 1 construtor ata que remate.\\n- Granxeiro (🌾): +10% de produción de alimentos por granxeiro (aplicado á produción agrícola).\\n- Mineiro (⛏️): 35% de probabilidade por mineiro de recoller 1 unidade de madeira ou pedra ao día.\\n- Explorador (👁️): Cada 2 exploradores reduce a cantidade de etapas de expedición en 1 (mínimo 1 etapa).\\n\\nNotas importantes:\\n- Os roles pódense reasignar en calquera momento sen ningún custo.\\n- A cantidade total de roles asignados non pode superar a túa poboación total.\\n- O crecemento da poboación require un excedente de alimentos e capacidade de vivenda.\\n- A capacidade do depósito está determinada polo nivel do teu Depósito.",
     codex_feature_villagers_unlock: "Sempre dispoñible.",
     codex_feature_hero_attributes: "Atributos e Estatísticas do Heroe",
     codex_feature_hero_attributes_desc: "Os heroes defenden a vila e completan expedicións. O seu poder réxese por seis atributos principais:\\n- PV: Puntos de Vida — determina canto dano pode sobrevivir un heroe.\\n- PM: Puntos de Maná — enerxía para conxuros máxicos e técnicas híbridas.\\n- FOR (Forza): Rexe o dano físico inflixido e a estamina máxima.\\n- DEF (Defensa): Reduce o dano físico recibido.\\n- POD (Poder Máxico): Determina o dano dos conxuros, a potencia da curación e o PM máximo.\\n- VEL (Velocidade): Inflúe na orde das quendas en combate e na probabilidade de evasión.\\n\\nProgreso:\\n- Subir de nivel outorga 2 ou 3 puntos de atributo para asignar libremente.\\n- Os PV base aumentan en +5 e os PM en +2 por nivel automaticamente.\\n- Todos os heroes recén recrutados comezan no Nivel 1 con 5 puntos de atributo sen asignar.\\n- A EXP requirida para alcanzar o nivel L é L × 20.\\n\\nEquipamento e Bonificacións:\\n- Os heroes teñen 6 ranuras de equipamento: cabeza, corpo, pernas, man esquerda, man dereita, accesorio.\\n- Utilizar varias pezas do mesmo conxunto de material ofrece bonificacións acumulativas ás 2, 4 e 6 pezas.\\n- As melloras de comida proporcionan bonificacións temporais en combate durante un número fixo de batallas.\\n\\nBloqueo de Expedición: mentres están despregados, os heroes non poden cambiar os seus atributos, técnicas ou equipamento. Planifica as túas configuracións antes de envialos!",
@@ -1076,6 +1094,23 @@ export const gl = {
     codex_feature_glyph_academy_desc: "A Academia de glifos, ubicada dentro do Sagrario Arcano, permite aos heroes ensinarse glifos entre si. Un heroe mestre comparte un glifo coñecido con heroes estudantes durante varios días.\\n\\nMecánica da Academia:\\n- Require Sagrario Arcano Nivel 2+.\\n- 1 mestre + ata 2 estudantes por sesión.\\n- O ensino dura de 3 a 5 días segundo o nivel do Sagrario.\\n- Durante o ensino, todos os participantes están ocupados e non poden ser enviados a expedicións.\\n- A biblioteca de deseños permite copiar deseños de conxuros entre heroes por ouro e tempo (non se require mestre).\\n\\nOs niveis máis altos de Sagrario aumentan a capacidade de estudantes e a velocidade de aprendizaxe.\\n\\nConsello: ensina glifos de utilidade aos guerreiros para que poidan lanzar conxuros básicos, ou ensina familias de técnicas físicas aos magos para configuracións híbridas.",
     codex_feature_glyph_academy_unlock: "Mellora o Sagrario Arcano ao Nivel 2.",
 
+    // ═══ NOVAS CARACTERÍSTICAS FASE 2 ═════════════════════════════════════
+    codex_feature_fatigue: "Fatiga do Heroe",
+    codex_feature_fatigue_desc: "Os herois acumulan fatiga das batallas e expedicións. A fatiga alta reduce a efectividade en combate e só se recupera mediante descanso.\n\nComo se acumula a fatiga:\n- Victoria: 5 + (2 × número de inimigos) + 5 se xefe\n- Derrota: 15 + (3 × número de inimigos)\n- Etapas de expedición: +2 de fatiga por etapa\n\nLimiares de fatiga:\n- > 50: -5% a todas as estatísticas\n- > 75: -10% a todas as estatísticas\n- > 90: -20% a todas as estatísticas, -10 de precisión\n\nRecuperación:\n- Herois inactivos recuperan 15 de fatiga por día\n- Herois en expedición recuperan 5 de fatiga por día\n- Descansar na vila (acción diaria): +20 de recuperación\n- Bonus da enfermaría: +5 de recuperación adicional por día\n\nIndicador visual:\n- Verde (0-30): Ben descansado\n- Amarelo (31-60): Cansado\n- Laranxa (61-85): Exhausto\n- Vermello (86-100): Fatiga crítica",
+    codex_feature_fatigue_unlock: "Completa a túa primeira batalla.",
+    codex_feature_market_rotation: "Rotación Semanal do Mercado",
+    codex_feature_market_rotation_desc: "O stock da tenda da vila rota cada 7 días, ofrecendo unha selección fresca de armas, armaduras e consumibles. As ferrerías de nivel superior desbloquean mellores rangos de equipamento.\n\nMecánica de rotación:\n- Cada 7 días, todo o stock se refresca con novos obxectos\n- Cada obxecto ten cantidade limitada (1-5 unidades segundo rareza)\n- Unha vez esgotado, un obxecto non volve ata a seguinte rotación\n\nStock por nivel de ferrería:\n- Nivel 0: Equipamento rango 1 (Madeira), consumibles básicos\n- Nivel 1: Equipamento rango 2 (Ferro) desbloqueado\n- Nivel 2: Equipamento rango 3 (Aceiro) desbloqueado\n- Nivel 3: Equipamento rango 4 (Ouro) desbloqueado\n\nConsello: Planifica as túas compras antes do día de rotación. Os obxectos raros poden non aparecer durante semanas!",
+    codex_feature_market_rotation_unlock: "Completa a expedición da Cova Tutorial.",
+    codex_feature_village_events: "Eventos Aleatorios da Vila",
+    codex_feature_village_events_desc: "Eventos aleatorios ocorren na vila á medida que pasa o tempo, traendo oportunidades e desafíos. Os eventos teñen un 30% de probabilidade diaria (con 2 días de enfriamento entre eventos).\n\nTipos de eventos:\n- Mercador ambulante: Vende obxectos raros con desconto\n- Sanador errante: Cura herois feridos de balde\n- Inspiración de adestramento: EXP bonus para herois inactivos\n- Colleita abundante: Produción extra de alimentos\n- Advertencia de seca: Produción reducida de granxas\n- Baralla de taberna: Pérdida menor de ouro, pero herois gañan EXP de combate\n- Rumor escoitado: Pistas sobre expedicións ou tesouros ocultos\n- Ataque de monstro: Evento de xogo avanzado que require defensa\n- Descubrimento antigo: Materiais raros ou obxectos únicos atopados\n\nImpacto:\n- Os eventos poden proporcionar bonificacións ou penalizacións\n- Todos os eventos se rexistran na Crónica\n- Algúns eventos requiren edificios específicos (Taberna, Granxa, etc.)",
+    codex_feature_village_events_unlock: "Alcanza o día 5 da vila.",
+    codex_feature_daily_actions: "Accións Diarias do Heroe",
+    codex_feature_daily_actions_desc: "Cada heroe inactivo pode realizar unha acción por día para contribuír á vila ou mellorarse a si mesmo. As accións asígnanse antes de terminar o día e resólvense ao avanzar o día.\n\nAccións dispoñibles:\n- Descansar: +20 recuperación de fatiga, +20% curación de PV\n- Adestrar: Gaña EXP baseada no nivel do Campo de Adestramento\n- Explorar: Revela nodos de expedición ocultos en rexións desbloqueadas\n- Fabricar: Tenta fabricar un consumible aleatorio (comida, poción, pergamino)\n- Socializar: Visita a taberna para eventos sociais aleatorios\n\nAsignación:\n- Selecciona un heroe e escolle unha acción desde o seu perfil\n- As accións resólvense automaticamente ao avanzar o día\n- Os herois en expedición non poden realizar accións diarias\n- Os resultados aparecen no informe diario",
+    codex_feature_daily_actions_unlock: "Constrúe unha Taberna.",
+    codex_feature_chronicle: "Crónica",
+    codex_feature_chronicle_desc: "A Crónica e o Libro son as superficies narrativas da túa aldea.\n\n- O Libro é o diario lexible. Rexistra batallas, expedicións, reclutamento de herois, construción, eventos de vila e accións diarias como páxinas estruturadas que podes ler en calquera momento.\n- A Crónica é o índice de logros. Fai seguimento de eventos importantes da historia e fitos, mostra cales están bloqueados ou desbloqueados, e vincula cada entrada desbloqueada á páxina exacta do Libro onde se narra.\n\nUso:\n- Abre o Libro desde o botón da barra superior despois dos eventos.\n- Abre a Crónica desde a páxina de Explorar.\n- Fai clic en calquera entrada desbloqueada da Crónica para saltar á súa páxina do Libro.",
+    codex_feature_chronicle_unlock: "Completa a túa primeira expedición.",
+
     // ═══ SAVE SLOT ════════════════════════════════════════════════════════
     shared_uxelm_save_slot_empty: "Baleiro",
     shared_uxelm_save_slot_new_game: "Comezar Nova Partida",
@@ -1101,6 +1136,77 @@ export const gl = {
 
     // ═══ NAVIGATION ═══════════════════════════════════════════════════════
     nav_codex: "Códice",
+
+    // ═══ THE BOOK — VOZ DO CRONISTA ═══════════════════════════════════
+    // O Libro é o diario persoal dun veciño. Os eventos históricos escríbense
+    // con coidado e arte. As actualizacións da vila son apuntamentos rápidos.
+
+    book_uxelm_title: "O Libro",
+    book_uxelm_prev: "Anterior",
+    book_uxelm_next: "Seguinte",
+    book_uxelm_spread: "{current} / {total}",
+    book_uxelm_milestone: "Unha marca que lembrar",
+
+    // Títulos dos capítulos — dramáticos, orgullosos, literarios
+    book_chapter_default_title: "Capítulo {chapter}",
+    book_chapter_1_title: "Capítulo I: As Cinzas do Pasado",
+    book_chapter_2_title: "Capítulo II: A Era Arcana",
+    book_chapter_3_title: "Capítulo III: O Norte Xeado",
+    book_chapter_4_title: "Capítulo IV: O Umbral Astral",
+    book_chapter_5_title: "Capítulo V: A Derradeira Defensa",
+    book_chapter_2_event_block: "Baixo as primeiras pedras do asentamento descubrimos runas que ninguén lembraba. As cepillei co dorso da man e alí estaban, brillando débilmente na escuridade — símbolos máis antigos que nós.",
+
+    // Actualizacións da vila — rápidas, prácticas, a man apresurada do escriba
+    book_village_updates_title: "Día {day} — Notas da vila",
+    book_update_village_founded: "Clavaron a primeira estaca ao amencer. Ao mediodía, tres muros xa se alzaban. Debuxei o val desde a crista — o río corre prateado alí.",
+    book_update_food_consumed: "Despensa baixou {amount} unidades. A despensa de inverno vaise baleirando.",
+    book_update_villager_joined: "{amount} alma(s) nova(s) chegaron hoxe. A fogueira da praza ardeu máis alta.",
+    book_update_hero_rested: "{hero} durmiu. O hospital cruxía co vento. Ben.",
+    book_update_hero_trained: "{hero} adestrou ata que as mans lle sangraron. Vinlle desde a fiestra.",
+    book_update_hero_scouted: "{hero} volveu das leiras con novas de {region}. Ollos cheos de asombro.",
+    book_update_hero_crafted: "{hero} fixo {item} no taller. O son do martelo ecoou ata o solpor.",
+    book_update_hero_socialized: "{hero} sentou cos demais ao lume da lareira. Risas. Iso é o que oín.",
+    book_update_building_completed: "O {building} está feito! A campá tocou tres veces. Todo o mundo veu correndo.",
+    book_update_region_unlocked: "Atopamos {region}. Marqueino no meu mapa cunha man trémera — a tinta borrouse da emoción.",
+    book_update_expedition_started: "Enviou un grupo a {region}. Vin marchar ata que foron puntos, logo nada.",
+    book_update_expedition_completed: "Volven de {region}. Cansos, empoeirados, pero vivos. Grazas ás estrelas.",
+    book_update_combat_victory: "Vitoria! Vin dende a crista — quedaron en pé cando o inimigo caeu. Gritaron tan forte que me doeu a gorxa.",
+    book_update_combat_defeat: "Volven feridos. Menos dos que saíron. Non escribín onte á noite. Non podía.",
+    book_update_hero_recruited: "{hero} uniuse a nós! Nova cara, novas historias. A vila parece máis grande agora.",
+    book_update_market_rotation: "Mercado reabasteceu. Oín os mercadores discutindo prezos antes do amencer.",
+    book_update_raid_defended: "Atacaron. Aguantamos. Eles non. Contei as frechas na parede — dezasete.",
+    book_update_raid_lost: "Os asaltantes romperon. Levaron o que quixeron. Escondín o diario debaixo do chan. Escribiré máis cando poida.",
+    book_update_quiet_day: "Nada se moveu. Nin o vento respirou.",
+    book_event_traveling_merchant: "Un comerciante viaxeiro compra parte dos teus excedentes. +{amount} de ouro.",
+    book_event_wandering_healer: "Unha sanadora errante cura a {count} heroes feridos.",
+    book_event_training_inspiration: "Os teus heroes atopan inspiración nunha sesión de adestramento. +{amount} de XP en total.",
+    book_event_bumper_crop: "Unha colleita abundante rinde gran extra. +{amount} de gran.",
+    book_event_drought_warning: "A seca reduce as colleitas. −{amount} de gran.",
+    book_event_drunken_brawl: "Unha pelexa na taberna deixa a {hero} levemente ferido.",
+    book_event_rumor_heard: "Un viaxeiro comparte rumores sobre recursos agochados próximos. +{amount} de ouro.",
+    book_event_monster_attack: "Un ataque de monstros dana parte da infraestrutura. −{amount} de ouro.",
+    book_event_ancient_discovery: "Descóbrense artefactos antigos, atraendo o interese dos eruditos. +{amount} de ouro.",
+
+    // Eventos históricos — testemuñas presenciais, literarios
+    book_history_combat_victory: "{heroes} enfrontáronse a {enemyCount} {enemies} e prevaleceron. Vin dende a crista, co corazón axitado, como o último inimigo caía. O val volveu quedar en silencio, agás pola súa respiración.",
+    book_history_combat_defeat: "{heroes} loitaron con valentía, pero o inimigo era forte. Vin retirarse, arrastrando aos feridos. O val pareceu máis escuro despois.",
+
+    // Fitos — Celebratorios, persoais, emocionados
+    book_milestone_first_victory: "Primeira Vitoria!!!",
+    book_milestone_first_boss: "Primeiro Xefe Derrotado!",
+    book_milestone_first_region: "Primeira Rexión Explorada!",
+    book_milestone_first_building: "Primeira Construción Rematada!",
+    book_milestone_first_spell: "Primeiro Feitizo Composto!",
+    book_milestone_first_academy: "Primeira Sesión da Academia!",
+    book_milestone_first_body_inscription: "Primeira Inscrición Corporal!",
+
+    // Revelación do escritor — A confesión do cronista
+    book_milestone_writer_revelation: "A confesión do cronista",
+    book_milestone_writer_revelation_text: "Déime conta de que, con estes perigos, pode que non estea sempre presente, así que deixo notas para o próximo dono deste pequeno diario que levo escribindo para documentar a fermosa imaxe que Arthur está creando desde cero... quizais no futuro, cando a vila se converta nunha gran cidade, alguén tomará estas notas e escribirá un libro de historia axeitado sobre como a nosa aldea se fixo grande.",
+    book_milestone_writer_note_12: "Os ataques están máis achegados. Escribo á luz da vela agora, e a cera gotea sobre as páxinas. Se algo me pasa, atopade este diario na taberna — gárdao debaixo do mostrador onde os barrís de cervexa tocan a parede.",
+    book_milestone_writer_note_14: "Doce páxinas de historia xa. A vila medrou tanto. Nunca pensei que vería unha forxa de ferreiro aquí, nin que oiría a nenos rir na praza. Arthur non sabe que o observo, pero creo que o sospeita. Ás veces levanta a vista cara á miña fiestra.",
+
+    book_unlock_lore_writer_revelation: "Coñeciches a quen escribiu o Libro.",
 
     // ═══ NARRATIVE / PROLOGUE ═════════════════════════════════════════════
     intro_btn: "Comezar Viaxe",
@@ -1312,6 +1418,45 @@ export const gl = {
     chronicle_day_prefix: "Día",
     chronicle_day_unknown: "—",
 
+    // New catalog (post-refactor)
+    chronicle_catalog_title: 'Crónica',
+    chronicle_catalog_empty: 'Aínda non se desbloquearon entradas da crónica.',
+    chronicle_unlocked: 'Desbloqueado',
+    chronicle_open_in_book: 'Abrir no Libro',
+    chronicle_chapter: 'Capítulo',
+    chronicle_page: 'Páxina',
+
+    // Chronicle entry labels
+    chronicle_hero_recruited: 'Heroe Reclutado',
+    chronicle_combat_victory: 'Victoria en Batalla',
+    chronicle_combat_defeat: 'Derrota en Batalla',
+
+    // Chronicle requirement labels
+    chronicle_req_recruit: 'Recluta un heroe',
+    chronicle_req_combat_victory: 'Gaña unha batalla',
+    chronicle_req_combat_defeat: 'Sufre unha derrota',
+
+    // Presentation chronicle entries
+    chronicle_prologue: 'Prólogo',
+    chronicle_first_harvest: 'A Primeira Colleita',
+    chronicle_shield_dark: 'Un Escudo no Escuro',
+    chronicle_warm_fire: 'Un Lume Cálido',
+    chronicle_mission_board: 'O Taboleiro de Misións',
+    chronicle_discipline: 'Disciplina',
+    chronicle_first_spark: 'A Primeira Chispa',
+    chronicle_first_victory: 'Primeira Victoria',
+    chronicle_first_equip: 'Primeiro Equipamento',
+    chronicle_first_defeat: 'Primeira Derrota',
+    chronicle_chapter1_finale: 'Final do Capítulo 1',
+    chronicle_language_world: 'A Lingua do Mundo',
+    chronicle_name_flame: 'O Nome e a Chama',
+    chronicle_veil_thins: 'O Véu Adelaíza',
+    chronicle_world_opens: 'O Mundo Ábrese',
+    chronicle_first_spell_cast: 'Primeiro Feitizo Lanzado',
+    chronicle_first_boss_defeated: 'Primeiro Xefe Derrotado',
+    chronicle_first_raid_victory: 'Primeira Victoria de Incursión',
+    chronicle_chapter2_finale: 'Final do Capítulo 2',
+
     // Discovery Log
     chronicle_discovery_title: "Rexistro de Descubrimentos",
     chronicle_discovery_empty: "Aínda non hai descubrimentos. Envia heroes de expedición e constrúe a túa aldea para desvelar os segredos do val.",
@@ -1436,10 +1581,32 @@ export const gl = {
     shared_uxelm_gold: "Ouro",
     shared_uxelm_toast_gold_earned: "+{amount}g",
     shared_uxelm_toast_resource_sold: "+{amount}g ({count} {resource})",
+    shared_uxelm_toast_resource_bought: "-{amount}g (+{count} {resource})",
     shared_uxelm_toast_preset_applied: "Aplicado {preset} (+{count} gambits)",
     shared_uxelm_toast_glyph_learned: "{hero} aprendeu {glyph}!",
     shared_uxelm_toast_consumable_used: "{hero} +{amount} {stat}",
     combat_log_stamina_regen: "{actor} regenera {amount} de estamina",
     combat_log_victory: "Vitoria! Inimigos derrotados!",
     combat_log_defeat: "Derrota... O grupo caíu...",
+
+    // ═══ TUTORIAL ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    tutorial_hero_skills_msg_select_arthur: "Este é Arthur, o teu primeiro heroe. Bótemos un ollo.",
+    tutorial_hero_skills_msg_open_skills: "Arthur pode aprender unha nova técnica de combate. Toca o botón de Habilidades para abrir as súas habilidades.",
+    tutorial_hero_skills_msg_learn_skill: "Agora toca unha técnica bloqueada para aprendela.",
+    tutorial_hero_skills_msg_close_modal: "Agora que gastaches o teu punto de habilidade, pecha o modal para continuar.",
+    tutorial_hero_skills_msg_done: "Ben! Arthur está listo para volverse máis forte.",
+    tutorial_hero_stats_msg_assign_stats: "A medida que os heroes crecen, gañan puntos para mellorar a súa forza, velocidade e outras estatísticas. Gasta todos os puntos de Arthur para continuar.",
+    shared_uxelm_remaining: "{count} restantes",
+    shared_uxelm_click_continue: "Clic para continuar",
+    shared_uxelm_click_dismiss: "Clic para pechar",
+    tutorial_hero_stats_msg_done: "Gran traballo! Agora construímos a aldea.",
+    tutorial_build_farm_msg_navigate_village: "Construamos unha granxa para producir comida para a aldea.",
+    tutorial_build_farm_msg_construct_farm: "Toca aquí para iniciar a construción. Levará algún tempo.",
+    tutorial_build_farm_msg_done: "A granxa está en construción. É hora de explorar o mundo.",
+    tutorial_expeditions_msg_navigate_explore: "O mundo máis aló da aldea agocha perigos e tesouros. Imos explorar!",
+    tutorial_expeditions_msg_select_region: "Os Campos Verdes son o lugar máis seguro para comezar as túas aventuras.",
+    tutorial_expeditions_msg_select_expedition: "Esta cova é un bo primeiro desafío. Tócaa para enviar a Arthur dentro.",
+    tutorial_expeditions_msg_advance_day: "Cando estea listo, avanza ao seguinte día para ver que pasa.",
+    tutorial_uxelm_action_blocked: "Esta acción está bloqueada mentres o tutorial está activo.",
+    tutorial_uxelm_nav_blocked: "A navegación está restrinxida durante o tutorial.",
 };

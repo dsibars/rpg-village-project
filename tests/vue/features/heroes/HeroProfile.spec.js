@@ -3,13 +3,13 @@ import { mount } from '@vue/test-utils'
 import { shallowRef } from 'vue'
 import HeroProfile from '../../../../ux/features/heroes/components/HeroProfile.vue'
 
-function mountWithProviders(props) {
+function mountWithProviders(props, t = (k) => k) {
   return mount(HeroProfile, {
     props,
     global: {
       provide: {
         gameState: shallowRef({}),
-        i18n: { t: (k) => k },
+        i18n: { t },
         currentLanguage: { value: 'en' }
       }
     }
@@ -42,10 +42,19 @@ describe('HeroProfile', () => {
     expect(wrapper.text()).toContain('3')
   })
 
-  it('renders origin badge and description', () => {
+  it('renders origin badge and description from translations', () => {
+    const t = (k) => ({
+      heroes_info_origin_warrior: 'Blade Master',
+      heroes_info_origin_warrior_desc: 'A veteran of countless battles.'
+    }[k] ?? k)
+    const wrapper = mountWithProviders({ hero }, t)
+    expect(wrapper.text()).toContain('Blade Master')
+    expect(wrapper.text()).toContain('A veteran of countless battles.')
+  })
+
+  it('humanizes the origin key when its translation is missing', () => {
     const wrapper = mountWithProviders({ hero })
-    expect(wrapper.text()).toContain('heroes_info_origin_warrior')
-    expect(wrapper.text()).toContain('heroes_info_origin_warrior_desc')
+    expect(wrapper.text()).toContain('Heroes Info Origin Warrior')
   })
 
   it('renders stats grid with 7 stats', () => {

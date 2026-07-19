@@ -116,7 +116,7 @@ export class VillageService {
 
     // --- Time & Growth ---
 
-    nextDay() {
+    nextDay(seasonEffects = {}) {
         const report = {
             day: this.state.day,
             consumed: 0,
@@ -139,21 +139,28 @@ export class VillageService {
         }
 
         // 1.5. Production Phase: Farm generates food
+        // Season modifiers (docs/village/calendar_defense.md): spring growth,
+        // summer bonus, winter penalty all apply to farm production.
         const farmLevel = this.state.infrastructure.farm || 0;
         const roles = this.state.population.roles || { builder: 0, farmer: 0, miner: 0, scout: 0 };
+        const farmSeasonMult = 1
+            + (seasonEffects.growthBonus || 0)
+            + (seasonEffects.farmBonus || 0)
+            - (seasonEffects.farmPenalty || 0);
         let foodProduced = 0;
         if (farmLevel > 0) {
             const farmerBonus = 1 + (roles.farmer * 0.10);
-            foodProduced = Math.floor(farmLevel * 4 * farmerBonus);
+            foodProduced = Math.floor(farmLevel * 4 * farmerBonus * farmSeasonMult);
             this.addItemToInventory('food_raw_grain', foodProduced);
         }
         report.produced = foodProduced;
 
-        // 1.6. Miner Phase: Chance for materials
+        // 1.6. Miner Phase: Chance for materials (autumn season bonus applies)
+        const minerChance = 0.35 * (1 + (seasonEffects.minerBonus || 0));
         let minerYield = { wood: 0, stone: 0 };
         if (roles.miner > 0) {
             for (let i = 0; i < roles.miner; i++) {
-                if (Math.random() < 0.35) {
+                if (Math.random() < minerChance) {
                     if (Math.random() < 0.5) {
                         minerYield.wood++;
                     } else {

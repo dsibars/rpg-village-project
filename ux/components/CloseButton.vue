@@ -1,11 +1,29 @@
 <template>
-  <button class="btn-close" @click="$emit('close')" :aria-label="t('shared_uxelm_close')">✕</button>
+  <button
+    class="btn-close"
+    :disabled="disabled"
+    :aria-label="t('shared_uxelm_close')"
+    :data-tutorial-target="tutorialTarget"
+    @click="onClick"
+  >✕</button>
 </template>
 
 <script setup>
 import { useI18n } from '@/core/composables/useI18n.js'
+
 const { t } = useI18n()
-defineEmits(['close'])
+
+const props = defineProps({
+  disabled: { type: Boolean, default: false },
+  tutorialTarget: { type: String, default: null }
+})
+
+const emit = defineEmits(['close'])
+
+function onClick() {
+  if (props.disabled) return
+  emit('close')
+}
 </script>
 
 <style scoped>
@@ -19,7 +37,12 @@ defineEmits(['close'])
   line-height: 1;
 }
 
-.btn-close:hover {
+.btn-close:hover:not(:disabled) {
   color: var(--text-primary);
+}
+
+.btn-close:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
 }
 </style>

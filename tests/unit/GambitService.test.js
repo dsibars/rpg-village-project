@@ -241,3 +241,82 @@ test('GambitService: applyPreset fills with non-basic physical skills if availab
     const powerStrikeRules = hero.gambits.filter(g => g.action.payload === 'power_strike');
     assert.strictEqual(powerStrikeRules.length, 2, 'Both preset physical rules should select power_strike');
 });
+
+
+test('GambitService: enemy_element condition matches enemy element', () => {
+    const hero = makeHero({
+        knownFamilies: ['single_strike', 'power_strike'],
+        techniqueTiers: { single_strike: 1, power_strike: 1 },
+        gambits: [makeGambit({
+            conditions: [{ op: 'SINGLE', left: { type: 'enemy_element', operator: '=', value: 'water' }, right: null }],
+            action: { type: 'skill', payload: 'power_strike' }
+        })]
+    });
+    const enemies = [{ id: 'e1', hp: 10, maxHp: 10, element: 'water' }];
+
+    const result = GambitService.evaluate(hero, [hero], enemies);
+    assert.ok(result);
+    assert.strictEqual(result.skillId, 'power_strike');
+});
+
+test('GambitService: enemy_type condition matches enemy type', () => {
+    const hero = makeHero({
+        knownFamilies: ['single_strike', 'power_strike'],
+        techniqueTiers: { single_strike: 1, power_strike: 1 },
+        gambits: [makeGambit({
+            conditions: [{ op: 'SINGLE', left: { type: 'enemy_type', operator: '=', value: 'beast' }, right: null }],
+            action: { type: 'skill', payload: 'power_strike' }
+        })]
+    });
+    const enemies = [{ id: 'e1', hp: 10, maxHp: 10, type: 'beast' }];
+
+    const result = GambitService.evaluate(hero, [hero], enemies);
+    assert.ok(result);
+    assert.strictEqual(result.skillId, 'power_strike');
+});
+
+test('GambitService: battle_phase condition receives state from BattleService', () => {
+    const hero = makeHero({
+        knownFamilies: ['single_strike', 'power_strike'],
+        techniqueTiers: { single_strike: 1, power_strike: 1 },
+        gambits: [makeGambit({
+            conditions: [{ op: 'SINGLE', left: { type: 'battle_phase', operator: '=', value: 'early' }, right: null }],
+            action: { type: 'skill', payload: 'power_strike' }
+        })]
+    });
+    const enemies = [{ id: 'e1', hp: 10, maxHp: 10 }];
+
+    const result = GambitService.evaluate(hero, [hero], enemies, { turnCount: 1, phase: 'early' });
+    assert.ok(result);
+    assert.strictEqual(result.skillId, 'power_strike');
+});
+
+test('GambitService: all_enemies target override accepts cleave-like skills', () => {
+    const hero = makeHero({
+        knownFamilies: ['single_strike', 'cleave'],
+        techniqueTiers: { single_strike: 1, cleave: 1 },
+        gambits: [makeGambit({
+            conditions: [{ op: 'SINGLE', left: { type: 'enemy_count', operator: '>', value: 2 }, right: null }],
+            action: { type: 'skill', payload: 'cleave' },
+            target: 'all_enemies'
+        })]
+    });
+    const enemies = [{ id: 'e1', hp: 10, maxHp: 10 }, { id: 'e2', hp: 10, maxHp: 10 }, { id: 'e3', hp: 10, maxHp: 10 }];
+
+    const result = GambitService.evaluate(hero, [hero], enemies);
+    assert.ok(result);
+    assert.strictEqual(result.skillId, 'cleave');
+    assert.strictEqual(result.targetIndex, null);
+});
+
+test('GambitService: getFallbackAction targets lowest HP enemy', () => {
+    const hero = makeHero();
+    const enemies = [
+        { id: 'e1', hp: 20, maxHp: 20 },
+        { id: 'e2', hp: 5, maxHp: 20 },
+        { id: 'e3', hp: 15, maxHp: 20 }
+    ];
+    const result = GambitService.getFallbackAction(hero, [hero], enemies);
+    assert.strictEqual(result.skillId, 'single_strike');
+    assert.strictEqual(result.targetIndex, 1);
+});

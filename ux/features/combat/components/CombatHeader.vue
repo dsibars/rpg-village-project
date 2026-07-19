@@ -13,14 +13,17 @@
       >
         {{ t('shared_uxelm_auto_combat') }} {{ autoBattle ? t('shared_uxelm_on') : t('shared_uxelm_off') }}
       </Button>
-      <Button
-        variant="secondary"
-        size="sm"
-        :disabled="isOver"
-        @click="$emit('skip')"
-      >
-        {{ t('shared_uxelm_skip_combat') }}
-      </Button>
+      <div class="skip-risk">
+        <span class="risk-badge" :class="riskClass">{{ riskLabel }}</span>
+        <Button
+          variant="secondary"
+          size="sm"
+          :disabled="isOver"
+          @click="$emit('skip')"
+        >
+          {{ t('shared_uxelm_skip_combat') }}
+        </Button>
+      </div>
     </div>
   </div>
 </template>
@@ -41,6 +44,27 @@ const { t } = useI18n()
 
 const isOver = computed(() => props.battle?.isOver || false)
 const autoBattle = computed(() => props.battle?.autoBattle || false)
+
+const riskData = computed(() => {
+  const b = props.battle
+  if (!b || !b.heroes || !b.enemies || b.heroes.length === 0 || b.enemies.length === 0) {
+    return { level: 0, label: '', class: '' }
+  }
+  // Power estimate mirrors the defense-power formula (calendar_defense.md):
+  // strength + defense + maxHp/10 per combatant.
+  const powerOf = (e) => (e.strength || 0) + (e.defense || 0) + (e.maxHp || 0) / 10
+  const heroPower = b.heroes.reduce((sum, h) => sum + powerOf(h), 0) / b.heroes.length
+  const enemyPower = b.enemies.reduce((sum, e) => sum + powerOf(e), 0) / b.enemies.length
+  const ratio = enemyPower > 0 ? heroPower / enemyPower : 2
+
+  if (ratio >= 1.5) return { level: 1, label: t('combat_uxelm_skip_safe'), class: 'safe' }
+  if (ratio >= 1.0) return { level: 2, label: t('combat_uxelm_skip_risky'), class: 'risky' }
+  if (ratio >= 0.6) return { level: 3, label: t('combat_uxelm_skip_dangerous'), class: 'dangerous' }
+  return { level: 4, label: t('combat_uxelm_skip_suicide'), class: 'suicide' }
+})
+
+const riskLabel = computed(() => riskData.value.label)
+const riskClass = computed(() => riskData.value.class)
 
 const title = computed(() => {
   const exp = props.activeExpedition
@@ -84,5 +108,45 @@ const stageLabel = computed(() => {
 .header-controls {
   display: flex;
   gap: var(--spacing-sm);
+  align-items: center;
+}
+
+.skip-risk {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.risk-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.risk-badge.safe {
+  background: rgba(74, 222, 128, 0.15);
+  color: #4ade80;
+  border: 1px solid rgba(74, 222, 128, 0.3);
+}
+
+.risk-badge.risky {
+  background: rgba(251, 191, 36, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+.risk-badge.dangerous {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.risk-badge.suicide {
+  background: rgba(153, 27, 27, 0.2);
+  color: #fca5a5;
+  border: 1px solid rgba(153, 27, 27, 0.4);
 }
 </style>

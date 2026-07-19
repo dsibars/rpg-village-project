@@ -34,8 +34,8 @@ async function dismissAnyModal(page) {
   } catch { /* ignore */ }
 }
 
-export async function run({ page, snap }) {
-  await startNewGame(page, selectors)
+export async function run({ page, snap, reset = true }) {
+  await startNewGame(page, selectors, reset)
   await injectHero(page, { name: 'Aria', origin: 'origin_arcane_initiate', level: 10 })
   await injectHero(page, { name: 'Bran', origin: 'origin_warrior', level: 10 })
 

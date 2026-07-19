@@ -1,9 +1,10 @@
 /**
- * Stub region: Iron Peaks
- * Not yet unlockable in-game. Reserved for future expansion.
+ * Region: Iron Peaks
+ * Orc-infested mountains. Unlocks with 18 total clears + explorer_guild L2 + 4 heroes.
  */
 export const reg_iron_peaks = {
     id: 'reg_iron_peaks',
+    area: 'peaks',
     name: 'Iron Peaks',
     branching: 'medium',
     minStages: 3,
@@ -26,6 +27,14 @@ export const reg_iron_peaks = {
     },
     narrative: null,
     glyphDropTable: null,
+
+    unlockRequirements: {
+        all: [
+            { minTotalClears: 18 },
+            { minBuildingLevel: { building: 'explorer_guild', level: 2 } },
+            { minHeroes: 4 }
+        ]
+    },
 
     storyMissions: [
         {

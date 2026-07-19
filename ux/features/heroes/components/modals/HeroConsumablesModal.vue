@@ -78,7 +78,8 @@ const usableItems = computed(() => {
 
       if (data.type === 'HEAL_HP') {
         const missing = (props.hero.maxHp || 0) - props.hero.hp
-        const amount = Math.min(data.amount, missing)
+        const rawAmount = data.percent ? Math.floor((props.hero.maxHp || 0) * data.amount) : data.amount
+        const amount = Math.min(rawAmount, missing)
         effect = `+${amount} HP`
         typeClass = 'type-hp'
         icon = '❤️'
@@ -88,7 +89,8 @@ const usableItems = computed(() => {
         }
       } else if (data.type === 'HEAL_MP') {
         const missing = (props.hero.maxMp || 0) - props.hero.mp
-        const amount = Math.min(data.amount, missing)
+        const rawAmount = data.percent ? Math.floor((props.hero.maxMp || 0) * data.amount) : data.amount
+        const amount = Math.min(rawAmount, missing)
         effect = `+${amount} MP`
         typeClass = 'type-mp'
         icon = '💧'

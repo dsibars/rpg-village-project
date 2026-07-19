@@ -21,6 +21,6 @@ Party traits are passive bonuses granted to the entire hero party at the start o
 `js/engine/shared/combat/services/BattleService.js` — `_calculatePartyTraits()`
 
 ## Integration with CombatCalculator
-- `magicPowerBoost` is applied in `CombatCalculator.calculate()` when `skillData.stat === 'magicPower'`.
+- `magicPowerBoost` increases the effective `magicPower` of all heroes during battle. This indirectly improves MP regeneration and `magicDefense`.
 - `physicalDamageReduction` is applied to the final damage when `skillData.category === 'physical'`.
 - `hpRegen` is applied during the trait regen phase of `BattleService.nextTurn()`.

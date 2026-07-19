@@ -17,7 +17,10 @@
         { id: 'settings', label: t('shared_uxelm_nav_settings'), icon: '⚙️' }
       ]"
     />
-    <component :is="tabs[currentTab]" />
+    <component
+      :is="tabs[currentTab]"
+      :initial-building-id="currentTab === 'buildings' ? activeBuildingId : null"
+    />
   </div>
 </template>
 
@@ -33,7 +36,8 @@ import SettingsPage from '../settings/SettingsPage.vue'
 import Button from '@/components/Button.vue'
 
 const props = defineProps({
-  activeTab: { type: String, default: null }
+  activeTab: { type: String, default: null },
+  activeBuildingId: { type: String, default: null }
 })
 
 const { t } = useI18n()
